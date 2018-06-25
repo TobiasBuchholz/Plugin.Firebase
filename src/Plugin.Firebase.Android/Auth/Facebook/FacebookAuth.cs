@@ -1,0 +1,38 @@
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Android.App;
+using Android.Content;
+using Xamarin.Facebook;
+using Xamarin.Facebook.Login;
+
+namespace Plugin.Firebase.Android.Auth.Facebook
+{
+    public sealed class FacebookAuth
+    {
+        private readonly ICallbackManager _callbackManager;
+        
+        public FacebookAuth(Context context)
+        {
+            FacebookSdk.SdkInitialize(context);
+            _callbackManager = CallbackManagerFactory.Create();
+        }
+        
+        public Task<string> SignInAsync(Activity activity)
+        {
+            var tcs = new TaskCompletionSource<string>();
+            var callback = new FacebookCallback<LoginResult>(
+                onSuccess: x => tcs.SetResult(x.AccessToken.Token),
+                onCancel: tcs.SetCanceled,
+                onError: tcs.SetException);
+            
+            LoginManager.Instance.RegisterCallback(_callbackManager, callback);
+            LoginManager.Instance.LogInWithReadPermissions(activity, new List<string> { "public_profile"});
+            return tcs.Task;
+        }
+
+        public void HandleActivityResult(int requestCode, Result resultCode, Intent data)
+        {
+            _callbackManager.OnActivityResult(requestCode, (int)resultCode, data);
+        }
+    }
+}

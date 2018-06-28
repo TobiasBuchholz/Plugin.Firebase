@@ -163,6 +163,7 @@
     <Compile Include="..\Plugin.Firebase\Auth\CrossFirebaseAuth.cs">
       <Link>Auth/CrossFirebaseAuth.cs</Link>
     </Compile>
+    <Compile Include="Auth\Email\EmailAuth.cs" />
     <Compile Include="Auth\Facebook\FacebookAuth.cs" />
     <Compile Include="Auth\Facebook\FacebookCallback.cs" />
     <Compile Include="Auth\FirebaseAuthImplementation.cs" />

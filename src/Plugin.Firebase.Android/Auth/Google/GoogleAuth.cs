@@ -5,6 +5,7 @@ using Android.Content;
 using Android.Gms.Auth.Api.SignIn;
 using Android.Gms.Common.Apis;
 using Android.Support.V4.App;
+using Firebase.Auth;
 using GoogleApi = Android.Gms.Auth.Api.Auth;
 
 namespace Plugin.Firebase.Android.Auth.Google
@@ -14,7 +15,7 @@ namespace Plugin.Firebase.Android.Auth.Google
         private const int RequestCodeSignIn = 9001;
 
         private readonly GoogleApiClient _googleApiClient;
-        private TaskCompletionSource<string> _tcs;
+        private TaskCompletionSource<AuthCredential> _tcs;
         
         public GoogleAuth(FragmentActivity activity, string requestToken)
         {
@@ -46,9 +47,9 @@ namespace Plugin.Firebase.Android.Auth.Google
                 .Build();
         }
         
-        public Task<string> SignInAsync(FragmentActivity activity)
+        public Task<AuthCredential> GetCredentialAsync(FragmentActivity activity)
         {
-            _tcs = new TaskCompletionSource<string>();
+            _tcs = new TaskCompletionSource<AuthCredential>();
             var signInIntent = GoogleApi.GoogleSignInApi.GetSignInIntent(_googleApiClient);
             activity.StartActivityForResult(signInIntent, RequestCodeSignIn);
             return _tcs.Task;
@@ -64,7 +65,7 @@ namespace Plugin.Firebase.Android.Auth.Google
         private void HandleSignInResult(GoogleSignInResult loginResult)
         {
             if(loginResult.IsSuccess) {
-                _tcs?.SetResult(loginResult.SignInAccount.IdToken);
+                _tcs?.SetResult(GoogleAuthProvider.GetCredential(loginResult.SignInAccount.IdToken, null));
             } else {
                 _tcs?.SetException(new Exception($"Google sign in failed: status = {loginResult.Status}"));
             }

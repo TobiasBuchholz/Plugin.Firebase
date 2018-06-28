@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
+using Firebase.Auth;
 using Xamarin.Facebook;
 using Xamarin.Facebook.Login;
 
@@ -17,11 +18,11 @@ namespace Plugin.Firebase.Android.Auth.Facebook
             _callbackManager = CallbackManagerFactory.Create();
         }
         
-        public Task<string> SignInAsync(Activity activity)
+        public Task<AuthCredential> GetCredentialAsync(Activity activity)
         {
-            var tcs = new TaskCompletionSource<string>();
+            var tcs = new TaskCompletionSource<AuthCredential>();
             var callback = new FacebookCallback<LoginResult>(
-                onSuccess: x => tcs.SetResult(x.AccessToken.Token),
+                onSuccess: x => tcs.SetResult(FacebookAuthProvider.GetCredential(x.AccessToken.Token)),
                 onCancel: tcs.SetCanceled,
                 onError: tcs.SetException);
             

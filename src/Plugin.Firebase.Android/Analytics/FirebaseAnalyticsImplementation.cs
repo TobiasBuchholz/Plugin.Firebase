@@ -23,7 +23,7 @@ namespace Plugin.Firebase.Analytics
 
         public void LogEvent(string eventName, params (string parameterName, object parameterValue)[] parameters)
         {
-            LogEvent(eventName, parameters?.ToDictionary(x => x.Item1, x => x.Item2));
+            LogEvent(eventName, parameters?.ToDictionary(x => x.parameterName, x => x.parameterValue));
         }
     }
 }

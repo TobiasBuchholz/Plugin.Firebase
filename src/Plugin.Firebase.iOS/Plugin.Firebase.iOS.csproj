@@ -81,6 +81,11 @@
     <Folder Include="Resources\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Plugin.Firebase\Analytics\CrossFirebaseAnalytics.cs">
+      <Link>Analytics/CrossFirebaseAnalytics.cs</Link>
+    </Compile>
+    <Compile Include="Analytics\DictionaryExtension.cs" />
+    <Compile Include="Analytics\FirebaseAnalyticsImplementation.cs" />
     <Compile Include="Auth\Email\EmailAuth.cs" />
     <Compile Include="Auth\Facebook\FacebookAuth.cs" />
     <Compile Include="Auth\FirebaseAuthImplementation.cs" />

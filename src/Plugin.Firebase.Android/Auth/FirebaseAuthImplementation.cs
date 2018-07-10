@@ -6,6 +6,7 @@ using Android.OS;
 using Android.Support.V4.App;
 using Firebase.Auth;
 using Plugin.CurrentActivity;
+using Plugin.Firebase.Abstractions;
 using Plugin.Firebase.Abstractions.Auth;
 using Plugin.Firebase.Android.Auth.Email;
 using Plugin.Firebase.Android.Auth.Facebook;
@@ -15,15 +16,27 @@ using FirebaseUser = Plugin.Firebase.Abstractions.Auth.FirebaseUser;
 
 namespace Plugin.Firebase.Auth
 {
-    public sealed class FirebaseAuthImplementation : BaseFirebaseAuth
+    public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
     {
+        public static void Initialize(Activity activity, Bundle savedInstanceState, string googleRequestIdToken)
+        {
+            _googleRequestIdToken = googleRequestIdToken;
+            CrossCurrentActivity.Current.Init(activity, savedInstanceState);
+        }
+        
+        public static void HandleActivityResult(int requestCode, Result resultCode, Intent data)
+        {
+            _googleAuth.HandleActivityResult(requestCode, resultCode, data);
+            _facebookAuth.HandleActivityResult(requestCode, resultCode, data);
+        }
+        
         private readonly FirebaseAuth _firebaseAuth;
         private readonly EmailAuth _emailAuth;
         private static GoogleAuth _googleAuth;
         private static FacebookAuth _facebookAuth;
         private readonly PhoneNumberAuth _phoneNumberAuth;
-        private static string _googleRequestIdToken;
-
+        private static string _googleRequestIdToken; 
+        
         public FirebaseAuthImplementation()
         {
             _firebaseAuth = FirebaseAuth.Instance;
@@ -33,12 +46,12 @@ namespace Plugin.Firebase.Auth
             _phoneNumberAuth = new PhoneNumberAuth();
         }
 
-        public override Task VerifyPhoneNumberAsync(string phoneNumber)
+        public Task VerifyPhoneNumberAsync(string phoneNumber)
         {
             return _phoneNumberAuth.VerifyPhoneNumberAsync(Activity, phoneNumber);
         }
 
-        public override async Task<FirebaseUser> SignInWithPhoneNumberVerificationCodeAsync(string verificationCode)
+        public async Task<FirebaseUser> SignInWithPhoneNumberVerificationCodeAsync(string verificationCode)
         {
             var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
             return await SignInWithCredentialAsync(credential);
@@ -55,7 +68,7 @@ namespace Plugin.Firebase.Auth
             return new FirebaseUser(user.Uid, user.DisplayName, user.Email, user.PhotoUrl?.Path, user.IsEmailVerified, user.IsAnonymous);
         }
         
-        public override async Task<FirebaseUser> SignInWithEmailAndPasswordAsync(string email, string password)
+        public async Task<FirebaseUser> SignInWithEmailAndPasswordAsync(string email, string password)
         {
             try {
                 var credential = await _emailAuth.GetCredentialAsync(email, password);
@@ -66,19 +79,19 @@ namespace Plugin.Firebase.Auth
             }
         }
         
-        public override async Task<FirebaseUser> SignInWithGoogleAsync()
+        public async Task<FirebaseUser> SignInWithGoogleAsync()
         {
             var credential = await _googleAuth.GetCredentialAsync(FragmentActivity);
             return await SignInWithCredentialAsync(credential);
         }
 
-        public override async Task<FirebaseUser> SignInWithFacebookAsync()
+        public async Task<FirebaseUser> SignInWithFacebookAsync()
         {
             var credential = await _facebookAuth.GetCredentialAsync(Activity);
             return await SignInWithCredentialAsync(credential);
         }
 
-        public override async Task<FirebaseUser> LinkWithPhoneNumberVerificationCodeAsync(string verificationCode)
+        public async Task<FirebaseUser> LinkWithPhoneNumberVerificationCodeAsync(string verificationCode)
         {
             var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
             return await LinkWithCredentialAsync(credential);
@@ -91,36 +104,24 @@ namespace Plugin.Firebase.Auth
             return new FirebaseUser(user.Uid, user.DisplayName, user.Email, user.PhotoUrl?.Path, user.IsEmailVerified, user.IsAnonymous);
         }
         
-        public override async Task<FirebaseUser> LinkWithEmailAndPasswordAync(string email, string password)
+        public async Task<FirebaseUser> LinkWithEmailAndPasswordAync(string email, string password)
         {
             var credential = await _emailAuth.GetCredentialAsync(email, password);
             return await LinkWithCredentialAsync(credential);
         }
 
-        public override async Task<FirebaseUser> LinkWithGoogleAsync()
+        public async Task<FirebaseUser> LinkWithGoogleAsync()
         {
             var credential = await _googleAuth.GetCredentialAsync(FragmentActivity);
             return await LinkWithCredentialAsync(credential);
         }
 
-        public override async Task<FirebaseUser> LinkWithFacebookAsync()
+        public async Task<FirebaseUser> LinkWithFacebookAsync()
         {
             var credential = await _facebookAuth.GetCredentialAsync(Activity);
             return await LinkWithCredentialAsync(credential);
         }
-
-        public static void HandleActivityResult(int requestCode, Result resultCode, Intent data)
-        {
-            _googleAuth.HandleActivityResult(requestCode, resultCode, data);
-            _facebookAuth.HandleActivityResult(requestCode, resultCode, data);
-        }
         
-        public static void Initialize(Activity activity, Bundle savedInstanceState, string googleRequestIdToken)
-        {
-            _googleRequestIdToken = googleRequestIdToken;
-            CrossCurrentActivity.Current.Init(activity, savedInstanceState);
-        }
-
         private static FragmentActivity FragmentActivity =>
             Activity as FragmentActivity ?? throw new NullReferenceException($"Current Activity is either null or not of type {nameof(FragmentActivity)}, which is mandatory for sign in with Google");
         

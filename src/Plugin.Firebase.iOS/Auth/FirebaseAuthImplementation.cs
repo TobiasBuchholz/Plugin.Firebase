@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Facebook.CoreKit;
 using Firebase.Auth;
 using Foundation;
+using Google.SignIn;
 using Plugin.Firebase.Abstractions.Auth;
 using Plugin.Firebase.Auth.PhoneNumber;
 using Plugin.Firebase.iOS.Auth.Email;
@@ -9,6 +11,7 @@ using Plugin.Firebase.iOS.Auth.Facebook;
 using Plugin.Firebase.iOS.Auth.Google;
 using UIKit;
 using FirebaseAuth = Firebase.Auth.Auth;
+using Task = System.Threading.Tasks.Task;
 
 namespace Plugin.Firebase.Auth
 {
@@ -117,6 +120,32 @@ namespace Plugin.Firebase.Auth
                 }
                 return rootViewController.PresentedViewController ?? rootViewController;
             }
+        }
+        
+        public static void Initialize(UIApplication application, NSDictionary launchOptions, string facebookAppId, string facebookDisplayName)
+        {
+            var googleServiceDictionary = NSDictionary.FromFile("GoogleService-Info.plist");
+            SignIn.SharedInstance.ClientID = googleServiceDictionary["CLIENT_ID"].ToString();
+            
+            Settings.AppID = facebookAppId;
+            Settings.DisplayName = facebookDisplayName;
+            ApplicationDelegate.SharedInstance.FinishedLaunching(application, launchOptions);
+        }
+
+        public static void OnActivated(UIApplication application)
+        {
+            AppEvents.ActivateApp();
+        }
+        
+        public static bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options)
+        {
+            var openUrlOptions = new UIApplicationOpenUrlOptions(options);
+            return SignIn.SharedInstance.HandleUrl(url, openUrlOptions.SourceApplication, openUrlOptions.Annotation);
+        }
+        
+        public static bool OpenUrl(UIApplication application, NSUrl url, string sourceApplication, NSObject annotation)
+        {
+            return ApplicationDelegate.SharedInstance.OpenUrl(application, url, sourceApplication, annotation);
         }
     }
 }

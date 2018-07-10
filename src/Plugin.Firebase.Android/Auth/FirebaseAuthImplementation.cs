@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
+using Android.OS;
 using Android.Support.V4.App;
 using Firebase.Auth;
 using Plugin.CurrentActivity;
@@ -21,12 +22,13 @@ namespace Plugin.Firebase.Auth
         private static GoogleAuth _googleAuth;
         private static FacebookAuth _facebookAuth;
         private readonly PhoneNumberAuth _phoneNumberAuth;
-        
+        private static string _googleRequestIdToken;
+
         public FirebaseAuthImplementation()
         {
             _firebaseAuth = FirebaseAuth.Instance;
             _emailAuth = new EmailAuth();
-            _googleAuth = new GoogleAuth(FragmentActivity, RequestIdToken);
+            _googleAuth = new GoogleAuth(FragmentActivity, _googleRequestIdToken);
             _facebookAuth = new FacebookAuth(AppContext);
             _phoneNumberAuth = new PhoneNumberAuth();
         }
@@ -113,7 +115,11 @@ namespace Plugin.Firebase.Auth
             _facebookAuth.HandleActivityResult(requestCode, resultCode, data);
         }
         
-        public static string RequestIdToken { private get; set; }
+        public static void Initialize(Activity activity, Bundle savedInstanceState, string googleRequestIdToken)
+        {
+            _googleRequestIdToken = googleRequestIdToken;
+            CrossCurrentActivity.Current.Init(activity, savedInstanceState);
+        }
 
         private static FragmentActivity FragmentActivity =>
             Activity as FragmentActivity ?? throw new NullReferenceException($"Current Activity is either null or not of type {nameof(FragmentActivity)}, which is mandatory for sign in with Google");

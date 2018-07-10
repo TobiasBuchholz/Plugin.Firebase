@@ -171,6 +171,7 @@
     <Compile Include="Auth\Google\GoogleAuth.cs" />
     <Compile Include="Auth\PhoneNumber\PhoneNumberAuth.cs" />
     <Compile Include="Auth\PhoneNumber\PhoneVerificationStateChangeCallbacks.cs" />
+    <Compile Include="CrossFirebase.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

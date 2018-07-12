@@ -8,6 +8,11 @@ namespace Plugin.Firebase.Analytics
 {
     public sealed class FirebaseAnalyticsImplementation : DisposableBase, IFirebaseAnalytics
     {
+        public static void Initialize()
+        {
+            // does nothing but still used for consistency accross all features
+        }
+        
         public void LogEvent(string eventName, IDictionary<string, object> parameters)
         {
             SDK.Analytics.LogEvent(eventName, parameters?.ToNSDictionary());

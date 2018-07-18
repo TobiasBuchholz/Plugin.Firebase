@@ -6,6 +6,7 @@ namespace Plugin.Firebase.Abstractions.Auth
     public interface IFirebaseAuth : IDisposable
     {
         Task VerifyPhoneNumberAsync(string phoneNumber);
+        Task<FirebaseUser> SignInWithCustomTokenAsync(string token);
         Task<FirebaseUser> SignInWithPhoneNumberVerificationCodeAsync(string verificationCode);
         Task<FirebaseUser> SignInWithEmailAndPasswordAsync(string email, string password);
         Task<FirebaseUser> SignInWithGoogleAsync();

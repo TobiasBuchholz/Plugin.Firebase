@@ -51,6 +51,17 @@ namespace Plugin.Firebase.Auth
             return _phoneNumberAuth.VerifyPhoneNumberAsync(Activity, phoneNumber);
         }
 
+        public async Task<FirebaseUser> SignInWithCustomTokenAsync(string token)
+        {
+            var authResult = await _firebaseAuth.SignInWithCustomTokenAsync(token);
+            return CreateFirebaseUser(authResult.User);
+        }
+
+        private static FirebaseUser CreateFirebaseUser(global::Firebase.Auth.FirebaseUser user)
+        {
+            return FirebaseUser.Create(user.Uid, user.DisplayName, user.Email, user.PhotoUrl?.Path, user.IsEmailVerified, user.IsAnonymous);
+        }
+        
         public async Task<FirebaseUser> SignInWithPhoneNumberVerificationCodeAsync(string verificationCode)
         {
             var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
@@ -61,11 +72,6 @@ namespace Plugin.Firebase.Auth
         {
             var authResult = await _firebaseAuth.SignInWithCredentialAsync(credential);
             return CreateFirebaseUser(authResult.User);
-        }
-        
-        private static FirebaseUser CreateFirebaseUser(global::Firebase.Auth.FirebaseUser user)
-        {
-            return new FirebaseUser(user.Uid, user.DisplayName, user.Email, user.PhotoUrl?.Path, user.IsEmailVerified, user.IsAnonymous);
         }
         
         public async Task<FirebaseUser> SignInWithEmailAndPasswordAsync(string email, string password)
@@ -101,7 +107,7 @@ namespace Plugin.Firebase.Auth
         {
             var authResult = await _firebaseAuth.CurrentUser.LinkWithCredentialAsync(credential);
             var user = authResult.User;
-            return new FirebaseUser(user.Uid, user.DisplayName, user.Email, user.PhotoUrl?.Path, user.IsEmailVerified, user.IsAnonymous);
+            return FirebaseUser.Create(user.Uid, user.DisplayName, user.Email, user.PhotoUrl?.Path, user.IsEmailVerified, user.IsAnonymous);
         }
         
         public async Task<FirebaseUser> LinkWithEmailAndPasswordAync(string email, string password)

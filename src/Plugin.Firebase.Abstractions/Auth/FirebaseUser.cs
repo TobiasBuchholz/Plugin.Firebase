@@ -2,7 +2,13 @@
 {
     public sealed class FirebaseUser
     {
-        public FirebaseUser(string uid, string displayName, string email, string photoUrl, bool isEmailVerified, bool isAnonymous)
+        public static FirebaseUser Create(string uid, string displayName, string email, string photoUrl, bool isEmailVerified, bool isAnonymous) =>
+            new FirebaseUser(uid, displayName, email, photoUrl, isEmailVerified, isAnonymous);
+        
+        public static FirebaseUser Empty() =>
+            new FirebaseUser("", "", "", "", false, false);
+        
+        private FirebaseUser(string uid, string displayName, string email, string photoUrl, bool isEmailVerified, bool isAnonymous)
         {
             Uid = uid;
             DisplayName = displayName;

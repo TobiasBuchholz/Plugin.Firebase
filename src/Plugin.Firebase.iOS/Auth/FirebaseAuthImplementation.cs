@@ -145,6 +145,14 @@ namespace Plugin.Firebase.Auth
             return await LinkWithCredentialAsync(credential);
         }
 
+        public Task SignOutAsync()
+        {
+            _googleAuth.SignOut();
+            _facebookAuth.SignOut();
+            _firebaseAuth.SignOut(out var e);
+            return Task.CompletedTask;
+        }
+
         private static UIViewController ViewController {
             get {
                 var rootViewController = UIApplication.SharedApplication.KeyWindow.RootViewController;

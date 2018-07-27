@@ -70,5 +70,10 @@ namespace Plugin.Firebase.Android.Auth.Google
                 _tcs?.SetException(new Exception($"Google sign in failed: status = {loginResult.Status}"));
             }
         }
+
+        public void SignOut()
+        {
+            GoogleApi.GoogleSignInApi.SignOut(_googleApiClient);
+        }
     }
 }

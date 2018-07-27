@@ -35,5 +35,10 @@ namespace Plugin.Firebase.Android.Auth.Facebook
         {
             _callbackManager.OnActivityResult(requestCode, (int)resultCode, data);
         }
+
+        public void SignOut()
+        {
+            LoginManager.Instance.LogOut();
+        }
     }
 }

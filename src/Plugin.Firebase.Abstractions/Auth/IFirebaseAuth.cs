@@ -15,5 +15,7 @@ namespace Plugin.Firebase.Abstractions.Auth
         Task<FirebaseUser> LinkWithEmailAndPasswordAync(string email, string password);
         Task<FirebaseUser> LinkWithGoogleAsync();
         Task<FirebaseUser> LinkWithFacebookAsync();
+
+        Task SignOutAsync();
     }
 }

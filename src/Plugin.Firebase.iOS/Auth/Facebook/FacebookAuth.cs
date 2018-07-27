@@ -8,10 +8,17 @@ namespace Plugin.Firebase.iOS.Auth.Facebook
 {
     public sealed class FacebookAuth
     {
+        private readonly LoginManager _loginManager;
+        
+        public FacebookAuth()
+        {
+            _loginManager = new LoginManager();
+        }
+
         public Task<AuthCredential> GetCredentialAsync(UIViewController viewController)
         {
             var tcs = new TaskCompletionSource<AuthCredential>();
-            new LoginManager().LogInWithReadPermissions(new []{ "public_profile" }, viewController, (result, error) => {
+            _loginManager.LogInWithReadPermissions(new []{ "public_profile" }, viewController, (result, error) => {
                 if(result != null && error == null) {
                     if(result.IsCancelled) {
                         tcs.SetCanceled();
@@ -23,6 +30,11 @@ namespace Plugin.Firebase.iOS.Auth.Facebook
                 }
             });
             return tcs.Task;
+        }
+
+        public void SignOut()
+        {
+            _loginManager.LogOut();
         }
     }
 }

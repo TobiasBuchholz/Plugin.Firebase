@@ -51,5 +51,10 @@ namespace Plugin.Firebase.iOS.Auth.Google
         {
             _viewController?.DismissViewController(true, null);
         }
+
+        public void SignOut()
+        {
+            SignIn.SharedInstance.SignOutUser();
+        }
     }
 }

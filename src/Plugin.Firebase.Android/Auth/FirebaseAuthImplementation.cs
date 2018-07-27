@@ -127,7 +127,15 @@ namespace Plugin.Firebase.Auth
             var credential = await _facebookAuth.GetCredentialAsync(Activity);
             return await LinkWithCredentialAsync(credential);
         }
-        
+
+        public Task SignOutAsync()
+        {
+            _googleAuth.SignOut();
+            _facebookAuth.SignOut();
+            _firebaseAuth.SignOut();
+            return Task.CompletedTask;
+        }
+
         private static FragmentActivity FragmentActivity =>
             Activity as FragmentActivity ?? throw new NullReferenceException($"Current Activity is either null or not of type {nameof(FragmentActivity)}, which is mandatory for sign in with Google");
         

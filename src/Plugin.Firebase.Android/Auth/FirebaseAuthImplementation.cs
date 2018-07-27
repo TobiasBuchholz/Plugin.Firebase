@@ -8,6 +8,7 @@ using Firebase.Auth;
 using Plugin.CurrentActivity;
 using Plugin.Firebase.Abstractions;
 using Plugin.Firebase.Abstractions.Auth;
+using Plugin.Firebase.Abstractions.Common;
 using Plugin.Firebase.Android.Auth.Email;
 using Plugin.Firebase.Android.Auth.Facebook;
 using Plugin.Firebase.Android.Auth.Google;

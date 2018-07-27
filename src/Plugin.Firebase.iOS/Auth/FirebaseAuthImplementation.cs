@@ -4,8 +4,8 @@ using Facebook.CoreKit;
 using Firebase.Auth;
 using Foundation;
 using Google.SignIn;
-using Plugin.Firebase.Abstractions;
 using Plugin.Firebase.Abstractions.Auth;
+using Plugin.Firebase.Abstractions.Common;
 using Plugin.Firebase.Auth.PhoneNumber;
 using Plugin.Firebase.iOS.Auth.Email;
 using Plugin.Firebase.iOS.Auth.Facebook;
@@ -61,13 +61,21 @@ namespace Plugin.Firebase.Auth
 
         public async Task VerifyPhoneNumberAsync(string phoneNumber)
         {
-            await _phoneNumberAuth.VerifyPhoneNumberAsync(ViewController, phoneNumber);
+            try {
+                await _phoneNumberAuth.VerifyPhoneNumberAsync(ViewController, phoneNumber);
+            } catch(NSErrorException e) {
+                throw new FirebaseException(e.Error?.LocalizedDescription);  
+            }
         }
 
         public async Task<FirebaseUser> SignInWithCustomTokenAsync(string token)
         {
-            var user = await _firebaseAuth.SignInAsync(token);
-            return CreateFirebaseUser(user);
+            try {
+                var user = await _firebaseAuth.SignInAsync(token);
+                return CreateFirebaseUser(user);
+            } catch(NSErrorException e) {
+                throw new FirebaseException(e.Error?.LocalizedDescription);  
+            }
         }
 
         private static FirebaseUser CreateFirebaseUser(User user)
@@ -77,8 +85,12 @@ namespace Plugin.Firebase.Auth
         
         public async Task<FirebaseUser> SignInWithPhoneNumberVerificationCodeAsync(string verificationCode)
         {
-            var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
-            return await SignInWithCredentialAsync(credential);
+            try {
+                var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
+                return await SignInWithCredentialAsync(credential);
+            } catch(NSErrorException e) {
+                throw new FirebaseException(e.Error?.LocalizedDescription);  
+            }
         }
         
         private async Task<FirebaseUser> SignInWithCredentialAsync(AuthCredential credential)
@@ -97,27 +109,38 @@ namespace Plugin.Firebase.Auth
                     await _emailAuth.CreateUserAsync(email, password);
                     return await SignInWithEmailAndPasswordAsync(email, password);
                 }
-                throw;
+                throw new FirebaseException(e.Error?.LocalizedDescription);
             }
         }
         
         public async Task<FirebaseUser> SignInWithGoogleAsync()
         {
-            var credential = await _googleAuth.GetCredentialAsync(ViewController);
-            return await SignInWithCredentialAsync(credential);
+            try {
+                var credential = await _googleAuth.GetCredentialAsync(ViewController);
+                return await SignInWithCredentialAsync(credential);
+            } catch(NSErrorException e) {
+                throw new FirebaseException(e.Error?.LocalizedDescription);  
+            }
         }
-
 
         public async Task<FirebaseUser> SignInWithFacebookAsync()
         {
-            var credential = await _facebookAuth.GetCredentialAsync(ViewController);
-            return await SignInWithCredentialAsync(credential);
+            try {
+                var credential = await _facebookAuth.GetCredentialAsync(ViewController);
+                return await SignInWithCredentialAsync(credential);
+            } catch(NSErrorException e) {
+                throw new FirebaseException(e.Error?.LocalizedDescription);
+            }
         }
 
         public async Task<FirebaseUser> LinkWithPhoneNumberVerificationCodeAsync(string verificationCode)
         {
-            var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
-            return await LinkWithCredentialAsync(credential);
+            try {
+                var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
+                return await LinkWithCredentialAsync(credential);
+            } catch(NSErrorException e) {
+                throw new FirebaseException(e.Error?.LocalizedDescription);  
+            }
         }
         
         private async Task<FirebaseUser> LinkWithCredentialAsync(AuthCredential credential)
@@ -129,20 +152,32 @@ namespace Plugin.Firebase.Auth
         
         public async Task<FirebaseUser> LinkWithEmailAndPasswordAync(string email, string password)
         {
-            var credential = await _emailAuth.GetCredentialAsync(email, password);
-            return await LinkWithCredentialAsync(credential);
+            try {
+                var credential = await _emailAuth.GetCredentialAsync(email, password);
+                return await LinkWithCredentialAsync(credential);
+            } catch(NSErrorException e) {
+                throw new FirebaseException(e.Error?.LocalizedDescription);  
+            }
         }
         
         public async Task<FirebaseUser> LinkWithGoogleAsync()
         {
-            var credential = await _googleAuth.GetCredentialAsync(ViewController);
-            return await LinkWithCredentialAsync(credential);
+            try {
+                var credential = await _googleAuth.GetCredentialAsync(ViewController);
+                return await LinkWithCredentialAsync(credential);
+            } catch(NSErrorException e) {
+                throw new FirebaseException(e.Error?.LocalizedDescription);  
+            }
         }
 
         public async Task<FirebaseUser> LinkWithFacebookAsync()
         {
-            var credential = await _facebookAuth.GetCredentialAsync(ViewController);
-            return await LinkWithCredentialAsync(credential);
+            try {
+                var credential = await _facebookAuth.GetCredentialAsync(ViewController);
+                return await LinkWithCredentialAsync(credential);
+            } catch(NSErrorException e) {
+                throw new FirebaseException(e.Error?.LocalizedDescription);  
+            }
         }
 
         public Task SignOutAsync()

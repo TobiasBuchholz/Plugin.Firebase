@@ -2,6 +2,7 @@
 using System.Linq;
 using Plugin.Firebase.Abstractions;
 using Plugin.Firebase.Abstractions.Analytics;
+using Plugin.Firebase.Abstractions.Common;
 using SDK = Firebase.Analytics;
 
 namespace Plugin.Firebase.Analytics

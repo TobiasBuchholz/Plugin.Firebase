@@ -4,6 +4,7 @@ using Android.Content;
 using Firebase.Analytics;
 using Plugin.Firebase.Abstractions;
 using Plugin.Firebase.Abstractions.Analytics;
+using Plugin.Firebase.Abstractions.Common;
 
 namespace Plugin.Firebase.Analytics
 {

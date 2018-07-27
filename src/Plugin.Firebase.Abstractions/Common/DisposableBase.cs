@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Plugin.Firebase.Abstractions
+namespace Plugin.Firebase.Abstractions.Common
 {
     public class DisposableBase
     {

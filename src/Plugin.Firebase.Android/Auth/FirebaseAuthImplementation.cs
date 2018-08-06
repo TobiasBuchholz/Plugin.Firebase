@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
@@ -6,7 +7,6 @@ using Android.OS;
 using Android.Support.V4.App;
 using Firebase.Auth;
 using Plugin.CurrentActivity;
-using Plugin.Firebase.Abstractions;
 using Plugin.Firebase.Abstractions.Auth;
 using Plugin.Firebase.Abstractions.Common;
 using Plugin.Firebase.Android.Auth.Email;
@@ -14,6 +14,7 @@ using Plugin.Firebase.Android.Auth.Facebook;
 using Plugin.Firebase.Android.Auth.Google;
 using Plugin.Firebase.Android.Auth.PhoneNumber;
 using FirebaseUser = Plugin.Firebase.Abstractions.Auth.FirebaseUser;
+using Object = Java.Lang.Object;
 
 namespace Plugin.Firebase.Auth
 {
@@ -108,9 +109,26 @@ namespace Plugin.Firebase.Auth
         {
             var authResult = await _firebaseAuth.CurrentUser.LinkWithCredentialAsync(credential);
             var user = authResult.User;
-            return FirebaseUser.Create(user.Uid, user.DisplayName, user.Email, user.PhotoUrl?.Path, user.IsEmailVerified, user.IsAnonymous);
+            var profile = authResult.AdditionalUserInfo?.Profile;
+            return profile == null 
+                ? FirebaseUser.Create(user.Uid, user.DisplayName, user.Email, user.PhotoUrl?.Path, user.IsEmailVerified, user.IsAnonymous) 
+                : CreateUserFromProfile(user, profile);
         }
-        
+
+        private static FirebaseUser CreateUserFromProfile(global::Firebase.Auth.FirebaseUser user, IDictionary<string, Object> profile)
+        {
+            profile.TryGetValue("name", out var displayName);
+            profile.TryGetValue("email", out var email);
+            profile.TryGetValue("picture", out var picture);
+            return FirebaseUser.Create(user.Uid, displayName?.ToString(), email?.ToString(), ExtractPhotoUrl(picture), user.IsEmailVerified, user.IsAnonymous);
+        }
+
+        private static string ExtractPhotoUrl(IDisposable picture)
+        {
+            var strings = picture?.ToString().Split(',');
+            return strings?.Length > 1 ? strings[1].Replace("url=", "") : null;
+        }
+
         public async Task<FirebaseUser> LinkWithEmailAndPasswordAync(string email, string password)
         {
             var credential = await _emailAuth.GetCredentialAsync(email, password);
@@ -119,14 +137,24 @@ namespace Plugin.Firebase.Auth
 
         public async Task<FirebaseUser> LinkWithGoogleAsync()
         {
-            var credential = await _googleAuth.GetCredentialAsync(FragmentActivity);
-            return await LinkWithCredentialAsync(credential);
+            try {
+                var credential = await _googleAuth.GetCredentialAsync(FragmentActivity);
+                return await LinkWithCredentialAsync(credential);
+            } catch(Exception) {
+                _googleAuth.SignOut();
+                throw;
+            }
         }
 
         public async Task<FirebaseUser> LinkWithFacebookAsync()
         {
-            var credential = await _facebookAuth.GetCredentialAsync(Activity);
-            return await LinkWithCredentialAsync(credential);
+            try {
+                var credential = await _facebookAuth.GetCredentialAsync(Activity);
+                return await LinkWithCredentialAsync(credential);
+            } catch(Exception) {
+                _facebookAuth.SignOut();
+                throw;
+            }
         }
 
         public Task SignOutAsync()
@@ -145,5 +173,7 @@ namespace Plugin.Firebase.Auth
 
         private static Context AppContext =>
             CrossCurrentActivity.Current.AppContext ?? throw new NullReferenceException("AppContext is null, ensure that the MainApplication.cs file is setting the CurrentActivity in your source code so the In App Billing can use it.");
+
+        public FirebaseUser CurrentUser => _firebaseAuth.CurrentUser == null ? null : CreateFirebaseUser(_firebaseAuth.CurrentUser);
     }
 }

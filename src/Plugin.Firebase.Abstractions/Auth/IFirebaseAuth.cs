@@ -17,5 +17,7 @@ namespace Plugin.Firebase.Abstractions.Auth
         Task<FirebaseUser> LinkWithFacebookAsync();
 
         Task SignOutAsync();
+        
+        FirebaseUser CurrentUser { get; }
     }
 }

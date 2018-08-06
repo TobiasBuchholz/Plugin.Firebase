@@ -147,7 +147,7 @@ namespace Plugin.Firebase.Auth
         {
             var user = await _firebaseAuth.CurrentUser.LinkAsync(credential);
             var data = user.ProviderData[0];
-            return FirebaseUser.Create(user.Uid, data.DisplayName, user.Email, data.PhotoUrl?.AbsoluteString, user.IsEmailVerified, user.IsAnonymous);
+            return FirebaseUser.Create(user.Uid, data.DisplayName, data.Email, data.PhotoUrl?.AbsoluteString, user.IsEmailVerified, user.IsAnonymous);
         }
         
         public async Task<FirebaseUser> LinkWithEmailAndPasswordAync(string email, string password)
@@ -166,6 +166,7 @@ namespace Plugin.Firebase.Auth
                 var credential = await _googleAuth.GetCredentialAsync(ViewController);
                 return await LinkWithCredentialAsync(credential);
             } catch(NSErrorException e) {
+                _googleAuth.SignOut();
                 throw new FirebaseException(e.Error?.LocalizedDescription);  
             }
         }
@@ -176,6 +177,7 @@ namespace Plugin.Firebase.Auth
                 var credential = await _facebookAuth.GetCredentialAsync(ViewController);
                 return await LinkWithCredentialAsync(credential);
             } catch(NSErrorException e) {
+                _facebookAuth.SignOut();
                 throw new FirebaseException(e.Error?.LocalizedDescription);  
             }
         }
@@ -197,5 +199,7 @@ namespace Plugin.Firebase.Auth
                 return rootViewController.PresentedViewController ?? rootViewController;
             }
         }
+        
+        public FirebaseUser CurrentUser => _firebaseAuth.CurrentUser == null ? null : CreateFirebaseUser(_firebaseAuth.CurrentUser);
     }
 }

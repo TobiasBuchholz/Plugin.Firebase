@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
@@ -14,7 +15,6 @@ using Plugin.Firebase.Android.Auth.Facebook;
 using Plugin.Firebase.Android.Auth.Google;
 using Plugin.Firebase.Android.Auth.PhoneNumber;
 using FirebaseUser = Plugin.Firebase.Abstractions.Auth.FirebaseUser;
-using Object = Java.Lang.Object;
 
 namespace Plugin.Firebase.Auth
 {
@@ -56,12 +56,39 @@ namespace Plugin.Firebase.Auth
         public async Task<FirebaseUser> SignInWithCustomTokenAsync(string token)
         {
             var authResult = await _firebaseAuth.SignInWithCustomTokenAsync(token);
-            return CreateFirebaseUser(authResult.User);
+            return CreateFirebaseUser(authResult.User, authResult.AdditionalUserInfo);
         }
 
-        private static FirebaseUser CreateFirebaseUser(global::Firebase.Auth.FirebaseUser user)
+        private static FirebaseUser CreateFirebaseUser(global::Firebase.Auth.FirebaseUser user, IAdditionalUserInfo additionalUserInfo = null)
         {
-            return FirebaseUser.Create(user.Uid, user.DisplayName, user.Email, user.PhotoUrl?.Path, user.IsEmailVerified, user.IsAnonymous);
+            return new FirebaseUser(
+                user.Uid,
+                user.DisplayName,
+                user.Email,
+                user.PhotoUrl?.Path, 
+                user.IsEmailVerified,
+                user.IsAnonymous,
+                GetProviderInfos(user.ProviderData, additionalUserInfo));
+        }
+
+        private static IEnumerable<ProviderInfo> GetProviderInfos(IEnumerable<IUserInfo> userInfos, IAdditionalUserInfo additionalUserInfo)
+        {
+            return userInfos.Select(x => new ProviderInfo(
+                x.Uid,
+                x.ProviderId,
+                x.DisplayName,
+                x.Email ?? GetEmailFromAdditionalUserInfo(additionalUserInfo),
+                x.PhoneNumber,
+                x.PhotoUrl?.ToString()));
+        }
+
+        private static string GetEmailFromAdditionalUserInfo(IAdditionalUserInfo additionalUserInfo)
+        {
+            var profile = additionalUserInfo?.Profile;
+            if(profile != null && profile.ContainsKey("email")) {
+                return profile["email"].ToString();
+            }
+            return null;
         }
         
         public async Task<FirebaseUser> SignInWithPhoneNumberVerificationCodeAsync(string verificationCode)
@@ -73,7 +100,7 @@ namespace Plugin.Firebase.Auth
         private async Task<FirebaseUser> SignInWithCredentialAsync(AuthCredential credential)
         {
             var authResult = await _firebaseAuth.SignInWithCredentialAsync(credential);
-            return CreateFirebaseUser(authResult.User);
+            return CreateFirebaseUser(authResult.User, authResult.AdditionalUserInfo);
         }
         
         public async Task<FirebaseUser> SignInWithEmailAndPasswordAsync(string email, string password)
@@ -108,25 +135,7 @@ namespace Plugin.Firebase.Auth
         private async Task<FirebaseUser> LinkWithCredentialAsync(AuthCredential credential)
         {
             var authResult = await _firebaseAuth.CurrentUser.LinkWithCredentialAsync(credential);
-            var user = authResult.User;
-            var profile = authResult.AdditionalUserInfo?.Profile;
-            return profile == null 
-                ? FirebaseUser.Create(user.Uid, user.DisplayName, user.Email, user.PhotoUrl?.Path, user.IsEmailVerified, user.IsAnonymous) 
-                : CreateUserFromProfile(user, profile);
-        }
-
-        private static FirebaseUser CreateUserFromProfile(global::Firebase.Auth.FirebaseUser user, IDictionary<string, Object> profile)
-        {
-            profile.TryGetValue("name", out var displayName);
-            profile.TryGetValue("email", out var email);
-            profile.TryGetValue("picture", out var picture);
-            return FirebaseUser.Create(user.Uid, displayName?.ToString(), email?.ToString(), ExtractPhotoUrl(picture), user.IsEmailVerified, user.IsAnonymous);
-        }
-
-        private static string ExtractPhotoUrl(IDisposable picture)
-        {
-            var strings = picture?.ToString().Split(',');
-            return strings?.Length > 1 ? strings[1].Replace("url=", "") : null;
+            return CreateFirebaseUser(authResult.User, authResult.AdditionalUserInfo);
         }
 
         public async Task<FirebaseUser> LinkWithEmailAndPasswordAync(string email, string password)

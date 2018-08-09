@@ -27,7 +27,7 @@ namespace Plugin.Firebase.Android.Auth.Facebook
                 onError: tcs.SetException);
             
             LoginManager.Instance.RegisterCallback(_callbackManager, callback);
-            LoginManager.Instance.LogInWithReadPermissions(activity, new List<string> { "public_profile"});
+            LoginManager.Instance.LogInWithReadPermissions(activity, new List<string> { "public_profile", "email" });
             return tcs.Task;
         }
 

@@ -18,7 +18,7 @@ namespace Plugin.Firebase.iOS.Auth.Facebook
         public Task<AuthCredential> GetCredentialAsync(UIViewController viewController)
         {
             var tcs = new TaskCompletionSource<AuthCredential>();
-            _loginManager.LogInWithReadPermissions(new []{ "public_profile" }, viewController, (result, error) => {
+            _loginManager.LogInWithReadPermissions(new []{ "public_profile", "email" }, viewController, (result, error) => {
                 if(result != null && error == null) {
                     if(result.IsCancelled) {
                         tcs.SetCanceled();

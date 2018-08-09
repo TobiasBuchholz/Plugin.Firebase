@@ -1,14 +1,21 @@
-﻿namespace Plugin.Firebase.Abstractions.Auth
+﻿
+using System.Collections.Generic;
+
+namespace Plugin.Firebase.Abstractions.Auth
 {
     public sealed class FirebaseUser
     {
-        public static FirebaseUser Create(string uid, string displayName, string email, string photoUrl, bool isEmailVerified, bool isAnonymous) =>
-            new FirebaseUser(uid, displayName, email, photoUrl, isEmailVerified, isAnonymous);
-        
         public static FirebaseUser Empty() =>
-            new FirebaseUser("", "", "", "", false, false);
+            new FirebaseUser("", "", "", "", false, false, null);
         
-        private FirebaseUser(string uid, string displayName, string email, string photoUrl, bool isEmailVerified, bool isAnonymous)
+        public FirebaseUser(
+            string uid,
+            string displayName,
+            string email,
+            string photoUrl,
+            bool isEmailVerified,
+            bool isAnonymous,
+            IEnumerable<ProviderInfo> providerInfos)
         {
             Uid = uid;
             DisplayName = displayName;
@@ -16,6 +23,7 @@
             PhotoUrl = photoUrl;
             IsEmailVerified = isEmailVerified;
             IsAnonymous = isAnonymous;
+            ProviderInfos = providerInfos;
         }
 
         public string Uid { get; }
@@ -24,5 +32,6 @@
         public string PhotoUrl { get; }
         public bool IsEmailVerified { get; }
         public bool IsAnonymous { get; }
+        public IEnumerable<ProviderInfo> ProviderInfos { get; }
     }
 }

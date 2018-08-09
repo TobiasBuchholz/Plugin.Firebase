@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Facebook.CoreKit;
 using Firebase.Auth;
@@ -80,9 +83,21 @@ namespace Plugin.Firebase.Auth
 
         private static FirebaseUser CreateFirebaseUser(User user)
         {
-            return FirebaseUser.Create(user.Uid, user.DisplayName, user.Email, user.PhotoUrl?.AbsoluteString, user.IsEmailVerified, user.IsAnonymous);
+            return new FirebaseUser(
+                user.Uid,
+                user.DisplayName,
+                user.Email,
+                user.PhotoUrl?.AbsoluteString, 
+                user.IsEmailVerified,
+                user.IsAnonymous,
+                GetProviderInfos(user.ProviderData));
         }
-        
+
+        private static IEnumerable<ProviderInfo> GetProviderInfos(IEnumerable<IUserInfo> userInfos)
+        {
+            return userInfos.Select(x => new ProviderInfo(x.Uid, x.ProviderId, x.DisplayName, x.Email, x.PhoneNumber, x.PhotoUrl?.AbsoluteString));
+        }
+
         public async Task<FirebaseUser> SignInWithPhoneNumberVerificationCodeAsync(string verificationCode)
         {
             try {
@@ -146,8 +161,7 @@ namespace Plugin.Firebase.Auth
         private async Task<FirebaseUser> LinkWithCredentialAsync(AuthCredential credential)
         {
             var user = await _firebaseAuth.CurrentUser.LinkAsync(credential);
-            var data = user.ProviderData[0];
-            return FirebaseUser.Create(user.Uid, data.DisplayName, data.Email, data.PhotoUrl?.AbsoluteString, user.IsEmailVerified, user.IsAnonymous);
+            return CreateFirebaseUser(user);
         }
         
         public async Task<FirebaseUser> LinkWithEmailAndPasswordAync(string email, string password)

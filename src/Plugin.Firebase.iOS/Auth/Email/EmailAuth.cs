@@ -8,7 +8,7 @@ namespace Plugin.Firebase.iOS.Auth.Email
     {
         public Task<AuthCredential> GetCredentialAsync(string email, string password)
         {
-            return Task.FromResult(EmailAuthProvider.GetCredential(email, password));
+            return Task.FromResult(EmailAuthProvider.GetCredentialFromPassword(email, password));
         }
 
         public Task CreateUserAsync(string email, string password)

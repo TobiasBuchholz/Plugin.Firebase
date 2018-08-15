@@ -74,8 +74,8 @@ namespace Plugin.Firebase.Auth
         public async Task<FirebaseUser> SignInWithCustomTokenAsync(string token)
         {
             try {
-                var user = await _firebaseAuth.SignInAsync(token);
-                return CreateFirebaseUser(user);
+                var user = await _firebaseAuth.SignInAndRetrieveDataWithCustomTokenAsync(token);
+                return CreateFirebaseUser(user.User);
             } catch(NSErrorException e) {
                 throw new FirebaseException(e.Error?.LocalizedDescription);  
             }
@@ -110,8 +110,8 @@ namespace Plugin.Firebase.Auth
         
         private async Task<FirebaseUser> SignInWithCredentialAsync(AuthCredential credential)
         {
-            var user = await _firebaseAuth.SignInAsync(credential);
-            return CreateFirebaseUser(user);
+            var authResult = await _firebaseAuth.SignInAndRetrieveDataWithCredentialAsync(credential);
+            return CreateFirebaseUser(authResult.User);
         }
         
         public async Task<FirebaseUser> SignInWithEmailAndPasswordAsync(string email, string password)
@@ -160,8 +160,8 @@ namespace Plugin.Firebase.Auth
         
         private async Task<FirebaseUser> LinkWithCredentialAsync(AuthCredential credential)
         {
-            var user = await _firebaseAuth.CurrentUser.LinkAsync(credential);
-            return CreateFirebaseUser(user);
+            var authResult = await _firebaseAuth.CurrentUser.LinkAndRetrieveDataAsync(credential);
+            return CreateFirebaseUser(authResult.User);
         }
         
         public async Task<FirebaseUser> LinkWithEmailAndPasswordAync(string email, string password)

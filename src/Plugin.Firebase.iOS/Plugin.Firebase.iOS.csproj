@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\..\Cards\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.props" Condition="Exists('..\..\..\Cards\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.props')" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.6\build\Xamarin.Build.Download.props" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.6\build\Xamarin.Build.Download.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -53,29 +54,34 @@
       <HintPath>..\packages\Xamarin.Facebook.iOS.4.33.0\lib\Xamarin.iOS10\Facebook.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Firebase.Analytics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\..\Cards\packages\Xamarin.Firebase.iOS.Analytics.5.0.1\lib\Xamarin.iOS10\Firebase.Analytics.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Firebase.Auth, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\..\Cards\packages\Xamarin.Firebase.iOS.Auth.5.0.2\lib\Xamarin.iOS10\Firebase.Auth.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Firebase.CloudFirestore, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\..\Cards\packages\Xamarin.Firebase.iOS.CloudFirestore.0.12.5\lib\Xamarin.iOS10\Firebase.CloudFirestore.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Firebase.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\..\Cards\packages\Xamarin.Firebase.iOS.Core.5.0.5\lib\Xamarin.iOS10\Firebase.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Firebase.InstanceID, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\..\Cards\packages\Xamarin.Firebase.iOS.InstanceID.3.1.1\lib\Xamarin.iOS10\Firebase.InstanceID.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Google.SignIn, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Xamarin.Google.iOS.SignIn.4.1.1.1\lib\Xamarin.iOS10\Google.SignIn.dll</HintPath>
+      <HintPath>..\..\..\Cards\packages\Xamarin.Google.iOS.SignIn.4.1.2\lib\Xamarin.iOS10\Google.SignIn.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.iOS" />
-    <Reference Include="Firebase.InstanceID">
-      <HintPath>..\packages\Xamarin.Firebase.iOS.InstanceID.2.0.8\lib\Xamarin.iOS10\Firebase.InstanceID.dll</HintPath>
-    </Reference>
-    <Reference Include="Firebase.CloudFirestore">
-      <HintPath>..\packages\Xamarin.Firebase.iOS.CloudFirestore.0.9.4\lib\Xamarin.iOS10\Firebase.CloudFirestore.dll</HintPath>
-    </Reference>
-    <Reference Include="Firebase.Core">
-      <HintPath>..\packages\Xamarin.Firebase.iOS.Core.4.0.13.1\lib\Xamarin.iOS10\Firebase.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Firebase.Analytics">
-      <HintPath>..\packages\Xamarin.Firebase.iOS.Analytics.4.0.5.1\lib\Xamarin.iOS10\Firebase.Analytics.dll</HintPath>
-    </Reference>
-    <Reference Include="Firebase.Auth">
-      <HintPath>..\packages\Xamarin.Firebase.iOS.Auth.4.4.1.1\lib\Xamarin.iOS10\Firebase.Auth.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
@@ -119,5 +125,14 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105.The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Xamarin.Google.iOS.SignIn.4.1.1.1\build\Xamarin.Google.iOS.SignIn.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Google.iOS.SignIn.4.1.1.1\build\Xamarin.Google.iOS.SignIn.targets'))" />
+    <Error Condition="!Exists('..\..\..\Cards\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Cards\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.props'))" />
+    <Error Condition="!Exists('..\..\..\Cards\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Cards\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.targets'))" />
+    <Error Condition="!Exists('..\..\..\Cards\packages\Xamarin.Firebase.iOS.InstanceID.3.1.1\build\Xamarin.Firebase.iOS.InstanceID.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Cards\packages\Xamarin.Firebase.iOS.InstanceID.3.1.1\build\Xamarin.Firebase.iOS.InstanceID.targets'))" />
+    <Error Condition="!Exists('..\..\..\Cards\packages\Xamarin.Firebase.iOS.Analytics.5.0.1\build\Xamarin.Firebase.iOS.Analytics.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Cards\packages\Xamarin.Firebase.iOS.Analytics.5.0.1\build\Xamarin.Firebase.iOS.Analytics.targets'))" />
+    <Error Condition="!Exists('..\..\..\Cards\packages\Xamarin.Google.iOS.SignIn.4.1.2\build\Xamarin.Google.iOS.SignIn.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\Cards\packages\Xamarin.Google.iOS.SignIn.4.1.2\build\Xamarin.Google.iOS.SignIn.targets'))" />
   </Target>
+  <Import Project="..\..\..\Cards\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.targets" Condition="Exists('..\..\..\Cards\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.targets')" />
+  <Import Project="..\..\..\Cards\packages\Xamarin.Firebase.iOS.InstanceID.3.1.1\build\Xamarin.Firebase.iOS.InstanceID.targets" Condition="Exists('..\..\..\Cards\packages\Xamarin.Firebase.iOS.InstanceID.3.1.1\build\Xamarin.Firebase.iOS.InstanceID.targets')" />
+  <Import Project="..\..\..\Cards\packages\Xamarin.Firebase.iOS.Analytics.5.0.1\build\Xamarin.Firebase.iOS.Analytics.targets" Condition="Exists('..\..\..\Cards\packages\Xamarin.Firebase.iOS.Analytics.5.0.1\build\Xamarin.Firebase.iOS.Analytics.targets')" />
+  <Import Project="..\..\..\Cards\packages\Xamarin.Google.iOS.SignIn.4.1.2\build\Xamarin.Google.iOS.SignIn.targets" Condition="Exists('..\..\..\Cards\packages\Xamarin.Google.iOS.SignIn.4.1.2\build\Xamarin.Google.iOS.SignIn.targets')" />
 </Project>

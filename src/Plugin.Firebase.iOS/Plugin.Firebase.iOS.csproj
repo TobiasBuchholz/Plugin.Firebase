@@ -85,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
+    <Folder Include="Firestore\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Plugin.Firebase\Analytics\CrossFirebaseAnalytics.cs">
@@ -98,9 +99,13 @@
     <Compile Include="Auth\Google\GoogleAuth.cs" />
     <Compile Include="Auth\PhoneNumber\PhoneNumberAuth.cs" />
     <Compile Include="CrossFirebase.cs" />
+    <Compile Include="Firestore\FirebaseFirestoreImplementation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\Plugin.Firebase\Auth\CrossFirebaseAuth.cs">
       <Link>Auth\CrossFirebaseAuth.cs</Link>
+    </Compile>
+    <Compile Include="..\Plugin.Firebase\Firestore\CrossFirebaseFirestore.cs">
+      <Link>Firestore\CrossFirebaseFirestore.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>

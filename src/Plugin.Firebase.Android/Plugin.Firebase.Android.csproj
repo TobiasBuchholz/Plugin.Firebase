@@ -55,6 +55,10 @@
     <Reference Include="Plugin.CurrentActivity, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\packages\Plugin.CurrentActivity.2.1.0.4\lib\monoandroid44\Plugin.CurrentActivity.dll</HintPath>
     </Reference>
+    <Reference Include="Square.OkIO, Version=1.13.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Square.OkIO.1.13.0\lib\MonoAndroid\Square.OkIO.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
@@ -184,7 +188,6 @@
     <Compile Include="..\Plugin.Firebase\Auth\CrossFirebaseAuth.cs">
       <Link>Auth/CrossFirebaseAuth.cs</Link>
     </Compile>
-    <Compile Include="Analytics\DictionaryExtension.cs" />
     <Compile Include="Analytics\FirebaseAnalyticsImplementation.cs" />
     <Compile Include="Auth\Email\EmailAuth.cs" />
     <Compile Include="Auth\Facebook\FacebookAuth.cs" />
@@ -194,7 +197,11 @@
     <Compile Include="Auth\Google\GoogleAuth.cs" />
     <Compile Include="Auth\PhoneNumber\PhoneNumberAuth.cs" />
     <Compile Include="Auth\PhoneNumber\PhoneVerificationStateChangeCallbacks.cs" />
+    <Compile Include="Extensions\DictionaryExtension.cs" />
     <Compile Include="CrossFirebase.cs" />
+    <Compile Include="Extensions\SetOptionsExtensions.cs" />
+    <Compile Include="Firestore\CollectionReferenceWrapper.cs" />
+    <Compile Include="Firestore\DocumentReferenceWrapper.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Firestore\FirebaseFirestoreImplementation.cs" />

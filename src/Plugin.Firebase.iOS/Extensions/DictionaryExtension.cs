@@ -50,6 +50,6 @@ namespace System.Collections.Generic
             var dict = new Dictionary<string, object>();
             tuples.ToList().ForEach(x => dict.Add(x.Item1, x.Item2));
             return dict.ToNSDictionary();
-        }
+        } 
     }
 }

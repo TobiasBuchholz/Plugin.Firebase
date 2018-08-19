@@ -1,4 +1,5 @@
-﻿using Firebase.Firestore;
+﻿using System.Threading.Tasks;
+using Firebase.Firestore;
 using Plugin.Firebase.Abstractions.Common;
 using Plugin.Firebase.Abstractions.Firestore;
 using Plugin.Firebase.Android;
@@ -14,6 +15,11 @@ namespace Plugin.Firebase.Firestore
             // FirebaseFirestore.Instance throws an exception, because the projectId of FirebaseApp.Instance is null
             // this workaround will be needed until it's fixed via https://github.com/xamarin/GooglePlayServicesComponents/commit/723ebdc00867a4c70c51ad2d0dcbd36474ce8ff1
             _firestore = FirebaseFirestore.GetInstance(CrossFirebase.Current);
+        }
+
+        public ICollectionReference GetCollection(string collectionPath)
+        {
+            return new CollectionReferenceWrapper(_firestore.Collection(collectionPath));
         }
     }
 }

@@ -1,10 +1,50 @@
 ﻿using System.Linq;
 using Android.OS;
+using Java.Util;
 
 namespace System.Collections.Generic
 {
     public static class DictionaryExtension
     {
+        public static HashMap ToHashMap(this IDictionary<object, object> dictionary)
+        {
+            var map = new HashMap();
+            dictionary.ToList().ForEach(x => PutIntoHashMap(x, ref map));
+            return map;
+        }
+
+        private static void PutIntoHashMap(KeyValuePair<object, object> pair, ref HashMap map)
+        {
+            switch(pair.Value) {
+                case bool x:
+                    map.Put(pair.Key.ToString(), x);
+                    break;
+                case char x:
+                    map.Put(pair.Key.ToString(), x);
+                    break;
+                case double x:
+                    map.Put(pair.Key.ToString(), x);
+                    break;
+                case float x:
+                    map.Put(pair.Key.ToString(), x);
+                    break;
+                case long x:
+                    map.Put(pair.Key.ToString(), x);
+                    break;
+                case int x:
+                    map.Put(pair.Key.ToString(), x);
+                    break;
+                case short x:
+                    map.Put(pair.Key.ToString(), x);
+                    break;
+                case string x:
+                    map.Put(pair.Key.ToString(), x);
+                    break;
+                default:
+                    throw new ArgumentException($"Couldn't put object of type {pair.Value.GetType()} into {nameof(HashMap)}");
+            }
+        }
+        
         public static Bundle ToBundle(this IDictionary<string, object> dictionary)
         {
             var bundle = new Bundle();
@@ -40,7 +80,7 @@ namespace System.Collections.Generic
                     bundle.PutString(pair.Key, x);
                     break;
                 default:
-                    throw new ArgumentException($"Couldn't put object of type {pair.Value.GetType()} into android bundle");
+                    throw new ArgumentException($"Couldn't put object of type {pair.Value.GetType()} into {nameof(Bundle)}");
             }
         }
         

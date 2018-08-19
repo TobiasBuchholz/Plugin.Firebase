@@ -91,14 +91,16 @@
     <Compile Include="..\Plugin.Firebase\Analytics\CrossFirebaseAnalytics.cs">
       <Link>Analytics/CrossFirebaseAnalytics.cs</Link>
     </Compile>
-    <Compile Include="Analytics\DictionaryExtension.cs" />
     <Compile Include="Analytics\FirebaseAnalyticsImplementation.cs" />
     <Compile Include="Auth\Email\EmailAuth.cs" />
     <Compile Include="Auth\Facebook\FacebookAuth.cs" />
     <Compile Include="Auth\FirebaseAuthImplementation.cs" />
     <Compile Include="Auth\Google\GoogleAuth.cs" />
     <Compile Include="Auth\PhoneNumber\PhoneNumberAuth.cs" />
+    <Compile Include="Extensions\DictionaryExtension.cs" />
     <Compile Include="CrossFirebase.cs" />
+    <Compile Include="Firestore\CollectionReferenceWrapper.cs" />
+    <Compile Include="Firestore\DocumentReferenceWrapper.cs" />
     <Compile Include="Firestore\FirebaseFirestoreImplementation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\Plugin.Firebase\Auth\CrossFirebaseAuth.cs">

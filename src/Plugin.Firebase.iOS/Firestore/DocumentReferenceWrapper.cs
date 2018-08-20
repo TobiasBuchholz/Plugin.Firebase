@@ -48,5 +48,19 @@ namespace Plugin.Firebase.Firestore
         {
             return SetDataAsync(data.ToDictionary(), options);
         }
+
+        public Task UpdateDataAsync(Dictionary<object, object> data)
+        {
+            return _reference.UpdateDataAsync(data);
+        }
+
+        public Task DeleteDocumentAsync()
+        {
+            return _reference.DeleteDocumentAsync();
+        }
+
+        public string Id => _reference.Id;
+        public string Path => _reference.Path;
+        public ICollectionReference Parent => new CollectionReferenceWrapper(_reference.Parent);
     }
 }

@@ -1,4 +1,7 @@
-﻿using Firebase.Firestore;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Android.Gms.Extensions;
+using Firebase.Firestore;
 using Plugin.Firebase.Abstractions.Firestore;
 
 namespace Plugin.Firebase.Firestore
@@ -15,6 +18,17 @@ namespace Plugin.Firebase.Firestore
         public IDocumentReference GetDocument(string documentPath)
         {
             return new DocumentReferenceWrapper(_reference.Document(documentPath));
+        }
+
+        public IDocumentReference CreateDocument()
+        {
+            return new DocumentReferenceWrapper(_reference.Document());
+        }
+
+        public async Task<IDocumentReference> AddDocumentAsync(object data)
+        {
+            var documentReference = (DocumentReference) await _reference.Add(data.ToDictionary<object>().ToHashMap());
+            return new DocumentReferenceWrapper(documentReference);
         }
     }
 }

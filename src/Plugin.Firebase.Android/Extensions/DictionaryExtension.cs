@@ -129,5 +129,12 @@ namespace System.Collections.Generic
             tuples.ToList().ForEach(x => dict.Add(x.Item1, x.Item2));
             return dict.ToJavaObjectDictionary();
         }
+        
+        public static IDictionary<string, Java.Lang.Object> ToJavaObjectDictionary(this IDictionary<object, object> @this)
+        {
+            var dict = new Dictionary<string, object>();
+            @this.ToList().ForEach(x => dict.Add(x.Key.ToString(), x.Value));
+            return dict.ToJavaObjectDictionary();
+        }
     }
 }

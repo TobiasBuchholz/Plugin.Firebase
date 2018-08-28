@@ -54,6 +54,10 @@
       <HintPath>..\packages\Xamarin.Facebook.iOS.4.33.0\lib\Xamarin.iOS10\Facebook.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Firebase.ABTesting, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\..\packages\Xamarin.Firebase.iOS.ABTesting.2.0.0\lib\Xamarin.iOS10\Firebase.ABTesting.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Firebase.Analytics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\packages\Xamarin.Firebase.iOS.Analytics.5.0.1\lib\Xamarin.iOS10\Firebase.Analytics.dll</HintPath>
       <Private>True</Private>
@@ -74,6 +78,10 @@
       <HintPath>..\packages\Xamarin.Firebase.iOS.InstanceID.3.1.1\lib\Xamarin.iOS10\Firebase.InstanceID.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Firebase.RemoteConfig, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\..\packages\Xamarin.Firebase.iOS.RemoteConfig.3.0.0\lib\Xamarin.iOS10\Firebase.RemoteConfig.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Google.SignIn, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\packages\Xamarin.Google.iOS.SignIn.4.1.2\lib\Xamarin.iOS10\Google.SignIn.dll</HintPath>
       <Private>True</Private>
@@ -90,6 +98,9 @@
   <ItemGroup>
     <Compile Include="..\Plugin.Firebase\Analytics\CrossFirebaseAnalytics.cs">
       <Link>Analytics/CrossFirebaseAnalytics.cs</Link>
+    </Compile>
+    <Compile Include="..\Plugin.Firebase\RemoteConfig\CrossFirebaseRemoteConfig.cs">
+      <Link>RemoteConfig/CrossFirebaseRemoteConfig.cs</Link>
     </Compile>
     <Compile Include="Analytics\FirebaseAnalyticsImplementation.cs" />
     <Compile Include="Auth\Email\EmailAuth.cs" />
@@ -109,6 +120,7 @@
     <Compile Include="..\Plugin.Firebase\Firestore\CrossFirebaseFirestore.cs">
       <Link>Firestore\CrossFirebaseFirestore.cs</Link>
     </Compile>
+    <Compile Include="RemoteConfig\FirebaseRemoteConfigImplementation.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -136,9 +148,13 @@
     <Error Condition="!Exists('..\packages\Xamarin.Firebase.iOS.InstanceID.3.1.1\build\Xamarin.Firebase.iOS.InstanceID.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Firebase.iOS.InstanceID.3.1.1\build\Xamarin.Firebase.iOS.InstanceID.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.Firebase.iOS.Analytics.5.0.1\build\Xamarin.Firebase.iOS.Analytics.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Firebase.iOS.Analytics.5.0.1\build\Xamarin.Firebase.iOS.Analytics.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.Google.iOS.SignIn.4.1.2\build\Xamarin.Google.iOS.SignIn.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Google.iOS.SignIn.4.1.2\build\Xamarin.Google.iOS.SignIn.targets'))" />
+    <Error Condition="!Exists('..\..\..\packages\Xamarin.Firebase.iOS.ABTesting.2.0.0\build\Xamarin.Firebase.iOS.ABTesting.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\packages\Xamarin.Firebase.iOS.ABTesting.2.0.0\build\Xamarin.Firebase.iOS.ABTesting.targets'))" />
+    <Error Condition="!Exists('..\..\..\packages\Xamarin.Firebase.iOS.RemoteConfig.3.0.0\build\Xamarin.Firebase.iOS.RemoteConfig.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\packages\Xamarin.Firebase.iOS.RemoteConfig.3.0.0\build\Xamarin.Firebase.iOS.RemoteConfig.targets'))" />
   </Target>
   <Import Project="..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.targets')" />
   <Import Project="..\packages\Xamarin.Firebase.iOS.InstanceID.3.1.1\build\Xamarin.Firebase.iOS.InstanceID.targets" Condition="Exists('..\packages\Xamarin.Firebase.iOS.InstanceID.3.1.1\build\Xamarin.Firebase.iOS.InstanceID.targets')" />
   <Import Project="..\packages\Xamarin.Firebase.iOS.Analytics.5.0.1\build\Xamarin.Firebase.iOS.Analytics.targets" Condition="Exists('..\packages\Xamarin.Firebase.iOS.Analytics.5.0.1\build\Xamarin.Firebase.iOS.Analytics.targets')" />
   <Import Project="..\packages\Xamarin.Google.iOS.SignIn.4.1.2\build\Xamarin.Google.iOS.SignIn.targets" Condition="Exists('..\packages\Xamarin.Google.iOS.SignIn.4.1.2\build\Xamarin.Google.iOS.SignIn.targets')" />
+  <Import Project="..\..\..\packages\Xamarin.Firebase.iOS.ABTesting.2.0.0\build\Xamarin.Firebase.iOS.ABTesting.targets" Condition="Exists('..\..\..\packages\Xamarin.Firebase.iOS.ABTesting.2.0.0\build\Xamarin.Firebase.iOS.ABTesting.targets')" />
+  <Import Project="..\..\..\packages\Xamarin.Firebase.iOS.RemoteConfig.3.0.0\build\Xamarin.Firebase.iOS.RemoteConfig.targets" Condition="Exists('..\..\..\packages\Xamarin.Firebase.iOS.RemoteConfig.3.0.0\build\Xamarin.Firebase.iOS.RemoteConfig.targets')" />
 </Project>

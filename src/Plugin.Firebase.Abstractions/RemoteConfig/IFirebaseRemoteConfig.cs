@@ -9,7 +9,7 @@ namespace Plugin.Firebase.Abstractions.RemoteConfig
         void SetDefaults(IDictionary<string, object> defaults);
         void SetDefaults(params (string, object)[] defaults);
         void SetDeveloperModeEnabled(bool isEnabled);
-        Task FetchAsync(double expirationDuration = 0);
+        Task FetchAsync(double expirationDuration = 43200);
         void ActivateFetched();
         bool GetBoolean(string key);
         string GetString(string key);

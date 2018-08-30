@@ -26,5 +26,9 @@ namespace Plugin.Firebase.Analytics
         {
             LogEvent(eventName, parameters?.ToDictionary(x => x.parameterName, x => x.parameterValue));
         }
+
+        public bool IsAnalyticsCollectionEnabled {
+            set => _firebaseAnalytics.SetAnalyticsCollectionEnabled(value);
+        }
     }
 }

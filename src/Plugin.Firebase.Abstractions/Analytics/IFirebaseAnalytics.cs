@@ -7,5 +7,7 @@ namespace Plugin.Firebase.Abstractions.Analytics
     {
         void LogEvent(string eventName, IDictionary<string, object> parameters);
         void LogEvent(string eventName, params (string parameterName, object parameterValue)[] parameters);
+        
+        bool IsAnalyticsCollectionEnabled { set; }
     }
 }

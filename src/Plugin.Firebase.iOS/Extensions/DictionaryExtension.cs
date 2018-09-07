@@ -17,7 +17,7 @@ namespace System.Collections.Generic
         }
         
         private static void PutIntoNSDictionary(KeyValuePair<string, object> pair, ref NSMutableDictionary<NSString, NSObject> nsDictionary)
-        {
+        {            
             switch(pair.Value) {
                 case bool x:
                     nsDictionary.Add((NSString) pair.Key, new NSNumber(x));
@@ -41,7 +41,12 @@ namespace System.Collections.Generic
                     nsDictionary.Add((NSString) pair.Key, new NSString(x));
                     break;
                 default:
-                    throw new ArgumentException($"Couldn't put object of type {pair.Value.GetType()} into NSDictionary");
+                    if(pair.Value == null) {
+                        nsDictionary.Add((NSString) pair.Key, new NSNull());
+                        break;
+                    } else {
+                        throw new ArgumentException($"Couldn't put object of type {pair.Value.GetType()} into NSDictionary");
+                    }
             }
         }
         

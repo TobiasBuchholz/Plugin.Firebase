@@ -41,7 +41,12 @@ namespace System.Collections.Generic
                     map.Put(pair.Key.ToString(), x);
                     break;
                 default:
-                    throw new ArgumentException($"Couldn't put object of type {pair.Value.GetType()} into {nameof(HashMap)}");
+                    if(pair.Value == null) {
+                        map.Put(pair.Key.ToString(), null);
+                        break;
+                    } else {
+                        throw new ArgumentException($"Couldn't put object of type {pair.Value.GetType()} into {nameof(HashMap)}");
+                    }
             }
         }
         
@@ -80,7 +85,12 @@ namespace System.Collections.Generic
                     bundle.PutString(pair.Key, x);
                     break;
                 default:
-                    throw new ArgumentException($"Couldn't put object of type {pair.Value.GetType()} into {nameof(Bundle)}");
+                    if(pair.Value == null) {
+                        bundle.PutString(pair.Key, null);
+                        break;
+                    } else {
+                        throw new ArgumentException($"Couldn't put object of type {pair.Value.GetType()} into {nameof(Bundle)}");
+                    }
             }
         }
         
@@ -119,7 +129,12 @@ namespace System.Collections.Generic
                     dictionary.Add(pair.Key, x);
                     break;
                 default:
-                    throw new ArgumentException($"Couldn't put object of type {pair.Value.GetType()} into Java.Lang.Object dictionary");
+                    if(pair.Value == null) {
+                        dictionary.Add(pair.Key, null);
+                        break;
+                    } else {
+                        throw new ArgumentException($"Couldn't put object of type {pair.Value.GetType()} into Java.Lang.Object dictionary");
+                    }
             }
         }
         

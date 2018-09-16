@@ -15,7 +15,9 @@ namespace Plugin.Firebase.Android
                 .SetProjectId(baseOptions.StorageBucket.Split('.')[0])
                 .Build();
 
-            Current = FirebaseApp.InitializeApp(context, options, options.ProjectId);
+            if(Current == null) {
+                Current = FirebaseApp.InitializeApp(context, options, options.ProjectId);
+            }
         } 
         
         public static FirebaseApp Current { get; private set; }

@@ -17,6 +17,19 @@ namespace Plugin.Firebase.CloudMessaging
             Initialize();
         }
 
+        private void Initialize()
+        {
+            RegisterForRemoteNotifications();
+            Messaging.SharedInstance.ShouldEstablishDirectChannel = true;
+            InstanceId.Notifications.ObserveTokenRefresh((sender, e) => OnTokenRefresh());
+            OnTokenRefresh();
+        }
+
+        public void OnTokenRefresh()
+        {
+            TokenChanged?.Invoke(this, new FCMTokenChangedEventArgs(InstanceId.SharedInstance.Token));
+        }
+        
         public void CheckIfValid()
         {
             if(UIDevice.CurrentDevice.CheckSystemVersion(10, 0)) {
@@ -35,14 +48,6 @@ namespace Plugin.Firebase.CloudMessaging
                 });
         }
         
-        private void Initialize()
-        {
-            RegisterForRemoteNotifications();
-            Messaging.SharedInstance.ShouldEstablishDirectChannel = true;
-            InstanceId.Notifications.ObserveTokenRefresh((sender, e) => OnTokenRefresh());
-            OnTokenRefresh();
-        }
-
         private void RegisterForRemoteNotifications()
         {
             if(UIDevice.CurrentDevice.CheckSystemVersion(10, 0)) {
@@ -54,11 +59,6 @@ namespace Plugin.Firebase.CloudMessaging
                 var settings = UIUserNotificationSettings.GetSettingsForTypes(allNotificationTypes, null);
                 UIApplication.SharedApplication.RegisterUserNotificationSettings(settings);
             }
-        }
-        
-        public void OnTokenRefresh()
-        {
-            TokenChanged?.Invoke(this, new FCMTokenChangedEventArgs(InstanceId.SharedInstance.Token));
         }
         
         public void DidRefreshRegistrationToken(Messaging messaging, string fcmToken)

@@ -37,7 +37,6 @@ namespace Plugin.Firebase.CloudMessaging
 
         public void OnTokenRefresh()
         {
-            System.Diagnostics.Debug.WriteLine($"token refresh {FirebaseInstanceId.Instance.Token}");
             TokenChanged?.Invoke(this, new FCMTokenChangedEventArgs(FirebaseInstanceId.Instance.Token));
         }
 

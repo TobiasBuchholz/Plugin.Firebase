@@ -183,6 +183,9 @@
     <Reference Include="Xamarin.Firebase.Config">
       <HintPath>..\packages\Xamarin.Firebase.Config.60.1142.1\lib\MonoAndroid80\Xamarin.Firebase.Config.dll</HintPath>
     </Reference>
+    <Reference Include="Xamarin.Firebase.Messaging">
+      <HintPath>..\packages\Xamarin.Firebase.Messaging.60.1142.1\lib\MonoAndroid80\Xamarin.Firebase.Messaging.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Plugin.Firebase\Analytics\CrossFirebaseAnalytics.cs">
@@ -190,6 +193,9 @@
     </Compile>
     <Compile Include="..\Plugin.Firebase\Auth\CrossFirebaseAuth.cs">
       <Link>Auth/CrossFirebaseAuth.cs</Link>
+    </Compile>
+    <Compile Include="..\Plugin.Firebase\CloudMessaging\CrossFirebaseCloudMessaging.cs">
+      <Link>CloudMessaging/CrossFirebaseCloudMessaging.cs</Link>
     </Compile>
     <Compile Include="..\Plugin.Firebase\RemoteConfig\CrossFirebaseRemoteConfig.cs">
       <Link>RemoteConfig/CrossFirebaseRemoteConfig.cs</Link>
@@ -203,11 +209,15 @@
     <Compile Include="Auth\Google\GoogleAuth.cs" />
     <Compile Include="Auth\PhoneNumber\PhoneNumberAuth.cs" />
     <Compile Include="Auth\PhoneNumber\PhoneVerificationStateChangeCallbacks.cs" />
+    <Compile Include="CloudMessaging\FirebaseCloudMessagingImplementation.cs" />
     <Compile Include="Extensions\DictionaryExtension.cs" />
     <Compile Include="CrossFirebase.cs" />
+    <Compile Include="Extensions\FCMNotificationExtensions.cs" />
     <Compile Include="Extensions\SetOptionsExtensions.cs" />
     <Compile Include="Firestore\CollectionReferenceWrapper.cs" />
     <Compile Include="Firestore\DocumentReferenceWrapper.cs" />
+    <Compile Include="IntentServices\MyFirebaseInstanceIdService.cs" />
+    <Compile Include="IntentServices\MyFirebaseMessagingService.cs" />
     <Compile Include="RemoteConfig\FirebaseRemoteConfigImplementation.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -281,4 +291,5 @@
   <Import Project="..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.targets')" />
   <Import Project="..\packages\Xamarin.Firebase.Firestore.60.1142.1\build\MonoAndroid80\Xamarin.Firebase.Firestore.targets" Condition="Exists('..\packages\Xamarin.Firebase.Firestore.60.1142.1\build\MonoAndroid80\Xamarin.Firebase.Firestore.targets')" />
   <Import Project="..\packages\Xamarin.Firebase.Config.60.1142.1\build\MonoAndroid80\Xamarin.Firebase.Config.targets" Condition="Exists('..\packages\Xamarin.Firebase.Config.60.1142.1\build\MonoAndroid80\Xamarin.Firebase.Config.targets')" />
+  <Import Project="..\packages\Xamarin.Firebase.Messaging.60.1142.1\build\MonoAndroid80\Xamarin.Firebase.Messaging.targets" Condition="Exists('..\packages\Xamarin.Firebase.Messaging.60.1142.1\build\MonoAndroid80\Xamarin.Firebase.Messaging.targets')" />
 </Project>

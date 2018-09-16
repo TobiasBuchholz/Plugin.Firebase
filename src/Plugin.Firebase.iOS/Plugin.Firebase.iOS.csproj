@@ -88,6 +88,9 @@
     <Reference Include="Firebase.RemoteConfig">
       <HintPath>..\packages\Xamarin.Firebase.iOS.RemoteConfig.3.0.0\lib\Xamarin.iOS10\Firebase.RemoteConfig.dll</HintPath>
     </Reference>
+    <Reference Include="Firebase.CloudMessaging">
+      <HintPath>..\packages\Xamarin.Firebase.iOS.CloudMessaging.3.0.3\lib\Xamarin.iOS10\Firebase.CloudMessaging.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
@@ -96,6 +99,9 @@
   <ItemGroup>
     <Compile Include="..\Plugin.Firebase\Analytics\CrossFirebaseAnalytics.cs">
       <Link>Analytics/CrossFirebaseAnalytics.cs</Link>
+    </Compile>
+    <Compile Include="..\Plugin.Firebase\CloudMessaging\CrossFirebaseCloudMessaging.cs">
+      <Link>CloudMessaging/CrossFirebaseCloudMessaging.cs</Link>
     </Compile>
     <Compile Include="..\Plugin.Firebase\RemoteConfig\CrossFirebaseRemoteConfig.cs">
       <Link>RemoteConfig/CrossFirebaseRemoteConfig.cs</Link>
@@ -106,8 +112,10 @@
     <Compile Include="Auth\FirebaseAuthImplementation.cs" />
     <Compile Include="Auth\Google\GoogleAuth.cs" />
     <Compile Include="Auth\PhoneNumber\PhoneNumberAuth.cs" />
+    <Compile Include="CloudMessaging\FirebaseCloudMessagingImplementation.cs" />
     <Compile Include="Extensions\DictionaryExtension.cs" />
     <Compile Include="CrossFirebase.cs" />
+    <Compile Include="Extensions\FCMNotificationExtensions.cs" />
     <Compile Include="Firestore\CollectionReferenceWrapper.cs" />
     <Compile Include="Firestore\DocumentReferenceWrapper.cs" />
     <Compile Include="Firestore\FirebaseFirestoreImplementation.cs" />

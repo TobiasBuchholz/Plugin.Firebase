@@ -50,10 +50,6 @@
     </MtouchHttpClientHandler>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Facebook, Version=4.10.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Xamarin.Facebook.iOS.4.33.0\lib\Xamarin.iOS10\Facebook.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Firebase.Analytics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\packages\Xamarin.Firebase.iOS.Analytics.5.0.1\lib\Xamarin.iOS10\Firebase.Analytics.dll</HintPath>
       <Private>True</Private>
@@ -90,6 +86,24 @@
     </Reference>
     <Reference Include="Firebase.CloudMessaging">
       <HintPath>..\packages\Xamarin.Firebase.iOS.CloudMessaging.3.0.3\lib\Xamarin.iOS10\Firebase.CloudMessaging.dll</HintPath>
+    </Reference>
+    <Reference Include="Facebook.CoreKit">
+      <HintPath>..\packages\Xamarin.Facebook.CoreKit.iOS.4.35.0\lib\Xamarin.iOS10\Facebook.CoreKit.dll</HintPath>
+    </Reference>
+    <Reference Include="Facebook.LoginKit">
+      <HintPath>..\packages\Xamarin.Facebook.LoginKit.iOS.4.35.0\lib\Xamarin.iOS10\Facebook.LoginKit.dll</HintPath>
+    </Reference>
+    <Reference Include="Facebook.MarketingKit">
+      <HintPath>..\packages\Xamarin.Facebook.MarketingKit.iOS.4.35.0\lib\Xamarin.iOS10\Facebook.MarketingKit.dll</HintPath>
+    </Reference>
+    <Reference Include="Facebook.MessengerShareKit">
+      <HintPath>..\packages\Xamarin.Facebook.MessengerShareKit.iOS.1.3.2\lib\Xamarin.iOS10\Facebook.MessengerShareKit.dll</HintPath>
+    </Reference>
+    <Reference Include="Facebook.PlacesKit">
+      <HintPath>..\packages\Xamarin.Facebook.PlacesKit.iOS.4.35.0\lib\Xamarin.iOS10\Facebook.PlacesKit.dll</HintPath>
+    </Reference>
+    <Reference Include="Facebook.ShareKit">
+      <HintPath>..\packages\Xamarin.Facebook.ShareKit.iOS.4.35.0\lib\Xamarin.iOS10\Facebook.ShareKit.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

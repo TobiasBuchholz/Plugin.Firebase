@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Java.Util;
 using Android.Runtime;
 using Firebase.Firestore;
@@ -22,14 +23,17 @@ namespace Plugin.Firebase.Android.Extensions
             var instance = Activator.CreateInstance(targetType);
             var properties = targetType.GetProperties();
             foreach(var property in properties) {
-                var attribute = (FirestorePropertyAttribute) property.GetCustomAttributes(typeof(FirestorePropertyAttribute), true)[0];
-                var value = @this[attribute.PropertyName];
-                if(value == null) {
-                    Console.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because it's not contained in the dictionary.");
-                } else if(value is Java.Lang.Object javaValue) {
-                    property.SetValue(instance, javaValue.ToObject(property.PropertyType));
-                } else {
-                    property.SetValue(instance, value);
+                var attributes = property.GetCustomAttributes(typeof(FirestorePropertyAttribute), true);
+                if(attributes.Any()) {
+                    var attribute = (FirestorePropertyAttribute) attributes[0];
+                    var value = @this[attribute.PropertyName];
+                    if(value == null) {
+                        Console.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because it's not contained in the dictionary.");
+                    } else if(value is Java.Lang.Object javaValue) {
+                        property.SetValue(instance, javaValue.ToObject(property.PropertyType));
+                    } else {
+                        property.SetValue(instance, value);
+                    }
                 }
             }
             return instance; 

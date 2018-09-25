@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Firebase.CloudFirestore;
 using Foundation;
 using Plugin.Firebase.Abstractions.Firestore;
@@ -19,12 +20,15 @@ namespace Plugin.Firebase.iOS.Extensions
             var instance = Activator.CreateInstance(targetType);
             var properties = targetType.GetProperties();
             foreach(var property in properties) {
-                var attribute = (FirestorePropertyAttribute) property.GetCustomAttributes(typeof(FirestorePropertyAttribute), true)[0];
-                var value = @this[attribute.PropertyName];
-                if(value == null) {
-                    Console.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because it's not contained in the NSDictionary.");
-                } else {
-                    property.SetValue(instance, value.ToObject(property.PropertyType));
+                var attributes = property.GetCustomAttributes(typeof(FirestorePropertyAttribute), true);
+                if(attributes.Any()) {
+                    var attribute = (FirestorePropertyAttribute) attributes[0];
+                    var value = @this[attribute.PropertyName];
+                    if(value == null) {
+                        Console.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because it's not contained in the NSDictionary.");
+                    } else {
+                        property.SetValue(instance, value.ToObject(property.PropertyType));
+                    }
                 }
             }
             return instance; 

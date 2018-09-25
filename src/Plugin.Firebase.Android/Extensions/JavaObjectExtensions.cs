@@ -2,9 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Java.Util;
-using Plugin.Firebase.Abstractions.Common;
 using Android.Runtime;
 using Firebase.Firestore;
+using Plugin.Firebase.Abstractions.Firestore;
 using Plugin.Firebase.Firestore;
 using GeoPoint = Plugin.Firebase.Abstractions.Firestore.GeoPoint;
 

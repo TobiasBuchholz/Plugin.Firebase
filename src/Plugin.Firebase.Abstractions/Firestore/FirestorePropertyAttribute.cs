@@ -1,6 +1,6 @@
 using System;
 
-namespace Plugin.Firebase.Abstractions.Common
+namespace Plugin.Firebase.Abstractions.Firestore
 {
     [AttributeUsage(AttributeTargets.Property)]
     public class FirestorePropertyAttribute : Attribute

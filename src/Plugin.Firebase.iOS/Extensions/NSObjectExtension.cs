@@ -1,7 +1,7 @@
 using System;
 using Firebase.CloudFirestore;
 using Foundation;
-using Plugin.Firebase.Abstractions.Common;
+using Plugin.Firebase.Abstractions.Firestore;
 using Plugin.Firebase.Firestore;
 using GeoPoint = Plugin.Firebase.Abstractions.Firestore.GeoPoint;
 

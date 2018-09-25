@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using Android.OS;
 using Java.Util;
-using Plugin.Firebase.Abstractions.Common;
+using Plugin.Firebase.Abstractions.Firestore;
 using Plugin.Firebase.Android.Extensions;
 
 namespace System.Collections.Generic

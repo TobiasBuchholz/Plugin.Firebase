@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Android.Gms.Extensions;
+using Android.Runtime;
 using Firebase.Firestore;
+using Java.Lang;
 using Plugin.Firebase.Abstractions.Firestore;
+using Plugin.Firebase.Android.Common;
 using Plugin.Firebase.Android.Extensions;
 using SetOptions = Plugin.Firebase.Abstractions.Firestore.SetOptions;
 using Task = System.Threading.Tasks.Task;
@@ -18,9 +22,13 @@ namespace Plugin.Firebase.Firestore
             _reference = reference;
         }
 
-        public Task SetDataAsync(object data, SetOptions options = null)
+        public async Task SetDataAsync(object data, SetOptions options = null)
         {
-            return SetDataAsync(data.ToDictionary<object>(), options);
+            if(options == null) {
+                await _reference.Set(data.ToHashMap());
+            } else {
+                await _reference.Set(data.ToHashMap(), options.ToNative());
+            }
         }
 
         public async Task SetDataAsync(Dictionary<object, object> data, SetOptions options = null)
@@ -32,14 +40,18 @@ namespace Plugin.Firebase.Firestore
             }
         }
 
-        public Task SetDataAsync(params (object, object)[] data)
+        public async Task SetDataAsync(params (object, object)[] data)
         {
-            return SetDataAsync(data.ToDictionary());
+            await _reference.Set(data.ToHashMap());
         }
 
-        public Task SetDataAsync(SetOptions options, params (object, object)[] data)
+        public async Task SetDataAsync(SetOptions options, params (object, object)[] data)
         {
-            return SetDataAsync(data.ToDictionary(), options);
+            if(options == null) {
+                await _reference.Set(data.ToHashMap());
+            } else {
+                await _reference.Set(data.ToHashMap(), options.ToNative());
+            }
         }
 
         public async Task UpdateDataAsync(Dictionary<object, object> data)
@@ -50,6 +62,22 @@ namespace Plugin.Firebase.Firestore
         public async Task DeleteDocumentAsync()
         {
             await _reference.Delete();
+        }
+
+        public Task<T> GetDocumentSnapshotAsync<T>()
+        {
+            var tcs = new TaskCompletionSource<T>();
+            _reference
+                .Get()
+                .AddOnCompleteListener(new OnCompleteListener(task => {
+                    if(task.IsSuccessful) {
+                        var snapshot = task.GetResult(Class.FromType(typeof(DocumentSnapshot))).JavaCast<DocumentSnapshot>();
+                        tcs.SetResult(snapshot.Data.Cast<T>());
+                    } else {
+                        tcs.SetException(task.Exception);
+                    }
+                }));
+            return tcs.Task;
         }
 
         public string Id => _reference.Id;

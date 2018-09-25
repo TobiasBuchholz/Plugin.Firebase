@@ -1,6 +1,8 @@
 ﻿using System.Linq;
 using Android.OS;
 using Java.Util;
+using Plugin.Firebase.Abstractions.Common;
+using Plugin.Firebase.Android.Extensions;
 
 namespace System.Collections.Generic
 {
@@ -9,87 +11,108 @@ namespace System.Collections.Generic
         public static HashMap ToHashMap(this IDictionary<object, object> dictionary)
         {
             var map = new HashMap();
-            dictionary.ToList().ForEach(x => PutIntoHashMap(x, ref map));
+            dictionary.ToList().ForEach(x => map.Put(x.Key, x.Value));
             return map;
         }
 
-        private static void PutIntoHashMap(KeyValuePair<object, object> pair, ref HashMap map)
+        private static void Put(this IMap @this, object key, object value)
         {
-            switch(pair.Value) {
+            switch(value) {
                 case bool x:
-                    map.Put(pair.Key.ToString(), x);
+                    @this.Put(key.ToString(), x);
                     break;
                 case char x:
-                    map.Put(pair.Key.ToString(), x);
+                    @this.Put(key.ToString(), x);
                     break;
                 case double x:
-                    map.Put(pair.Key.ToString(), x);
+                    @this.Put(key.ToString(), x);
                     break;
                 case float x:
-                    map.Put(pair.Key.ToString(), x);
+                    @this.Put(key.ToString(), x);
                     break;
                 case long x:
-                    map.Put(pair.Key.ToString(), x);
+                    @this.Put(key.ToString(), x);
                     break;
                 case int x:
-                    map.Put(pair.Key.ToString(), x);
+                    @this.Put(key.ToString(), x);
                     break;
                 case short x:
-                    map.Put(pair.Key.ToString(), x);
+                    @this.Put(key.ToString(), x);
                     break;
                 case string x:
-                    map.Put(pair.Key.ToString(), x);
+                    @this.Put(key.ToString(), x);
+                    break;
+                case DateTime x:
+                    @this.Put(key.ToString(), x.ToJavaDate());
                     break;
                 default:
-                    if(pair.Value == null) {
-                        map.Put(pair.Key.ToString(), null);
+                    if(value == null) {
+                        @this.Put(key.ToString(), null);
                         break;
                     } else {
-                        throw new ArgumentException($"Couldn't put object of type {pair.Value.GetType()} into {nameof(HashMap)}");
+                        throw new ArgumentException( $"Couldn't put object of type {value.GetType()} into {nameof(HashMap)}");
                     }
             }
+        }
+
+        public static HashMap ToHashMap(this IEnumerable<(object, object)> @this)
+        {
+            var map = new HashMap();
+            @this.ToList().ForEach(x => map.Put(x.Item1, x.Item2));
+            return map;
+        }
+
+        public static HashMap ToHashMap(this object @this)
+        {
+            var map = new HashMap();
+            var properties = @this.GetType().GetProperties();
+            foreach(var property in properties) {
+                var attribute = (FirestorePropertyAttribute) property.GetCustomAttributes(typeof(FirestorePropertyAttribute), true)[0];
+                map.Put(attribute.PropertyName, property.GetValue(@this));
+            }
+            return map;
         }
         
         public static Bundle ToBundle(this IDictionary<string, object> dictionary)
         {
             var bundle = new Bundle();
-            dictionary.ToList().ForEach(x => PutIntoBundle(x, ref bundle));
+            dictionary.ToList().ForEach(x => bundle.Put(x.Key, x.Value));
             return bundle;
         }
         
-        private static void PutIntoBundle(KeyValuePair<string, object> pair, ref Bundle bundle)
+        private static void Put(this Bundle @this, string key, object value)
         {
-            switch(pair.Value) {
+            switch(value) {
                 case bool x:
-                    bundle.PutBoolean(pair.Key, x);
+                    @this.PutBoolean(key, x);
                     break;
                 case char x:
-                    bundle.PutChar(pair.Key, x);
+                    @this.PutChar(key, x);
                     break;
                 case double x:
-                    bundle.PutDouble(pair.Key, x);
+                    @this.PutDouble(key, x);
                     break;
                 case float x:
-                    bundle.PutFloat(pair.Key, x);
+                    @this.PutFloat(key, x);
                     break;
                 case long x:
-                    bundle.PutLong(pair.Key, x);
+                    @this.PutLong(key, x);
                     break;
                 case int x:
-                    bundle.PutInt(pair.Key, x);
+                    @this.PutInt(key, x);
                     break;
                 case short x:
-                    bundle.PutShort(pair.Key, x);
+                    @this.PutShort(key, x);
                     break;
                 case string x:
-                    bundle.PutString(pair.Key, x);
+                    @this.PutString(key, x);
                     break;
                 default:
-                    if(pair.Value == null) {
-                        bundle.PutString(pair.Key, null);
+                    if(value == null) {
+                        @this.PutString(key, null);
                         break;
                     } else {
-                        throw new ArgumentException($"Couldn't put object of type {pair.Value.GetType()} into {nameof(Bundle)}");
+                        throw new ArgumentException($"Couldn't put object of type {value.GetType()} into {nameof(Bundle)}");
                     }
             }
         }

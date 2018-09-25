@@ -27,7 +27,7 @@ namespace Plugin.Firebase.Firestore
 
         public async Task<IDocumentReference> AddDocumentAsync(object data)
         {
-            var documentReference = (DocumentReference) await _reference.Add(data.ToDictionary<object>().ToHashMap());
+            var documentReference = (DocumentReference) await _reference.Add(data.ToHashMap());
             return new DocumentReferenceWrapper(documentReference);
         }
     }

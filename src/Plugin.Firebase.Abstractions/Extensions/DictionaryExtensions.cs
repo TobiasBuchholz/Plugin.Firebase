@@ -1,21 +1,14 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Newtonsoft.Json;
+﻿using System.Linq;
+using Plugin.Firebase.Abstractions.Common;
 
 namespace System.Collections.Generic
 {
     public static class DictionaryExtensions
     {
-        public static Dictionary<object, TValue> ToDictionary<TValue>(this object obj)
-        {       
-            var json = JsonConvert.SerializeObject(obj);
-            return JsonConvert.DeserializeObject<Dictionary<object, TValue>>(json);   
-        } 
-        
-        public static Dictionary<object, object> ToDictionary(this IEnumerable<(object, object)> tuples)
+        public static Dictionary<object, object> ToDictionary(this IEnumerable<(object, object)> @this)
         {
             var dict = new Dictionary<object, object>();
-            tuples.ToList().ForEach(x => dict.Add(x.Item1, x.Item2));
+            @this.ToList().ForEach(x => dict.Add(x.Item1, x.Item2));
             return dict;
         }
     }

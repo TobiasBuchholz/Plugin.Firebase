@@ -209,9 +209,13 @@
     <Compile Include="Auth\PhoneNumber\PhoneNumberAuth.cs" />
     <Compile Include="Auth\PhoneNumber\PhoneVerificationStateChangeCallbacks.cs" />
     <Compile Include="CloudMessaging\FirebaseCloudMessagingImplementation.cs" />
+    <Compile Include="Common\OnCompleteListener.cs" />
+    <Compile Include="Extensions\DateExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtension.cs" />
     <Compile Include="CrossFirebase.cs" />
     <Compile Include="Extensions\FCMNotificationExtensions.cs" />
+    <Compile Include="Extensions\JavaObjectExtensions.cs" />
+    <Compile Include="Extensions\ListExtensions.cs" />
     <Compile Include="Extensions\SetOptionsExtensions.cs" />
     <Compile Include="Firestore\CollectionReferenceWrapper.cs" />
     <Compile Include="Firestore\DocumentReferenceWrapper.cs" />

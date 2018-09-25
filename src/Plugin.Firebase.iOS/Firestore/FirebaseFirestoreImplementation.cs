@@ -11,6 +11,9 @@ namespace Plugin.Firebase.Firestore
         public FirebaseFirestoreImplementation()
         {
             _firestore = FBFirestore.SharedInstance;
+            var settings = _firestore.Settings;
+            settings.TimestampsInSnapshotsEnabled = true;
+            _firestore.Settings = settings;
         }
 
         public ICollectionReference GetCollection(string collectionPath)

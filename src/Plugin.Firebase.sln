@@ -15,6 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Playground", "Playground", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.Firebase.Android", "Plugin.Firebase.Android\Plugin.Firebase.Android.csproj", "{7C6C4C2B-AC14-4E76-8849-8060FB68E784}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Playground.Core", "Playground.Core\Playground.Core.csproj", "{0E5FCEAC-4654-457C-81A6-875639860E1D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,9 +99,22 @@ Global
 		{7C6C4C2B-AC14-4E76-8849-8060FB68E784}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
 		{7C6C4C2B-AC14-4E76-8849-8060FB68E784}.Debug|iPhone.ActiveCfg = Debug|Any CPU
 		{7C6C4C2B-AC14-4E76-8849-8060FB68E784}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{0E5FCEAC-4654-457C-81A6-875639860E1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E5FCEAC-4654-457C-81A6-875639860E1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E5FCEAC-4654-457C-81A6-875639860E1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E5FCEAC-4654-457C-81A6-875639860E1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E5FCEAC-4654-457C-81A6-875639860E1D}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{0E5FCEAC-4654-457C-81A6-875639860E1D}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{0E5FCEAC-4654-457C-81A6-875639860E1D}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{0E5FCEAC-4654-457C-81A6-875639860E1D}.Release|iPhone.Build.0 = Release|Any CPU
+		{0E5FCEAC-4654-457C-81A6-875639860E1D}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{0E5FCEAC-4654-457C-81A6-875639860E1D}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{0E5FCEAC-4654-457C-81A6-875639860E1D}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{0E5FCEAC-4654-457C-81A6-875639860E1D}.Debug|iPhone.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{4ABE2B43-ED2D-4A5B-B7D0-AED6DAA5B960} = {30A27114-CA3E-47C1-97C0-85CECBF1843C}
 		{AA7647D9-6D52-4263-BC69-F13F520A0BAE} = {30A27114-CA3E-47C1-97C0-85CECBF1843C}
+		{0E5FCEAC-4654-457C-81A6-875639860E1D} = {30A27114-CA3E-47C1-97C0-85CECBF1843C}
 	EndGlobalSection
 EndGlobal

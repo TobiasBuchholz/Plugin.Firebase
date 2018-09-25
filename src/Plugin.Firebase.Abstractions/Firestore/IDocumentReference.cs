@@ -11,6 +11,7 @@ namespace Plugin.Firebase.Abstractions.Firestore
         Task SetDataAsync(SetOptions options, params (object, object)[] data);
         Task UpdateDataAsync(Dictionary<object, object> data);
         Task DeleteDocumentAsync();
+        Task<T> GetDocumentSnapshotAsync<T>();
         
         string Id { get; }
         string Path { get; }

@@ -1,5 +1,7 @@
 ﻿using System.Linq;
 using Foundation;
+using Plugin.Firebase.Abstractions.Common;
+using Plugin.Firebase.iOS.Extensions;
 
 namespace System.Collections.Generic
 {
@@ -55,6 +57,22 @@ namespace System.Collections.Generic
             var dict = new Dictionary<string, object>();
             tuples.ToList().ForEach(x => dict.Add(x.Item1, x.Item2));
             return dict.ToNSDictionary();
+        } 
+        
+        public static Dictionary<object, object> ToDictionary(this object @this)
+        {       
+            var dict = new Dictionary<object, object>();
+            var properties = @this.GetType().GetProperties();
+            foreach(var property in properties) {
+                var attribute = (FirestorePropertyAttribute) property.GetCustomAttributes(typeof(FirestorePropertyAttribute), true)[0];
+                var value = property.GetValue(@this);
+                if(value is DateTime date) {
+                    dict[attribute.PropertyName] = date.ToNSDate();
+                } else {
+                    dict[attribute.PropertyName] = value;
+                }
+            }
+            return dict;
         } 
     }
 }

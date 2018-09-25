@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Firebase.CloudFirestore;
 using Plugin.Firebase.Abstractions.Firestore;
+using Plugin.Firebase.iOS.Extensions;
 
 namespace Plugin.Firebase.Firestore
 {
@@ -18,7 +19,7 @@ namespace Plugin.Firebase.Firestore
 
         public Task SetDataAsync(object data, SetOptions options = null)
         {
-            return SetDataAsync(data.ToDictionary<object>(), options);
+            return SetDataAsync(data.ToDictionary(), options);
         }
 
         public Task SetDataAsync(Dictionary<object, object> data, SetOptions options)
@@ -57,6 +58,12 @@ namespace Plugin.Firebase.Firestore
         public Task DeleteDocumentAsync()
         {
             return _reference.DeleteDocumentAsync();
+        }
+
+        public async Task<T> GetDocumentSnapshotAsync<T>()
+        {
+            var snapshot = await _reference.GetDocumentAsync();
+            return snapshot.Data.Cast<T>();
         }
 
         public string Id => _reference.Id;

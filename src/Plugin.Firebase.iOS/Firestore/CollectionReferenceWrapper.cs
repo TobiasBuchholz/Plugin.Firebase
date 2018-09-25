@@ -29,7 +29,7 @@ namespace Plugin.Firebase.Firestore
         {
             var tcs = new TaskCompletionSource<IDocumentReference>();
             DocumentReference documentReference = null;
-            documentReference = _reference.AddDocument(data.ToDictionary<object>(), error => {
+            documentReference = _reference.AddDocument(data.ToDictionary(), error => {
                 if(error == null) {
                     tcs.SetResult(new DocumentReferenceWrapper(documentReference));
                 } else {

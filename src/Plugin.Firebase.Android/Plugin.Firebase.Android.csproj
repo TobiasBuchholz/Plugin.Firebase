@@ -219,6 +219,9 @@
     <Compile Include="Extensions\SetOptionsExtensions.cs" />
     <Compile Include="Firestore\CollectionReferenceWrapper.cs" />
     <Compile Include="Firestore\DocumentReferenceWrapper.cs" />
+    <Compile Include="Firestore\DocumentSnapshotWrapper.cs" />
+    <Compile Include="Firestore\EventListener.cs" />
+    <Compile Include="Firestore\SnapshotMetadataWrapper.cs" />
     <Compile Include="IntentServices\MyFirebaseInstanceIdService.cs" />
     <Compile Include="IntentServices\MyFirebaseMessagingService.cs" />
     <Compile Include="RemoteConfig\FirebaseRemoteConfigImplementation.cs" />

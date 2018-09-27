@@ -4,7 +4,7 @@ using Firebase.CloudFirestore;
 using Plugin.Firebase.Abstractions.Common;
 using Plugin.Firebase.Abstractions.Firestore;
 
-namespace Plugin.Firebase.Firestore
+namespace Plugin.Firebase.iOS.Firestore
 {
     public sealed class CollectionReferenceWrapper : ICollectionReference
     {

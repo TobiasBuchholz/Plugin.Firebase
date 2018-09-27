@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Plugin.Firebase.Abstractions.Firestore
@@ -11,7 +12,9 @@ namespace Plugin.Firebase.Abstractions.Firestore
         Task SetDataAsync(SetOptions options, params (object, object)[] data);
         Task UpdateDataAsync(Dictionary<object, object> data);
         Task DeleteDocumentAsync();
-        Task<T> GetDocumentSnapshotAsync<T>();
+        Task<IDocumentSnapshot<T>> GetDocumentSnapshotAsync<T>();
+
+        IDisposable AddSnapshotListener<T>(Action<IDocumentSnapshot<T>> onChanged, Action<Exception> onError = null, bool includeMetaDataChanges = false);
         
         string Id { get; }
         string Path { get; }

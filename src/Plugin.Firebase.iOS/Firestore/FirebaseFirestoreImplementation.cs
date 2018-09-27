@@ -1,5 +1,6 @@
 ﻿using Plugin.Firebase.Abstractions.Common;
 using Plugin.Firebase.Abstractions.Firestore;
+using Plugin.Firebase.iOS.Firestore;
 using FBFirestore = Firebase.CloudFirestore.Firestore;
 
 namespace Plugin.Firebase.Firestore

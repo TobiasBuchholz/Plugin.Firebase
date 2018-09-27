@@ -3,8 +3,9 @@ using System.Threading.Tasks;
 using Android.Gms.Extensions;
 using Firebase.Firestore;
 using Plugin.Firebase.Abstractions.Firestore;
+using Plugin.Firebase.Firestore;
 
-namespace Plugin.Firebase.Firestore
+namespace Plugin.Firebase.Android.Firestore
 {
     public sealed class CollectionReferenceWrapper : ICollectionReference
     {

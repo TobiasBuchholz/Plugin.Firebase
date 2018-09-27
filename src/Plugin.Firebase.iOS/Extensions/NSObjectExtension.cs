@@ -4,6 +4,7 @@ using Firebase.CloudFirestore;
 using Foundation;
 using Plugin.Firebase.Abstractions.Firestore;
 using Plugin.Firebase.Firestore;
+using Plugin.Firebase.iOS.Firestore;
 using GeoPoint = Plugin.Firebase.Abstractions.Firestore.GeoPoint;
 
 namespace Plugin.Firebase.iOS.Extensions

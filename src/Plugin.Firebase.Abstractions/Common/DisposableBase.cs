@@ -2,7 +2,7 @@
 
 namespace Plugin.Firebase.Abstractions.Common
 {
-    public class DisposableBase
+    public class DisposableBase : IDisposable
     {
         private bool disposed = false;
 

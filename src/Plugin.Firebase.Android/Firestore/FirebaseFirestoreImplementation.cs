@@ -3,6 +3,7 @@ using Firebase.Firestore;
 using Plugin.Firebase.Abstractions.Common;
 using Plugin.Firebase.Abstractions.Firestore;
 using Plugin.Firebase.Android;
+using Plugin.Firebase.Android.Firestore;
 
 namespace Plugin.Firebase.Firestore
 {

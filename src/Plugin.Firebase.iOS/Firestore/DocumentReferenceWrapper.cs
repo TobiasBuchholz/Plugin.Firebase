@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Firebase.CloudFirestore;
+using Plugin.Firebase.Abstractions.Common;
 using Plugin.Firebase.Abstractions.Firestore;
 using Plugin.Firebase.iOS.Extensions;
 
-namespace Plugin.Firebase.Firestore
+namespace Plugin.Firebase.iOS.Firestore
 {
     public sealed class DocumentReferenceWrapper : IDocumentReference
     {
@@ -60,10 +61,25 @@ namespace Plugin.Firebase.Firestore
             return _reference.DeleteDocumentAsync();
         }
 
-        public async Task<T> GetDocumentSnapshotAsync<T>()
+        public async Task<IDocumentSnapshot<T>> GetDocumentSnapshotAsync<T>()
         {
             var snapshot = await _reference.GetDocumentAsync();
-            return snapshot.Data.Cast<T>();
+            return new DocumentSnapshotWrapper<T>(snapshot);
+        }
+
+        public IDisposable AddSnapshotListener<T>(
+            Action<IDocumentSnapshot<T>> onChanged,
+            Action<Exception> onError = null,
+            bool includeMetaDataChanges = false)
+        {
+            var registration = _reference.AddSnapshotListener((snapshot, error) => {
+                if(error == null) {
+                    onChanged(new DocumentSnapshotWrapper<T>(snapshot));                    
+                } else {
+                    onError?.Invoke(new FirebaseException(error.LocalizedDescription));
+                }
+            });
+            return new DisposableWithAction(registration.Remove);
         }
 
         public string Id => _reference.Id;

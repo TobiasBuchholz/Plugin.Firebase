@@ -6,6 +6,7 @@ using Java.Util;
 using Android.Runtime;
 using Firebase.Firestore;
 using Plugin.Firebase.Abstractions.Firestore;
+using Plugin.Firebase.Android.Firestore;
 using Plugin.Firebase.Firestore;
 using GeoPoint = Plugin.Firebase.Abstractions.Firestore.GeoPoint;
 

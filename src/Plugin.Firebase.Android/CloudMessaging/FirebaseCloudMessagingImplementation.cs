@@ -65,5 +65,6 @@ namespace Plugin.Firebase.CloudMessaging
         public event EventHandler<FCMTokenChangedEventArgs> TokenChanged;
         public event EventHandler<FCMNotificationReceivedEventArgs> NotificationReceived;
         public event EventHandler<FCMErrorEventArgs> Error;
+        public string Token => FirebaseInstanceId.Instance.Token;
     }
 }

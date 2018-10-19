@@ -50,7 +50,7 @@ namespace System.Collections.Generic
                         @this.Put(key.ToString(), null);
                         break;
                     } else {
-                        throw new ArgumentException( $"Couldn't put object of type {value.GetType()} into {nameof(HashMap)}");
+                        throw new ArgumentException($"Couldn't put object of type {value.GetType()} into {nameof(HashMap)}");
                     }
             }
         }
@@ -116,6 +116,13 @@ namespace System.Collections.Generic
                     }
             }
         }
+
+        public static Bundle ToBundle(this IDictionary<string, string> dictionary)
+        {
+            var bundle = new Bundle();
+            dictionary.ToList().ForEach(x => bundle.Put(x.Key, x.Value));
+            return bundle;
+        }
         
         public static IDictionary<string, Java.Lang.Object> ToJavaObjectDictionary(this IDictionary<string, object> dictionary)
         {
@@ -173,6 +180,48 @@ namespace System.Collections.Generic
             var dict = new Dictionary<string, object>();
             @this.ToList().ForEach(x => dict.Add(x.Key.ToString(), x.Value));
             return dict.ToJavaObjectDictionary();
+        }
+
+        public static IDictionary<string, string> ToDictionary(this Bundle bundle)
+        {
+            return bundle
+                .KeySet()
+                .Select(x => (x, bundle.GetObject(x).ToString()))
+                .ToDictionary(x => x.Item1, x => x.Item2);
+        }
+
+        private static object GetObject(this Bundle bundle, string key)
+        {
+            dynamic obj = bundle.GetString(key);
+            if(obj != null) {
+                return obj;
+            }
+
+            obj = bundle.GetBundle(key);
+            if(obj != null) {
+                return obj;
+            }
+
+            obj = bundle.GetInt(key, int.MaxValue);
+            if(obj != int.MaxValue) {
+                return obj;
+            }
+
+            obj = bundle.GetLong(key, long.MaxValue);
+            if(obj != long.MaxValue) {
+                return obj;
+            }
+
+            obj = bundle.GetFloat(key, float.MaxValue);
+            if(obj < float.MaxValue) {
+                return obj;
+            }
+            
+            obj = bundle.GetDouble(key, double.MaxValue);
+            if(obj < double.MaxValue) {
+                return obj;
+            }
+            throw new ArgumentException($"Couldn't extract value for key {key} from bundle: {bundle}");
         }
     }
 }

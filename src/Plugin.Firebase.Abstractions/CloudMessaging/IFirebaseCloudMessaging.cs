@@ -11,6 +11,7 @@ namespace Plugin.Firebase.Abstractions.CloudMessaging
         
         event EventHandler<FCMTokenChangedEventArgs> TokenChanged;
         event EventHandler<FCMNotificationReceivedEventArgs> NotificationReceived;
+        event EventHandler<FCMNotificationTappedEventArgs> NotificationTapped;
         event EventHandler<FCMErrorEventArgs> Error;
 
         string Token { get; }

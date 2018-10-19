@@ -15,29 +15,25 @@ namespace Plugin.Firebase.iOS.Extensions
         
         public static FCMNotification ToFCMNotification(this NSDictionary userInfo)
         {
-            var apsDict = userInfo.ValueForKey(new NSString("aps"));
-            if(apsDict == null) {
-                var notification = userInfo.ValueForKey(new NSString("notification"));
-                if(notification is NSDictionary dict) {
-                    return new FCMNotification(dict.ValueForKey(new NSString("body"))?.ToString(), dict.ValueForKey(new NSString("title"))?.ToString(), ExctractData(userInfo));
-                }
-            } else {
-                var alert = apsDict.ValueForKey(new NSString("alert"));
+            if(userInfo["aps"] is NSDictionary apsDict) {
+                var alert = apsDict["alert"];
                 if(alert is NSDictionary dict) {
-                    return new FCMNotification(dict.ValueForKey(new NSString("body"))?.ToString(), dict.ValueForKey(new NSString("title"))?.ToString(), ExctractData(userInfo));
+                    return new FCMNotification(dict["body"]?.ToString(), dict["title"]?.ToString(), userInfo.ToDictionary());
                 } else if(alert != null) {
-                    return new FCMNotification(alert.ToString(), "", ExctractData(userInfo));
+                    return new FCMNotification(alert.ToString(), "", userInfo.ToDictionary());
                 } 
+            } else {
+                var notification = userInfo["notification"];
+                if(notification is NSDictionary dict) {
+                    return new FCMNotification(dict["body"]?.ToString(), dict["title"]?.ToString(), userInfo.ToDictionary());
+                }
             }
             return FCMNotification.Empty();
         }
 
-        private static Dictionary<string, string> ExctractData(NSDictionary userInfo)
+        private static Dictionary<string, string> ToDictionary(this NSDictionary dictionary)
         {
-            return userInfo
-                .Select(x => x)
-                .ToList()
-                .ToDictionary(x => x.Key.ToString(), x => x.Value.ToString());
+            return dictionary.ToDictionary(x => x.Key.ToString(), x => x.Value.ToString());
         }
     }
 }

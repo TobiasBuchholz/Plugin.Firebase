@@ -9,24 +9,27 @@ namespace Plugin.Firebase.Abstractions.CloudMessaging
         {
             return new FCMNotification();
         }
+
+        private readonly string _body;
+        private readonly string _title;
         
         public FCMNotification(
             string body = null, 
             string title = null, 
             IDictionary<string, string> data = null)
         {
-            Body = body;
-            Title = title;
+            _body = body;
+            _title = title;
             Data = data;
         }
 
         public override string ToString()
         {
-            return string.Format($"[FCMNotification: Body={Body}, Title={Title}, Data=") + string.Join(", ", Data?.Select(kvp => $"{kvp.Key}:{kvp.Value}")) + "]";
+            return $"[FCMNotification: Body={Body}, Title={Title}, Data={(Data == null ? "" : string.Join(", ", Data.Select(kvp => $"{kvp.Key}:{kvp.Value}")))}]";
         }
-        
-        public string Body { get; }
-        public string Title { get; }
+
+        public string Body => _body ?? Data?["body"];
+        public string Title => _title ?? Data?["title"];
         public IDictionary<string, string> Data { get; }
     }
 }

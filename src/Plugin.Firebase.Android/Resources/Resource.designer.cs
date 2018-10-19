@@ -2142,73 +2142,76 @@ namespace Plugin.Firebase.Android
 			public static int googleg_standard_color_18 = 2130837635;
 			
 			// aapt resource value: 0x7f020084
-			public static int messenger_bubble_large_blue = 2130837636;
+			public static int ic_stat_notify = 2130837636;
 			
 			// aapt resource value: 0x7f020085
-			public static int messenger_bubble_large_white = 2130837637;
+			public static int messenger_bubble_large_blue = 2130837637;
 			
 			// aapt resource value: 0x7f020086
-			public static int messenger_bubble_small_blue = 2130837638;
+			public static int messenger_bubble_large_white = 2130837638;
 			
 			// aapt resource value: 0x7f020087
-			public static int messenger_bubble_small_white = 2130837639;
+			public static int messenger_bubble_small_blue = 2130837639;
 			
 			// aapt resource value: 0x7f020088
-			public static int messenger_button_blue_bg_round = 2130837640;
+			public static int messenger_bubble_small_white = 2130837640;
 			
 			// aapt resource value: 0x7f020089
-			public static int messenger_button_blue_bg_selector = 2130837641;
+			public static int messenger_button_blue_bg_round = 2130837641;
 			
 			// aapt resource value: 0x7f02008a
-			public static int messenger_button_send_round_shadow = 2130837642;
+			public static int messenger_button_blue_bg_selector = 2130837642;
 			
 			// aapt resource value: 0x7f02008b
-			public static int messenger_button_white_bg_round = 2130837643;
+			public static int messenger_button_send_round_shadow = 2130837643;
 			
 			// aapt resource value: 0x7f02008c
-			public static int messenger_button_white_bg_selector = 2130837644;
+			public static int messenger_button_white_bg_round = 2130837644;
 			
 			// aapt resource value: 0x7f02008d
-			public static int notification_action_background = 2130837645;
+			public static int messenger_button_white_bg_selector = 2130837645;
 			
 			// aapt resource value: 0x7f02008e
-			public static int notification_bg = 2130837646;
+			public static int notification_action_background = 2130837646;
 			
 			// aapt resource value: 0x7f02008f
-			public static int notification_bg_low = 2130837647;
+			public static int notification_bg = 2130837647;
 			
 			// aapt resource value: 0x7f020090
-			public static int notification_bg_low_normal = 2130837648;
+			public static int notification_bg_low = 2130837648;
 			
 			// aapt resource value: 0x7f020091
-			public static int notification_bg_low_pressed = 2130837649;
+			public static int notification_bg_low_normal = 2130837649;
 			
 			// aapt resource value: 0x7f020092
-			public static int notification_bg_normal = 2130837650;
+			public static int notification_bg_low_pressed = 2130837650;
 			
 			// aapt resource value: 0x7f020093
-			public static int notification_bg_normal_pressed = 2130837651;
+			public static int notification_bg_normal = 2130837651;
 			
 			// aapt resource value: 0x7f020094
-			public static int notification_icon_background = 2130837652;
-			
-			// aapt resource value: 0x7f020099
-			public static int notification_template_icon_bg = 2130837657;
-			
-			// aapt resource value: 0x7f02009a
-			public static int notification_template_icon_low_bg = 2130837658;
+			public static int notification_bg_normal_pressed = 2130837652;
 			
 			// aapt resource value: 0x7f020095
-			public static int notification_tile_bg = 2130837653;
+			public static int notification_icon_background = 2130837653;
+			
+			// aapt resource value: 0x7f02009a
+			public static int notification_template_icon_bg = 2130837658;
+			
+			// aapt resource value: 0x7f02009b
+			public static int notification_template_icon_low_bg = 2130837659;
 			
 			// aapt resource value: 0x7f020096
-			public static int notify_panel_notification_icon_bg = 2130837654;
+			public static int notification_tile_bg = 2130837654;
 			
 			// aapt resource value: 0x7f020097
-			public static int tooltip_frame_dark = 2130837655;
+			public static int notify_panel_notification_icon_bg = 2130837655;
 			
 			// aapt resource value: 0x7f020098
-			public static int tooltip_frame_light = 2130837656;
+			public static int tooltip_frame_dark = 2130837656;
+			
+			// aapt resource value: 0x7f020099
+			public static int tooltip_frame_light = 2130837657;
 			
 			static Drawable()
 			{

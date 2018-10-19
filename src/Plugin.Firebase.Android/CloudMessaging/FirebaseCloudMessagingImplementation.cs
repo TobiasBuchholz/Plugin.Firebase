@@ -1,22 +1,26 @@
 ﻿using System;
-using System.Linq;
+using Android.App;
 using Android.Content;
 using Android.Gms.Common;
+using Android.Support.V4.App;
 using Firebase.Iid;
 using Plugin.Firebase.Abstractions.CloudMessaging;
 using Plugin.Firebase.Abstractions.CloudMessaging.EventArgs;
 using Plugin.Firebase.Abstractions.Common;
+using Plugin.Firebase.Android;
+using Plugin.Firebase.Android.Extensions;
 
 namespace Plugin.Firebase.CloudMessaging
 {
     public sealed class FirebaseCloudMessagingImplementation : DisposableBase, IFirebaseCloudMessaging
-    {        
-        public static void Initialize(Context context)
-        {
-            _context = context;
-        }
-        
+    {
+        private const string IntentKeyFCMNotification = "intent_key_fcm_notification";
         private static Context _context;
+
+        public FirebaseCloudMessagingImplementation()
+        {
+            _context = Application.Context;
+        }
 
         public void CheckIfValid()
         {
@@ -43,27 +47,52 @@ namespace Plugin.Firebase.CloudMessaging
         public void OnNotificationReceived(FCMNotification fcmNotification)
         {
             NotificationReceived?.Invoke(this, new FCMNotificationReceivedEventArgs(fcmNotification));
+            HandleShowLocalNotification(fcmNotification);
         }
 
-        public void HandleOpenIntent(Intent intent)
+        private static void HandleShowLocalNotification(FCMNotification notification)
         {
-            if(intent.Extras != null) {
-                OnNotificationReceived(ConvertToFCMNotification(intent));
+            if(ShowLocalNotificationAction == null) {
+                ShowLocalNotification(notification);
+            } else {
+                ShowLocalNotificationAction(notification);
             }
         }
 
-        private static FCMNotification ConvertToFCMNotification(Intent intent)
+        private static void ShowLocalNotification(FCMNotification notification)
         {
-            return new FCMNotification(data: intent
-                .Extras
-                .KeySet()
-                .Select(x => Tuple.Create(x, intent.Extras.GetString(x)))
-                .ToList()
-                .ToDictionary(x => x.Item1, x => x.Item2));
-        } 
+            var intent = _context.PackageManager.GetLaunchIntentForPackage(_context.PackageName);
+            intent.PutExtra(IntentKeyFCMNotification, notification.ToBundle());
+            intent.SetFlags(ActivityFlags.ClearTop | ActivityFlags.SingleTop);
+            var pendingIntent = PendingIntent.GetActivity(_context, 0, intent, 0);
+
+            var builder = new NotificationCompat.Builder(_context, ChannelId)
+                .SetSmallIcon(Resource.Drawable.ic_stat_notify)
+                .SetContentTitle(notification.Title)
+                .SetContentText(notification.Body)
+                .SetPriority(NotificationCompat.PriorityDefault)
+                .SetAutoCancel(true)
+                .SetContentIntent(pendingIntent);
+
+            var notificationManager = (NotificationManager) _context.GetSystemService(Context.NotificationService);
+            notificationManager.Notify(1337, builder.Build());
+        }
+        
+        public void OnNewIntent(Intent intent)
+        {
+            if(intent.HasExtra(IntentKeyFCMNotification)) {
+                var notification = intent.GetBundleExtra(IntentKeyFCMNotification).ToFCMNotification();
+                NotificationTapped?.Invoke(this, new FCMNotificationTappedEventArgs(notification));
+                intent.RemoveExtra(IntentKeyFCMNotification);
+            }
+        }
+
+        public static string ChannelId { get; set; }
+        public static Action<FCMNotification> ShowLocalNotificationAction { private get; set; }
         
         public event EventHandler<FCMTokenChangedEventArgs> TokenChanged;
         public event EventHandler<FCMNotificationReceivedEventArgs> NotificationReceived;
+        public event EventHandler<FCMNotificationTappedEventArgs> NotificationTapped;
         public event EventHandler<FCMErrorEventArgs> Error;
         public string Token => FirebaseInstanceId.Instance.Token;
     }

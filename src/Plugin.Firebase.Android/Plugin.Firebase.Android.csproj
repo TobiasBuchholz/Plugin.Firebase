@@ -185,6 +185,7 @@
     <Reference Include="Xamarin.Firebase.Messaging">
       <HintPath>..\packages\Xamarin.Firebase.Messaging.60.1142.1\lib\MonoAndroid80\Xamarin.Firebase.Messaging.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Plugin.Firebase\Analytics\CrossFirebaseAnalytics.cs">
@@ -238,12 +239,16 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\Strings.xml" />
+    <AndroidResource Include="Resources\drawable\ic_stat_notify.xml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Plugin.Firebase.Abstractions\Plugin.Firebase.Abstractions.csproj">
       <Project>{20CA3CB9-9172-4E5C-9E57-0663E45E6E4D}</Project>
       <Name>Plugin.Firebase.Abstractions</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\drawable\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

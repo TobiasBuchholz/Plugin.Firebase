@@ -70,6 +70,7 @@ namespace Plugin.Firebase.CloudMessaging
         public void WillPresentNotification(UNUserNotificationCenter center, UNNotification notification, Action<UNNotificationPresentationOptions> completionHandler)
         {
             OnNotificationReceived(notification.ToFCMNotification());
+            completionHandler(UNNotificationPresentationOptions.Alert);
         }
         
         public void OnNotificationReceived(FCMNotification message)
@@ -80,7 +81,7 @@ namespace Plugin.Firebase.CloudMessaging
         [Export("userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler:")]
         public void DidReceiveNotificationResponse(UNUserNotificationCenter center, UNNotificationResponse response, Action completionHandler)
         {
-            OnNotificationReceived(response.Notification.ToFCMNotification());
+            NotificationTapped?.Invoke(this, new FCMNotificationTappedEventArgs(response.Notification.ToFCMNotification()));
         }
 
         // from the docs but never called actually
@@ -91,6 +92,7 @@ namespace Plugin.Firebase.CloudMessaging
         
         public event EventHandler<FCMTokenChangedEventArgs> TokenChanged;
         public event EventHandler<FCMNotificationReceivedEventArgs> NotificationReceived;
+        public event EventHandler<FCMNotificationTappedEventArgs> NotificationTapped;
         public event EventHandler<FCMErrorEventArgs> Error;
 
         public string Token => InstanceId.SharedInstance.Token;

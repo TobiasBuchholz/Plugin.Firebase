@@ -7,6 +7,9 @@ namespace Plugin.Firebase.iOS
         public static void Initialize()
         {
             App.Configure();
+            ProjectId = App.DefaultInstance.Options.ProjectId;
         } 
+        
+        public static string ProjectId { get; private set; }
     }
 }

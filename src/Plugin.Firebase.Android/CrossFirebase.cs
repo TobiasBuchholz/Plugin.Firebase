@@ -17,9 +17,11 @@ namespace Plugin.Firebase.Android
 
             if(Current == null) {
                 Current = FirebaseApp.InitializeApp(context, options, options.ProjectId);
+                ProjectId = Current.Options.ProjectId;
             }
         } 
         
         public static FirebaseApp Current { get; private set; }
+        public static string ProjectId { get; private set; }
     }
 }

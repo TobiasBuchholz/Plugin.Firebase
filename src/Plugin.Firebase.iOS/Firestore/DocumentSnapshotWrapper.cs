@@ -9,7 +9,9 @@ namespace Plugin.Firebase.iOS.Firestore
     {
         public DocumentSnapshotWrapper(DocumentSnapshot documentSnapshot)
         {
-            Data = documentSnapshot.Data.Cast<T>();
+            if(documentSnapshot.Data != null) {
+                Data = documentSnapshot.Data.Cast<T>();
+            }
             Metadata = new SnapshotMetadataWrapper(documentSnapshot.Metadata);
             Reference = new DocumentReferenceWrapper(documentSnapshot.Reference);
         }

@@ -1,7 +1,6 @@
 using Firebase.Firestore;
 using Plugin.Firebase.Abstractions.Firestore;
 using Plugin.Firebase.Android.Extensions;
-using Plugin.Firebase.Firestore;
 
 namespace Plugin.Firebase.Android.Firestore
 {
@@ -9,7 +8,9 @@ namespace Plugin.Firebase.Android.Firestore
     {
         public DocumentSnapshotWrapper(DocumentSnapshot snapshot)
         {
-            Data = snapshot.Data.Cast<T>();
+            if(snapshot.Data != null) {
+                Data = snapshot.Data.Cast<T>();
+            }
             Metadata = new SnapshotMetadataWrapper(snapshot.Metadata);
             Reference = new DocumentReferenceWrapper(snapshot.Reference);
         }

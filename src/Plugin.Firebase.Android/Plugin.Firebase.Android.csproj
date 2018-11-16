@@ -62,29 +62,37 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="Mono.Android" />
-    <Reference Include="Xamarin.Facebook.Core.Android">
-      <HintPath>..\packages\Xamarin.Facebook.Core.Android.4.34.0\lib\monoandroid81\Xamarin.Facebook.Core.Android.dll</HintPath>
+    <Reference Include="Xamarin.Facebook.Android, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Xamarin.Facebook.Android.4.38.0\lib\monoandroid81\Xamarin.Facebook.Android.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Xamarin.Facebook.AppLinks.Android">
-      <HintPath>..\packages\Xamarin.Facebook.AppLinks.Android.4.34.0\lib\monoandroid81\Xamarin.Facebook.AppLinks.Android.dll</HintPath>
+    <Reference Include="Xamarin.Facebook.AppLinks.Android, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Xamarin.Facebook.AppLinks.Android.4.38.0\lib\monoandroid81\Xamarin.Facebook.AppLinks.Android.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Xamarin.Facebook.Messenger.Android">
-      <HintPath>..\packages\Xamarin.Facebook.Messenger.Android.4.34.0\lib\monoandroid81\Xamarin.Facebook.Messenger.Android.dll</HintPath>
+    <Reference Include="Xamarin.Facebook.Common.Android, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Xamarin.Facebook.Common.Android.4.38.0\lib\monoandroid81\Xamarin.Facebook.Common.Android.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Xamarin.Facebook.Places.Android">
-      <HintPath>..\packages\Xamarin.Facebook.Places.Android.4.34.0\lib\monoandroid81\Xamarin.Facebook.Places.Android.dll</HintPath>
+    <Reference Include="Xamarin.Facebook.Core.Android, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Xamarin.Facebook.Core.Android.4.38.0\lib\monoandroid81\Xamarin.Facebook.Core.Android.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Xamarin.Facebook.Common.Android">
-      <HintPath>..\packages\Xamarin.Facebook.Common.Android.4.34.0\lib\monoandroid81\Xamarin.Facebook.Common.Android.dll</HintPath>
+    <Reference Include="Xamarin.Facebook.Login.Android, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Xamarin.Facebook.Login.Android.4.38.0\lib\monoandroid81\Xamarin.Facebook.Login.Android.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Xamarin.Facebook.Login.Android">
-      <HintPath>..\packages\Xamarin.Facebook.Login.Android.4.34.0\lib\monoandroid81\Xamarin.Facebook.Login.Android.dll</HintPath>
+    <Reference Include="Xamarin.Facebook.Messenger.Android, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Xamarin.Facebook.Messenger.Android.4.38.0\lib\monoandroid81\Xamarin.Facebook.Messenger.Android.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Xamarin.Facebook.Share.Android">
-      <HintPath>..\packages\Xamarin.Facebook.Share.Android.4.34.0\lib\monoandroid81\Xamarin.Facebook.Share.Android.dll</HintPath>
+    <Reference Include="Xamarin.Facebook.Places.Android, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Xamarin.Facebook.Places.Android.4.38.0\lib\monoandroid81\Xamarin.Facebook.Places.Android.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Xamarin.Facebook.Android">
-      <HintPath>..\packages\Xamarin.Facebook.Android.4.34.0\lib\monoandroid81\Xamarin.Facebook.Android.dll</HintPath>
+    <Reference Include="Xamarin.Facebook.Share.Android, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Xamarin.Facebook.Share.Android.4.38.0\lib\monoandroid81\Xamarin.Facebook.Share.Android.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Xamarin.Firebase.Analytics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\packages\Xamarin.Firebase.Analytics.60.1142.1\lib\MonoAndroid80\Xamarin.Firebase.Analytics.dll</HintPath>

@@ -50,61 +50,70 @@
     </MtouchHttpClientHandler>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Facebook.CoreKit, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Xamarin.Facebook.CoreKit.iOS.4.38.0\lib\Xamarin.iOS10\Facebook.CoreKit.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Facebook.LoginKit, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Xamarin.Facebook.LoginKit.iOS.4.38.0\lib\Xamarin.iOS10\Facebook.LoginKit.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Facebook.MarketingKit, Version=1.0.6879.35668, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Xamarin.Facebook.MarketingKit.iOS.4.38.0\lib\Xamarin.iOS10\Facebook.MarketingKit.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Facebook.MessengerShareKit, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Xamarin.Facebook.MessengerShareKit.iOS.1.3.2.1\lib\Xamarin.iOS10\Facebook.MessengerShareKit.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Facebook.PlacesKit, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Xamarin.Facebook.PlacesKit.iOS.4.38.0\lib\Xamarin.iOS10\Facebook.PlacesKit.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Facebook.ShareKit, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Xamarin.Facebook.ShareKit.iOS.4.38.0\lib\Xamarin.iOS10\Facebook.ShareKit.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Firebase.ABTesting, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Xamarin.Firebase.iOS.ABTesting.2.0.0.1\lib\Xamarin.iOS10\Firebase.ABTesting.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Firebase.Analytics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Xamarin.Firebase.iOS.Analytics.5.0.1\lib\Xamarin.iOS10\Firebase.Analytics.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Firebase.iOS.Analytics.5.1.4\lib\Xamarin.iOS10\Firebase.Analytics.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Firebase.Auth, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Xamarin.Firebase.iOS.Auth.5.0.2\lib\Xamarin.iOS10\Firebase.Auth.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Firebase.iOS.Auth.5.0.4\lib\Xamarin.iOS10\Firebase.Auth.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Firebase.CloudFirestore, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Xamarin.Firebase.iOS.CloudFirestore.0.12.5\lib\Xamarin.iOS10\Firebase.CloudFirestore.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Firebase.iOS.CloudFirestore.0.13.3\lib\Xamarin.iOS10\Firebase.CloudFirestore.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Firebase.CloudMessaging, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Xamarin.Firebase.iOS.CloudMessaging.3.1.2\lib\Xamarin.iOS10\Firebase.CloudMessaging.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Firebase.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Xamarin.Firebase.iOS.Core.5.0.5\lib\Xamarin.iOS10\Firebase.Core.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Firebase.iOS.Core.5.1.3\lib\Xamarin.iOS10\Firebase.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Firebase.InstanceID, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Xamarin.Firebase.iOS.InstanceID.3.1.1\lib\Xamarin.iOS10\Firebase.InstanceID.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Firebase.iOS.InstanceID.3.2.1\lib\Xamarin.iOS10\Firebase.InstanceID.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Firebase.RemoteConfig, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Xamarin.Firebase.iOS.RemoteConfig.3.0.1\lib\Xamarin.iOS10\Firebase.RemoteConfig.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Google.SignIn, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Xamarin.Google.iOS.SignIn.4.1.2\lib\Xamarin.iOS10\Google.SignIn.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Google.iOS.SignIn.4.2.0\lib\Xamarin.iOS10\Google.SignIn.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.iOS" />
-    <Reference Include="Firebase.ABTesting">
-      <HintPath>..\packages\Xamarin.Firebase.iOS.ABTesting.2.0.0\lib\Xamarin.iOS10\Firebase.ABTesting.dll</HintPath>
-    </Reference>
-    <Reference Include="Firebase.RemoteConfig">
-      <HintPath>..\packages\Xamarin.Firebase.iOS.RemoteConfig.3.0.0\lib\Xamarin.iOS10\Firebase.RemoteConfig.dll</HintPath>
-    </Reference>
-    <Reference Include="Firebase.CloudMessaging">
-      <HintPath>..\packages\Xamarin.Firebase.iOS.CloudMessaging.3.0.3\lib\Xamarin.iOS10\Firebase.CloudMessaging.dll</HintPath>
-    </Reference>
-    <Reference Include="Facebook.CoreKit">
-      <HintPath>..\packages\Xamarin.Facebook.CoreKit.iOS.4.35.0\lib\Xamarin.iOS10\Facebook.CoreKit.dll</HintPath>
-    </Reference>
-    <Reference Include="Facebook.LoginKit">
-      <HintPath>..\packages\Xamarin.Facebook.LoginKit.iOS.4.35.0\lib\Xamarin.iOS10\Facebook.LoginKit.dll</HintPath>
-    </Reference>
-    <Reference Include="Facebook.MarketingKit">
-      <HintPath>..\packages\Xamarin.Facebook.MarketingKit.iOS.4.35.0\lib\Xamarin.iOS10\Facebook.MarketingKit.dll</HintPath>
-    </Reference>
-    <Reference Include="Facebook.MessengerShareKit">
-      <HintPath>..\packages\Xamarin.Facebook.MessengerShareKit.iOS.1.3.2\lib\Xamarin.iOS10\Facebook.MessengerShareKit.dll</HintPath>
-    </Reference>
-    <Reference Include="Facebook.PlacesKit">
-      <HintPath>..\packages\Xamarin.Facebook.PlacesKit.iOS.4.35.0\lib\Xamarin.iOS10\Facebook.PlacesKit.dll</HintPath>
-    </Reference>
-    <Reference Include="Facebook.ShareKit">
-      <HintPath>..\packages\Xamarin.Facebook.ShareKit.iOS.4.35.0\lib\Xamarin.iOS10\Facebook.ShareKit.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
@@ -173,6 +182,11 @@
     <Error Condition="!Exists('..\packages\Xamarin.Firebase.iOS.InstanceID.3.1.1\build\Xamarin.Firebase.iOS.InstanceID.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Firebase.iOS.InstanceID.3.1.1\build\Xamarin.Firebase.iOS.InstanceID.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.Firebase.iOS.Analytics.5.0.1\build\Xamarin.Firebase.iOS.Analytics.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Firebase.iOS.Analytics.5.0.1\build\Xamarin.Firebase.iOS.Analytics.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.Google.iOS.SignIn.4.1.2\build\Xamarin.Google.iOS.SignIn.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Google.iOS.SignIn.4.1.2\build\Xamarin.Google.iOS.SignIn.targets'))" />
+    <Error Condition="!Exists('..\packages\Xamarin.Firebase.iOS.InstanceID.3.2.1\build\Xamarin.Firebase.iOS.InstanceID.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Firebase.iOS.InstanceID.3.2.1\build\Xamarin.Firebase.iOS.InstanceID.targets'))" />
+    <Error Condition="!Exists('..\packages\Xamarin.Firebase.iOS.Analytics.5.1.4\build\Xamarin.Firebase.iOS.Analytics.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Firebase.iOS.Analytics.5.1.4\build\Xamarin.Firebase.iOS.Analytics.targets'))" />
+    <Error Condition="!Exists('..\packages\Xamarin.Firebase.iOS.ABTesting.2.0.0.1\build\Xamarin.Firebase.iOS.ABTesting.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Firebase.iOS.ABTesting.2.0.0.1\build\Xamarin.Firebase.iOS.ABTesting.targets'))" />
+    <Error Condition="!Exists('..\packages\Xamarin.Firebase.iOS.RemoteConfig.3.0.1\build\Xamarin.Firebase.iOS.RemoteConfig.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Firebase.iOS.RemoteConfig.3.0.1\build\Xamarin.Firebase.iOS.RemoteConfig.targets'))" />
+    <Error Condition="!Exists('..\packages\Xamarin.Google.iOS.SignIn.4.2.0\build\Xamarin.Google.iOS.SignIn.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Google.iOS.SignIn.4.2.0\build\Xamarin.Google.iOS.SignIn.targets'))" />
   </Target>
   <Import Project="..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.targets')" />
   <Import Project="..\packages\Xamarin.Firebase.iOS.InstanceID.3.1.1\build\Xamarin.Firebase.iOS.InstanceID.targets" Condition="Exists('..\packages\Xamarin.Firebase.iOS.InstanceID.3.1.1\build\Xamarin.Firebase.iOS.InstanceID.targets')" />
@@ -180,4 +194,9 @@
   <Import Project="..\packages\Xamarin.Google.iOS.SignIn.4.1.2\build\Xamarin.Google.iOS.SignIn.targets" Condition="Exists('..\packages\Xamarin.Google.iOS.SignIn.4.1.2\build\Xamarin.Google.iOS.SignIn.targets')" />
   <Import Project="..\packages\Xamarin.Firebase.iOS.ABTesting.2.0.0\build\Xamarin.Firebase.iOS.ABTesting.targets" Condition="Exists('..\packages\Xamarin.Firebase.iOS.ABTesting.2.0.0\build\Xamarin.Firebase.iOS.ABTesting.targets')" />
   <Import Project="..\packages\Xamarin.Firebase.iOS.RemoteConfig.3.0.0\build\Xamarin.Firebase.iOS.RemoteConfig.targets" Condition="Exists('..\packages\Xamarin.Firebase.iOS.RemoteConfig.3.0.0\build\Xamarin.Firebase.iOS.RemoteConfig.targets')" />
+  <Import Project="..\packages\Xamarin.Firebase.iOS.InstanceID.3.2.1\build\Xamarin.Firebase.iOS.InstanceID.targets" Condition="Exists('..\packages\Xamarin.Firebase.iOS.InstanceID.3.2.1\build\Xamarin.Firebase.iOS.InstanceID.targets')" />
+  <Import Project="..\packages\Xamarin.Firebase.iOS.Analytics.5.1.4\build\Xamarin.Firebase.iOS.Analytics.targets" Condition="Exists('..\packages\Xamarin.Firebase.iOS.Analytics.5.1.4\build\Xamarin.Firebase.iOS.Analytics.targets')" />
+  <Import Project="..\packages\Xamarin.Firebase.iOS.ABTesting.2.0.0.1\build\Xamarin.Firebase.iOS.ABTesting.targets" Condition="Exists('..\packages\Xamarin.Firebase.iOS.ABTesting.2.0.0.1\build\Xamarin.Firebase.iOS.ABTesting.targets')" />
+  <Import Project="..\packages\Xamarin.Firebase.iOS.RemoteConfig.3.0.1\build\Xamarin.Firebase.iOS.RemoteConfig.targets" Condition="Exists('..\packages\Xamarin.Firebase.iOS.RemoteConfig.3.0.1\build\Xamarin.Firebase.iOS.RemoteConfig.targets')" />
+  <Import Project="..\packages\Xamarin.Google.iOS.SignIn.4.2.0\build\Xamarin.Google.iOS.SignIn.targets" Condition="Exists('..\packages\Xamarin.Google.iOS.SignIn.4.2.0\build\Xamarin.Google.iOS.SignIn.targets')" />
 </Project>

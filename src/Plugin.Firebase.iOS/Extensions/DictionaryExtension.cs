@@ -64,12 +64,15 @@ namespace System.Collections.Generic
             var dict = new Dictionary<object, object>();
             var properties = @this.GetType().GetProperties();
             foreach(var property in properties) {
-                var attribute = (FirestorePropertyAttribute) property.GetCustomAttributes(typeof(FirestorePropertyAttribute), true)[0];
-                var value = property.GetValue(@this);
-                if(value is DateTime date) {
-                    dict[attribute.PropertyName] = date.ToNSDate();
-                } else {
-                    dict[attribute.PropertyName] = value;
+                var attributes = property.GetCustomAttributes(typeof(FirestorePropertyAttribute), true);
+                if(attributes.Any()) {
+                    var attribute = (FirestorePropertyAttribute) attributes[0];
+                    var value = property.GetValue(@this);
+                    if(value is DateTime date) {
+                        dict[attribute.PropertyName] = date.ToNSDate();
+                    } else {
+                        dict[attribute.PropertyName] = value;
+                    }
                 }
             }
             return dict;

@@ -67,8 +67,11 @@ namespace System.Collections.Generic
             var map = new HashMap();
             var properties = @this.GetType().GetProperties();
             foreach(var property in properties) {
-                var attribute = (FirestorePropertyAttribute) property.GetCustomAttributes(typeof(FirestorePropertyAttribute), true)[0];
-                map.Put(attribute.PropertyName, property.GetValue(@this));
+                var attributes = property.GetCustomAttributes(typeof(FirestorePropertyAttribute), true);
+                if(attributes.Any()) {
+                    var attribute = (FirestorePropertyAttribute) attributes[0];
+                    map.Put(attribute.PropertyName, property.GetValue(@this));
+                }
             }
             return map;
         }

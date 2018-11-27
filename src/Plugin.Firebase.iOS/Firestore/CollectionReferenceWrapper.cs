@@ -25,6 +25,31 @@ namespace Plugin.Firebase.iOS.Firestore
             return new DocumentReferenceWrapper(_reference.CreateDocument());
         }
 
+        public IQuery WhereEqualsTo(string field, object value)
+        {
+            return new QueryWrapper(_reference.WhereEqualsTo(field, value));
+        }
+
+        public IQuery WhereGreaterThan(string field, object value)
+        {
+            return new QueryWrapper(_reference.WhereGreaterThan(field, value));
+        }
+
+        public IQuery WhereLessThan(string field, object value)
+        {
+            return new QueryWrapper(_reference.WhereLessThan(field, value));
+        }
+
+        public IQuery WhereGreaterThanOrEqualsTo(string field, object value)
+        {
+            return new QueryWrapper(_reference.WhereGreaterThanOrEqualsTo(field, value));
+        }
+
+        public IQuery WhereLessThanOrEqualsTo(string field, object value)
+        {
+            return new QueryWrapper(_reference.WhereLessThanOrEqualsTo(field, value));
+        }
+
         public Task<IDocumentReference> AddDocumentAsync(object data)
         {
             var tcs = new TaskCompletionSource<IDocumentReference>();

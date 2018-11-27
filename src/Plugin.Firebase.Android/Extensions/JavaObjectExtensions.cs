@@ -69,5 +69,26 @@ namespace Plugin.Firebase.Android.Extensions
                     throw new ArgumentException($"Could not convert Java.Lang.Object of type {@this.GetType()} to object");
             }
         }
+
+        public static Java.Lang.Object ToJavaObject(this object @this)
+        {
+            switch(@this) {
+                case string x:
+                    return x;
+                case int x:
+                    return x;
+                case long x:
+                    return x;
+                case float x:
+                    return x;
+                case double x:
+                    return x;
+                case bool x:
+                    return x;
+                case DateTime x:
+                    return x.ToJavaDate();
+            }
+            throw new ArgumentException($"Could not convert object of type {@this.GetType()} to Java.Lang.Object");
+        }
     }
 }

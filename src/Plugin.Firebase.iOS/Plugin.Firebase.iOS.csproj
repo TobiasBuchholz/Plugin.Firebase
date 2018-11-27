@@ -146,6 +146,8 @@
     <Compile Include="Firestore\DocumentReferenceWrapper.cs" />
     <Compile Include="Firestore\DocumentSnapshotWrapper.cs" />
     <Compile Include="Firestore\FirebaseFirestoreImplementation.cs" />
+    <Compile Include="Firestore\QuerySnapshotWrapper.cs" />
+    <Compile Include="Firestore\QueryWrapper.cs" />
     <Compile Include="Firestore\SnapshotMetadataWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\Plugin.Firebase\Auth\CrossFirebaseAuth.cs">

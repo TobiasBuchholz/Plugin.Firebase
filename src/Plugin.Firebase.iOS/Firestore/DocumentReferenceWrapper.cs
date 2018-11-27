@@ -72,7 +72,7 @@ namespace Plugin.Firebase.iOS.Firestore
             Action<Exception> onError = null,
             bool includeMetaDataChanges = false)
         {
-            var registration = _reference.AddSnapshotListener((snapshot, error) => {
+            var registration = _reference.AddSnapshotListener(includeMetaDataChanges, (snapshot, error) => {
                 if(error == null) {
                     onChanged(new DocumentSnapshotWrapper<T>(snapshot));                    
                 } else {

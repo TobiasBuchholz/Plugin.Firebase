@@ -240,6 +240,8 @@
     <Compile Include="..\Plugin.Firebase\Firestore\CrossFirebaseFirestore.cs">
       <Link>Firestore\CrossFirebaseFirestore.cs</Link>
     </Compile>
+    <Compile Include="Firestore\QuerySnapshotWrapper.cs" />
+    <Compile Include="Firestore\QueryWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

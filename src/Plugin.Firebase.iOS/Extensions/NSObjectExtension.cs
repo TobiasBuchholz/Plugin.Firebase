@@ -45,7 +45,7 @@ namespace Plugin.Firebase.iOS.Extensions
                 case NSDate x:
                     return x.ToDateTime();
                 case NSDictionary x:
-                    return x.ToDictionaryObject();
+                    return x.ToDictionaryObject(targetType);
                 case NSArray x:
                     return x.ToList(targetType?.GenericTypeArguments[0]);
                 case global::Firebase.CloudFirestore.GeoPoint x:
@@ -61,7 +61,7 @@ namespace Plugin.Firebase.iOS.Extensions
             }
         }
 
-        private static object ToDictionaryObject(this NSDictionary @this, Type targetType = null)
+        private static object ToDictionaryObject(this NSDictionary @this, Type targetType)
         {
             if(targetType != null && targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) {
                 var types = targetType.GenericTypeArguments;

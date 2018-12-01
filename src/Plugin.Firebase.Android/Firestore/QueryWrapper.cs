@@ -1,11 +1,11 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Android.Gms.Extensions;
 using Android.Runtime;
 using Firebase.Firestore;
 using Plugin.Firebase.Abstractions.Common;
 using Plugin.Firebase.Abstractions.Firestore;
+using Plugin.Firebase.Android.Extensions;
 
 namespace Plugin.Firebase.Android.Firestore
 {
@@ -20,27 +20,27 @@ namespace Plugin.Firebase.Android.Firestore
         
         public IQuery WhereEqualsTo(string field, object value)
         {
-            return new QueryWrapper(_query.WhereEqualTo(field, value.ToHashMap()));
+            return new QueryWrapper(_query.WhereEqualTo(field, value.ToJavaObject()));
         }
 
         public IQuery WhereGreaterThan(string field, object value)
         {
-            return new QueryWrapper(_query.WhereGreaterThan(field, value.ToHashMap()));
+            return new QueryWrapper(_query.WhereGreaterThan(field, value.ToJavaObject()));
         }
 
         public IQuery WhereLessThan(string field, object value)
         {
-            return new QueryWrapper(_query.WhereLessThan(field, value.ToHashMap()));
+            return new QueryWrapper(_query.WhereLessThan(field, value.ToJavaObject()));
         }
 
         public IQuery WhereGreaterThanOrEqualsTo(string field, object value)
         {
-            return new QueryWrapper(_query.WhereGreaterThanOrEqualTo(field, value.ToHashMap()));
+            return new QueryWrapper(_query.WhereGreaterThanOrEqualTo(field, value.ToJavaObject()));
         }
 
         public IQuery WhereLessThanOrEqualsTo(string field, object value)
         {
-            return new QueryWrapper(_query.WhereLessThanOrEqualTo(field, value.ToHashMap()));
+            return new QueryWrapper(_query.WhereLessThanOrEqualTo(field, value.ToJavaObject()));
         }
 
         public async Task<IQuerySnapshot<T>> GetDocumentsAsync<T>()

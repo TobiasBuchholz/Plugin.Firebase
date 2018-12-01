@@ -9,7 +9,7 @@ namespace Plugin.Firebase.Android.Extensions
     {
         public static IList ToList(this JavaList @this, Type targetType = null) 
         {
-            var list = (IList) Activator.CreateInstance((typeof(List<>).MakeGenericType(targetType))); 
+            var list = (IList) Activator.CreateInstance(typeof(List<>).MakeGenericType(targetType)); 
             for(var i = 0; i < @this.Size(); i++) {
                 var value = @this[i];
                 if(value is Java.Lang.Object javaValue) {

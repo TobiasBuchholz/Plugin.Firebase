@@ -226,5 +226,16 @@ namespace System.Collections.Generic
             }
             throw new ArgumentException($"Couldn't extract value for key {key} from bundle: {bundle}");
         }
+        
+        public static IDictionary ToDictionary(this IDictionary @this, Type keyType, Type valueType)
+        {
+            var dict = (IDictionary) Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(keyType, valueType));
+            foreach(DictionaryEntry pair in @this) {
+                var key = pair.Key.ToJavaObject().ToObject(keyType);
+                var value = pair.Value.ToJavaObject().ToObject(valueType);
+                dict[key] = value;
+            }
+            return dict;
+        }
     }
 }

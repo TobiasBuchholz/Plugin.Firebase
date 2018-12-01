@@ -7,7 +7,6 @@ using Android.Runtime;
 using Firebase.Firestore;
 using Plugin.Firebase.Abstractions.Firestore;
 using Plugin.Firebase.Android.Firestore;
-using Plugin.Firebase.Firestore;
 using GeoPoint = Plugin.Firebase.Abstractions.Firestore.GeoPoint;
 
 namespace Plugin.Firebase.Android.Extensions
@@ -43,6 +42,8 @@ namespace Plugin.Firebase.Android.Extensions
         public static object ToObject(this Java.Lang.Object @this, Type targetType = null)
         {
             switch(@this) {
+                case Java.Lang.ICharSequence x:
+                    return x.ToString();
                 case Java.Lang.Boolean x:
                     return x.BooleanValue();
                 case Java.Lang.Integer x:
@@ -53,12 +54,10 @@ namespace Plugin.Firebase.Android.Extensions
                     return x.FloatValue();
                 case Java.Lang.Long x:
                     return x.LongValue();
-                case Java.Lang.String x:
-                    return x.ToString();
                 case Date x:
                     return x.ToDateTime();
                 case IDictionary x:
-                    return x.Cast(targetType);
+                    return x.ToDictionaryObject(targetType);
                 case JavaList x:
                     return x.ToList(targetType?.GenericTypeArguments[0]);
                 case global::Firebase.Firestore.GeoPoint x:
@@ -67,6 +66,16 @@ namespace Plugin.Firebase.Android.Extensions
                     return new DocumentReferenceWrapper(x);
                 default:
                     throw new ArgumentException($"Could not convert Java.Lang.Object of type {@this.GetType()} to object");
+            }
+        }
+
+        private static object ToDictionaryObject(this IDictionary @this, Type targetType)
+        {
+            if(targetType != null && targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) {
+                var types = targetType.GenericTypeArguments;
+                return @this.ToDictionary(types[0], types[1]);
+            } else {
+                return @this.Cast(targetType);
             }
         }
 
@@ -87,6 +96,8 @@ namespace Plugin.Firebase.Android.Extensions
                     return x;
                 case DateTime x:
                     return x.ToJavaDate();
+                case JavaDictionary x:
+                    return x;
             }
             throw new ArgumentException($"Could not convert object of type {@this.GetType()} to Java.Lang.Object");
         }

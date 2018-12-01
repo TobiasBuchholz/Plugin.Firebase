@@ -76,6 +76,15 @@ namespace System.Collections.Generic
                 }
             }
             return dict;
-        } 
+        }
+
+        public static IDictionary ToDictionary(this NSDictionary @this, Type keyType, Type valueType)
+        {
+            var dict = (IDictionary) Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(keyType, valueType));
+            foreach(var pair in @this) {
+                dict[pair.Key.ToObject(keyType)] = pair.Value.ToObject(valueType);
+            }
+            return dict;
+        }
     }
 }

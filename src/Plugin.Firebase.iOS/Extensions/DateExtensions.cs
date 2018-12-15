@@ -16,7 +16,7 @@ namespace Plugin.Firebase.iOS.Extensions
 
         public static DateTime ToDateTime(this NSDate @this)
         {
-            return ((DateTime) @this).ToLocalTime();
+            return ((DateTime) @this);
         }
 
         public static DateTime ToDateTime(this Timestamp @this)

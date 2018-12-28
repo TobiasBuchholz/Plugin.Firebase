@@ -10,7 +10,10 @@ namespace Plugin.Firebase.Abstractions.Firestore
         IQuery WhereLessThan(string field, object value);
         IQuery WhereGreaterThanOrEqualsTo(string field, object value);
         IQuery WhereLessThanOrEqualsTo(string field, object value);
-
+        IQuery OrderBy(string field);
+        IQuery StartingAt(object[] fieldValues);
+        IQuery EndingAt(object[] fieldValues);
+        
         Task<IQuerySnapshot<T>> GetDocumentsAsync<T>();
         IDisposable AddSnapshotListener<T>(Action<IQuerySnapshot<T>> onChanged, Action<Exception> onError = null, bool includeMetaDataChanges = false);
     }

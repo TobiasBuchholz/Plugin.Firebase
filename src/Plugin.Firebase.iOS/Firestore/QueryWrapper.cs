@@ -40,6 +40,21 @@ namespace Plugin.Firebase.iOS.Firestore
             return new QueryWrapper(_query.WhereLessThanOrEqualsTo(field, value));
         }
 
+        public IQuery OrderBy(string field)
+        {
+            return new QueryWrapper(_query.OrderedBy(field));
+        }
+
+        public IQuery StartingAt(object[] fieldValues)
+        {
+            return new QueryWrapper(_query.StartingAt(fieldValues));
+        }
+
+        public IQuery EndingAt(object[] fieldValues)
+        {
+            return new QueryWrapper(_query.EndingAt(fieldValues));
+        }
+        
         public async Task<IQuerySnapshot<T>> GetDocumentsAsync<T>()
         {
             var querySnapshot = await _query.GetDocumentsAsync();

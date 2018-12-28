@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Android.Gms.Extensions;
 using Firebase.Firestore;
@@ -49,6 +50,21 @@ namespace Plugin.Firebase.Android.Firestore
         public IQuery WhereLessThanOrEqualsTo(string field, object value)
         {
             return new QueryWrapper(_reference.WhereLessThanOrEqualTo(field, value.ToJavaObject()));
+        }
+
+        public IQuery OrderBy(string field)
+        {
+            return new QueryWrapper(_reference.OrderBy(field));
+        }
+
+        public IQuery StartingAt(object[] fieldValues)
+        {
+            return new QueryWrapper(_reference.StartAt(fieldValues.Select(x => x.ToJavaObject()).ToArray()));
+        }
+
+        public IQuery EndingAt(object[] fieldValues)
+        {
+            return new QueryWrapper(_reference.EndAt(fieldValues.Select(x => x.ToJavaObject()).ToArray()));
         }
 
         public async Task<IDocumentReference> AddDocumentAsync(object data)

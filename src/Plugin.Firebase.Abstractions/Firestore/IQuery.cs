@@ -1,11 +1,10 @@
-﻿using System.Threading.Tasks;
+using System;
+using System.Threading.Tasks;
 
 namespace Plugin.Firebase.Abstractions.Firestore
 {
-    public interface ICollectionReference
+    public interface IQuery
     {
-        IDocumentReference GetDocument(string documentPath);
-        IDocumentReference CreateDocument();
         IQuery WhereEqualsTo(string field, object value);
         IQuery WhereGreaterThan(string field, object value);
         IQuery WhereLessThan(string field, object value);
@@ -14,6 +13,8 @@ namespace Plugin.Firebase.Abstractions.Firestore
         IQuery OrderBy(string field);
         IQuery StartingAt(object[] fieldValues);
         IQuery EndingAt(object[] fieldValues);
-        Task<IDocumentReference> AddDocumentAsync(object data);
+        
+        Task<IQuerySnapshot<T>> GetDocumentsAsync<T>();
+        IDisposable AddSnapshotListener<T>(Action<IQuerySnapshot<T>> onChanged, Action<Exception> onError = null, bool includeMetaDataChanges = false);
     }
 }

@@ -67,8 +67,11 @@ namespace System.Collections.Generic
             var map = new HashMap();
             var properties = @this.GetType().GetProperties();
             foreach(var property in properties) {
-                var attribute = (FirestorePropertyAttribute) property.GetCustomAttributes(typeof(FirestorePropertyAttribute), true)[0];
-                map.Put(attribute.PropertyName, property.GetValue(@this));
+                var attributes = property.GetCustomAttributes(typeof(FirestorePropertyAttribute), true);
+                if(attributes.Any()) {
+                    var attribute = (FirestorePropertyAttribute) attributes[0];
+                    map.Put(attribute.PropertyName, property.GetValue(@this));
+                }
             }
             return map;
         }
@@ -222,6 +225,17 @@ namespace System.Collections.Generic
                 return obj;
             }
             throw new ArgumentException($"Couldn't extract value for key {key} from bundle: {bundle}");
+        }
+        
+        public static IDictionary ToDictionary(this IDictionary @this, Type keyType, Type valueType)
+        {
+            var dict = (IDictionary) Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(keyType, valueType));
+            foreach(DictionaryEntry pair in @this) {
+                var key = pair.Key.ToJavaObject().ToObject(keyType);
+                var value = pair.Value.ToJavaObject().ToObject(valueType);
+                dict[key] = value;
+            }
+            return dict;
         }
     }
 }

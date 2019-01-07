@@ -1,9 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Firebase.CloudFirestore;
 using Foundation;
 using Plugin.Firebase.Abstractions.Firestore;
-using Plugin.Firebase.Firestore;
 using Plugin.Firebase.iOS.Firestore;
 using GeoPoint = Plugin.Firebase.Abstractions.Firestore.GeoPoint;
 
@@ -45,7 +45,7 @@ namespace Plugin.Firebase.iOS.Extensions
                 case NSDate x:
                     return x.ToDateTime();
                 case NSDictionary x:
-                    return x.Cast(targetType);
+                    return x.ToDictionaryObject(targetType);
                 case NSArray x:
                     return x.ToList(targetType?.GenericTypeArguments[0]);
                 case global::Firebase.CloudFirestore.GeoPoint x:
@@ -58,6 +58,16 @@ namespace Plugin.Firebase.iOS.Extensions
                     return null;
                 default:
                     throw new ArgumentException($"Could not convert NSObject of type {@this.GetType()} to object");
+            }
+        }
+
+        private static object ToDictionaryObject(this NSDictionary @this, Type targetType)
+        {
+            if(targetType != null && targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) {
+                var types = targetType.GenericTypeArguments;
+                return @this.ToDictionary(types[0], types[1]);
+            } else {
+                return @this.Cast(targetType);
             }
         }
 

@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.props" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.props')" />
-  <Import Project="..\packages\Xamarin.Build.Download.0.4.6\build\Xamarin.Build.Download.props" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.6\build\Xamarin.Build.Download.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -146,6 +145,8 @@
     <Compile Include="Firestore\DocumentReferenceWrapper.cs" />
     <Compile Include="Firestore\DocumentSnapshotWrapper.cs" />
     <Compile Include="Firestore\FirebaseFirestoreImplementation.cs" />
+    <Compile Include="Firestore\QuerySnapshotWrapper.cs" />
+    <Compile Include="Firestore\QueryWrapper.cs" />
     <Compile Include="Firestore\SnapshotMetadataWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\Plugin.Firebase\Auth\CrossFirebaseAuth.cs">
@@ -167,7 +168,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <Import Project="..\packages\Xamarin.Build.Download.0.4.6\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.6\build\Xamarin.Build.Download.targets')" />
-  <Import Project="..\packages\Xamarin.Firebase.iOS.InstanceID.2.0.8\build\Xamarin.Firebase.iOS.InstanceID.targets" Condition="Exists('..\packages\Xamarin.Firebase.iOS.InstanceID.2.0.8\build\Xamarin.Firebase.iOS.InstanceID.targets')" />
   <Import Project="..\packages\Xamarin.Firebase.iOS.CloudFirestore.0.9.4\build\Xamarin.Firebase.iOS.CloudFirestore.targets" Condition="Exists('..\packages\Xamarin.Firebase.iOS.CloudFirestore.0.9.4\build\Xamarin.Firebase.iOS.CloudFirestore.targets')" />
   <Import Project="..\packages\Xamarin.Firebase.iOS.Core.4.0.13.1\build\Xamarin.Firebase.iOS.Core.targets" Condition="Exists('..\packages\Xamarin.Firebase.iOS.Core.4.0.13.1\build\Xamarin.Firebase.iOS.Core.targets')" />
   <Import Project="..\packages\Xamarin.Firebase.iOS.Analytics.4.0.5.1\build\Xamarin.Firebase.iOS.Analytics.targets" Condition="Exists('..\packages\Xamarin.Firebase.iOS.Analytics.4.0.5.1\build\Xamarin.Firebase.iOS.Analytics.targets')" />
@@ -179,9 +179,6 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.props'))" />
     <Error Condition="!Exists('..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.targets'))" />
-    <Error Condition="!Exists('..\packages\Xamarin.Firebase.iOS.InstanceID.3.1.1\build\Xamarin.Firebase.iOS.InstanceID.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Firebase.iOS.InstanceID.3.1.1\build\Xamarin.Firebase.iOS.InstanceID.targets'))" />
-    <Error Condition="!Exists('..\packages\Xamarin.Firebase.iOS.Analytics.5.0.1\build\Xamarin.Firebase.iOS.Analytics.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Firebase.iOS.Analytics.5.0.1\build\Xamarin.Firebase.iOS.Analytics.targets'))" />
-    <Error Condition="!Exists('..\packages\Xamarin.Google.iOS.SignIn.4.1.2\build\Xamarin.Google.iOS.SignIn.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Google.iOS.SignIn.4.1.2\build\Xamarin.Google.iOS.SignIn.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.Firebase.iOS.InstanceID.3.2.1\build\Xamarin.Firebase.iOS.InstanceID.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Firebase.iOS.InstanceID.3.2.1\build\Xamarin.Firebase.iOS.InstanceID.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.Firebase.iOS.Analytics.5.1.4\build\Xamarin.Firebase.iOS.Analytics.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Firebase.iOS.Analytics.5.1.4\build\Xamarin.Firebase.iOS.Analytics.targets'))" />
     <Error Condition="!Exists('..\packages\Xamarin.Firebase.iOS.ABTesting.2.0.0.1\build\Xamarin.Firebase.iOS.ABTesting.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Firebase.iOS.ABTesting.2.0.0.1\build\Xamarin.Firebase.iOS.ABTesting.targets'))" />
@@ -189,7 +186,6 @@
     <Error Condition="!Exists('..\packages\Xamarin.Google.iOS.SignIn.4.2.0\build\Xamarin.Google.iOS.SignIn.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Google.iOS.SignIn.4.2.0\build\Xamarin.Google.iOS.SignIn.targets'))" />
   </Target>
   <Import Project="..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.targets" Condition="Exists('..\packages\Xamarin.Build.Download.0.4.11\build\Xamarin.Build.Download.targets')" />
-  <Import Project="..\packages\Xamarin.Firebase.iOS.InstanceID.3.1.1\build\Xamarin.Firebase.iOS.InstanceID.targets" Condition="Exists('..\packages\Xamarin.Firebase.iOS.InstanceID.3.1.1\build\Xamarin.Firebase.iOS.InstanceID.targets')" />
   <Import Project="..\packages\Xamarin.Firebase.iOS.Analytics.5.0.1\build\Xamarin.Firebase.iOS.Analytics.targets" Condition="Exists('..\packages\Xamarin.Firebase.iOS.Analytics.5.0.1\build\Xamarin.Firebase.iOS.Analytics.targets')" />
   <Import Project="..\packages\Xamarin.Google.iOS.SignIn.4.1.2\build\Xamarin.Google.iOS.SignIn.targets" Condition="Exists('..\packages\Xamarin.Google.iOS.SignIn.4.1.2\build\Xamarin.Google.iOS.SignIn.targets')" />
   <Import Project="..\packages\Xamarin.Firebase.iOS.ABTesting.2.0.0\build\Xamarin.Firebase.iOS.ABTesting.targets" Condition="Exists('..\packages\Xamarin.Firebase.iOS.ABTesting.2.0.0\build\Xamarin.Firebase.iOS.ABTesting.targets')" />

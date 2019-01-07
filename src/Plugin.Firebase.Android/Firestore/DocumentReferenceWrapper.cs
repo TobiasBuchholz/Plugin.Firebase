@@ -88,10 +88,19 @@ namespace Plugin.Firebase.Android.Firestore
             bool includeMetaDataChanges = false)
         {
             var registration = _reference
-                .AddSnapshotListener(new EventListener(
+                .AddSnapshotListener(GetDocumentListenOptions(includeMetaDataChanges), new EventListener(
                     x => onChanged(new DocumentSnapshotWrapper<T>(x.JavaCast<DocumentSnapshot>())), 
                     e => onError?.Invoke(new FirebaseException(e.LocalizedMessage))));
             return new DisposableWithAction(registration.Remove);
+        }
+
+        private static DocumentListenOptions GetDocumentListenOptions(bool includeMetaDataChanges)
+        {
+            var options = new DocumentListenOptions();
+            if(includeMetaDataChanges) {
+                options.IncludeMetadataChanges();
+            }
+            return options;
         }
 
         public string Id => _reference.Id;

@@ -64,15 +64,27 @@ namespace System.Collections.Generic
             var dict = new Dictionary<object, object>();
             var properties = @this.GetType().GetProperties();
             foreach(var property in properties) {
-                var attribute = (FirestorePropertyAttribute) property.GetCustomAttributes(typeof(FirestorePropertyAttribute), true)[0];
-                var value = property.GetValue(@this);
-                if(value is DateTime date) {
-                    dict[attribute.PropertyName] = date.ToNSDate();
-                } else {
-                    dict[attribute.PropertyName] = value;
+                var attributes = property.GetCustomAttributes(typeof(FirestorePropertyAttribute), true);
+                if(attributes.Any()) {
+                    var attribute = (FirestorePropertyAttribute) attributes[0];
+                    var value = property.GetValue(@this);
+                    if(value is DateTime date) {
+                        dict[attribute.PropertyName] = date.ToNSDate();
+                    } else {
+                        dict[attribute.PropertyName] = value;
+                    }
                 }
             }
             return dict;
-        } 
+        }
+
+        public static IDictionary ToDictionary(this NSDictionary @this, Type keyType, Type valueType)
+        {
+            var dict = (IDictionary) Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(keyType, valueType));
+            foreach(var pair in @this) {
+                dict[pair.Key.ToObject(keyType)] = pair.Value.ToObject(valueType);
+            }
+            return dict;
+        }
     }
 }

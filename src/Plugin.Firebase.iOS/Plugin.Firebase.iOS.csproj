@@ -50,15 +50,15 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Facebook.CoreKit, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Xamarin.Facebook.CoreKit.iOS.4.38.0\lib\Xamarin.iOS10\Facebook.CoreKit.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Facebook.CoreKit.iOS.4.40.0\lib\Xamarin.iOS10\Facebook.CoreKit.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Facebook.LoginKit, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Xamarin.Facebook.LoginKit.iOS.4.38.0\lib\Xamarin.iOS10\Facebook.LoginKit.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Facebook.LoginKit.iOS.4.40.0\lib\Xamarin.iOS10\Facebook.LoginKit.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Facebook.MarketingKit, Version=1.0.6879.35668, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Xamarin.Facebook.MarketingKit.iOS.4.38.0\lib\Xamarin.iOS10\Facebook.MarketingKit.dll</HintPath>
+    <Reference Include="Facebook.MarketingKit, Version=1.0.7012.32272, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Xamarin.Facebook.MarketingKit.iOS.4.40.0\lib\Xamarin.iOS10\Facebook.MarketingKit.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Facebook.MessengerShareKit, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
@@ -66,11 +66,11 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Facebook.PlacesKit, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Xamarin.Facebook.PlacesKit.iOS.4.38.0\lib\Xamarin.iOS10\Facebook.PlacesKit.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Facebook.PlacesKit.iOS.4.40.0\lib\Xamarin.iOS10\Facebook.PlacesKit.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Facebook.ShareKit, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Xamarin.Facebook.ShareKit.iOS.4.38.0\lib\Xamarin.iOS10\Facebook.ShareKit.dll</HintPath>
+      <HintPath>..\packages\Xamarin.Facebook.ShareKit.iOS.4.40.0\lib\Xamarin.iOS10\Facebook.ShareKit.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Firebase.ABTesting, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
@@ -162,7 +162,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Plugin.Firebase.Abstractions\Plugin.Firebase.Abstractions.csproj">
-      <Project>{20CA3CB9-9172-4E5C-9E57-0663E45E6E4D}</Project>
+      <Project>{C55D0232-8C5E-4C08-81BA-91B6F48F2874}</Project>
       <Name>Plugin.Firebase.Abstractions</Name>
     </ProjectReference>
   </ItemGroup>

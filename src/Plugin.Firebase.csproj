@@ -1,0 +1,92 @@
+<Project Sdk="MSBuild.Sdk.Extras/2.0.54">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;MonoAndroid90;Xamarin.iOS10;</TargetFrameworks>
+
+    <!--Assembly and Namespace info -->
+    <AssemblyName>Plugin.Firebase</AssemblyName>
+    <RootNamespace>Plugin.Firebase</RootNamespace>
+
+    <Product>$(AssemblyName) ($(TargetFramework))</Product>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <AssemblyFileVersion>1.0.0</AssemblyFileVersion>
+    <Version>1.0.0</Version>
+    <NeutralLanguage>en</NeutralLanguage>
+
+    <!--Don't auto add files for me, I will tell you -->
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+
+    <!-- Helper to add defines-->
+    <DefineConstants>$(DefineConstants);</DefineConstants>
+
+    <!--Assembly and Namespace info -->
+    <PackageId>Plugin.Firebase</PackageId>
+    <PackageVersion>1.0.0.0</PackageVersion>
+
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/TobiasBuchholz/Plugin.Firebase</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/TobiasBuchholz/Plugin.Firebase</RepositoryUrl>
+    <!--<PackageIcon>https://img.icons8.com/cotton/2x/tree.png</PackageIcon>-->
+    <PackageTags>xamarin, ios, android</PackageTags>
+
+    <Title>Plugin.Firebase</Title>
+    <Summary>TODO</Summary>
+    <Description>TODO</Description>
+
+    <Owners>Tobias Buchholz</Owners>
+    <Authors>Tobias Buchholz</Authors>
+    <Copyright>Copyright 2020</Copyright>
+
+    <!--Version of C# to use -->
+    <LangVersion>default</LangVersion>
+  </PropertyGroup>
+
+  <!-- Define what happens on build and release -->
+  <PropertyGroup Condition=" '$(Configuration)'=='Debug' ">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)'=='Release' ">
+    <DebugType>pdbonly</DebugType>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- This None is here so the conditionally included files show up in the Solution Explorer -->
+    <None Include="**\*.cs;**\*.xml;**\*.axml;**\*.png" Exclude="obj\**\*.*;bin\**\*.*;bin;obj" />
+    <None Remove=".vs\**" />
+    <None Remove=".idea\**" />
+
+    <Compile Include="Shared\**\*.cs" />
+    <Compile Include="Extensions\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
+    <Compile Include="Android\**\*.cs" />
+    <!-- if you have resources add this
+    <AndroidResource Include="Resources\**\*.axml" />
+    <AndroidResource Include="Resources\**\*.xml" />
+    <AndroidResource Include="Resources\**\*.png" />
+    -->
+  </ItemGroup>
+
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('Xamarin.iOS')) ">
+    <Compile Include="iOS\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'MonoAndroid90'">
+    <PackageReference Include="Xamarin.Firebase.Config" Version="119.1.4" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'Xamarin.iOS10'">
+    <PackageReference Include="Xamarin.Firebase.iOS.RemoteConfig" Version="4.9.1" />
+  </ItemGroup>
+
+  <PropertyGroup Label="Android DesignTimeBuild error workaround">
+    <DesignTimeBuild>false</DesignTimeBuild>
+  </PropertyGroup>
+
+</Project>

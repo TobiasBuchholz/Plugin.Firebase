@@ -239,3 +239,6 @@ _Pvt_Extensions
 *.vs
 *.DS_Store
 src/Playground.*
+/sample/Playground.Android/google-services.json
+/sample/Playground.iOS/GoogleService-Info.plist
+/sample/Playground.Android/Resources/Resource.designer.cs

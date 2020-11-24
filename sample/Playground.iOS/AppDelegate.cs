@@ -1,9 +1,11 @@
 ﻿using System;
 using Foundation;
 using Playground.Common.Services.Composition;
+using Playground.Common.Services.Logging;
 using Playground.Common.Services.Scheduler;
 using Playground.iOS.Services.Composition;
 using UIKit;
+using Xamarin.Forms;
 
 namespace Playground.iOS
 {
@@ -22,8 +24,9 @@ namespace Playground.iOS
         //
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
-            global::Xamarin.Forms.Forms.SetFlags("CollectionView_Experimental");
-            global::Xamarin.Forms.Forms.Init();
+            Forms.SetFlags("Markup_Experimental");
+            Forms.Init();
+            LogOutputService.Initialize();
             Firebase.Core.App.Configure();
 
             var compositionRoot = new CompositionRoot();

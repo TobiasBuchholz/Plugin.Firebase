@@ -5,8 +5,11 @@ using Android.Runtime;
 using Android.OS;
 using Firebase;
 using Playground.Common.Services.Composition;
+using Playground.Common.Services.Logging;
 using Playground.Common.Services.Scheduler;
 using Playground.Droid.Services.Composition;
+using Plugin.CurrentActivity;
+using Xamarin.Forms;
 
 namespace Playground.Droid
 {
@@ -20,8 +23,11 @@ namespace Playground.Droid
 
             base.OnCreate(savedInstanceState);
 
+            Forms.SetFlags("Markup_Experimental");
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
-            global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
+            Forms.Init(this, savedInstanceState);
+            LogOutputService.Initialize();
+            CrossCurrentActivity.Current.Init(this, savedInstanceState);
             FirebaseApp.InitializeApp(this);
 
             var compositionRoot = new CompositionRoot();

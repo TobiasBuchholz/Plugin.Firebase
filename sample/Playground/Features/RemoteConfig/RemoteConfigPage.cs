@@ -1,8 +1,9 @@
 using Playground.Common.Base;
+using Playground.Resources;
 using Xamarin.Forms;
 using Xamarin.Forms.Markup;
 using Color = System.Drawing.Color;
-using Vm = Playground.Features.Storage.StorageViewModel;
+using Vm = Playground.Features.RemoteConfig.RemoteConfigViewModel;
 
 namespace Playground.Features.RemoteConfig
 {
@@ -16,14 +17,16 @@ namespace Playground.Features.RemoteConfig
             BackgroundColor = Color.White;
 
             Content = new Grid {
-                Children = {
-                    new Label {
-                            Text = "Hello Remote Config",
-                            TextColor = Color.Black
-                        }
+                    Children = {
+                    new Label { TextColor = Color.Black }
                         .Center()
+                        .Bind(nameof(Vm.SomeRemoteConfigValue)),
+                    new Button { Text = Localization.ButtonTextFetchRemoteConfig, TextColor = Color.Black }
+                        .Bottom()
+                        .Bind(nameof(Vm.FetchAndActivateCommand)),
                 }
-            };
+            }
+                .Margin(32);
         }
     }
 }

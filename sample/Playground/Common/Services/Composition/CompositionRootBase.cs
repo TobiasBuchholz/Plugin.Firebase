@@ -4,6 +4,7 @@ using System.Linq;
 using Playground.Common.Base;
 using Playground.Common.Services.Navigation;
 using Playground.Common.Services.Scheduler;
+using Playground.Common.Services.UserInteraction;
 using Playground.Features.Dashboard;
 using Playground.Features.RemoteConfig;
 using Playground.Features.Storage;
@@ -16,7 +17,8 @@ namespace Playground.Common.Services.Composition
     public abstract class CompositionRootBase
     {
         private readonly Lazy<INavigationService> _navigationService;
-        private readonly Lazy<ISchedulerService> _schedulerService;
+        protected readonly Lazy<ISchedulerService> _schedulerService;
+        private readonly Lazy<IUserInteractionService> _userInteractionService;
         private readonly Lazy<IFirebaseStorage> _firebaseStorage;
         private readonly Lazy<IFirebaseRemoteConfig> _firebaseRemoteConfig;
 
@@ -24,6 +26,7 @@ namespace Playground.Common.Services.Composition
         {
             _navigationService = new Lazy<INavigationService>(CreateNavigationService);
             _schedulerService = new Lazy<ISchedulerService>(CreateSchedulerService);
+            _userInteractionService = new Lazy<IUserInteractionService>(CreateUserInteractionService);
             _firebaseStorage = new Lazy<IFirebaseStorage>(CreateFirebaseStorage);
             _firebaseRemoteConfig = new Lazy<IFirebaseRemoteConfig>(CreateFirebaseRemoteConfig);
         }
@@ -33,6 +36,8 @@ namespace Playground.Common.Services.Composition
         
         private static ISchedulerService CreateSchedulerService() =>
             new SchedulerService();
+
+        protected abstract IUserInteractionService CreateUserInteractionService();
         
         private static IFirebaseStorage CreateFirebaseStorage() =>
             CrossFirebaseStorage.Current;
@@ -49,6 +54,7 @@ namespace Playground.Common.Services.Composition
                         _navigationService.Value);
                 case RemoteConfigPage _:
                     return new RemoteConfigViewModel(
+                        _userInteractionService.Value,
                         _firebaseRemoteConfig.Value);
                 case StoragePage _:
                     return new StorageViewModel(

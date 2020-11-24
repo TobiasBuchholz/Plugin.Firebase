@@ -4,6 +4,9 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DefineConstants>TRACE;DEBUG;NETSTANDARD;NETSTANDARD2_0;LOGGING;</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Genesis.Logging" Version="3.0.0" />
     <PackageReference Include="System.Reactive" Version="4.4.1" />

@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Playground", "..\sample\Pla
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "playground", "playground", "{0022FE84-4CDA-4D49-AC50-AE7E7598D903}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Playground.Utility", "..\sample\Playground.Utility\Playground.Utility.csproj", "{EE0D5CCE-87DF-476B-8FAA-2784DE48774D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,18 @@ Global
 		{E744A90D-A8F6-4F33-955B-20B14317C9F1}.Debug|iPhone.Build.0 = Debug|Any CPU
 		{E744A90D-A8F6-4F33-955B-20B14317C9F1}.Release|iPhone.ActiveCfg = Release|Any CPU
 		{E744A90D-A8F6-4F33-955B-20B14317C9F1}.Release|iPhone.Build.0 = Release|Any CPU
+		{EE0D5CCE-87DF-476B-8FAA-2784DE48774D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE0D5CCE-87DF-476B-8FAA-2784DE48774D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE0D5CCE-87DF-476B-8FAA-2784DE48774D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE0D5CCE-87DF-476B-8FAA-2784DE48774D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE0D5CCE-87DF-476B-8FAA-2784DE48774D}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{EE0D5CCE-87DF-476B-8FAA-2784DE48774D}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{EE0D5CCE-87DF-476B-8FAA-2784DE48774D}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{EE0D5CCE-87DF-476B-8FAA-2784DE48774D}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{EE0D5CCE-87DF-476B-8FAA-2784DE48774D}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{EE0D5CCE-87DF-476B-8FAA-2784DE48774D}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{EE0D5CCE-87DF-476B-8FAA-2784DE48774D}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{EE0D5CCE-87DF-476B-8FAA-2784DE48774D}.Release|iPhone.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -82,5 +96,6 @@ Global
 		{E744A90D-A8F6-4F33-955B-20B14317C9F1} = {0022FE84-4CDA-4D49-AC50-AE7E7598D903}
 		{DB1DF319-CF1F-4028-9D3D-E066BF5290BE} = {0022FE84-4CDA-4D49-AC50-AE7E7598D903}
 		{AD3D7027-ADCC-47BE-B1AF-AE43895DC2A5} = {0022FE84-4CDA-4D49-AC50-AE7E7598D903}
+		{EE0D5CCE-87DF-476B-8FAA-2784DE48774D} = {0022FE84-4CDA-4D49-AC50-AE7E7598D903}
 	EndGlobalSection
 EndGlobal

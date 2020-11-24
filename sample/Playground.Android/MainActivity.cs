@@ -1,12 +1,12 @@
 ﻿using System;
-
 using Android.App;
 using Android.Content.PM;
 using Android.Runtime;
-using Android.Views;
-using Android.Widget;
 using Android.OS;
 using Firebase;
+using Playground.Common.Services.Composition;
+using Playground.Common.Services.Scheduler;
+using Playground.Droid.Services.Composition;
 
 namespace Playground.Droid
 {
@@ -23,12 +23,15 @@ namespace Playground.Droid
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
             FirebaseApp.InitializeApp(this);
+
+            var compositionRoot = new CompositionRoot();
+            ViewModelResolver.Initialize(compositionRoot);
+            Schedulers.Initialize(compositionRoot.ResolveSchedulerService());
             LoadApplication(new App());
         }
-        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
+        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
         {
             Xamarin.Essentials.Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
-
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }

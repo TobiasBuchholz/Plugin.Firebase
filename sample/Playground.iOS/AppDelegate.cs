@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
 using Foundation;
+using Playground.Common.Services.Composition;
+using Playground.Common.Services.Scheduler;
+using Playground.iOS.Services.Composition;
 using UIKit;
 
 namespace Playground.iOS
@@ -25,6 +25,10 @@ namespace Playground.iOS
             global::Xamarin.Forms.Forms.SetFlags("CollectionView_Experimental");
             global::Xamarin.Forms.Forms.Init();
             Firebase.Core.App.Configure();
+
+            var compositionRoot = new CompositionRoot();
+            ViewModelResolver.Initialize(compositionRoot);
+            Schedulers.Initialize(compositionRoot.ResolveSchedulerService());
             LoadApplication(new App());
 
             return base.FinishedLaunching(app, options);

@@ -1,10 +1,10 @@
 using System;
 
-namespace Plugin.Firebase.RemoteConfig
+namespace Plugin.Firebase.Storage
 {
-    public sealed class CrossFirebaseRemoteConfig
+    public sealed class CrossFirebaseStorage
     {
-        static readonly Lazy<IFirebaseRemoteConfig> _implementation = new Lazy<IFirebaseRemoteConfig>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);
+        static readonly Lazy<IFirebaseStorage> _implementation = new Lazy<IFirebaseStorage>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);
 
 
         /// <summary>
@@ -15,25 +15,25 @@ namespace Plugin.Firebase.RemoteConfig
         /// <summary>
         /// Current plugin implementation to use
         /// </summary>
-        public static IFirebaseRemoteConfig Current {
+        public static IFirebaseStorage Current {
             get {
                 var ret = _implementation.Value;
-                if (ret == null) {
+                if(ret == null) {
                     throw new NotImplementedException();
                 }
                 return ret;
             }
         }
 
-        private static IFirebaseRemoteConfig CreateInstance()
+        private static IFirebaseStorage CreateInstance()
         {
 #if NETSTANDARD1_0 || NETSTANDARD2_0
             return null;
 #else
 #pragma warning disable IDE0022 // Use expression body for methods
-			return new FirebaseRemoteConfigImplementation();
+            return new FirebaseStorageImplementation();
 #pragma warning restore IDE0022 // Use expression body for methods
 #endif
-        } 
+        }
     }
 }

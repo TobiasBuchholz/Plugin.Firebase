@@ -1,0 +1,38 @@
+using System;
+using Firebase.Storage;
+using Plugin.Firebase.Storage;
+
+namespace Plugin.Firebase.iOS.Storage
+{
+    public class StorageTaskTaskSnapshotWrapper : IStorageTaskSnapshot
+    {
+        public static IStorageTaskSnapshot FromSnapshot(StorageTaskSnapshot snapshot)
+        {
+            return new StorageTaskTaskSnapshotWrapper(snapshot:snapshot);
+        }
+
+        public static IStorageTaskSnapshot FromError(Exception error)
+        {
+            return new StorageTaskTaskSnapshotWrapper(error:error);
+        }
+        
+        private StorageTaskTaskSnapshotWrapper(
+            StorageTaskSnapshot snapshot = null,
+            Exception error = null)
+        {
+            if(snapshot?.Progress != null) {
+                TransferredUnitCount = snapshot.Progress.CompletedUnitCount;
+                TotalUnitCount = snapshot.Progress.TotalUnitCount;
+                TransferredFraction = snapshot.Progress.FractionCompleted;
+            }
+            Error = error;
+        }
+
+        public long TransferredUnitCount { get; }
+        public long TotalUnitCount { get; }
+        public double TransferredFraction { get; }
+        public Exception Error { get; }
+        
+        // TODO: add Metadata property when needed
+    }
+}

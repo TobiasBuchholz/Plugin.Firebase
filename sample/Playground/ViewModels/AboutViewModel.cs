@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Plugin.Firebase.Shared.RemoteConfig;
+using Plugin.Firebase.RemoteConfig;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 

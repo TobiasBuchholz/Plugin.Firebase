@@ -78,16 +78,26 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'MonoAndroid90'">
+    <PackageReference Include="Plugin.CurrentActivity" Version="2.1.0.4" />
+    <PackageReference Include="Xamarin.Facebook.Android" Version="7.1.0" />
+    <PackageReference Include="Xamarin.Firebase.Auth" Version="119.3.1" />
     <PackageReference Include="Xamarin.Firebase.Config" Version="119.1.4" />
     <PackageReference Include="Xamarin.Firebase.Dynamic.Links" Version="119.1.0" />
     <PackageReference Include="Xamarin.Firebase.Storage" Version="119.1.1" />
     <PackageReference Include="Xamarin.Firebase.Storage.Common" Version="117.0.0" />
+    <PackageReference Include="Xamarin.GooglePlayServices.Auth" Version="118.0.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'Xamarin.iOS10'">
+    <PackageReference Include="Xamarin.Firebase.iOS.Auth" Version="6.9.2" />
     <PackageReference Include="Xamarin.Firebase.iOS.DynamicLinks" Version="4.3.1" />
     <PackageReference Include="Xamarin.Firebase.iOS.RemoteConfig" Version="4.9.1" />
     <PackageReference Include="Xamarin.Firebase.iOS.Storage" Version="3.9.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Xamarin.Facebook.iOS" Version="7.1.1" />
+    <PackageReference Include="Xamarin.Google.iOS.SignIn" Version="5.0.2.1" />
   </ItemGroup>
 
   <PropertyGroup Label="Android DesignTimeBuild error workaround">

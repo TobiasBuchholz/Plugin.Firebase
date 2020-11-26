@@ -1,18 +1,18 @@
-using System;
+﻿using System;
 
-namespace Plugin.Firebase.RemoteConfig
+namespace Plugin.Firebase.Auth
 {
-    public sealed class CrossFirebaseRemoteConfig
+    public sealed class CrossFirebaseAuth
     {
-        private static Lazy<IFirebaseRemoteConfig> _implementation = new Lazy<IFirebaseRemoteConfig>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);
+        private static Lazy<IFirebaseAuth> _implementation = new Lazy<IFirebaseAuth>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);
 
-        private static IFirebaseRemoteConfig CreateInstance()
+        private static IFirebaseAuth CreateInstance()
         {
 #if NETSTANDARD1_0 || NETSTANDARD2_0
             return null;
 #else
 #pragma warning disable IDE0022 // Use expression body for methods
-            return new FirebaseRemoteConfigImplementation();
+            return new FirebaseAuthImplementation();
 #pragma warning restore IDE0022 // Use expression body for methods
 #endif
         }
@@ -25,7 +25,7 @@ namespace Plugin.Firebase.RemoteConfig
         /// <summary>
         /// Current plugin implementation to use
         /// </summary>
-        public static IFirebaseRemoteConfig Current {
+        public static IFirebaseAuth Current {
             get {
                 var ret = _implementation.Value;
                 if (ret == null) {
@@ -45,7 +45,7 @@ namespace Plugin.Firebase.RemoteConfig
         {
             if(_implementation != null && _implementation.IsValueCreated) {
                 _implementation.Value.Dispose();
-                _implementation = new Lazy<IFirebaseRemoteConfig>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);
+                _implementation = new Lazy<IFirebaseAuth>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);
             }
         }
     }

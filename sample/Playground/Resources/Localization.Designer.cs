@@ -45,6 +45,12 @@ namespace Playground.Resources {
             }
         }
         
+        internal static string ButtonTextAuth {
+            get {
+                return ResourceManager.GetString("ButtonTextAuth", resourceCulture);
+            }
+        }
+        
         internal static string ButtonTextRemoteConfig {
             get {
                 return ResourceManager.GetString("ButtonTextRemoteConfig", resourceCulture);

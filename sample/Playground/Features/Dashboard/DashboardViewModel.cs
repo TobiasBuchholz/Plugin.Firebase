@@ -18,10 +18,12 @@ namespace Playground.Features.Dashboard
 
         private void InitCommands()
         {
+            NavigateToAuthPageCommand = ReactiveCommand.CreateFromTask(() => _navigationService.GoToAsync(NavigationPaths.ToAuthPage()));
             NavigateToRemoteConfigPageCommand = ReactiveCommand.CreateFromTask(() => _navigationService.GoToAsync(NavigationPaths.ToRemoteConfigPage()));
             NavigateToStoragePageCommand = ReactiveCommand.CreateFromTask(() => _navigationService.GoToAsync(NavigationPaths.ToStoragePage()));
         }
 
+        public ReactiveCommand<Unit, Unit> NavigateToAuthPageCommand { get; private set; }
         public ReactiveCommand<Unit, Unit> NavigateToRemoteConfigPageCommand { get; private set; }
         public ReactiveCommand<Unit, Unit> NavigateToStoragePageCommand { get; private set; }
     }

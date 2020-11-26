@@ -20,6 +20,7 @@
     </resheader>
 
     <!-- buttons -->
+    <data name="ButtonTextAuth"><value>Auth</value></data>
     <data name="ButtonTextRemoteConfig"><value>Remote config</value></data>
     <data name="ButtonTextStorage"><value>Storage</value></data>
     <data name="ButtonTextFetchRemoteConfig"><value>Fetch and activate</value></data>

@@ -5,9 +5,11 @@ using Playground.Common.Base;
 using Playground.Common.Services.Navigation;
 using Playground.Common.Services.Scheduler;
 using Playground.Common.Services.UserInteraction;
+using Playground.Features.Auth;
 using Playground.Features.Dashboard;
 using Playground.Features.RemoteConfig;
 using Playground.Features.Storage;
+using Plugin.Firebase.Auth;
 using Plugin.Firebase.RemoteConfig;
 using Plugin.Firebase.Storage;
 using ReactiveUI;
@@ -19,6 +21,8 @@ namespace Playground.Common.Services.Composition
         private readonly Lazy<INavigationService> _navigationService;
         protected readonly Lazy<ISchedulerService> _schedulerService;
         private readonly Lazy<IUserInteractionService> _userInteractionService;
+
+        private readonly Lazy<IFirebaseAuth> _firebaseAuth;
         private readonly Lazy<IFirebaseStorage> _firebaseStorage;
         private readonly Lazy<IFirebaseRemoteConfig> _firebaseRemoteConfig;
 
@@ -27,6 +31,8 @@ namespace Playground.Common.Services.Composition
             _navigationService = new Lazy<INavigationService>(CreateNavigationService);
             _schedulerService = new Lazy<ISchedulerService>(CreateSchedulerService);
             _userInteractionService = new Lazy<IUserInteractionService>(CreateUserInteractionService);
+            
+            _firebaseAuth = new Lazy<IFirebaseAuth>(CreateFirebaseAuth);
             _firebaseStorage = new Lazy<IFirebaseStorage>(CreateFirebaseStorage);
             _firebaseRemoteConfig = new Lazy<IFirebaseRemoteConfig>(CreateFirebaseRemoteConfig);
         }
@@ -38,6 +44,9 @@ namespace Playground.Common.Services.Composition
             new SchedulerService();
 
         protected abstract IUserInteractionService CreateUserInteractionService();
+
+        private static IFirebaseAuth CreateFirebaseAuth() =>
+            CrossFirebaseAuth.Current;
         
         private static IFirebaseStorage CreateFirebaseStorage() =>
             CrossFirebaseStorage.Current;
@@ -52,6 +61,9 @@ namespace Playground.Common.Services.Composition
                 case DashboardPage _:
                     return new DashboardViewModel(
                         _navigationService.Value);
+                case AuthPage _:
+                    return new AuthViewModel(
+                        _firebaseAuth.Value);
                 case RemoteConfigPage _:
                     return new RemoteConfigViewModel(
                         _userInteractionService.Value,

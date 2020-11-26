@@ -4,7 +4,7 @@
 using Android.OS;
 using Java.Util;
 // using Newtonsoft.Json.Linq;
-// using Plugin.Firebase.Abstractions.Firestore;
+// using Plugin.Firebase.Firestore;
 // using Plugin.Firebase.Android.Extensions;
 
 namespace System.Collections.Generic

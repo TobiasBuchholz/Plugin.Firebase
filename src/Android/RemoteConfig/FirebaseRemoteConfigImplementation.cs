@@ -2,11 +2,12 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Android.Gms.Extensions;
 using Firebase.RemoteConfig;
+using Plugin.Firebase.Common;
 using Plugin.Firebase.Extensions;
 
 namespace Plugin.Firebase.RemoteConfig
 {
-    public sealed class FirebaseRemoteConfigImplementation : IFirebaseRemoteConfig
+    public sealed class FirebaseRemoteConfigImplementation : DisposableBase, IFirebaseRemoteConfig
     {
         private readonly FirebaseRemoteConfig _remoteConfig;
 

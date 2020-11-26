@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Plugin.Firebase.RemoteConfig
 {
-    public interface IFirebaseRemoteConfig //: IDisposable
+    public interface IFirebaseRemoteConfig : IDisposable
     {
         Task SetDefaultsAsync(IDictionary<string, object> defaults);
         Task SetDefaultsAsync(params (string, object)[] defaults);

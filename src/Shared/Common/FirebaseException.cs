@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Plugin.Firebase.Abstractions.Common
+namespace Plugin.Firebase.Common
 {
     public sealed class FirebaseException : Exception
     {

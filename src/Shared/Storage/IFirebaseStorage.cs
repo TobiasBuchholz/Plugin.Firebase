@@ -1,6 +1,8 @@
+using System;
+
 namespace Plugin.Firebase.Storage
 {
-    public interface IFirebaseStorage
+    public interface IFirebaseStorage : IDisposable
     {
         IStorageReference GetRootReference();
     }

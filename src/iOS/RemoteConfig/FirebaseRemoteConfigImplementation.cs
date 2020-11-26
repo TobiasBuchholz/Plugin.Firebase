@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Firebase.RemoteConfig;
+using Plugin.Firebase.Common;
 using FirebaseRemoteConfig = Firebase.RemoteConfig.RemoteConfig;
 
 namespace Plugin.Firebase.RemoteConfig
 {
-    public sealed class FirebaseRemoteConfigImplementation : IFirebaseRemoteConfig
+    public sealed class FirebaseRemoteConfigImplementation : DisposableBase, IFirebaseRemoteConfig
     {
         private readonly FirebaseRemoteConfig _remoteConfig;
 

@@ -79,11 +79,13 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'MonoAndroid90'">
     <PackageReference Include="Xamarin.Firebase.Config" Version="119.1.4" />
+    <PackageReference Include="Xamarin.Firebase.Dynamic.Links" Version="119.1.0" />
     <PackageReference Include="Xamarin.Firebase.Storage" Version="119.1.1" />
     <PackageReference Include="Xamarin.Firebase.Storage.Common" Version="117.0.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'Xamarin.iOS10'">
+    <PackageReference Include="Xamarin.Firebase.iOS.DynamicLinks" Version="4.3.1" />
     <PackageReference Include="Xamarin.Firebase.iOS.RemoteConfig" Version="4.9.1" />
     <PackageReference Include="Xamarin.Firebase.iOS.Storage" Version="3.9.1" />
   </ItemGroup>

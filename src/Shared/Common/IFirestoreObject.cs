@@ -1,4 +1,4 @@
-namespace Plugin.Firebase.Abstractions.Common
+namespace Plugin.Firebase.Common
 {
     public interface IFirestoreObject<out T>
     {

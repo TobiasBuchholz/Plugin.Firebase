@@ -6,7 +6,6 @@ namespace Plugin.Firebase.RemoteConfig
     {
         static readonly Lazy<IFirebaseRemoteConfig> _implementation = new Lazy<IFirebaseRemoteConfig>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);
 
-
         /// <summary>
         /// Gets if the plugin is supported on the current platform.
         /// </summary>

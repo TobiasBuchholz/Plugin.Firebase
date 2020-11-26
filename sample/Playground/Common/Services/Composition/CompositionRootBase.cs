@@ -58,6 +58,7 @@ namespace Playground.Common.Services.Composition
                         _firebaseRemoteConfig.Value);
                 case StoragePage _:
                     return new StorageViewModel(
+                        _userInteractionService.Value,
                         _firebaseStorage.Value);
             }
             throw new ArgumentException($"Couldn't resolve corresponding viewmodel for IViewFor: {viewFor.GetType()}");

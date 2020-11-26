@@ -23,6 +23,10 @@
     <data name="ButtonTextRemoteConfig"><value>Remote config</value></data>
     <data name="ButtonTextStorage"><value>Storage</value></data>
     <data name="ButtonTextFetchRemoteConfig"><value>Fetch and activate</value></data>
+    <data name="ButtonTextUploadText"><value>Upload text as file</value></data>
+    
+    <!-- entry placeholder -->
+    <data name="EntryPlaceholderStorage"><value>Enter text for upload</value></data>
 
     <!-- alerts -->
     <data name="DialogTitleUnexpectedError"><value>Unexpected Error</value></data>

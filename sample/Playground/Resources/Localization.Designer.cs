@@ -63,6 +63,18 @@ namespace Playground.Resources {
             }
         }
         
+        internal static string ButtonTextUploadText {
+            get {
+                return ResourceManager.GetString("ButtonTextUploadText", resourceCulture);
+            }
+        }
+        
+        internal static string EntryPlaceholderStorage {
+            get {
+                return ResourceManager.GetString("EntryPlaceholderStorage", resourceCulture);
+            }
+        }
+        
         internal static string DialogTitleUnexpectedError {
             get {
                 return ResourceManager.GetString("DialogTitleUnexpectedError", resourceCulture);

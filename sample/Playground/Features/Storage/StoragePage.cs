@@ -1,4 +1,5 @@
 using Playground.Common.Base;
+using Playground.Resources;
 using Xamarin.Forms;
 using Xamarin.Forms.Markup;
 using Color = System.Drawing.Color;
@@ -17,13 +18,19 @@ namespace Playground.Features.Storage
 
             Content = new Grid {
                 Children = {
-                    new Label {
-                            Text = "Hello Storage",
+                    new Entry {
+                            Placeholder = Localization.EntryPlaceholderStorage,
                             TextColor = Color.Black
                         }
-                        .Center()
+                        .CenterVertical()
+                        .FillHorizontal()
+                        .Bind(nameof(Vm.Text), BindingMode.TwoWay),
+                    new Button { Text = Localization.ButtonTextUploadText, TextColor = Color.Black }
+                        .Bottom()
+                        .Bind(nameof(Vm.UploadTextCommand)),
                 }
-            };
+            }
+                .Margin(32);
         }
     }
 }

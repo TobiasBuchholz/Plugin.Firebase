@@ -80,6 +80,8 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'MonoAndroid90'">
     <PackageReference Include="Plugin.CurrentActivity" Version="2.1.0.4" />
     <PackageReference Include="Xamarin.Facebook.Android" Version="7.1.0" />
+    <PackageReference Include="Xamarin.Firebase.Analytics" Version="117.4.1" />
+    <PackageReference Include="Xamarin.Firebase.Analytics.Impl" Version="116.3.0" />
     <PackageReference Include="Xamarin.Firebase.Auth" Version="119.3.1" />
     <PackageReference Include="Xamarin.Firebase.Config" Version="119.1.4" />
     <PackageReference Include="Xamarin.Firebase.Dynamic.Links" Version="119.1.0" />
@@ -97,6 +99,7 @@
 
   <ItemGroup>
     <PackageReference Include="Xamarin.Facebook.iOS" Version="7.1.1" />
+    <PackageReference Include="Xamarin.Firebase.iOS.Analytics" Version="6.9.0" />
     <PackageReference Include="Xamarin.Google.iOS.SignIn" Version="5.0.2.1" />
   </ItemGroup>
 

@@ -9,6 +9,7 @@ using Playground.Common.Services.Composition;
 using Playground.Common.Services.Logging;
 using Playground.Common.Services.Scheduler;
 using Playground.Droid.Services.Composition;
+using Plugin.Firebase.Analytics;
 using Plugin.Firebase.Auth;
 using Xamarin.Forms;
 
@@ -29,6 +30,7 @@ namespace Playground.Droid
             Forms.Init(this, savedInstanceState);
             LogOutputService.Initialize();
             FirebaseApp.InitializeApp(this);
+            FirebaseAnalyticsImplementation.Initialize(this);
             FirebaseAuthImplementation.Initialize(this, savedInstanceState, "537235599720-fft999p3e58cgohdffph003folcsnpl7.apps.googleusercontent.com");
 
             var compositionRoot = new CompositionRoot();

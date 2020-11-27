@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Plugin.Firebase.Common;
+using Plugin.Firebase.iOS.Extensions;
 using FirebaseAnalytics = Firebase.Analytics.Analytics;
 
 namespace Plugin.Firebase.Analytics

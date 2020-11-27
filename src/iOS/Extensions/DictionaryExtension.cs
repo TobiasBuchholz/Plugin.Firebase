@@ -1,9 +1,11 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Foundation;
-//using Plugin.Firebase.Firestore;
-//using Plugin.Firebase.iOS.Extensions;
+using Plugin.Firebase.Firestore;
 
-namespace System.Collections.Generic
+namespace Plugin.Firebase.iOS.Extensions
 {
     public static class DictionaryExtension
     {
@@ -59,32 +61,32 @@ namespace System.Collections.Generic
             return dict.ToNSDictionary();
         } 
         
-        //public static Dictionary<object, object> ToDictionary(this object @this)
-        //{       
-        //    var dict = new Dictionary<object, object>();
-        //    var properties = @this.GetType().GetProperties();
-        //    foreach(var property in properties) {
-        //        var attributes = property.GetCustomAttributes(typeof(FirestorePropertyAttribute), true);
-        //        if(attributes.Any()) {
-        //            var attribute = (FirestorePropertyAttribute) attributes[0];
-        //            var value = property.GetValue(@this);
-        //            if(value is DateTime date) {
-        //                dict[attribute.PropertyName] = date.ToNSDate();
-        //            } else {
-        //                dict[attribute.PropertyName] = value;
-        //            }
-        //        }
-        //    }
-        //    return dict;
-        //}
+        public static Dictionary<object, object> ToDictionary(this object @this)
+        {       
+            var dict = new Dictionary<object, object>();
+            var properties = @this.GetType().GetProperties();
+            foreach(var property in properties) {
+                var attributes = property.GetCustomAttributes(typeof(FirestorePropertyAttribute), true);
+                if(attributes.Any()) {
+                    var attribute = (FirestorePropertyAttribute) attributes[0];
+                    var value = property.GetValue(@this);
+                    if(value is DateTime date) {
+                        dict[attribute.PropertyName] = date.ToNSDate();
+                    } else {
+                        dict[attribute.PropertyName] = value;
+                    }
+                }
+            }
+            return dict;
+        }
 
-        //public static IDictionary ToDictionary(this NSDictionary @this, Type keyType, Type valueType)
-        //{
-        //    var dict = (IDictionary) Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(keyType, valueType));
-        //    foreach(var pair in @this) {
-        //        dict[pair.Key.ToObject(keyType)] = pair.Value.ToObject(valueType);
-        //    }
-        //    return dict;
-        //}
+        public static IDictionary ToDictionary(this NSDictionary @this, Type keyType, Type valueType)
+        {
+            var dict = (IDictionary) Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(keyType, valueType));
+            foreach(var pair in @this) {
+                dict[pair.Key.ToObject(keyType)] = pair.Value.ToObject(valueType);
+            }
+            return dict;
+        }
     }
 }

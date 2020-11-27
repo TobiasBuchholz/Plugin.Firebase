@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Linq;
-// using Ablaze.UI.Droid.Plugin.Firebase.Firestore;
-// using Ablaze.UI.Plugin.Firebase.Firestore;
 using Android.OS;
 using Java.Util;
-// using Newtonsoft.Json.Linq;
-// using Plugin.Firebase.Firestore;
-// using Plugin.Firebase.Android.Extensions;
+using Newtonsoft.Json.Linq;
+using Plugin.Firebase.Android.Extensions;
+using Plugin.Firebase.Firestore;
 
 namespace System.Collections.Generic
 {
@@ -46,9 +44,9 @@ namespace System.Collections.Generic
                 case string x:
                     @this.Put(key.ToString(), x);
                     break;
-                //case DateTime x:
-                //    @this.Put(key.ToString(), x.ToJavaDate());
-                //    break;
+                case DateTime x:
+                    @this.Put(key.ToString(), x.ToJavaDate());
+                    break;
                 default:
                     if(value == null) {
                         @this.Put(key.ToString(), null);
@@ -66,32 +64,32 @@ namespace System.Collections.Generic
             return map;
         }
         
-        // public static HashMap ToHashMap(this IDictionary<string, object> dictionary)
-        // {
-        //     var hashMap = new HashMap();
-        //     dictionary.ToList().ForEach(x => {
-        //         if(x.Value is JObject jsonValue) {
-        //             hashMap.Put(x.Key, jsonValue.ToObject<Dictionary<string, object>>().ToHashMap());
-        //         } else {
-        //             hashMap.Put(x.Key, x.Value);
-        //         }
-        //     });
-        //     return hashMap;
-        // }
-        //
-        // public static HashMap ToHashMap(this object @this)
-        // {
-        //     var map = new HashMap();
-        //     var properties = @this.GetType().GetProperties();
-        //     foreach(var property in properties) {
-        //         var attributes = property.GetCustomAttributes(typeof(FirestorePropertyAttribute), true);
-        //         if(attributes.Any()) {
-        //             var attribute = (FirestorePropertyAttribute) attributes[0];
-        //             map.Put(attribute.PropertyName, property.GetValue(@this));
-        //         }
-        //     }
-        //     return map;
-        // }
+        public static HashMap ToHashMap(this IDictionary<string, object> dictionary)
+        {
+            var hashMap = new HashMap();
+            dictionary.ToList().ForEach(x => {
+                if(x.Value is JObject jsonValue) {
+                    hashMap.Put(x.Key, jsonValue.ToObject<Dictionary<string, object>>().ToHashMap());
+                } else {
+                    hashMap.Put(x.Key, x.Value);
+                }
+            });
+            return hashMap;
+        }
+        
+        public static HashMap ToHashMap(this object @this)
+        {
+            var map = new HashMap();
+            var properties = @this.GetType().GetProperties();
+            foreach(var property in properties) {
+                var attributes = property.GetCustomAttributes(typeof(FirestorePropertyAttribute), true);
+                if(attributes.Any()) {
+                    var attribute = (FirestorePropertyAttribute) attributes[0];
+                    map.Put(attribute.PropertyName, property.GetValue(@this));
+                }
+            }
+            return map;
+        }
         
         public static Bundle ToBundle(this IDictionary<string, object> dictionary)
         {
@@ -178,9 +176,9 @@ namespace System.Collections.Generic
                 case string x:
                     dictionary.Add(pair.Key, x);
                     break;
-                //case FieldValue x:
-                //    dictionary.Add(pair.Key, x.ToNative());
-                //    break;
+                case FieldValue x:
+                    dictionary.Add(pair.Key, x.ToNative());
+                    break;
                 default:
                     if(pair.Value == null) {
                         dictionary.Add(pair.Key, null);
@@ -379,15 +377,15 @@ namespace System.Collections.Generic
             return bundle.GetBoolean(key);
         }
         
-        // public static IDictionary ToDictionary(this IDictionary @this, Type keyType, Type valueType)
-        // {
-        //     var dict = (IDictionary) Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(keyType, valueType));
-        //     foreach(DictionaryEntry pair in @this) {
-        //         var key = pair.Key.ToJavaObject().ToObject(keyType);
-        //         var value = pair.Value.ToJavaObject().ToObject(valueType);
-        //         dict[key] = value;
-        //     }
-        //     return dict;
-        // }
+        public static IDictionary ToDictionary(this IDictionary @this, Type keyType, Type valueType)
+        {
+            var dict = (IDictionary) Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(keyType, valueType));
+            foreach(DictionaryEntry pair in @this) {
+                var key = pair.Key.ToJavaObject().ToObject(keyType);
+                var value = pair.Value.ToJavaObject().ToObject(valueType);
+                dict[key] = value;
+            }
+            return dict;
+        }
     }
 }

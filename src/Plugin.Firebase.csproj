@@ -86,6 +86,7 @@
     <PackageReference Include="Xamarin.Firebase.Auth" Version="119.3.1" />
     <PackageReference Include="Xamarin.Firebase.Config" Version="119.1.4" />
     <PackageReference Include="Xamarin.Firebase.Dynamic.Links" Version="119.1.0" />
+    <PackageReference Include="Xamarin.Firebase.Firestore" Version="121.4.3" />
     <PackageReference Include="Xamarin.Firebase.Functions" Version="119.0.2" />
     <PackageReference Include="Xamarin.Firebase.Messaging" Version="120.1.7" />
     <PackageReference Include="Xamarin.Firebase.Storage" Version="119.1.1" />
@@ -97,6 +98,7 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'Xamarin.iOS10'">
     <PackageReference Include="Xamarin.Firebase.iOS.Auth" Version="6.9.2" />
+    <PackageReference Include="Xamarin.Firebase.iOS.CloudFirestore" Version="1.19.0" />
     <PackageReference Include="Xamarin.Firebase.iOS.CloudFunctions" Version="2.9.0" />
     <PackageReference Include="Xamarin.Firebase.iOS.CloudMessaging" Version="4.7.1" />
     <PackageReference Include="Xamarin.Firebase.iOS.DynamicLinks" Version="4.3.1" />

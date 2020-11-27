@@ -63,6 +63,7 @@ namespace Playground.Common.Services.Composition
                         _navigationService.Value);
                 case AuthPage _:
                     return new AuthViewModel(
+                        _userInteractionService.Value,
                         _firebaseAuth.Value);
                 case RemoteConfigPage _:
                     return new RemoteConfigViewModel(

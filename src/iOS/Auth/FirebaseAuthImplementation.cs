@@ -37,8 +37,7 @@ namespace Plugin.Firebase.Auth
         
         public static bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options)
         {
-            var openUrlOptions = new UIApplicationOpenUrlOptions(options);
-            return SignIn.SharedInstance.HandleUrl(url, openUrlOptions.SourceApplication, openUrlOptions.Annotation);
+            return SignIn.SharedInstance.HandleUrl(url);
         }
         
         public static bool OpenUrl(UIApplication application, NSUrl url, string sourceApplication, NSObject annotation)

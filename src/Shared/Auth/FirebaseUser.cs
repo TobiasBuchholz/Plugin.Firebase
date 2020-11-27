@@ -25,6 +25,11 @@ namespace Plugin.Firebase.Auth
             ProviderInfos = providerInfos;
         }
 
+        public override string ToString()
+        {
+            return $"[{nameof(FirebaseUser)}: {nameof(Uid)}={Uid}, {nameof(Email)}={Email}]";
+        }
+
         public string Uid { get; }
         public string DisplayName { get; }
         public string Email { get; }

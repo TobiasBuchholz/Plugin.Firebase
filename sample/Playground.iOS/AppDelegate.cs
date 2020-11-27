@@ -4,6 +4,7 @@ using Playground.Common.Services.Composition;
 using Playground.Common.Services.Logging;
 using Playground.Common.Services.Scheduler;
 using Playground.iOS.Services.Composition;
+using Plugin.Firebase.Auth;
 using UIKit;
 using Xamarin.Forms;
 
@@ -28,6 +29,7 @@ namespace Playground.iOS
             Forms.Init();
             LogOutputService.Initialize();
             Firebase.Core.App.Configure();
+            FirebaseAuthImplementation.Initialize(app, options, "1234567890", "playground");
 
             var compositionRoot = new CompositionRoot();
             ViewModelResolver.Initialize(compositionRoot);

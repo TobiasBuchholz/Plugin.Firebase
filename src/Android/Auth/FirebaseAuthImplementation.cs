@@ -15,6 +15,7 @@ using Plugin.Firebase.Android.Auth.Google;
 using Plugin.Firebase.Android.Auth.PhoneNumber;
 using Plugin.Firebase.Common;
 using Plugin.Firebase.Extensions;
+using Xamarin.Facebook;
 using CrossActionCodeSettings = Plugin.Firebase.Auth.ActionCodeSettings;
 
 namespace Plugin.Firebase.Auth
@@ -127,6 +128,10 @@ namespace Plugin.Firebase.Auth
             return await SignInWithCredentialAsync(credential);
         }
 
+        /// <summary>
+        /// TODO: is not working correctly yet
+        /// </summary>
+        /// <returns></returns>
         public async Task<FirebaseUser> SignInWithFacebookAsync()
         {
             var credential = await _facebookAuth.GetCredentialAsync(Activity);
@@ -186,7 +191,6 @@ namespace Plugin.Firebase.Auth
 
         public Task SignOutAsync()
         {
-            _facebookAuth.SignOut();
             _firebaseAuth.SignOut();
             return _googleAuth.SignOutAsync();
         }

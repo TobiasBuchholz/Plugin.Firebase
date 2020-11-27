@@ -75,6 +75,30 @@ namespace Playground.Resources {
             }
         }
         
+        internal static string ButtonTextSignInWithEmail {
+            get {
+                return ResourceManager.GetString("ButtonTextSignInWithEmail", resourceCulture);
+            }
+        }
+        
+        internal static string ButtonTextSignOut {
+            get {
+                return ResourceManager.GetString("ButtonTextSignOut", resourceCulture);
+            }
+        }
+        
+        internal static string LabelUserIsSignedIn {
+            get {
+                return ResourceManager.GetString("LabelUserIsSignedIn", resourceCulture);
+            }
+        }
+        
+        internal static string LabelUserIsSignedOut {
+            get {
+                return ResourceManager.GetString("LabelUserIsSignedOut", resourceCulture);
+            }
+        }
+        
         internal static string EntryPlaceholderStorage {
             get {
                 return ResourceManager.GetString("EntryPlaceholderStorage", resourceCulture);

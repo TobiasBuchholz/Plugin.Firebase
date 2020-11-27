@@ -25,8 +25,14 @@
     <data name="ButtonTextStorage"><value>Storage</value></data>
     <data name="ButtonTextFetchRemoteConfig"><value>Fetch and activate</value></data>
     <data name="ButtonTextUploadText"><value>Upload text as file</value></data>
+    <data name="ButtonTextSignInWithEmail"><value>Sign in with email</value></data>
+    <data name="ButtonTextSignOut"><value>Sign out</value></data>
     
-    <!-- entry placeholder -->
+    <!-- labels -->
+    <data name="LabelUserIsSignedIn"><value>Signed in with: %s</value></data>
+    <data name="LabelUserIsSignedOut"><value>User is signed out</value></data>
+    
+    <!-- entry placeholders -->
     <data name="EntryPlaceholderStorage"><value>Enter text for upload</value></data>
 
     <!-- alerts -->

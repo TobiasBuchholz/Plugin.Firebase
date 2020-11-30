@@ -16,7 +16,7 @@ namespace Plugin.Firebase.IntegrationTests
         [Fact]
         public void must_pass()
         {
-            Assert.True(CrossFirebaseAnalytics.IsSupported);
+            // Assert.True(CrossFirebaseAnalytics.IsSupported); -> disabled on Android because of build issues
             Assert.True(CrossFirebaseAuth.IsSupported);
             Assert.True(CrossFirebaseCloudMessaging.IsSupported);
             Assert.True(CrossFirebaseDynamicLinks.IsSupported);

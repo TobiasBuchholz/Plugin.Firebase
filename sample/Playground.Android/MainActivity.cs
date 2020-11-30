@@ -30,7 +30,6 @@ namespace Playground.Droid
             Forms.Init(this, savedInstanceState);
             LogOutputService.Initialize();
             FirebaseApp.InitializeApp(this);
-            FirebaseAnalyticsImplementation.Initialize(this);
             FirebaseAuthImplementation.Initialize(this, savedInstanceState, "537235599720-fft999p3e58cgohdffph003folcsnpl7.apps.googleusercontent.com");
 
             var compositionRoot = new CompositionRoot();

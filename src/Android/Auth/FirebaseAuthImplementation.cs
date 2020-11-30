@@ -45,7 +45,7 @@ namespace Plugin.Firebase.Auth
         {
             _firebaseAuth = FirebaseAuth.Instance;
             _emailAuth = new EmailAuth();
-            _googleAuth = new GoogleAuth(FragmentActivity, _googleRequestIdToken);
+            _googleAuth = new GoogleAuth(Activity, _googleRequestIdToken);
             _facebookAuth = new FacebookAuth(AppContext);
             _phoneNumberAuth = new PhoneNumberAuth();
         }
@@ -204,10 +204,10 @@ namespace Plugin.Firebase.Auth
             Activity as FragmentActivity ?? throw new NullReferenceException($"Current Activity is either null or not of type {nameof(FragmentActivity)}, which is mandatory for sign in with Google");
         
         private static Activity Activity =>
-            CrossCurrentActivity.Current.Activity ?? throw new NullReferenceException("Current Activity is null, ensure that the MainApplication.cs file is setting the CurrentActivity in your source code so the In App Billing can use it.");
+            CrossCurrentActivity.Current.Activity ?? throw new NullReferenceException("Current Activity is null, ensure that the MainApplication.cs file is setting the CurrentActivity in your source code so Firebase Analytics can use it.");
 
         private static Context AppContext =>
-            CrossCurrentActivity.Current.AppContext ?? throw new NullReferenceException("AppContext is null, ensure that the MainApplication.cs file is setting the CurrentActivity in your source code so the In App Billing can use it.");
+            CrossCurrentActivity.Current.AppContext ?? throw new NullReferenceException("AppContext is null, ensure that the MainApplication.cs file is setting the CurrentActivity in your source code so the Firebase Analytics can use it.");
 
         public FirebaseUser CurrentUser => _firebaseAuth.CurrentUser == null ? null : CreateFirebaseUser(_firebaseAuth.CurrentUser);
     }

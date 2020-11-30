@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\src\packages\Xamarin.Forms.4.8.0.1687\build\Xamarin.Forms.props" Condition="Exists('..\..\src\packages\Xamarin.Forms.4.8.0.1687\build\Xamarin.Forms.props')" />
   <Import Project="..\..\src\packages\Xamarin.Build.Download.0.10.0\build\Xamarin.Build.Download.props" Condition="Exists('..\..\src\packages\Xamarin.Build.Download.0.10.0\build\Xamarin.Build.Download.props')" />
-  <Import Project="..\..\src\packages\Xamarin.Forms.3.3.0.912540\build\Xamarin.Forms.props" Condition="Exists('..\..\src\packages\Xamarin.Forms.3.3.0.912540\build\Xamarin.Forms.props')" />
   <Import Project="..\..\src\packages\xunit.core.2.4.1\build\xunit.core.props" Condition="Exists('..\..\src\packages\xunit.core.2.4.1\build\xunit.core.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -163,19 +163,15 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\src\packages\Xamarin.Forms.3.3.0.912540\lib\Xamarin.iOS10\Xamarin.Forms.Core.dll</HintPath>
+      <HintPath>..\..\src\packages\Xamarin.Forms.4.8.0.1687\lib\Xamarin.iOS10\Xamarin.Forms.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Xamarin.Forms.Platform, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\src\packages\Xamarin.Forms.3.3.0.912540\lib\Xamarin.iOS10\Xamarin.Forms.Platform.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Xamarin.Forms.Platform.iOS, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\src\packages\Xamarin.Forms.3.3.0.912540\lib\Xamarin.iOS10\Xamarin.Forms.Platform.iOS.dll</HintPath>
+    <Reference Include="Xamarin.Forms.Platform, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\src\packages\Xamarin.Forms.4.8.0.1687\lib\Xamarin.iOS10\Xamarin.Forms.Platform.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Xamarin.Forms.Xaml, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\src\packages\Xamarin.Forms.3.3.0.912540\lib\Xamarin.iOS10\Xamarin.Forms.Xaml.dll</HintPath>
+      <HintPath>..\..\src\packages\Xamarin.Forms.4.8.0.1687\lib\Xamarin.iOS10\Xamarin.Forms.Xaml.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Xamarin.iOS" />
@@ -237,20 +233,20 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\src\packages\xunit.core.2.4.1\build\xunit.core.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\src\packages\xunit.core.2.4.1\build\xunit.core.props'))" />
     <Error Condition="!Exists('..\..\src\packages\xunit.core.2.4.1\build\xunit.core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\src\packages\xunit.core.2.4.1\build\xunit.core.targets'))" />
-    <Error Condition="!Exists('..\..\src\packages\Xamarin.Forms.3.3.0.912540\build\Xamarin.Forms.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\src\packages\Xamarin.Forms.3.3.0.912540\build\Xamarin.Forms.props'))" />
-    <Error Condition="!Exists('..\..\src\packages\Xamarin.Forms.3.3.0.912540\build\Xamarin.Forms.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\src\packages\Xamarin.Forms.3.3.0.912540\build\Xamarin.Forms.targets'))" />
     <Error Condition="!Exists('..\..\src\packages\xunit.runner.devices.2.5.25\build\xamarinios10\xunit.runner.devices.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\src\packages\xunit.runner.devices.2.5.25\build\xamarinios10\xunit.runner.devices.targets'))" />
     <Error Condition="!Exists('..\..\src\packages\Xamarin.Build.Download.0.10.0\build\Xamarin.Build.Download.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\src\packages\Xamarin.Build.Download.0.10.0\build\Xamarin.Build.Download.props'))" />
     <Error Condition="!Exists('..\..\src\packages\Xamarin.Build.Download.0.10.0\build\Xamarin.Build.Download.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\src\packages\Xamarin.Build.Download.0.10.0\build\Xamarin.Build.Download.targets'))" />
     <Error Condition="!Exists('..\..\src\packages\Xamarin.Google.iOS.SignIn.5.0.2.1\build\Xamarin.Google.iOS.SignIn.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\src\packages\Xamarin.Google.iOS.SignIn.5.0.2.1\build\Xamarin.Google.iOS.SignIn.targets'))" />
     <Error Condition="!Exists('..\..\src\packages\Xamarin.Firebase.iOS.Core.6.10.4\build\Xamarin.Firebase.iOS.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\src\packages\Xamarin.Firebase.iOS.Core.6.10.4\build\Xamarin.Firebase.iOS.Core.targets'))" />
     <Error Condition="!Exists('..\..\src\packages\Xamarin.Firebase.iOS.Analytics.6.9.0\build\Xamarin.Firebase.iOS.Analytics.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\src\packages\Xamarin.Firebase.iOS.Analytics.6.9.0\build\Xamarin.Firebase.iOS.Analytics.targets'))" />
+    <Error Condition="!Exists('..\..\src\packages\Xamarin.Forms.4.8.0.1687\build\Xamarin.Forms.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\src\packages\Xamarin.Forms.4.8.0.1687\build\Xamarin.Forms.props'))" />
+    <Error Condition="!Exists('..\..\src\packages\Xamarin.Forms.4.8.0.1687\build\Xamarin.Forms.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\src\packages\Xamarin.Forms.4.8.0.1687\build\Xamarin.Forms.targets'))" />
   </Target>
   <Import Project="..\..\src\packages\xunit.core.2.4.1\build\xunit.core.targets" Condition="Exists('..\..\src\packages\xunit.core.2.4.1\build\xunit.core.targets')" />
-  <Import Project="..\..\src\packages\Xamarin.Forms.3.3.0.912540\build\Xamarin.Forms.targets" Condition="Exists('..\..\src\packages\Xamarin.Forms.3.3.0.912540\build\Xamarin.Forms.targets')" />
   <Import Project="..\..\src\packages\xunit.runner.devices.2.5.25\build\xamarinios10\xunit.runner.devices.targets" Condition="Exists('..\..\src\packages\xunit.runner.devices.2.5.25\build\xamarinios10\xunit.runner.devices.targets')" />
   <Import Project="..\..\src\packages\Xamarin.Build.Download.0.10.0\build\Xamarin.Build.Download.targets" Condition="Exists('..\..\src\packages\Xamarin.Build.Download.0.10.0\build\Xamarin.Build.Download.targets')" />
   <Import Project="..\..\src\packages\Xamarin.Google.iOS.SignIn.5.0.2.1\build\Xamarin.Google.iOS.SignIn.targets" Condition="Exists('..\..\src\packages\Xamarin.Google.iOS.SignIn.5.0.2.1\build\Xamarin.Google.iOS.SignIn.targets')" />
   <Import Project="..\..\src\packages\Xamarin.Firebase.iOS.Core.6.10.4\build\Xamarin.Firebase.iOS.Core.targets" Condition="Exists('..\..\src\packages\Xamarin.Firebase.iOS.Core.6.10.4\build\Xamarin.Firebase.iOS.Core.targets')" />
   <Import Project="..\..\src\packages\Xamarin.Firebase.iOS.Analytics.6.9.0\build\Xamarin.Firebase.iOS.Analytics.targets" Condition="Exists('..\..\src\packages\Xamarin.Firebase.iOS.Analytics.6.9.0\build\Xamarin.Firebase.iOS.Analytics.targets')" />
+  <Import Project="..\..\src\packages\Xamarin.Forms.4.8.0.1687\build\Xamarin.Forms.targets" Condition="Exists('..\..\src\packages\Xamarin.Forms.4.8.0.1687\build\Xamarin.Forms.targets')" />
 </Project>

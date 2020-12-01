@@ -27,6 +27,9 @@ namespace Plugin.Firebase.Storage
         IStorageUploadTask PutStream(Stream stream);
         
         Task<string> GetDownloadUrlAsync();
+        Task<IStorageListResult> ListAsync(long maxResults);
+        Task<IStorageListResult> ListAllAsync();
+        Task DeleteAsync();
 
         IStorageReference Parent { get; }
         IStorageReference Root { get; }

@@ -15,17 +15,17 @@ namespace Plugin.Firebase.Storage
         
         public IStorageReference GetRootReference()
         {
-            return new StorageReferenceWrapper(_instance.GetRootReference());
+            return _instance.GetRootReference().ToAbstract();
         }
         
         public IStorageReference GetReferenceFromUrl(string url)
         {
-            return new StorageReferenceWrapper(_instance.GetReferenceFromUrl(url));
+            return _instance.GetReferenceFromUrl(url).ToAbstract();
         }
 
         public IStorageReference GetReferenceFromPath(string path)
         {
-            return new StorageReferenceWrapper(_instance.GetReferenceFromPath(path));
+            return _instance.GetReferenceFromPath(path).ToAbstract();
         }
     }
 }

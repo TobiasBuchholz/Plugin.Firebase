@@ -53,6 +53,11 @@ namespace Plugin.Firebase.iOS.Extensions
                     }
             }
         }
+
+        public static NSDictionary<NSString, NSString> ToNSDictionary(this IDictionary<string, string> @this)
+        {
+            return NSDictionary<NSString, NSString>.FromObjectsAndKeys(@this.Values.ToArray(), @this.Keys.ToArray());
+        }
         
         public static NSDictionary<NSString, NSObject> ToNSDictionary(this IEnumerable<(string, object)> tuples)
         {
@@ -85,6 +90,15 @@ namespace Plugin.Firebase.iOS.Extensions
             var dict = (IDictionary) Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(keyType, valueType));
             foreach(var pair in @this) {
                 dict[pair.Key.ToObject(keyType)] = pair.Value.ToObject(valueType);
+            }
+            return dict;
+        }
+        
+        public static IDictionary<string, string> ToDictionary(this NSDictionary<NSString, NSString> @this)
+        {
+            var dict = new Dictionary<string, string>();
+            foreach(var (key, value) in @this) {
+                dict[key.ToString()] = new NSString(value.ToString());
             }
             return dict;
         }

@@ -7,7 +7,7 @@ namespace Plugin.Firebase.Storage
         long TransferredUnitCount { get; }
         long TotalUnitCount { get; }
         double TransferredFraction { get; }
-        
+        IStorageMetadata Metadata { get; }
         Exception Error { get; }
     }
 }

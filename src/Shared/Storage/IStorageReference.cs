@@ -12,20 +12,22 @@ namespace Plugin.Firebase.Storage
         /// Uploads a byte array to firebase storage bucket.<br></br>
         /// CAUTION: Although this method returns an IStorageUploadTask, which has an AwaitAsync() method, the upload will start immediately on iOS
         /// </summary>
-        IStorageUploadTask PutBytes(byte[] bytes);
+        IStorageUploadTask PutBytes(byte[] bytes, IStorageMetadata metaData = null);
         
         /// <summary>
         /// Uploads a file via it's file path to firebase storage bucket.<br></br>
         /// CAUTION: Although this method returns an IStorageUploadTask, which has an AwaitAsync() method, the upload will start immediately on iOS
         /// </summary>
-        IStorageUploadTask PutFile(string filePath);
+        IStorageUploadTask PutFile(string filePath, IStorageMetadata metaData = null);
         
         /// <summary>
         /// Uploads a file via it's data stream to firebase storage bucket.<br></br>
         /// CAUTION: Although this method returns an IStorageUploadTask, which has an AwaitAsync() method, the upload will start immediately on iOS
         /// </summary>
-        IStorageUploadTask PutStream(Stream stream);
-        
+        IStorageUploadTask PutStream(Stream stream, IStorageMetadata metaData = null);
+
+        Task<IStorageMetadata> GetMetadataAsync();
+        Task<IStorageMetadata> UpdateMetadataAsync(IStorageMetadata metadata);
         Task<string> GetDownloadUrlAsync();
         Task<IStorageListResult> ListAsync(long maxResults);
         Task<IStorageListResult> ListAllAsync();

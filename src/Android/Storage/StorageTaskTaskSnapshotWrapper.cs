@@ -25,14 +25,15 @@ namespace Plugin.Firebase.Android.Storage
                 TotalUnitCount = snapshot.TotalByteCount;
                 TransferredFraction = snapshot.BytesTransferred / (double) snapshot.TotalByteCount;
             }
+
+            Metadata = snapshot?.Metadata?.ToAbstract();
             Error = error;
         }
 
         public long TransferredUnitCount { get; }
         public long TotalUnitCount { get; }
         public double TransferredFraction { get; }
+        public IStorageMetadata Metadata { get; }
         public Exception Error { get; }
-        
-        // TODO: add Metadata property when needed
     }
 }

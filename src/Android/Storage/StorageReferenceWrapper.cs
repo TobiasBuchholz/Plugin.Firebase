@@ -8,6 +8,7 @@ using Plugin.Firebase.Storage;
 using AndroidUri = Android.Net.Uri;
 using AndroidTask = Android.Gms.Tasks.Task;
 using File = Java.IO.File;
+using StorageMetadata = Firebase.Storage.StorageMetadata;
 
 namespace Plugin.Firebase.Android.Storage
 {
@@ -22,22 +23,38 @@ namespace Plugin.Firebase.Android.Storage
 
         public IStorageReference GetChild(string path)
         {
-            return new StorageReferenceWrapper(_wrapped.Child(path));
+            return _wrapped.Child(path).ToAbstract();
         }
 
-        public IStorageUploadTask PutBytes(byte[] bytes)
+        public IStorageUploadTask PutBytes(byte[] bytes, IStorageMetadata metadata = null)
         {
-            return new StorageUploadTaskWrapper(_wrapped.PutBytes(bytes));
+            return metadata == null 
+                ? _wrapped.PutBytes(bytes).ToAbstract() 
+                : _wrapped.PutBytes(bytes, metadata.ToNative()).ToAbstract();
         }
 
-        public IStorageUploadTask PutFile(string filePath)
+        public IStorageUploadTask PutFile(string filePath, IStorageMetadata metadata = null)
         {
-            return new StorageUploadTaskWrapper(_wrapped.PutFile(AndroidUri.FromFile(new File(filePath))));
+            return metadata == null 
+                ? _wrapped.PutFile(AndroidUri.FromFile(new File(filePath))).ToAbstract()
+                : _wrapped.PutFile(AndroidUri.FromFile(new File(filePath)), metadata.ToNative()).ToAbstract();
         }
 
-        public IStorageUploadTask PutStream(Stream stream)
+        public IStorageUploadTask PutStream(Stream stream, IStorageMetadata metadata = null)
         {
-            return new StorageUploadTaskWrapper(_wrapped.PutStream(stream));
+            return metadata == null
+                ? _wrapped.PutStream(stream).ToAbstract()
+                : _wrapped.PutStream(stream, metadata.ToNative()).ToAbstract();
+        }
+
+        public async Task<IStorageMetadata> GetMetadataAsync()
+        {
+            return (await _wrapped.GetMetadata().ToTask<StorageMetadata>()).ToAbstract();
+        }
+
+        public async Task<IStorageMetadata> UpdateMetadataAsync(IStorageMetadata metadata)
+        {
+            return (await _wrapped.UpdateMetadata(metadata.ToNative()).ToTask<StorageMetadata>()).ToAbstract();
         }
 
         public async Task<string> GetDownloadUrlAsync()
@@ -48,12 +65,12 @@ namespace Plugin.Firebase.Android.Storage
 
         public async Task<IStorageListResult> ListAsync(long maxResults)
         {
-            return new StorageListResultWrapper(await _wrapped.List((int) maxResults).ToTask<ListResult>());
+            return (await _wrapped.List((int) maxResults).ToTask<ListResult>()).ToAbstract();
         }
 
         public async Task<IStorageListResult> ListAllAsync()
         {
-            return new StorageListResultWrapper(await _wrapped.ListAll().ToTask<ListResult>());
+            return (await _wrapped.ListAll().ToTask<ListResult>()).ToAbstract();
         }
 
         public Task DeleteAsync()
@@ -61,8 +78,8 @@ namespace Plugin.Firebase.Android.Storage
             return _wrapped.DeleteAsync();
         }
 
-        public IStorageReference Parent => _wrapped.Parent == null ? null : new StorageReferenceWrapper(_wrapped.Parent);
-        public IStorageReference Root => new StorageReferenceWrapper(_wrapped.Root);
+        public IStorageReference Parent => _wrapped.Parent?.ToAbstract();
+        public IStorageReference Root => _wrapped.Root.ToAbstract();
         public string Bucket => _wrapped.Bucket;
         public string Name => _wrapped.Name;
         public string FullPath => _wrapped.Path;

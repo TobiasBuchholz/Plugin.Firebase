@@ -21,29 +21,39 @@ namespace Plugin.Firebase.iOS.Storage
 
         public IStorageReference GetChild(string path)
         {
-            return new StorageReferenceWrapper(_wrapped.GetChild(path));
+            return _wrapped.GetChild(path).ToAbstract();
         }
 
-        public IStorageUploadTask PutBytes(byte[] bytes)
+        public IStorageUploadTask PutBytes(byte[] bytes, IStorageMetadata metadata = null)
         {
-            return PutData(NSData.FromArray(bytes));
+            return PutData(NSData.FromArray(bytes), metadata);
         }
         
-        private IStorageUploadTask PutData(NSData data)
+        private IStorageUploadTask PutData(NSData data, IStorageMetadata metadata = null)
         {
             var wrapper = new StorageUploadTaskWrapper();
-            wrapper.UploadTask = _wrapped.PutData(data, null, wrapper.CompletionHandler);
+            wrapper.UploadTask = _wrapped.PutData(data, metadata?.ToNative(), wrapper.CompletionHandler);
             return wrapper;
         }
         
-        public IStorageUploadTask PutFile(string filePath)
+        public IStorageUploadTask PutFile(string filePath, IStorageMetadata metadata = null)
         {
-            return PutData(NSData.FromStream(File.Open(filePath, FileMode.Open)));
+            return PutData(NSData.FromStream(File.Open(filePath, FileMode.Open)), metadata);
         }
 
-        public IStorageUploadTask PutStream(Stream stream)
+        public IStorageUploadTask PutStream(Stream stream, IStorageMetadata metadata = null)
         {
-            return PutData(NSData.FromStream(stream));
+            return PutData(NSData.FromStream(stream), metadata);
+        }
+
+        public async Task<IStorageMetadata> GetMetadataAsync()
+        {
+            return (await _wrapped.GetMetadataAsync()).ToAbstract();
+        }
+
+        public async Task<IStorageMetadata> UpdateMetadataAsync(IStorageMetadata metadata)
+        {
+            return (await _wrapped.UpdateMetadataAsync(metadata.ToNative())).ToAbstract();
         }
 
         public async Task<string> GetDownloadUrlAsync()
@@ -55,9 +65,9 @@ namespace Plugin.Firebase.iOS.Storage
         public Task<IStorageListResult> ListAsync(long maxResults)
         {
             var tcs = new TaskCompletionSource<IStorageListResult>();
-            _wrapped.List(maxResults, (x, error) => {
+            _wrapped.List(maxResults, (listResult, error) => {
                 if(error == null) {
-                    tcs.SetResult(new StorageListResultsWrapper(x));
+                    tcs.SetResult(listResult.ToAbstract());
                 } else {
                     tcs.SetException(new FirebaseException(error.LocalizedDescription));
                 }
@@ -70,7 +80,7 @@ namespace Plugin.Firebase.iOS.Storage
             var tcs = new TaskCompletionSource<IStorageListResult>();
             _wrapped.ListAll((x, error) => {
                 if(error == null) {
-                    tcs.SetResult(new StorageListResultsWrapper(x));
+                    tcs.SetResult(x.ToAbstract());
                 } else {
                     tcs.SetException(new FirebaseException(error.LocalizedDescription));
                 }
@@ -83,8 +93,8 @@ namespace Plugin.Firebase.iOS.Storage
             return _wrapped.DeleteAsync();
         }
 
-        public IStorageReference Parent => _wrapped.Parent == null ? null : new StorageReferenceWrapper(_wrapped.Parent);
-        public IStorageReference Root => new StorageReferenceWrapper(_wrapped.Root);
+        public IStorageReference Parent => _wrapped.Parent?.ToAbstract();
+        public IStorageReference Root => _wrapped.Root.ToAbstract();
         public string Bucket => _wrapped.Bucket;
         public string Name => _wrapped.Name;
         public string FullPath => $"/{_wrapped.FullPath}";

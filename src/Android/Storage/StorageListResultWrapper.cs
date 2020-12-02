@@ -14,8 +14,8 @@ namespace Plugin.Firebase.Android.Storage
             _wrapped = wrapped;
         }
 
-        public IEnumerable<IStorageReference> Items => _wrapped.Items.Select(x => new StorageReferenceWrapper(x));
-        public IEnumerable<IStorageReference> Prefixes => _wrapped.Prefixes.Select(x => new StorageReferenceWrapper(x));
+        public IEnumerable<IStorageReference> Items => _wrapped.Items.Select(x => x.ToAbstract());
+        public IEnumerable<IStorageReference> Prefixes => _wrapped.Prefixes.Select(x => x.ToAbstract());
         public string PageToken => _wrapped.PageToken;
     }
 }

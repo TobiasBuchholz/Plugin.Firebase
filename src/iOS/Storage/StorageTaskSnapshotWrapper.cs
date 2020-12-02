@@ -25,14 +25,15 @@ namespace Plugin.Firebase.iOS.Storage
                 TotalUnitCount = snapshot.Progress.TotalUnitCount;
                 TransferredFraction = snapshot.Progress.FractionCompleted;
             }
+
+            Metadata = snapshot?.Metadata?.ToAbstract();
             Error = error;
         }
 
         public long TransferredUnitCount { get; }
         public long TotalUnitCount { get; }
         public double TransferredFraction { get; }
+        public IStorageMetadata Metadata { get; }
         public Exception Error { get; }
-        
-        // TODO: add Metadata property when needed
     }
 }

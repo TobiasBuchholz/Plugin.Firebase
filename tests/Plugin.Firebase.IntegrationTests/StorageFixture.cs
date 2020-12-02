@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,9 +11,6 @@ namespace Plugin.Firebase.IntegrationTests
 {
     public sealed class StorageFixture : IDisposable
     {
-        private const string DownloadUrlPrefix = "https://firebasestorage.googleapis.com/v0/b/pluginfirebase-integrationtest.appspot.com/o/";
-        private const string DownloadUrlSuffix = "?alt=media&token=";
-        
         [Fact]
         public void gets_root_reference()
         {
@@ -80,7 +78,7 @@ namespace Plugin.Firebase.IntegrationTests
 
         private static string CreateDownloadUrl(string pathToFile)
         {
-            return $"{DownloadUrlPrefix}{pathToFile}{DownloadUrlSuffix}";
+            return $"https://firebasestorage.googleapis.com/v0/b/pluginfirebase-integrationtest.appspot.com/o/{pathToFile}?alt=media&token=";
         }
 
         [Fact]
@@ -104,14 +102,44 @@ namespace Plugin.Firebase.IntegrationTests
                 .Current
                 .GetReferenceFromPath(path);
 
-            using(var stream = new MemoryStream()) {
-                var writer = new StreamWriter(stream);
-                await writer.WriteAsync("Some test Text");
-                await writer.FlushAsync();
+            using(var stream = await CreateTextStreamAsync("Some text via stream")) {
                 await reference.PutStream(stream).AwaitAsync();
                 var downloadUrl = await reference.GetDownloadUrlAsync();
                 Assert.StartsWith(CreateDownloadUrl(path), downloadUrl);
             }
+        }
+
+        private static async Task<Stream> CreateTextStreamAsync(string text)
+        {
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            await writer.WriteAsync(text);
+            await writer.FlushAsync();
+            return stream;
+        }
+
+        [Fact]
+        public async Task uploads_stream_with_meta_data()
+        {
+            var path = $"texts/via_stream_with_metadata.txt";
+            var metadata = new StorageMetadata(contentType:"text/plain");
+            var reference = CrossFirebaseStorage
+                .Current
+                .GetReferenceFromPath(path);
+
+            await reference.PutBytes(Encoding.UTF8.GetBytes("Some test text"), metadata).AwaitAsync();
+            var uploadedMetadata = await reference.GetMetadataAsync();
+            
+            Assert.Equal(path, uploadedMetadata.Path);
+            Assert.Equal("text/plain", uploadedMetadata.ContentType);
+            Assert.Equal(14, uploadedMetadata.Size);
+
+            var customData = new Dictionary<string, string> { { "some_key", "some_value" } };
+            var updatedMetadata = await reference.UpdateMetadataAsync(new StorageMetadata(contentType:"text/html", customMetadata:customData));
+            
+            Assert.Equal(path, updatedMetadata.Path);
+            Assert.Equal("text/html", updatedMetadata.ContentType);
+            Assert.Equal(customData, updatedMetadata.CustomMetadata);
         }
 
         [Fact]

@@ -31,6 +31,8 @@ namespace Plugin.Firebase.Storage
         Task<string> GetDownloadUrlAsync();
         Task<IStorageListResult> ListAsync(long maxResults);
         Task<IStorageListResult> ListAllAsync();
+        Task<Stream> GetStreamAsync(long maxSize);
+        Task<bool> DownloadFileAsync(string destinationPath);
         Task DeleteAsync();
 
         IStorageReference Parent { get; }

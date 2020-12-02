@@ -4,6 +4,7 @@ using Android.OS;
 using Firebase;
 using Plugin.Firebase.Auth;
 using Plugin.Firebase.IntegrationTests;
+using Xamarin.Essentials;
 using Xunit.Runners.UI;
 using Xunit.Sdk;
 
@@ -14,6 +15,7 @@ namespace Plugin.Firebase.TestHarness.Android
     {
         protected override void OnCreate(Bundle savedInstanceState)
         {
+            Platform.Init(this, savedInstanceState);
             FirebaseApp.InitializeApp(this);
             FirebaseAuthImplementation.Initialize(this, savedInstanceState, "316652897245-lbddc4dc4v87nv3n19thi032n3dvrcvu.apps.googleusercontent.com");
             

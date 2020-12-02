@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Plugin.Firebase.Storage;
+using Xamarin.Essentials;
 using Xunit;
 
 namespace Plugin.Firebase.IntegrationTests
@@ -162,6 +163,27 @@ namespace Plugin.Firebase.IntegrationTests
 
             var result = await reference.ListAllAsync();
             Assert.Equal(3, result.Items.Count());
+        }
+
+        [Fact]
+        public async Task gets_data_as_stream()
+        {
+            var reference = CrossFirebaseStorage
+                .Current
+                .GetReferenceFromPath("files_to_keep/text_1.txt");
+
+            var stream = await reference.GetStreamAsync(1 * 1024 * 1024);
+            Assert.NotNull(stream);
+        }
+
+        [Fact]
+        public async Task downloads_file()
+        {
+            var reference = CrossFirebaseStorage
+                .Current
+                .GetReferenceFromPath("files_to_keep/text_1.txt");
+
+            Assert.True(await reference.DownloadFileAsync($"{FileSystem.CacheDirectory}/test.txt"));
         }
 
         [Fact]

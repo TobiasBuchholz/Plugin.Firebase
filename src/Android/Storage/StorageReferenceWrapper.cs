@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using Android.Gms.Extensions;
 using Firebase.Storage;
 using Plugin.Firebase.Extensions;
 using Plugin.Firebase.Storage;
@@ -71,6 +72,17 @@ namespace Plugin.Firebase.Android.Storage
         public async Task<IStorageListResult> ListAllAsync()
         {
             return (await _wrapped.ListAll().ToTask<ListResult>()).ToAbstract();
+        }
+
+        public async Task<Stream> GetStreamAsync(long maxSize)
+        {
+            return (await _wrapped.GetStream(new StreamProcessor()).ToTask<StreamDownloadTask.TaskSnapshot>()).Stream;
+        }
+
+        public async Task<bool> DownloadFileAsync(string destinationPath)
+        {
+            await _wrapped.GetFile(AndroidUri.Parse(destinationPath));
+            return true;
         }
 
         public Task DeleteAsync()

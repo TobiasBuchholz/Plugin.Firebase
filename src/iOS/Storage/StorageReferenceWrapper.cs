@@ -88,6 +88,32 @@ namespace Plugin.Firebase.iOS.Storage
             return tcs.Task;
         }
 
+        public Task<Stream> GetStreamAsync(long maxSize)
+        {
+            var tcs = new TaskCompletionSource<Stream>();
+            _wrapped.GetData(maxSize, (data, error) => {
+                if(error == null && data != null) {
+                    tcs.SetResult(data.AsStream());
+                } else {
+                    tcs.SetException(new FirebaseException(error?.LocalizedDescription ?? "Data is null"));
+                }
+            });
+            return tcs.Task;
+        }
+
+        public Task<bool> DownloadFileAsync(string destinationPath)
+        {
+            var tcs = new TaskCompletionSource<bool>();
+            _wrapped.WriteToFile(NSUrl.FromString(destinationPath), (url, error) => {
+                if(error == null && url != null) {
+                    tcs.SetResult(true);
+                } else {
+                    tcs.SetException(new FirebaseException(error?.LocalizedDescription ?? "NSUrl is null"));
+                }
+            });
+            return tcs.Task;
+        }
+
         public Task DeleteAsync()
         {
             return _wrapped.DeleteAsync();

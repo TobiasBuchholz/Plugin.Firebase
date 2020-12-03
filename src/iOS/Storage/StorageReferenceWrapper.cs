@@ -7,6 +7,7 @@ using Foundation;
 using Plugin.Firebase.Common;
 using Plugin.Firebase.Storage;
 using NativeStorageTaskStatus = Firebase.Storage.StorageTaskStatus;
+using NativeStorageMetadata = Firebase.Storage.StorageMetadata;
 
 namespace Plugin.Firebase.iOS.Storage
 {
@@ -24,24 +25,24 @@ namespace Plugin.Firebase.iOS.Storage
             return _wrapped.GetChild(path).ToAbstract();
         }
 
-        public IStorageUploadTask PutBytes(byte[] bytes, IStorageMetadata metadata = null)
+        public IStorageTransferTask PutBytes(byte[] bytes, IStorageMetadata metadata = null)
         {
             return PutData(NSData.FromArray(bytes), metadata);
         }
         
-        private IStorageUploadTask PutData(NSData data, IStorageMetadata metadata = null)
+        private IStorageTransferTask PutData(NSData data, IStorageMetadata metadata = null)
         {
-            var wrapper = new StorageUploadTaskWrapper();
-            wrapper.UploadTask = _wrapped.PutData(data, metadata?.ToNative(), wrapper.CompletionHandler);
+            var wrapper = new StorageTransferTaskWrapper<StorageUploadTask, NativeStorageMetadata>();
+            wrapper.TransferTask = _wrapped.PutData(data, metadata?.ToNative(), (x, e) => wrapper.CompletionHandler(x, e));
             return wrapper;
         }
         
-        public IStorageUploadTask PutFile(string filePath, IStorageMetadata metadata = null)
+        public IStorageTransferTask PutFile(string filePath, IStorageMetadata metadata = null)
         {
             return PutData(NSData.FromStream(File.Open(filePath, FileMode.Open)), metadata);
         }
 
-        public IStorageUploadTask PutStream(Stream stream, IStorageMetadata metadata = null)
+        public IStorageTransferTask PutStream(Stream stream, IStorageMetadata metadata = null)
         {
             return PutData(NSData.FromStream(stream), metadata);
         }
@@ -101,17 +102,11 @@ namespace Plugin.Firebase.iOS.Storage
             return tcs.Task;
         }
 
-        public Task<bool> DownloadFileAsync(string destinationPath)
+        public IStorageTransferTask DownloadFile(string destinationPath)
         {
-            var tcs = new TaskCompletionSource<bool>();
-            _wrapped.WriteToFile(NSUrl.FromString(destinationPath), (url, error) => {
-                if(error == null && url != null) {
-                    tcs.SetResult(true);
-                } else {
-                    tcs.SetException(new FirebaseException(error?.LocalizedDescription ?? "NSUrl is null"));
-                }
-            });
-            return tcs.Task;
+            var wrapper = new StorageTransferTaskWrapper<StorageDownloadTask, NSUrl>();
+            wrapper.TransferTask = _wrapped.WriteToFile(NSUrl.FromFilename(destinationPath), (x, e) => wrapper.CompletionHandler(x, e));
+            return wrapper;
         }
 
         public Task DeleteAsync()

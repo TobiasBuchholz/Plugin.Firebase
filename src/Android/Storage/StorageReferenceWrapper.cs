@@ -27,21 +27,21 @@ namespace Plugin.Firebase.Android.Storage
             return _wrapped.Child(path).ToAbstract();
         }
 
-        public IStorageUploadTask PutBytes(byte[] bytes, IStorageMetadata metadata = null)
+        public IStorageTransferTask PutBytes(byte[] bytes, IStorageMetadata metadata = null)
         {
             return metadata == null 
                 ? _wrapped.PutBytes(bytes).ToAbstract() 
                 : _wrapped.PutBytes(bytes, metadata.ToNative()).ToAbstract();
         }
 
-        public IStorageUploadTask PutFile(string filePath, IStorageMetadata metadata = null)
+        public IStorageTransferTask PutFile(string filePath, IStorageMetadata metadata = null)
         {
             return metadata == null 
                 ? _wrapped.PutFile(AndroidUri.FromFile(new File(filePath))).ToAbstract()
                 : _wrapped.PutFile(AndroidUri.FromFile(new File(filePath)), metadata.ToNative()).ToAbstract();
         }
 
-        public IStorageUploadTask PutStream(Stream stream, IStorageMetadata metadata = null)
+        public IStorageTransferTask PutStream(Stream stream, IStorageMetadata metadata = null)
         {
             return metadata == null
                 ? _wrapped.PutStream(stream).ToAbstract()
@@ -79,10 +79,9 @@ namespace Plugin.Firebase.Android.Storage
             return (await _wrapped.GetStream(new StreamProcessor()).ToTask<StreamDownloadTask.TaskSnapshot>()).Stream;
         }
 
-        public async Task<bool> DownloadFileAsync(string destinationPath)
+        public IStorageTransferTask DownloadFile(string destinationPath)
         {
-            await _wrapped.GetFile(AndroidUri.Parse(destinationPath));
-            return true;
+            return _wrapped.GetFile(AndroidUri.Parse(destinationPath)).ToAbstract();
         }
 
         public Task DeleteAsync()

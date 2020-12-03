@@ -183,7 +183,34 @@ namespace Plugin.Firebase.IntegrationTests
                 .Current
                 .GetReferenceFromPath("files_to_keep/text_1.txt");
 
-            Assert.True(await reference.DownloadFileAsync($"{FileSystem.CacheDirectory}/test.txt"));
+            await reference.DownloadFile($"{FileSystem.CacheDirectory}/test.txt").AwaitAsync();
+        }
+
+        [Fact]
+        public void can_manage_files_upload()
+        {
+            var path = $"texts/managed.txt";
+            var reference = CrossFirebaseStorage
+                .Current
+                .GetReferenceFromPath(path);
+
+            var transferTask = reference.PutBytes(Encoding.UTF8.GetBytes("Some test text"));
+            transferTask.Pause();
+            transferTask.Resume();
+            transferTask.Cancel();
+        }
+        
+        [Fact]
+        public void can_manage_files_download()
+        {
+            var reference = CrossFirebaseStorage
+                .Current
+                .GetReferenceFromPath("files_to_keep/text_1.txt");
+
+            var transferTask = reference.DownloadFile($"{FileSystem.CacheDirectory}/managed.txt");
+            transferTask.Pause();
+            transferTask.Resume();
+            transferTask.Cancel();
         }
 
         [Fact]

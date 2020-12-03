@@ -11,20 +11,20 @@ using OnSuccessListener = Plugin.Firebase.Android.Storage.Listeners.OnSuccessLis
 
 namespace Plugin.Firebase.Android.Storage
 {
-    public sealed class StorageUploadTaskWrapper : IStorageUploadTask
+    public sealed class StorageTransferTaskWrapper : IStorageTransferTask
     {
-        private readonly UploadTask _uploadTask;
+        private readonly StorageTask _transferTask;
         private readonly IDictionary<Action<IStorageTaskSnapshot>, Object> _observerDict;
 
-        public StorageUploadTaskWrapper(UploadTask uploadTask)
+        public StorageTransferTaskWrapper(StorageTask transferTask)
         {
-            _uploadTask = uploadTask;
+            _transferTask = transferTask;
             _observerDict = new Dictionary<Action<IStorageTaskSnapshot>, Object>();
         }
 
         public Task AwaitAsync()
         {
-            return _uploadTask.ToTask();
+            return _transferTask.ToTask();
         }
 
         public void AddObserver(StorageTaskStatus status, Action<IStorageTaskSnapshot> observer)
@@ -49,28 +49,28 @@ namespace Plugin.Firebase.Android.Storage
         {
             var listener = new OnPausedListener(x => observer.Invoke(x.ToAbstract()));
             _observerDict[observer] = listener;
-            _uploadTask.AddOnPausedListener(listener);
+            _transferTask.AddOnPausedListener(listener);
         }
         
         private void ObserveStatusProgress(Action<IStorageTaskSnapshot> observer)
         {
             var listener = new OnProgressListener(x => observer.Invoke(x.ToAbstract()));
             _observerDict[observer] = listener;
-            _uploadTask.AddOnProgressListener(listener);
+            _transferTask.AddOnProgressListener(listener);
         }
         
         private void ObserveStatusSuccess(Action<IStorageTaskSnapshot> observer)
         {
             var listener = new OnSuccessListener(x => observer.Invoke(x.ToAbstract()));
             _observerDict[observer] = listener;
-            _uploadTask.AddOnSuccessListener(listener);
+            _transferTask.AddOnSuccessListener(listener);
         }
         
         private void ObserveStatusFailure(Action<IStorageTaskSnapshot> observer)
         {
             var listener = new OnFailureListener(x => observer.Invoke(StorageTaskTaskSnapshotWrapper.FromError(x)));
             _observerDict[observer] = listener;
-            _uploadTask.AddOnFailureListener(listener);
+            _transferTask.AddOnFailureListener(listener);
         }
 
         public void RemoveObserver(Action<IStorageTaskSnapshot> observer)
@@ -78,20 +78,35 @@ namespace Plugin.Firebase.Android.Storage
             if(_observerDict.ContainsKey(observer)) {
                 switch(_observerDict[observer]) {
                     case OnPausedListener x:
-                        _uploadTask.RemoveOnPausedListener(x);
+                        _transferTask.RemoveOnPausedListener(x);
                         break;
                     case OnProgressListener x:
-                        _uploadTask.RemoveOnProgressListener(x);
+                        _transferTask.RemoveOnProgressListener(x);
                         break;
                     case OnSuccessListener x:
-                        _uploadTask.RemoveOnSuccessListener(x);
+                        _transferTask.RemoveOnSuccessListener(x);
                         break;
                     case OnFailureListener x:
-                        _uploadTask.RemoveOnFailureListener(x);
+                        _transferTask.RemoveOnFailureListener(x);
                         break;
                 }
                 _observerDict.Remove(observer);
             }
+        }
+
+        public void Pause()
+        {
+            _transferTask.Pause();
+        }
+
+        public void Resume()
+        {
+            _transferTask.Resume();
+        }
+
+        public void Cancel()
+        {
+            _transferTask.Cancel();
         }
     }
 }

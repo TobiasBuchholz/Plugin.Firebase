@@ -11,8 +11,13 @@ exports.addMessage = functions.https.onRequest(async (req, res) => {
 
 exports.makeUppercase = functions.firestore.document('/messages/{documentId}').onCreate((snap, context) => {
   const original = snap.data().original;
-  functions.logger.log('Uppercasing', context.params.documentId, original);
+  functions.logger.log('[+] makeUppercase:', context.params.documentId, original);
 
   const uppercase = original.toUpperCase();
   return snap.ref.set({ uppercase }, { merge: true });
+});
+
+exports.convertToLeet = functions.https.onCall(async (data, context) =>  {
+  functions.logger.log('[+] convertToLeet:', data);
+  return `{ "input_value": ${data?.input_value}, "output_value": 1337 }`;
 });

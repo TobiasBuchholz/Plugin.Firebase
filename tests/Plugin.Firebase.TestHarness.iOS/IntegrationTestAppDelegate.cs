@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Foundation;
+using Plugin.Firebase.Analytics;
 using UIKit;
 using Plugin.Firebase.IntegrationTests;
 using Xunit.Runner;
@@ -25,6 +26,7 @@ namespace Plugin.Firebase.TestHarness.iOS
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
             FirebaseApp.Configure();
+            FirebaseAnalyticsImplementation.Initialize();
 	        
             // We need this to ensure the execution assembly is part of the app bundle
             AddExecutionAssembly(typeof(ExtensibilityPointFactory).Assembly);

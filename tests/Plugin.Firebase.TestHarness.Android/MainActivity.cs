@@ -2,6 +2,7 @@
 using Android.App;
 using Android.OS;
 using Firebase;
+using Plugin.Firebase.Analytics;
 using Plugin.Firebase.Auth;
 using Plugin.Firebase.IntegrationTests;
 using Xamarin.Essentials;
@@ -17,6 +18,7 @@ namespace Plugin.Firebase.TestHarness.Android
         {
             Platform.Init(this, savedInstanceState);
             FirebaseApp.InitializeApp(this);
+            FirebaseAnalyticsImplementation.Initialize(this);
             FirebaseAuthImplementation.Initialize(this, savedInstanceState, "316652897245-lbddc4dc4v87nv3n19thi032n3dvrcvu.apps.googleusercontent.com");
             
             // tests can be inside the main assembly

@@ -11,13 +11,17 @@ namespace Plugin.Firebase.iOS.Extensions
     {
         public static NSDictionary<NSString, NSObject> ToNSDictionary(this IDictionary<string, object> dictionary)
         {
-            var nsDictionary = new NSMutableDictionary<NSString, NSObject>();
-            dictionary.ToList().ForEach(x => PutIntoNSDictionary(x, ref nsDictionary));
-            return NSDictionary<NSString, NSObject>
-                .FromObjectsAndKeys(
-                    nsDictionary.Values.ToArray(), 
-                    nsDictionary.Keys.ToArray(), 
+            if(dictionary.Any()) {
+                var nsDictionary = new NSMutableDictionary<NSString, NSObject>();
+                dictionary.ToList().ForEach(x => PutIntoNSDictionary(x, ref nsDictionary));
+                return NSDictionary<NSString, NSObject>.FromObjectsAndKeys(
+                    nsDictionary.Values.ToArray(),
+                    nsDictionary.Keys.ToArray(),
                     (nint) nsDictionary.Count);
+
+            } else {
+                return new NSDictionary<NSString, NSObject>();
+            }
         }
         
         private static void PutIntoNSDictionary(KeyValuePair<string, object> pair, ref NSMutableDictionary<NSString, NSObject> nsDictionary)

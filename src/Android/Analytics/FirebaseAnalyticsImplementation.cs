@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-//using System.Linq;
+using System.Linq;
+using System.Threading.Tasks;
 using Android.Content;
-//using Firebase.Analytics;
+using Firebase.Analytics;
+using Plugin.CurrentActivity;
 using Plugin.Firebase.Common;
+using Plugin.Firebase.Extensions;
 
 namespace Plugin.Firebase.Analytics
 {
@@ -11,27 +14,53 @@ namespace Plugin.Firebase.Analytics
     {
         public static void Initialize(Context context)
         {
-            throw new NotImplementedException("Analytics is not implemented on android because of build issues");
-            //_firebaseAnalytics = FirebaseAnalytics.GetInstance(context);     
+            _firebaseAnalytics = FirebaseAnalytics.GetInstance(context);     
         }
         
-        //private static FirebaseAnalytics _firebaseAnalytics;
+        private static FirebaseAnalytics _firebaseAnalytics;
+
+        public async Task<string> GetAppInstanceIdAsync()
+        {
+            return (string) await _firebaseAnalytics.GetAppInstanceId().ToTask<Java.Lang.String>();
+        }
         
         public void LogEvent(string eventName, IDictionary<string, object> parameters)
         {
-            throw new NotImplementedException("Analytics is not implemented on android because of build issues");
-            //_firebaseAnalytics.LogEvent(eventName, parameters?.ToBundle());
+            _firebaseAnalytics.LogEvent(eventName, parameters?.ToBundle());
         }
 
         public void LogEvent(string eventName, params (string parameterName, object parameterValue)[] parameters)
         {
-            throw new NotImplementedException("Analytics is not implemented on android because of build issues");
-            //LogEvent(eventName, parameters?.ToDictionary(x => x.parameterName, x => x.parameterValue));
+            LogEvent(eventName, parameters?.ToDictionary(x => x.parameterName, x => x.parameterValue));
+        }
+
+        public void SetUserId(string id)
+        {
+            _firebaseAnalytics.SetUserId(id);
+        }
+
+        public void SetUserProperty(string name, string value)
+        {
+            _firebaseAnalytics.SetUserProperty(name, value);
+        }
+
+        public void SetCurrentScreen(string screenName, string screenClassOverride)
+        {
+            _firebaseAnalytics.SetCurrentScreen(CrossCurrentActivity.Current.Activity, screenName, screenClassOverride);
+        }
+
+        public void SetSessionTimoutDuration(TimeSpan duration)
+        {
+            _firebaseAnalytics.SetSessionTimeoutDuration((long) duration.TotalMilliseconds);
+        }
+
+        public void ResetAnalyticsData()
+        {
+            _firebaseAnalytics.ResetAnalyticsData();
         }
 
         public bool IsAnalyticsCollectionEnabled {
-            set => throw new NotImplementedException("Analytics is not implemented on android because of build issues");
-            // set => _firebaseAnalytics.SetAnalyticsCollectionEnabled(value);
+            set => _firebaseAnalytics.SetAnalyticsCollectionEnabled(value);
         }
     }
 }

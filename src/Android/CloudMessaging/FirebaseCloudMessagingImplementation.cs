@@ -3,13 +3,13 @@ using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.Gms.Common;
+using Android.Gms.Extensions;
 using AndroidX.Core.App;
 using Firebase.Iid;
 using Firebase.Messaging;
 using Plugin.Firebase.Android.CloudMessaging;
 using Plugin.Firebase.CloudMessaging.EventArgs;
 using Plugin.Firebase.Common;
-using Plugin.Firebase.Extensions;
 
  namespace Plugin.Firebase.CloudMessaging
 {
@@ -127,18 +127,18 @@ using Plugin.Firebase.Extensions;
 
         public async Task<string> GetTokenAsync()
         {
-            var result = await FirebaseInstanceId.Instance.GetInstanceId().ToTask<IInstanceIdResult>();
+            var result = await FirebaseInstanceId.Instance.GetInstanceId().AsAsync<IInstanceIdResult>();
             return result.Token;
         }
 
         public Task SubscribeToTopicAsync(string topic)
         {
-            return FirebaseMessaging.Instance.SubscribeToTopic(topic).ToTask();
+            return FirebaseMessaging.Instance.SubscribeToTopic(topic).AsAsync();
         }
 
         public Task UnsubscribeFromTopicAsync(string topic)
         {
-            return FirebaseMessaging.Instance.UnsubscribeFromTopic(topic).ToTask();
+            return FirebaseMessaging.Instance.UnsubscribeFromTopic(topic).AsAsync();
         }
 
         public event EventHandler<FCMTokenChangedEventArgs> TokenChanged;

@@ -14,8 +14,6 @@ using Plugin.Firebase.Android.Auth.Facebook;
 using Plugin.Firebase.Android.Auth.Google;
 using Plugin.Firebase.Android.Auth.PhoneNumber;
 using Plugin.Firebase.Common;
-using Plugin.Firebase.Extensions;
-using Xamarin.Facebook;
 using CrossActionCodeSettings = Plugin.Firebase.Auth.ActionCodeSettings;
 
 namespace Plugin.Firebase.Auth
@@ -180,7 +178,7 @@ namespace Plugin.Firebase.Auth
 
         public async Task<string[]> FetchSignInMethodsAsync(string email)
         {
-            var result = await _firebaseAuth.FetchSignInMethodsForEmail(email).ToTask<ISignInMethodQueryResult>();
+            var result = await _firebaseAuth.FetchSignInMethodsForEmail(email).AsAsync<ISignInMethodQueryResult>();
             return result?.SignInMethods?.ToArray();
         }
 

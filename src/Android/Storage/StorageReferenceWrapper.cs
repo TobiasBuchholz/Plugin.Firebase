@@ -4,7 +4,6 @@ using System.Net;
 using System.Threading.Tasks;
 using Android.Gms.Extensions;
 using Firebase.Storage;
-using Plugin.Firebase.Extensions;
 using Plugin.Firebase.Storage;
 using AndroidUri = Android.Net.Uri;
 using AndroidTask = Android.Gms.Tasks.Task;
@@ -50,12 +49,12 @@ namespace Plugin.Firebase.Android.Storage
 
         public async Task<IStorageMetadata> GetMetadataAsync()
         {
-            return (await _wrapped.GetMetadata().ToTask<StorageMetadata>()).ToAbstract();
+            return (await _wrapped.GetMetadata().AsAsync<StorageMetadata>()).ToAbstract();
         }
 
         public async Task<IStorageMetadata> UpdateMetadataAsync(IStorageMetadata metadata)
         {
-            return (await _wrapped.UpdateMetadata(metadata.ToNative()).ToTask<StorageMetadata>()).ToAbstract();
+            return (await _wrapped.UpdateMetadata(metadata.ToNative()).AsAsync<StorageMetadata>()).ToAbstract();
         }
 
         public async Task<string> GetDownloadUrlAsync()
@@ -66,17 +65,17 @@ namespace Plugin.Firebase.Android.Storage
 
         public async Task<IStorageListResult> ListAsync(long maxResults)
         {
-            return (await _wrapped.List((int) maxResults).ToTask<ListResult>()).ToAbstract();
+            return (await _wrapped.List((int) maxResults).AsAsync<ListResult>()).ToAbstract();
         }
 
         public async Task<IStorageListResult> ListAllAsync()
         {
-            return (await _wrapped.ListAll().ToTask<ListResult>()).ToAbstract();
+            return (await _wrapped.ListAll().AsAsync<ListResult>()).ToAbstract();
         }
 
         public async Task<Stream> GetStreamAsync(long maxSize)
         {
-            return (await _wrapped.GetStream(new StreamProcessor()).ToTask<StreamDownloadTask.TaskSnapshot>()).Stream;
+            return (await _wrapped.GetStream(new StreamProcessor()).AsAsync<StreamDownloadTask.TaskSnapshot>()).Stream;
         }
 
         public IStorageTransferTask DownloadFile(string destinationPath)

@@ -4,7 +4,6 @@ using Android.Gms.Extensions;
 using Firebase.RemoteConfig;
 using Plugin.Firebase.Android.RemoteConfig;
 using Plugin.Firebase.Common;
-using Plugin.Firebase.Extensions;
 
 namespace Plugin.Firebase.RemoteConfig
 {
@@ -19,22 +18,22 @@ namespace Plugin.Firebase.RemoteConfig
 
         public Task EnsureInitializedAsync()
         {
-            return _remoteConfig.EnsureInitialized().ToTask();
+            return _remoteConfig.EnsureInitialized().AsAsync();
         }
 
         public Task SetRemoteConfigSettingsAsync(RemoteConfigSettings configSettings)
         {
-            return _remoteConfig.SetConfigSettingsAsync(configSettings.ToNative()).ToTask();
+            return _remoteConfig.SetConfigSettingsAsync(configSettings.ToNative()).AsAsync();
         }
 
         public Task SetDefaultsAsync(IDictionary<string, object> defaults)
         {
-            return _remoteConfig.SetDefaultsAsync(defaults.ToJavaObjectDictionary()).ToTask();
+            return _remoteConfig.SetDefaultsAsync(defaults.ToJavaObjectDictionary()).AsAsync();
         }
         
         public Task SetDefaultsAsync(params (string, object)[] defaults)
         {
-            return _remoteConfig.SetDefaultsAsync(defaults.ToJavaObjectDictionary()).ToTask();
+            return _remoteConfig.SetDefaultsAsync(defaults.ToJavaObjectDictionary()).AsAsync();
         }
 
         public async Task FetchAndActivateAsync()
@@ -49,7 +48,7 @@ namespace Plugin.Firebase.RemoteConfig
 
         public Task ActivateAsync()
         {
-            return _remoteConfig.Activate().ToTask();
+            return _remoteConfig.Activate().AsAsync();
         }
 
         public IEnumerable<string> GetKeysByPrefix(string prefix)

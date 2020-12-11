@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Android.Gms.Extensions;
 using Firebase.Storage;
 using Plugin.Firebase.Android.Common;
 using Plugin.Firebase.Android.Storage.Listeners;
-using Plugin.Firebase.Extensions;
 using Plugin.Firebase.Storage;
 using Object = Java.Lang.Object;
 using OnSuccessListener = Plugin.Firebase.Android.Storage.Listeners.OnSuccessListener;
@@ -24,7 +24,7 @@ namespace Plugin.Firebase.Android.Storage
 
         public Task AwaitAsync()
         {
-            return _transferTask.ToTask();
+            return _transferTask.AsAsync();
         }
 
         public void AddObserver(StorageTaskStatus status, Action<IStorageTaskSnapshot> observer)

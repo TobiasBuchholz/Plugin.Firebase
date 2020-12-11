@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.Gms.Auth.Api.SignIn;
+using Android.Gms.Extensions;
 using AndroidX.Fragment.App;
 using Firebase.Auth;
-using Plugin.Firebase.Extensions;
 using GoogleApi = Android.Gms.Auth.Api.Auth;
 using GmsTask = Android.Gms.Tasks.Task;
 
@@ -49,7 +49,7 @@ namespace Plugin.Firebase.Android.Auth.Google
         private async Task HandleSignInResultAsync(GmsTask signInAccountTask)
         {
             if(signInAccountTask.IsSuccessful) {
-                var signInAccount = await signInAccountTask.ToTask<GoogleSignInAccount>();
+                var signInAccount = await signInAccountTask.AsAsync<GoogleSignInAccount>();
                 _tcs?.SetResult(GoogleAuthProvider.GetCredential(signInAccount.IdToken, null));
             } else {
                 _tcs?.SetException(new Exception($"Google sign in failed"));

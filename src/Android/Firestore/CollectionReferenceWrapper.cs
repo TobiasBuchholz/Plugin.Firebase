@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Plugin.Firebase.Extensions;
 using System.Threading.Tasks;
 using Android.Gms.Extensions;
 using Android.Runtime;
@@ -88,7 +87,7 @@ namespace Plugin.Firebase.Android.Firestore
 
         public async Task<IQuerySnapshot<T>> GetDocumentsAsync<T>()
         {
-            return new QuerySnapshotWrapper<T>(await _reference.Get().ToTask<QuerySnapshot>());
+            return new QuerySnapshotWrapper<T>(await _reference.Get().AsAsync<QuerySnapshot>());
         }
     }
 }

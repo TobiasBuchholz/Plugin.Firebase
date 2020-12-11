@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Android.Content;
+using Android.Gms.Extensions;
 using Firebase.Analytics;
 using Plugin.CurrentActivity;
 using Plugin.Firebase.Common;
-using Plugin.Firebase.Extensions;
 
 namespace Plugin.Firebase.Analytics
 {
@@ -21,7 +21,7 @@ namespace Plugin.Firebase.Analytics
 
         public async Task<string> GetAppInstanceIdAsync()
         {
-            return (string) await _firebaseAnalytics.GetAppInstanceId().ToTask<Java.Lang.String>();
+            return (string) await _firebaseAnalytics.GetAppInstanceId().AsAsync<Java.Lang.String>();
         }
         
         public void LogEvent(string eventName, IDictionary<string, object> parameters)

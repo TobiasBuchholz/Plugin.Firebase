@@ -38,13 +38,19 @@ namespace Playground.Features.RemoteConfig
 
         private void InitCommands()
         {
-            FetchAndActivateCommand = ReactiveCommand.CreateFromTask(() => _firebaseRemoteConfig.FetchAndActivateAsync(0));
+            FetchAndActivateCommand = ReactiveCommand.CreateFromTask(FetchAndActivateAsync);
 
             FetchAndActivateCommand
                 .ThrownExceptions
                 .LogThrownException()
                 .Subscribe(e => _userInteractionService.ShowErrorDialogAsync(Localization.DialogTitleUnexpectedError, e))
                 .DisposeWith(Disposables);
+        }
+
+        private async Task FetchAndActivateAsync()
+        {
+            await _firebaseRemoteConfig.SetRemoteConfigSettingsAsync(new RemoteConfigSettings(minimumFetchInterval:TimeSpan.Zero));
+            await _firebaseRemoteConfig.FetchAndActivateAsync();
         }
 
         private void InitProperties()

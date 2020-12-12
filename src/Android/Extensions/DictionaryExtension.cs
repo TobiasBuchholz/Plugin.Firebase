@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Linq;
 using Android.OS;
+using Android.Runtime;
 using Java.Util;
 using Newtonsoft.Json.Linq;
 using Plugin.Firebase.Android.Extensions;
+using Plugin.Firebase.Common;
 using Plugin.Firebase.Firestore;
 
 namespace System.Collections.Generic
@@ -44,8 +46,17 @@ namespace System.Collections.Generic
                 case string x:
                     @this.Put(key.ToString(), x);
                     break;
-                case DateTime x:
+                case Enum x:
+                    @this.Put(key.ToString(), Convert.ToInt64(x));
+                    break;
+                case IList x:
+                    @this.Put(key.ToString(), x.ToJavaList());
+                    break;
+                case DateTimeOffset x:
                     @this.Put(key.ToString(), x.ToJavaDate());
+                    break;
+                case IFirestoreObject x:
+                    @this.Put(key.ToString(), x.ToJavaObject());
                     break;
                 default:
                     if(value == null) {
@@ -55,6 +66,15 @@ namespace System.Collections.Generic
                         throw new ArgumentException($"Couldn't put object of type {value.GetType()} into {nameof(HashMap)}");
                     }
             }
+        }
+
+        public static JavaList ToJavaList(this IList @this)
+        {
+            var list = new JavaList();
+            foreach(var item in @this) {
+                list.Add(item.ToJavaObject());
+            }
+            return list;
         }
 
         public static HashMap ToHashMap(this IEnumerable<(object, object)> @this)

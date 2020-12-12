@@ -7,6 +7,7 @@ using Android.Runtime;
 using Firebase.Firestore;
 using Plugin.Firebase.Firestore;
 using Plugin.Firebase.Android.Firestore;
+using Plugin.Firebase.Common;
 using GeoPoint = Plugin.Firebase.Firestore.GeoPoint;
 using NativeFirebase = Firebase;
 
@@ -56,9 +57,9 @@ namespace Plugin.Firebase.Android.Extensions
                 case Java.Lang.Long x:
                     return x.LongValue();
                 case Date x:
-                    return x.ToDateTime();
+                    return x.ToDateTimeOffset();
                 case NativeFirebase.Timestamp x:
-                    return x.ToDate().ToDateTime();
+                    return x.ToDate().ToDateTimeOffset();
                 case IDictionary x:
                     return x.ToDictionaryObject(targetType);
                 case JavaList x:
@@ -97,14 +98,23 @@ namespace Plugin.Firebase.Android.Extensions
                     return x;
                 case bool x:
                     return x;
-                case DateTime x:
+                case DateTimeOffset x:
                     return x.ToJavaDate();
                 case JavaDictionary x:
                     return x;
+                case HashMap x:
+                    return x;
                 case IDictionary<string, object> x:
                     return x.ToHashMap();
+                case IFirestoreObject x:
+                    return x.ToJavaObject();
             }
             throw new ArgumentException($"Could not convert object of type {@this.GetType()} to Java.Lang.Object");
+        }
+
+        public static Java.Lang.Object ToJavaObject(this IFirestoreObject @this)
+        {
+            return @this.ToHashMap().ToJavaObject();
         }
     }
 }

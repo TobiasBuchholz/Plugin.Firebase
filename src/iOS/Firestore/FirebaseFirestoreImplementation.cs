@@ -1,5 +1,4 @@
-﻿﻿using Plugin.Firebase.Common;
-using Plugin.Firebase.Firestore;
+﻿using Plugin.Firebase.Common;
 using Plugin.Firebase.iOS.Firestore;
 using FBFirestore = Firebase.CloudFirestore.Firestore;
 
@@ -12,9 +11,6 @@ namespace Plugin.Firebase.Firestore
         public FirebaseFirestoreImplementation()
         {
             _firestore = FBFirestore.SharedInstance;
-            var settings = _firestore.Settings;
-            settings.TimestampsInSnapshotsEnabled = true;
-            _firestore.Settings = settings;
         }
 
         public ICollectionReference GetCollection(string collectionPath)

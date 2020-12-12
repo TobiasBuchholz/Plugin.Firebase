@@ -61,8 +61,8 @@ namespace Plugin.Firebase.iOS.Storage
                 customMetadata:@this.CustomMetadata?.ToDictionary(),
                 md5Hash:@this.Md5Hash,
                 storageReference:@this.StorageReference?.ToAbstract(),
-                creationTime:@this.TimeCreated.ToDateTime(),
-                updatedTime:@this.Updated.ToDateTime());
+                creationTime:@this.TimeCreated.ToDateTimeOffset(),
+                updatedTime:@this.Updated.ToDateTimeOffset());
         }
 
         public static NativeStorageMetadata ToNative(this IStorageMetadata @this)

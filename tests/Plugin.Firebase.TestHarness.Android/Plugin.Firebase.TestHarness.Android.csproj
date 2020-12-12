@@ -118,6 +118,7 @@
     <PackageReference Include="Xamarin.Essentials" Version="1.5.3.2" />
     <PackageReference Include="Xamarin.AndroidX.Migration" Version="1.0.8" />
     <PackageReference Include="Xamarin.GooglePlayServices.Auth" Version="118.0.0" />
+    <PackageReference Include="Xamarin.Io.OpenCensus.OpenCensusApi" Version="0.21.0" />
     <PackageReference Include="xunit.abstractions" Version="2.0.3" />
     <PackageReference Include="xunit.assert" Version="2.4.1" />
     <PackageReference Include="xunit.core" Version="2.4.1" />

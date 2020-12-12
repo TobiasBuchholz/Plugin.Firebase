@@ -4,7 +4,7 @@ using Plugin.Firebase.DynamicLinks.Parameters;
 using Xamarin.Essentials;
 using Xunit;
 
-namespace Plugin.Firebase.IntegrationTests
+namespace Plugin.Firebase.IntegrationTests.DynamicLinks
 {
     public sealed class DynamicLinksFixture
     {

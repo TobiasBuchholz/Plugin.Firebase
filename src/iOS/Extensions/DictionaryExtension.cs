@@ -9,16 +9,18 @@ namespace Plugin.Firebase.iOS.Extensions
 {
     public static class DictionaryExtension
     {
-        public static NSDictionary<NSString, NSObject> ToNSDictionary(this IDictionary<string, object> dictionary)
+        public static NSDictionary<NSString, NSObject> ToNSDictionaryFromNonGeneric(this IDictionary dictionary)
         {
-            if(dictionary.Any()) {
+            if(dictionary.Count > 0) {
                 var nsDictionary = new NSMutableDictionary<NSString, NSObject>();
-                dictionary.ToList().ForEach(x => PutIntoNSDictionary(x, ref nsDictionary));
+        
+                foreach(DictionaryEntry entry in dictionary) {
+                    PutIntoNSDictionary(new KeyValuePair<string, object>(entry.Key.ToString(), entry.Value), ref nsDictionary);
+                }
                 return NSDictionary<NSString, NSObject>.FromObjectsAndKeys(
                     nsDictionary.Values.ToArray(),
                     nsDictionary.Keys.ToArray(),
                     (nint) nsDictionary.Count);
-
             } else {
                 return new NSDictionary<NSString, NSObject>();
             }
@@ -48,8 +50,14 @@ namespace Plugin.Firebase.iOS.Extensions
                 case string x:
                     nsDictionary.Add((NSString) pair.Key, new NSString(x));
                     break;
+                case NSObject x:
+                    nsDictionary.Add((NSString) pair.Key, x);
+                    break;
                 default:
-                    if(pair.Value == null) {
+                    if(pair.Value is Enum @enum) {
+                        nsDictionary.Add((NSString) pair.Key, new NSNumber(Convert.ToInt64(@enum)));
+                        break;
+                    } else if(pair.Value == null) {
                         nsDictionary.Add((NSString) pair.Key, new NSNull());
                         break;
                     } else {
@@ -58,6 +66,11 @@ namespace Plugin.Firebase.iOS.Extensions
             }
         }
 
+        public static NSDictionary<NSString, NSObject> ToNSDictionary(this IDictionary<string, object> dictionary)
+        {
+            return ((IDictionary) dictionary).ToNSDictionaryFromNonGeneric();
+        }
+        
         public static NSDictionary<NSString, NSString> ToNSDictionary(this IDictionary<string, string> @this)
         {
             return NSDictionary<NSString, NSString>.FromObjectsAndKeys(@this.Values.ToArray(), @this.Keys.ToArray());
@@ -79,10 +92,10 @@ namespace Plugin.Firebase.iOS.Extensions
                 if(attributes.Any()) {
                     var attribute = (FirestorePropertyAttribute) attributes[0];
                     var value = property.GetValue(@this);
-                    if(value is DateTime date) {
-                        dict[attribute.PropertyName] = date.ToNSDate();
-                    } else {
+                    if(value is Enum) {
                         dict[attribute.PropertyName] = value;
+                    } else if(value != null) {
+                        dict[attribute.PropertyName] = value.ToNSObject();
                     }
                 }
             }

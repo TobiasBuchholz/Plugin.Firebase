@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Plugin.Firebase.Analytics;
 using Xunit;
 
-namespace Plugin.Firebase.IntegrationTests
+namespace Plugin.Firebase.IntegrationTests.Analytics
 {
     public sealed class AnalyticsFixture
     {

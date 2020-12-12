@@ -1,8 +1,10 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Firebase.CloudFirestore;
 using Foundation;
+using Plugin.Firebase.Common;
 using Plugin.Firebase.Firestore;
 using Plugin.Firebase.iOS.Firestore;
 using GeoPoint = Plugin.Firebase.Firestore.GeoPoint;
@@ -43,7 +45,7 @@ namespace Plugin.Firebase.iOS.Extensions
                 case NSString x:
                     return x.ToString();
                 case NSDate x:
-                    return x.ToDateTime();
+                    return x.ToDateTimeOffset();
                 case NSDictionary x:
                     return x.ToDictionaryObject(targetType);
                 case NSArray x:
@@ -51,7 +53,7 @@ namespace Plugin.Firebase.iOS.Extensions
                 case global::Firebase.CloudFirestore.GeoPoint x:
                     return new GeoPoint(x.Latitude, x.Longitude);
                 case Timestamp x:
-                    return x.ToDateTime(); 
+                    return x.ToDateTimeOffset(); 
                 case DocumentReference x:
                     return new DocumentReferenceWrapper(x);
                 case NSNull x:
@@ -131,10 +133,32 @@ namespace Plugin.Firebase.iOS.Extensions
                     return new NSNumber(x);
                 case bool x:
                     return new NSNumber(x);
-                case IDictionary<string, object> x:
-                    return x.ToNSDictionary();
+                case DateTime x:
+                    return x.ToNSDate();
+                case DateTimeOffset x:
+                    return x.ToNSDate();
+                case IList x:
+                    return x.ToNSArray();
+                case IDictionary x:
+                    return x.ToNSDictionaryFromNonGeneric();
+                case IFirestoreObject x:
+                    return x.ToNSObject();
             }
-            throw new ArgumentException($"Could not convert object of type {@this.GetType()} to NSObject");
+            throw new ArgumentException($"Could not convert object of type {@this.GetType()} to NSObject. Does it extend {nameof(IFirestoreObject)}?");
+        }
+
+        public static NSArray ToNSArray(this IList @this)
+        {
+            var array = new NSMutableArray();
+            foreach(var item in @this) {
+                array.Add(item.ToNSObject());
+            }
+            return array;
+        }
+
+        public static NSObject ToNSObject(this IFirestoreObject @this)
+        {
+            return @this.ToDictionary().ToNSObject();
         }
     }
 }

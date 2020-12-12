@@ -13,15 +13,20 @@ namespace Plugin.Firebase.iOS.Extensions
             }
             return (NSDate) @this;
         }
-
-        public static DateTime ToDateTime(this NSDate @this)
+        
+        public static NSDate ToNSDate(this DateTimeOffset @this)
         {
-            return ((DateTime) @this);
+            return @this.DateTime.ToNSDate();
         }
 
-        public static DateTime ToDateTime(this Timestamp @this)
+        public static DateTimeOffset ToDateTimeOffset(this NSDate @this)
         {
-            return @this.DateValue.ToDateTime();
+            return DateTime.SpecifyKind(((DateTime) @this), DateTimeKind.Utc);
+        }
+        
+        public static DateTimeOffset ToDateTimeOffset(this Timestamp @this)
+        {
+            return DateTime.SpecifyKind(((DateTime) @this.DateValue), DateTimeKind.Utc);
         }
     }
 }

@@ -6,7 +6,7 @@ using Plugin.Firebase.RemoteConfig;
 using Xamarin.Essentials;
 using Xunit;
 
-namespace Plugin.Firebase.IntegrationTests
+namespace Plugin.Firebase.IntegrationTests.RemoteConfig
 {
     public sealed class RemoteConfigFixture
     {

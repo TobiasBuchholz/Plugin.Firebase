@@ -1,10 +1,9 @@
 using System;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using Plugin.Firebase.Functions;
 using Xunit;
 
-namespace Plugin.Firebase.IntegrationTests
+namespace Plugin.Firebase.IntegrationTests.Functions
 {
     public sealed class FunctionsFixture
     {
@@ -40,38 +39,5 @@ namespace Plugin.Firebase.IntegrationTests
             var sut = CrossFirebaseFunctions.Current;
             await Assert.ThrowsAnyAsync<Exception>(() => sut.GetHttpsCallable("doesNotExist").CallAsync());
         }
-        
-        /*
-         *
-         * Models for testing
-         * ---------------------------------------------------------------------------------------------------------------
-         * 
-         */
-        
-        private sealed class SimpleRequestData
-        {
-            public SimpleRequestData(long inputValue)
-            {
-                InputValue = inputValue;
-            }
-
-            public string ToJson()
-            {
-                return JsonConvert.SerializeObject(this);
-            }
-
-            [JsonProperty("input_value")]
-            public long InputValue { get; private set; }
-        }
-
-        private sealed class SimpleResponseData
-        {
-            [JsonProperty("input_value")]
-            public long InputValue { get; private set; }
-            
-            [JsonProperty("output_value")]
-            public long OutputValue { get; private set; }
-        }
     }
-
 }

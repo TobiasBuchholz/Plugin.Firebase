@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Plugin.Firebase.Common;
 using Plugin.Firebase.Firestore;
+using Plugin.Firebase.Shared.Common.Extensions;
 
 namespace Plugin.Firebase.IntegrationTests.Firestore
 {
@@ -21,8 +22,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             PokeType pokeType = default(PokeType),
             IList<string> moves = null,
             SightLocation firstSightLocation = null,
-            IList<Pokemon> evolutions = null,
-            DateTimeOffset creationDate = default(DateTimeOffset))
+            IList<Pokemon> evolutions = null)
         {
             Id = id;
             Name = name;
@@ -33,14 +33,16 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             Moves = moves;
             FirstSightLocation = firstSightLocation;
             Evolutions = evolutions;
-            CreationDate = creationDate;
+            CreationDate = DateTimeOffset.Now;
         }
         
         public override bool Equals(object obj)
         {
             if(obj is Pokemon other) {
-                return (Id, Name, WeightInKg, HeightInCm, IsFromFirstGeneration, PokeType, Moves, FirstSightLocation, Evolutions, CreationDate)
-                    .Equals((other.Id, other.Name, other.WeightInKg, other.HeightInCm, other.IsFromFirstGeneration, other.PokeType, other.Moves, other.FirstSightLocation, other.Evolutions, other.CreationDate));
+                return (Id, Name, WeightInKg, HeightInCm, IsFromFirstGeneration, PokeType, FirstSightLocation)
+                    .Equals((other.Id, other.Name, other.WeightInKg, other.HeightInCm, other.IsFromFirstGeneration, other.PokeType, other.FirstSightLocation)) &&
+                    Moves.SequenceEqualSafe(other.Moves) &&
+                    Evolutions.SequenceEqualSafe(other.Evolutions);
             }
             return false;
         }

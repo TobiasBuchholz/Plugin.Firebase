@@ -9,7 +9,7 @@ namespace Plugin.Firebase.iOS.Extensions
         public static NSDate ToNSDate(this DateTime @this)
         {
             if(@this.Kind == DateTimeKind.Unspecified) {
-                @this = DateTime.SpecifyKind(@this, DateTimeKind.Local);
+                @this = DateTime.SpecifyKind(@this, DateTimeKind.Utc);
             }
             return (NSDate) @this;
         }
@@ -21,12 +21,12 @@ namespace Plugin.Firebase.iOS.Extensions
 
         public static DateTimeOffset ToDateTimeOffset(this NSDate @this)
         {
-            return DateTime.SpecifyKind(((DateTime) @this), DateTimeKind.Utc);
+            return DateTime.SpecifyKind((DateTime) @this, DateTimeKind.Utc);
         }
         
         public static DateTimeOffset ToDateTimeOffset(this Timestamp @this)
         {
-            return DateTime.SpecifyKind(((DateTime) @this.DateValue), DateTimeKind.Utc);
+            return DateTime.SpecifyKind((DateTime) @this.DateValue, DateTimeKind.Utc);
         }
     }
 }

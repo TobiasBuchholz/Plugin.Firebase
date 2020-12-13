@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using Plugin.Firebase.Android.Extensions;
 using Plugin.Firebase.Common;
 using Plugin.Firebase.Firestore;
+using Plugin.Firebase.Android.Firestore;
 
 namespace System.Collections.Generic
 {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Plugin.Firebase.Firestore
 {
@@ -6,5 +7,6 @@ namespace Plugin.Firebase.Firestore
     {
         ICollectionReference GetCollection(string collectionPath);
         IDocumentReference GetDocument(string documentPath);
+        Task<TResult> RunTransactionAsync<TResult>(Func<ITransaction, TResult> updateFunc);
     }
 }

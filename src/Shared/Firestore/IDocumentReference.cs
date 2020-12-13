@@ -11,6 +11,7 @@ namespace Plugin.Firebase.Firestore
         Task SetDataAsync(params (object, object)[] data);
         Task SetDataAsync(SetOptions options, params (object, object)[] data);
         Task UpdateDataAsync(Dictionary<object, object> data);
+        Task UpdateDataAsync(params (string, object)[] data);
         Task DeleteDocumentAsync();
         Task<IDocumentSnapshot<T>> GetDocumentSnapshotAsync<T>();
 

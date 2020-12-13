@@ -1,4 +1,9 @@
-﻿using Plugin.Firebase.Common;
+﻿using System;
+using System.Threading.Tasks;
+using Firebase.CloudFirestore;
+using Foundation;
+using Plugin.Firebase.Common;
+using Plugin.Firebase.iOS.Extensions;
 using Plugin.Firebase.iOS.Firestore;
 using FBFirestore = Firebase.CloudFirestore.Firestore;
 
@@ -21,6 +26,18 @@ namespace Plugin.Firebase.Firestore
         public IDocumentReference GetDocument(string documentPath)
         {
             return new DocumentReferenceWrapper(_firestore.GetDocument(documentPath));
+        }
+
+        public async Task<TResult> RunTransactionAsync<TResult>(Func<ITransaction, TResult> updateFunc)
+        {
+            var result = await _firestore.RunTransactionAsync((Transaction transaction, ref NSError error) => {
+                if(error == null) {
+                    return updateFunc(transaction.ToAbstract()).ToNSObject();
+                } else {
+                    throw new FirebaseException(error.LocalizedDescription);
+                }
+            });
+            return (TResult) result?.ToObject(typeof(TResult));
         }
     }
 }

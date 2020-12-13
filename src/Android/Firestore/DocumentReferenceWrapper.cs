@@ -16,59 +16,62 @@ namespace Plugin.Firebase.Android.Firestore
 {
     public sealed class DocumentReferenceWrapper : IDocumentReference
     {
-        private readonly DocumentReference _reference;
-        
         public DocumentReferenceWrapper(DocumentReference reference)
         {
-            _reference = reference;
+            Wrapped = reference;
         }
 
         public async Task SetDataAsync(object data, SetOptions options = null)
         {
             if(options == null) {
-                await _reference.Set(data.ToHashMap());
+                await Wrapped.Set(data.ToHashMap());
             } else {
-                await _reference.Set(data.ToHashMap(), options.ToNative());
+                await Wrapped.Set(data.ToHashMap(), options.ToNative());
             }
         }
 
         public async Task SetDataAsync(Dictionary<object, object> data, SetOptions options = null)
         {
             if(options == null) {
-                await _reference.Set(data.ToHashMap());
+                await Wrapped.Set(data.ToHashMap());
             } else {
-                await _reference.Set(data.ToHashMap(), options.ToNative());
+                await Wrapped.Set(data.ToHashMap(), options.ToNative());
             }
         }
 
         public async Task SetDataAsync(params (object, object)[] data)
         {
-            await _reference.Set(data.ToHashMap());
+            await Wrapped.Set(data.ToHashMap());
         }
 
         public async Task SetDataAsync(SetOptions options, params (object, object)[] data)
         {
             if(options == null) {
-                await _reference.Set(data.ToHashMap());
+                await Wrapped.Set(data.ToHashMap());
             } else {
-                await _reference.Set(data.ToHashMap(), options.ToNative());
+                await Wrapped.Set(data.ToHashMap(), options.ToNative());
             }
         }
 
         public async Task UpdateDataAsync(Dictionary<object, object> data)
         {
-            await _reference.Update(data.ToJavaObjectDictionary());
+            await Wrapped.Update(data.ToJavaObjectDictionary());
+        }
+
+        public async Task UpdateDataAsync(params (string, object)[] data)
+        {
+            await Wrapped.Update(data.ToJavaObjectDictionary());
         }
 
         public async Task DeleteDocumentAsync()
         {
-            await _reference.Delete();
+            await Wrapped.Delete();
         }
 
         public Task<IDocumentSnapshot<T>> GetDocumentSnapshotAsync<T>()
         {
             var tcs = new TaskCompletionSource<IDocumentSnapshot<T>>();
-            _reference
+            Wrapped
                 .Get()
                 .AddOnCompleteListener(new OnCompleteListener(task => {
                     if(task.IsSuccessful) {
@@ -86,15 +89,16 @@ namespace Plugin.Firebase.Android.Firestore
             Action<Exception> onError = null,
             bool includeMetaDataChanges = false)
         {
-            var registration = _reference
+            var registration = Wrapped
                 .AddSnapshotListener(includeMetaDataChanges ? MetadataChanges.Include : MetadataChanges.Exclude, new EventListener(
                     x => onChanged(new DocumentSnapshotWrapper<T>(x.JavaCast<DocumentSnapshot>())), 
                     e => onError?.Invoke(new FirebaseException(e.LocalizedMessage))));
             return new DisposableWithAction(registration.Remove);
         }
 
-        public string Id => _reference.Id;
-        public string Path => _reference.Path;
-        public ICollectionReference Parent => new CollectionReferenceWrapper(_reference.Parent);
+        public string Id => Wrapped.Id;
+        public string Path => Wrapped.Path;
+        public ICollectionReference Parent => new CollectionReferenceWrapper(Wrapped.Parent);
+        public DocumentReference Wrapped { get; }
     }
 }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Ablaze.UI.iOS.Plugin.Firebase.Firestore;
 using Firebase.CloudFirestore;
 using Plugin.Firebase.Common;
 using Plugin.Firebase.Firestore;
@@ -13,11 +12,9 @@ namespace Plugin.Firebase.iOS.Firestore
 {
     public sealed class DocumentReferenceWrapper : IDocumentReference
     {
-        private readonly DocumentReference _reference;
-        
         public DocumentReferenceWrapper(DocumentReference reference)
         {
-            _reference = reference;
+            Wrapped = reference;
         }
 
         public Task SetDataAsync(object data, SetOptions options = null)
@@ -28,16 +25,16 @@ namespace Plugin.Firebase.iOS.Firestore
         public Task SetDataAsync(Dictionary<object, object> data, SetOptions options)
         {
             if(options == null) {
-                return _reference.SetDataAsync(data);
+                return Wrapped.SetDataAsync(data);
             }
 
             switch(options.Type) {
                 case SetOptions.TypeMerge:
-                    return _reference.SetDataAsync(data, true);
+                    return Wrapped.SetDataAsync(data, true);
                 case SetOptions.TypeMergeFieldPaths:
-                    return _reference.SetDataAsync(data, options.FieldPaths.Select(x => new FieldPath(x.ToArray())).ToArray());
+                    return Wrapped.SetDataAsync(data, options.FieldPaths.Select(x => new FieldPath(x.ToArray())).ToArray());
                 case SetOptions.TypeMergeFields:
-                    return _reference.SetDataAsync(data, options.Fields.ToArray());
+                    return Wrapped.SetDataAsync(data, options.Fields.ToArray());
                 default:
                     throw new ArgumentException($"SetOptions type {options.Type} is not supported.");
             }
@@ -61,17 +58,30 @@ namespace Plugin.Firebase.iOS.Firestore
                 }
                 return x.Value;
             });
-            return _reference.UpdateDataAsync(nativeData);
+            return Wrapped.UpdateDataAsync(nativeData);
+        }
+
+        public Task UpdateDataAsync(params (string, object)[] data)
+        {
+            var dict = new Dictionary<object, object>();
+            data.ToList().ForEach(x => {
+                if(x.Item2 is FieldValue fieldValue) {
+                    dict[x.Item1] = fieldValue.ToNative();
+                } else {
+                    dict[x.Item1] = x.Item2;
+                }
+            });
+            return Wrapped.UpdateDataAsync(dict);
         }
 
         public Task DeleteDocumentAsync()
         {
-            return _reference.DeleteDocumentAsync();
+            return Wrapped.DeleteDocumentAsync();
         }
 
         public async Task<IDocumentSnapshot<T>> GetDocumentSnapshotAsync<T>()
         {
-            var snapshot = await _reference.GetDocumentAsync();
+            var snapshot = await Wrapped.GetDocumentAsync();
             return new DocumentSnapshotWrapper<T>(snapshot);
         }
 
@@ -80,7 +90,7 @@ namespace Plugin.Firebase.iOS.Firestore
             Action<Exception> onError = null,
             bool includeMetaDataChanges = false)
         {
-            var registration = _reference.AddSnapshotListener(includeMetaDataChanges, (snapshot, error) => {
+            var registration = Wrapped.AddSnapshotListener(includeMetaDataChanges, (snapshot, error) => {
                 if(error == null) {
                     onChanged(new DocumentSnapshotWrapper<T>(snapshot));                    
                 } else {
@@ -90,8 +100,9 @@ namespace Plugin.Firebase.iOS.Firestore
             return new DisposableWithAction(registration.Remove);
         }
 
-        public string Id => _reference.Id;
-        public string Path => _reference.Path;
-        public ICollectionReference Parent => new CollectionReferenceWrapper(_reference.Parent);
+        public string Id => Wrapped.Id;
+        public string Path => Wrapped.Path;
+        public ICollectionReference Parent => new CollectionReferenceWrapper(Wrapped.Parent);
+        public DocumentReference Wrapped { get; }
     }
 }

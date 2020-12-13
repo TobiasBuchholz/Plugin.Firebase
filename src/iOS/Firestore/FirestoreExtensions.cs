@@ -1,13 +1,34 @@
 using System;
 using System.Linq;
+using Firebase.CloudFirestore;
+using Plugin.Firebase.Common;
 using Plugin.Firebase.Firestore;
 using Plugin.Firebase.iOS.Extensions;
+using FieldValue = Plugin.Firebase.Firestore.FieldValue;
 using NativeFieldValue = Firebase.CloudFirestore.FieldValue;
 
-namespace Ablaze.UI.iOS.Plugin.Firebase.Firestore
+namespace Plugin.Firebase.iOS.Firestore
 {
-    public static class FieldValueExtensions
+    public static class FirestoreExtensions
     {
+        public static IDocumentSnapshot<T> ToAbstract<T>(this DocumentSnapshot @this)
+        {
+            return new DocumentSnapshotWrapper<T>(@this);
+        }
+        
+        public static DocumentReference ToNative(this IDocumentReference @this)
+        {
+            if(@this is DocumentReferenceWrapper wrapper) {
+                return wrapper.Wrapped;
+            }
+            throw new FirebaseException($"This implementation of {nameof(IDocumentReference)} is not supported for this method");
+        }
+        
+        public static ITransaction ToAbstract(this Transaction @this)
+        {
+            return new TransactionWrapper(@this);
+        }
+
         public static NativeFieldValue ToNative(this FieldValue @this)
         {
             switch(@this.Type) {

@@ -48,6 +48,23 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             Assert.True(snapshot.Data.Moves.Contains("Bubble-Blast"));
             Assert.Equal(13.37, snapshot.Data.FirstSightLocation.Latitude);
         }
+
+        [Fact]
+        public async Task runs_transaction()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var document = sut.GetDocument("pokemons/1");
+            var pokemon = await document.GetDocumentSnapshotAsync<Pokemon>();
+            
+            var result = await sut.RunTransactionAsync(transaction => {
+                var snapshot = transaction.GetDocument<Pokemon>(document);
+                var newSightCount = snapshot.Data.SightCount + 1;
+                transaction.UpdateData(document, ("sight_count", newSightCount));
+                return newSightCount;
+            });
+            
+            Assert.Equal(pokemon.Data.SightCount + 1, result);
+        }
         
         [Fact]
         public async Task deletes_document()

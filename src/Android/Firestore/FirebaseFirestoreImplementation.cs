@@ -1,10 +1,14 @@
-﻿using Firebase.Firestore;
+﻿using System;
+using System.Threading.Tasks;
+using Android.Gms.Extensions;
+using Firebase.Firestore;
+using Plugin.Firebase.Android.Extensions;
 using Plugin.Firebase.Common;
 using Plugin.Firebase.Android.Firestore;
 
 namespace Plugin.Firebase.Firestore
 {
-    public class FirebaseFirestoreImplementation : DisposableBase, IFirebaseFirestore
+    public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseFirestore
     {
         private readonly FirebaseFirestore _firestore;
         
@@ -21,6 +25,12 @@ namespace Plugin.Firebase.Firestore
         public IDocumentReference GetDocument(string documentPath)
         {
             return new DocumentReferenceWrapper(_firestore.Document(documentPath));
+        }
+
+        public async Task<TResult> RunTransactionAsync<TResult>(Func<ITransaction, TResult> updateFunc)
+        {
+            var result = await _firestore.RunTransaction(new TransactionFunction<TResult>(updateFunc));
+            return (TResult) result?.ToObject(typeof(TResult));
         }
     }
 }

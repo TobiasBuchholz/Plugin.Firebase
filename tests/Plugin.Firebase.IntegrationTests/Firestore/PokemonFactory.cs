@@ -15,7 +15,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 isFromFirstGeneration:true,
                 pokeType:PokeType.Plant,
                 moves:new List<string> { "Razor-Wind", "Swords-Dance", "Cut" },
-                firstSightLocation:new SightLocation(52.5042112, 13.5290173),
+                firstSightingLocation:new SightingLocation(52.5042112, 13.5290173),
                 evolutions:new List<Pokemon> { new Pokemon("1", "Bulbasur"), new Pokemon("2", "Ivysaur"), new Pokemon("3", "Venusaur") });
         }
 
@@ -29,7 +29,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 isFromFirstGeneration:true,
                 pokeType:PokeType.Fire,
                 moves:new List<string> { "Scratch", "Body-Slam", "Fire-Punch" },
-                firstSightLocation:new SightLocation(52.5042112, 13.5290173),
+                firstSightingLocation:new SightingLocation(52.5042112, 13.5290173),
                 evolutions:new List<Pokemon> { new Pokemon("4", "Charmander"), new Pokemon("5", "Charmeleon"), new Pokemon("6", "Charizard") });
         }
 
@@ -43,7 +43,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 isFromFirstGeneration:true,
                 pokeType:PokeType.Water,
                 moves:new List<string> { "Tackel", "Body-Slam", "Water-Gun" },
-                firstSightLocation:new SightLocation(52.5042112, 13.5290173),
+                firstSightingLocation:new SightingLocation(52.5042112, 13.5290173),
                 evolutions:new List<Pokemon> { new Pokemon("7", "Sqirtle"), new Pokemon("8", "Wartortle"), new Pokemon("9", "Blastoise") });
         }
     }

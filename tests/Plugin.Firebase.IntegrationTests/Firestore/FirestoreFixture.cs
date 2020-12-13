@@ -39,14 +39,14 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             var update = new Dictionary<object, object> {
                 { "name", "Cool Squirtle" },
                 { "moves", FieldValue.ArrayUnion("Bubble-Blast") },
-                { "first_sight_location.latitude", 13.37 }
+                { "first_sighting_location.latitude", 13.37 }
             };
             
             await document.UpdateDataAsync(update);
             var snapshot = await document.GetDocumentSnapshotAsync<Pokemon>();
             Assert.Equal("Cool Squirtle", snapshot.Data.Name);
             Assert.True(snapshot.Data.Moves.Contains("Bubble-Blast"));
-            Assert.Equal(13.37, snapshot.Data.FirstSightLocation.Latitude);
+            Assert.Equal(13.37, snapshot.Data.FirstSightingLocation.Latitude);
         }
 
         [Fact]
@@ -58,12 +58,12 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             
             var result = await sut.RunTransactionAsync(transaction => {
                 var snapshot = transaction.GetDocument<Pokemon>(document);
-                var newSightCount = snapshot.Data.SightCount + 1;
+                var newSightCount = snapshot.Data.SightingCount + 1;
                 transaction.UpdateData(document, ("sight_count", newSightCount));
                 return newSightCount;
             });
             
-            Assert.Equal(pokemon.Data.SightCount + 1, result);
+            Assert.Equal(pokemon.Data.SightingCount + 1, result);
         }
         
         [Fact]

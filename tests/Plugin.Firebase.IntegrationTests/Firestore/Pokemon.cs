@@ -18,22 +18,22 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             string name = null,
             double weightInKg = 0,
             long heightInCm = 0,
-            long sightCount = 0,
+            long sightingCount = 0,
             bool isFromFirstGeneration = false,
             PokeType pokeType = default(PokeType),
             IList<string> moves = null,
-            SightLocation firstSightLocation = null,
+            SightingLocation firstSightingLocation = null,
             IList<Pokemon> evolutions = null)
         {
             Id = id;
             Name = name;
             WeightInKg = weightInKg;
             HeightInCm = heightInCm;
-            SightCount = sightCount;
+            SightingCount = sightingCount;
             IsFromFirstGeneration = isFromFirstGeneration;
             PokeType = pokeType;
             Moves = moves;
-            FirstSightLocation = firstSightLocation;
+            FirstSightingLocation = firstSightingLocation;
             Evolutions = evolutions;
             CreationDate = DateTimeOffset.Now;
         }
@@ -41,8 +41,8 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         public override bool Equals(object obj)
         {
             if(obj is Pokemon other) {
-                return (Id, Name, WeightInKg, HeightInCm, SightCount, IsFromFirstGeneration, PokeType, FirstSightLocation)
-                    .Equals((other.Id, other.Name, other.WeightInKg, other.HeightInCm, other.SightCount, other.IsFromFirstGeneration, other.PokeType, other.FirstSightLocation)) &&
+                return (Id, Name, WeightInKg, HeightInCm, SightingCount, IsFromFirstGeneration, PokeType, FirstSightingLocation)
+                    .Equals((other.Id, other.Name, other.WeightInKg, other.HeightInCm, other.SightingCount, other.IsFromFirstGeneration, other.PokeType, other.FirstSightingLocation)) &&
                     Moves.SequenceEqualSafe(other.Moves) &&
                     Evolutions.SequenceEqualSafe(other.Evolutions);
             }
@@ -51,7 +51,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
 
         public override int GetHashCode()
         {
-            return (Id, Name, WeightInKg, HeightInCm, SightCount, IsFromFirstGeneration, PokeType, Moves, FirstSightLocation, Evolutions, CreationDate).GetHashCode();
+            return (Id, Name, WeightInKg, HeightInCm, SightingCount, IsFromFirstGeneration, PokeType, Moves, FirstSightingLocation, Evolutions, CreationDate).GetHashCode();
         }
 
         public override string ToString()
@@ -71,8 +71,8 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         [FirestoreProperty("height_in_cm")]
         public long HeightInCm { get; private set; }
         
-        [FirestoreProperty("sight_count")]
-        public long SightCount { get; private set; }
+        [FirestoreProperty("sighting_count")]
+        public long SightingCount { get; private set; }
         
         [FirestoreProperty("is_from_first_generation")]
         public bool IsFromFirstGeneration { get; private set; }
@@ -83,8 +83,8 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         [FirestoreProperty("moves")]
         public IList<string> Moves { get; private set; }
         
-        [FirestoreProperty("first_sight_location")]
-        public SightLocation FirstSightLocation { get; private set; }
+        [FirestoreProperty("first_sighting_location")]
+        public SightingLocation FirstSightingLocation { get; private set; }
         
         [FirestoreProperty("evolutions")]
         public IList<Pokemon> Evolutions { get; private set; }

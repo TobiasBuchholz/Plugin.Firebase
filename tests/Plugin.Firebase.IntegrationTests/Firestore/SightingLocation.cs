@@ -3,14 +3,14 @@ using Plugin.Firebase.Firestore;
 
 namespace Plugin.Firebase.IntegrationTests.Firestore
 {
-    public sealed class SightLocation : IFirestoreObject
+    public sealed class SightingLocation : IFirestoreObject
     {
-        public SightLocation()
+        public SightingLocation()
         {
             // needed for firestore
         }
 
-        public SightLocation(
+        public SightingLocation(
             double latitude = 0,
             double longitude = 0)
         {
@@ -20,7 +20,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
 
         public override bool Equals(object obj)
         {
-            if(obj is SightLocation other) {
+            if(obj is SightingLocation other) {
                 return (Latitude, Longitude).Equals((other.Latitude, other.Longitude));
             }
             return false;
@@ -33,7 +33,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
 
         public override string ToString()
         {
-            return $"[{nameof(SightLocation)}: {nameof(Latitude)}={Latitude}, {nameof(Longitude)}]";
+            return $"[{nameof(SightingLocation)}: {nameof(Latitude)}={Latitude}, {nameof(Longitude)}]";
         }
         
         [FirestoreProperty("latitude")]

@@ -16,6 +16,8 @@ namespace Plugin.Firebase.Firestore
         IQuery OrderBy(string field);
         IQuery StartingAt(object[] fieldValues);
         IQuery EndingAt(object[] fieldValues);
+        IQuery LimitedTo(int limit);
+        IQuery LimitedToLast(int limit);
         Task<IDocumentReference> AddDocumentAsync(object data);
         Task<IQuerySnapshot<T>> GetDocumentsAsync<T>();
     }

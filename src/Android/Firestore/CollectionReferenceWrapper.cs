@@ -41,42 +41,52 @@ namespace Plugin.Firebase.Android.Firestore
 
         public IQuery WhereEqualsTo(string field, object value)
         {
-            return new QueryWrapper(_wrapped.WhereEqualTo(field, value.ToJavaObject()));
+            return _wrapped.WhereEqualTo(field, value.ToJavaObject()).ToAbstract();
         }
 
         public IQuery WhereGreaterThan(string field, object value)
         {
-            return new QueryWrapper(_wrapped.WhereGreaterThan(field, value.ToJavaObject()));
+            return _wrapped.WhereGreaterThan(field, value.ToJavaObject()).ToAbstract();
         }
 
         public IQuery WhereLessThan(string field, object value)
         {
-            return new QueryWrapper(_wrapped.WhereLessThan(field, value.ToJavaObject()));
+            return _wrapped.WhereLessThan(field, value.ToJavaObject()).ToAbstract();
         }
 
         public IQuery WhereGreaterThanOrEqualsTo(string field, object value)
         {
-            return new QueryWrapper(_wrapped.WhereGreaterThanOrEqualTo(field, value.ToJavaObject()));
+            return _wrapped.WhereGreaterThanOrEqualTo(field, value.ToJavaObject()).ToAbstract();
         }
 
         public IQuery WhereLessThanOrEqualsTo(string field, object value)
         {
-            return new QueryWrapper(_wrapped.WhereLessThanOrEqualTo(field, value.ToJavaObject()));
+            return _wrapped.WhereLessThanOrEqualTo(field, value.ToJavaObject()).ToAbstract();
         }
 
         public IQuery OrderBy(string field)
         {
-            return new QueryWrapper(_wrapped.OrderBy(field));
+            return _wrapped.OrderBy(field).ToAbstract();
         }
 
         public IQuery StartingAt(object[] fieldValues)
         {
-            return new QueryWrapper(_wrapped.StartAt(fieldValues.Select(x => x.ToJavaObject()).ToArray()));
+            return _wrapped.StartAt(fieldValues.Select(x => x.ToJavaObject()).ToArray()).ToAbstract();
         }
 
         public IQuery EndingAt(object[] fieldValues)
         {
-            return new QueryWrapper(_wrapped.EndAt(fieldValues.Select(x => x.ToJavaObject()).ToArray()));
+            return _wrapped.EndAt(fieldValues.Select(x => x.ToJavaObject()).ToArray()).ToAbstract();
+        }
+
+        public IQuery LimitedTo(int limit)
+        {
+            return _wrapped.Limit(limit).ToAbstract();
+        }
+
+        public IQuery LimitedToLast(int limit)
+        {
+            return _wrapped.LimitToLast(limit).ToAbstract();
         }
 
         public async Task<IDocumentReference> AddDocumentAsync(object data)

@@ -40,42 +40,52 @@ namespace Plugin.Firebase.iOS.Firestore
 
         public IQuery WhereEqualsTo(string field, object value)
         {
-            return new QueryWrapper(_wrapped.WhereEqualsTo(field, value));
+            return _wrapped.WhereEqualsTo(field, value).ToAbstract();
         }
 
         public IQuery WhereGreaterThan(string field, object value)
         {
-            return new QueryWrapper(_wrapped.WhereGreaterThan(field, value));
+            return _wrapped.WhereGreaterThan(field, value).ToAbstract();
         }
 
         public IQuery WhereLessThan(string field, object value)
         {
-            return new QueryWrapper(_wrapped.WhereLessThan(field, value));
+            return _wrapped.WhereLessThan(field, value).ToAbstract();
         }
 
         public IQuery WhereGreaterThanOrEqualsTo(string field, object value)
         {
-            return new QueryWrapper(_wrapped.WhereGreaterThanOrEqualsTo(field, value));
+            return _wrapped.WhereGreaterThanOrEqualsTo(field, value).ToAbstract();
         }
 
         public IQuery WhereLessThanOrEqualsTo(string field, object value)
         {
-            return new QueryWrapper(_wrapped.WhereLessThanOrEqualsTo(field, value));
+            return _wrapped.WhereLessThanOrEqualsTo(field, value).ToAbstract();
         }
 
         public IQuery OrderBy(string field)
         {
-            return new QueryWrapper(_wrapped.OrderedBy(field));
+            return _wrapped.OrderedBy(field).ToAbstract();
         }
 
         public IQuery StartingAt(object[] fieldValues)
         {
-            return new QueryWrapper(_wrapped.StartingAt(fieldValues));
+            return _wrapped.StartingAt(fieldValues).ToAbstract();
         }
 
         public IQuery EndingAt(object[] fieldValues)
         {
-            return new QueryWrapper(_wrapped.EndingAt(fieldValues));
+            return _wrapped.EndingAt(fieldValues).ToAbstract();
+        }
+        
+        public IQuery LimitedTo(int limit)
+        {
+            return _wrapped.LimitedTo(limit).ToAbstract();
+        }
+
+        public IQuery LimitedToLast(int limit)
+        {
+            return _wrapped.LimitedToLast(limit).ToAbstract();
         }
         
         public Task<IDocumentReference> AddDocumentAsync(object data)

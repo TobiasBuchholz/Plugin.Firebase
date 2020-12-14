@@ -6,8 +6,13 @@ using Xunit;
 
 namespace Plugin.Firebase.IntegrationTests.Firestore
 {
-    public sealed class FirestoreFixture
+    public sealed class FirestoreFixture : IAsyncLifetime
     {
+        public Task InitializeAsync()
+        {
+            return Task.CompletedTask;
+        }
+        
         [Fact]
         public async Task adds_document_to_collection()
         {
@@ -113,6 +118,11 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             
             await document.DeleteDocumentAsync();
             Assert.Null((await sut.GetDocument(path).GetDocumentSnapshotAsync<Pokemon>()).Data);
+        }
+
+        public async Task DisposeAsync()
+        {
+            await CrossFirebaseFirestore.Current.DeleteCollectionAsync<Pokemon>("testing", batchSize:10);
         }
     }
 }

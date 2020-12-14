@@ -48,5 +48,10 @@ namespace Plugin.Firebase.iOS.Firestore
             }
             throw new ArgumentException($"Couldn't convert FieldValue to native because of unknown type: {@this.Type}");
         }
+
+        public static IQuery ToAbstract(this Query @this)
+        {
+            return new QueryWrapper(@this);
+        }
     }
 }

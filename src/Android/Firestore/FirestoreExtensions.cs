@@ -60,5 +60,10 @@ namespace Plugin.Firebase.Android.Firestore
                     throw new ArgumentException($"SetOptions type {options.Type} is not supported.");
             }
         }
+
+        public static IQuery ToAbstract(this Query @this)
+        {
+            return new QueryWrapper(@this);
+        }
     }
 }

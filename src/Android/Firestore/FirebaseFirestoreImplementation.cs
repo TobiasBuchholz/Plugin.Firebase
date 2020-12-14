@@ -32,5 +32,10 @@ namespace Plugin.Firebase.Firestore
             var result = await _firestore.RunTransaction(new TransactionFunction<TResult>(updateFunc));
             return (TResult) result?.ToObject(typeof(TResult));
         }
+
+        public IWriteBatch CreateBatch()
+        {
+            return _firestore.Batch().ToAbstract();
+        }
     }
 }

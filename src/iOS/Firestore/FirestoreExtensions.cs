@@ -29,6 +29,11 @@ namespace Plugin.Firebase.iOS.Firestore
             return new TransactionWrapper(@this);
         }
 
+        public static IWriteBatch ToAbstract(this WriteBatch @this)
+        {
+            return new WriteBatchWrapper(@this);
+        }
+
         public static NativeFieldValue ToNative(this FieldValue @this)
         {
             switch(@this.Type) {

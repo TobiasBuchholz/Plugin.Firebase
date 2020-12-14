@@ -39,5 +39,10 @@ namespace Plugin.Firebase.Firestore
             });
             return (TResult) result?.ToObject(typeof(TResult));
         }
+
+        public IWriteBatch CreateBatch()
+        {
+            return _firestore.CreateBatch().ToAbstract();
+        }
     }
 }

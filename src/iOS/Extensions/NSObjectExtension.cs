@@ -7,6 +7,7 @@ using Foundation;
 using Plugin.Firebase.Common;
 using Plugin.Firebase.Firestore;
 using Plugin.Firebase.iOS.Firestore;
+using FieldValue = Plugin.Firebase.Firestore.FieldValue;
 using GeoPoint = Plugin.Firebase.Firestore.GeoPoint;
 
 namespace Plugin.Firebase.iOS.Extensions
@@ -137,6 +138,8 @@ namespace Plugin.Firebase.iOS.Extensions
                     return x.ToNSDate();
                 case DateTimeOffset x:
                     return x.ToNSDate();
+                case FieldValue x:
+                    return x.ToNative();
                 case IList x:
                     return x.ToNSArray();
                 case IDictionary x:

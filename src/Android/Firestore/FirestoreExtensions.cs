@@ -43,6 +43,14 @@ namespace Plugin.Firebase.Android.Firestore
                     return NativeFieldValue.ArrayUnion(@this.Elements.Select(x => x.ToJavaObject()).ToArray());
                 case FieldValueType.ArrayRemove:
                     return NativeFieldValue.ArrayRemove(@this.Elements.Select(x => x.ToJavaObject()).ToArray());
+                case FieldValueType.IntegerIncrement:
+                    return NativeFieldValue.Increment((long) @this.IncrementValue);
+                case FieldValueType.DoubleIncrement:
+                    return NativeFieldValue.Increment(@this.IncrementValue);
+                case FieldValueType.Delete:
+                    return NativeFieldValue.Delete();
+                case FieldValueType.ServerTimestamp:
+                    return NativeFieldValue.ServerTimestamp();
             }
             throw new ArgumentException($"Couldn't convert FieldValue to native because of unknown type: {@this.Type}");
         }

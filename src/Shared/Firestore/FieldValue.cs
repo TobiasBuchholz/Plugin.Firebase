@@ -14,6 +14,12 @@ namespace Plugin.Firebase.Firestore
         public static FieldValue DoubleIncrement(double incrementValue) => 
             new FieldValue(FieldValueType.IntegerIncrement, incrementValue);
         
+        public static FieldValue Delete() =>
+            new FieldValue(FieldValueType.Delete);
+        
+        public static FieldValue ServerTimestamp() =>
+            new FieldValue(FieldValueType.ServerTimestamp);
+        
         private FieldValue(FieldValueType type, double incrementValue = 0, object[] elements = null)
         {
             Type = type;

@@ -9,6 +9,7 @@ using Plugin.Firebase.Firestore;
 using Plugin.Firebase.Android.Firestore;
 using Plugin.Firebase.Common;
 using GeoPoint = Plugin.Firebase.Firestore.GeoPoint;
+using FieldValue = Plugin.Firebase.Firestore.FieldValue;
 using NativeFirebase = Firebase;
 
 namespace Plugin.Firebase.Android.Extensions
@@ -100,6 +101,8 @@ namespace Plugin.Firebase.Android.Extensions
                     return x;
                 case DateTimeOffset x:
                     return x.ToJavaDate();
+                case FieldValue x:
+                    return x.ToNative();
                 case JavaDictionary x:
                     return x;
                 case HashMap x:
@@ -109,7 +112,7 @@ namespace Plugin.Firebase.Android.Extensions
                 case IFirestoreObject x:
                     return x.ToJavaObject();
             }
-            throw new ArgumentException($"Could not convert object of type {@this.GetType()} to Java.Lang.Object");
+            throw new ArgumentException($"Could not convert object of type {@this.GetType()} to Java.Lang.Object. Does it extend {nameof(IFirestoreObject)}?");
         }
 
         public static Java.Lang.Object ToJavaObject(this IFirestoreObject @this)

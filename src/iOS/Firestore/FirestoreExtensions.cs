@@ -45,6 +45,10 @@ namespace Plugin.Firebase.iOS.Firestore
                     return NativeFieldValue.FromIntegerIncrement((long) @this.IncrementValue);
                 case FieldValueType.DoubleIncrement:
                     return NativeFieldValue.FromDoubleIncrement(@this.IncrementValue);
+                case FieldValueType.Delete:
+                    return NativeFieldValue.Delete;
+                case FieldValueType.ServerTimestamp:
+                    return NativeFieldValue.ServerTimestamp;
             }
             throw new ArgumentException($"Couldn't convert FieldValue to native because of unknown type: {@this.Type}");
         }

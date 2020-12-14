@@ -120,6 +120,28 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             Assert.Null((await sut.GetDocument(path).GetDocumentSnapshotAsync<Pokemon>()).Data);
         }
 
+        [Fact]
+        public async Task deletes_fields_of_document()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var pokemon = PokemonFactory.CreateCharmander();
+            var path = $"testing/{pokemon.Id}";
+            var document = sut.GetDocument(path);
+            await document.SetDataAsync(pokemon);
+
+            await document.UpdateDataAsync(
+                ("moves", FieldValue.Delete()),
+                ("evolutions", FieldValue.Delete()),
+                ("first_sighting_location", FieldValue.Delete()),
+                ("poke_type", FieldValue.Delete()));
+
+            var snapshot = await document.GetDocumentSnapshotAsync<Pokemon>();
+            Assert.Null(snapshot.Data.Moves);
+            Assert.Null(snapshot.Data.FirstSightingLocation);
+            Assert.Null(snapshot.Data.Evolutions);
+            Assert.Equal(PokeType.Undefined, snapshot.Data.PokeType);
+        }
+
         public async Task DisposeAsync()
         {
             await CrossFirebaseFirestore.Current.DeleteCollectionAsync<Pokemon>("testing", batchSize:10);

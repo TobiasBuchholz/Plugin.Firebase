@@ -82,7 +82,7 @@ namespace Plugin.Firebase.iOS.Firestore
         public async Task<IDocumentSnapshot<T>> GetDocumentSnapshotAsync<T>()
         {
             var snapshot = await Wrapped.GetDocumentAsync();
-            return new DocumentSnapshotWrapper<T>(snapshot);
+            return snapshot.ToAbstract<T>();
         }
 
         public IDisposable AddSnapshotListener<T>(
@@ -92,7 +92,7 @@ namespace Plugin.Firebase.iOS.Firestore
         {
             var registration = Wrapped.AddSnapshotListener(includeMetaDataChanges, (snapshot, error) => {
                 if(error == null) {
-                    onChanged(new DocumentSnapshotWrapper<T>(snapshot));                    
+                    onChanged(snapshot.ToAbstract<T>());                    
                 } else {
                     onError?.Invoke(new FirebaseException(error.LocalizedDescription));
                 }

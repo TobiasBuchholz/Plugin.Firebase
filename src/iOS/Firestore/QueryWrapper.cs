@@ -8,67 +8,102 @@ namespace Plugin.Firebase.iOS.Firestore
 {
     public sealed class QueryWrapper : IQuery
     {
-        private readonly Query _query;
+        private readonly Query _wrapped;
 
         public QueryWrapper(Query query)
         {
-            _query = query;
+            _wrapped = query;
         }
 
         public IQuery WhereEqualsTo(string field, object value)
         {
-            return new QueryWrapper(_query.WhereEqualsTo(field, value));
+            return _wrapped.WhereEqualsTo(field, value).ToAbstract();
         }
 
         public IQuery WhereGreaterThan(string field, object value)
         {
-            return new QueryWrapper(_query.WhereGreaterThan(field, value));
+            return _wrapped.WhereGreaterThan(field, value).ToAbstract();;
         }
 
         public IQuery WhereLessThan(string field, object value)
         {
-            return new QueryWrapper(_query.WhereLessThan(field, value));
+            return _wrapped.WhereLessThan(field, value).ToAbstract();;
         }
 
         public IQuery WhereGreaterThanOrEqualsTo(string field, object value)
         {
-            return new QueryWrapper(_query.WhereGreaterThanOrEqualsTo(field, value));
+            return _wrapped.WhereGreaterThanOrEqualsTo(field, value).ToAbstract();;
         }
 
         public IQuery WhereLessThanOrEqualsTo(string field, object value)
         {
-            return new QueryWrapper(_query.WhereLessThanOrEqualsTo(field, value));
+            return _wrapped.WhereLessThanOrEqualsTo(field, value).ToAbstract();;
         }
 
         public IQuery OrderBy(string field)
         {
-            return new QueryWrapper(_query.OrderedBy(field));
+            return _wrapped.OrderedBy(field).ToAbstract();;
         }
 
-        public IQuery StartingAt(object[] fieldValues)
+        public IQuery StartingAt(params object[] fieldValues)
         {
-            return new QueryWrapper(_query.StartingAt(fieldValues));
+            return _wrapped.StartingAt(fieldValues).ToAbstract();
         }
 
-        public IQuery EndingAt(object[] fieldValues)
+        public IQuery StartingAt(IDocumentSnapshot snapshot)
         {
-            return new QueryWrapper(_query.EndingAt(fieldValues));
+            return _wrapped.StartingAt(snapshot.ToNative()).ToAbstract();
+        }
+
+        public IQuery StartingAfter(params object[] fieldValues)
+        {
+            return _wrapped.StartingAfter(fieldValues).ToAbstract();
+        }
+
+        public IQuery StartingAfter(IDocumentSnapshot snapshot)
+        {
+            return _wrapped.StartingAfter(snapshot.ToNative()).ToAbstract();
+        }
+
+        public IQuery EndingAt(params object[] fieldValues)
+        {
+            return _wrapped.EndingAt(fieldValues).ToAbstract();;
+        }
+
+        public IQuery EndingAt(IDocumentSnapshot snapshot)
+        {
+            return _wrapped.EndingAt(snapshot.ToNative()).ToAbstract();
+        }
+
+        public IQuery EndingBefore(params object[] fieldValues)
+        {
+            return _wrapped.EndingBefore(fieldValues).ToAbstract();
+        }
+
+        public IQuery EndingBefore(IDocumentSnapshot snapshot)
+        {
+            return _wrapped.EndingBefore(snapshot.ToNative()).ToAbstract();
         }
 
         public IQuery LimitedTo(int limit)
         {
-            return new QueryWrapper(_query.LimitedTo(limit));
+            return _wrapped.LimitedTo(limit).ToAbstract();;
+        }
+
+        public IQuery LimitedToLast(int limit)
+        {
+            return _wrapped.LimitedToLast(limit).ToAbstract();
         }
 
         public async Task<IQuerySnapshot<T>> GetDocumentsAsync<T>()
         {
-            var querySnapshot = await _query.GetDocumentsAsync();
+            var querySnapshot = await _wrapped.GetDocumentsAsync();
             return new QuerySnapshotWrapper<T>(querySnapshot);
         }
 
         public IDisposable AddSnapshotListener<T>(Action<IQuerySnapshot<T>> onChanged, Action<Exception> onError = null, bool includeMetaDataChanges = false)
         {
-            var registration = _query.AddSnapshotListener(includeMetaDataChanges, (snapshot, error) => {
+            var registration = _wrapped.AddSnapshotListener(includeMetaDataChanges, (snapshot, error) => {
                 if(error == null) {
                     onChanged(new QuerySnapshotWrapper<T>(snapshot));                    
                 } else {

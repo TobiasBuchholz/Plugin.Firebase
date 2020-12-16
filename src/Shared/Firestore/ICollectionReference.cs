@@ -13,9 +13,15 @@ namespace Plugin.Firebase.Firestore
         IQuery WhereLessThan(string field, object value);
         IQuery WhereGreaterThanOrEqualsTo(string field, object value);
         IQuery WhereLessThanOrEqualsTo(string field, object value);
-        IQuery OrderBy(string field);
-        IQuery StartingAt(object[] fieldValues);
-        IQuery EndingAt(object[] fieldValues);
+        IQuery OrderBy(string field, bool descending = false);
+        IQuery StartingAt(params object[] fieldValues);
+        IQuery StartingAt(IDocumentSnapshot snapshot);
+        IQuery StartingAfter(params object[] fieldValues);
+        IQuery StartingAfter(IDocumentSnapshot snapshot);
+        IQuery EndingAt(params object[] fieldValues);
+        IQuery EndingAt(IDocumentSnapshot snapshot);
+        IQuery EndingBefore(params object[] fieldValues);
+        IQuery EndingBefore(IDocumentSnapshot snapshot);
         IQuery LimitedTo(int limit);
         IQuery LimitedToLast(int limit);
         Task<IDocumentReference> AddDocumentAsync(object data);

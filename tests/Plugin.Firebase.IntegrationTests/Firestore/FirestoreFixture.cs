@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Plugin.Firebase.Firestore;
 using Xunit;
@@ -103,6 +104,128 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             Assert.Equal(squirtle, (await documentSquirtle.GetDocumentSnapshotAsync<Pokemon>()).Data);
             Assert.Equal(1337, (await documentCharmander.GetDocumentSnapshotAsync<Pokemon>()).Data.SightingCount);
             Assert.Null((await documentBulbasur.GetDocumentSnapshotAsync<Pokemon>()).Data);
+        }
+
+        [Fact]
+        public async Task gets_data_with_simple_queries()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var collection = sut.GetCollection("pokemons");
+            
+            var firePokemons = await collection
+                .WhereEqualsTo("poke_type", PokeType.Fire)
+                .GetDocumentsAsync<Pokemon>();
+
+            var smallPokemons = await collection
+                .WhereLessThanOrEqualsTo("height_in_cm", 100)
+                .GetDocumentsAsync<Pokemon>();
+            
+            Assert.Equal(3, firePokemons.Documents.Count());
+            Assert.Equal(5, smallPokemons.Documents.Count());
+        }
+        
+        [Fact]
+        public async Task gets_data_with_compound_query()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var collection = sut.GetCollection("pokemons");
+            
+            var smallWaterPokemons = await collection
+                .WhereEqualsTo("poke_type", PokeType.Water)
+                .WhereGreaterThanOrEqualsTo("height_in_cm", 50)
+                .WhereLessThan("height_in_cm", 100)
+                .GetDocumentsAsync<Pokemon>();
+            
+            Assert.Single(smallWaterPokemons.Documents);
+        }
+
+        [Fact]
+        public async Task orders_and_limits_data()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+
+            var pokemons = await sut
+                .GetCollection("pokemons")
+                .OrderBy("name", true)
+                .LimitedTo(3)
+                .GetDocumentsAsync<Pokemon>();
+            
+            Assert.Equal(new[] { "Wartortle", "Venusaur", "Squirtle" }, pokemons.Documents.Select(x => x.Data.Name));
+        }
+
+        [Fact]
+        public async Task adds_simple_cursor_to_query()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+
+            var pokemonsByHeight = await sut
+                .GetCollection("pokemons")
+                .OrderBy("height_in_cm")
+                .StartingAt(50)
+                .EndingBefore(100)
+                .GetDocumentsAsync<Pokemon>();
+            
+            var pokemonsByWeight = await sut
+                .GetCollection("pokemons")
+                .OrderBy("weight_in_kg")
+                .StartingAfter(8.5)
+                .EndingAt(85.5)
+                .GetDocumentsAsync<Pokemon>();
+            
+            Assert.Equal(new[] { "7", "4", "1" }, pokemonsByHeight.Documents.Select(x => x.Data.Id));
+            Assert.Equal(new[] { "7", "2", "5", "8", "9" }, pokemonsByWeight.Documents.Select(x => x.Data.Id));
+        }
+
+        [Fact]
+        public async Task uses_document_snapshot_to_define_query_cursor()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+
+            var snapshot = await sut
+                .GetDocument("pokemons/2")
+                .GetDocumentSnapshotAsync<Pokemon>();
+
+            var pokemons = await sut
+                .GetCollection("pokemons")
+                .OrderBy("name")
+                .StartingAt(snapshot)
+                .GetDocumentsAsync<Pokemon>();
+            
+            Assert.Equal(new[] { "Ivysaur", "Squirtle", "Venusaur", "Wartortle"  }, pokemons.Documents.Select(x => x.Data.Name));
+        }
+
+        [Fact]
+        public async Task sets_multiple_cursor_conditions()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+
+            var pokemons = await sut
+                .GetCollection("pokemons")
+                .OrderBy("poke_type")
+                .OrderBy("name")
+                .StartingAt(PokeType.Water, "Squirtle")
+                .GetDocumentsAsync<Pokemon>();
+            
+            Assert.Equal(new[] { "Squirtle", "Wartortle", "Bulbasaur", "Ivysaur", "Venusaur" }, pokemons.Documents.Select(x => x.Data.Name));
+        }
+
+        [Fact]
+        public async Task paginates_data()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var collection = sut.GetCollection("pokemons");
+
+            var firstPageSnapshot = await collection
+                .LimitedTo(5)
+                .GetDocumentsAsync<Pokemon>();
+            
+            var nextPageSnapshot = await collection
+                .LimitedTo(5)
+                .StartingAfter(firstPageSnapshot.Documents.Last())
+                .GetDocumentsAsync<Pokemon>();
+            
+            Assert.Equal(new[] { "1", "2", "3", "4", "5" }, firstPageSnapshot.Documents.Select(x => x.Data.Id));
+            Assert.Equal(new[] { "6", "7", "8", "9" }, nextPageSnapshot.Documents.Select(x => x.Data.Id));
         }
         
         [Fact]

@@ -111,8 +111,13 @@ namespace Plugin.Firebase.Android.Extensions
                     return x.ToHashMap();
                 case IFirestoreObject x:
                     return x.ToJavaObject();
+                default:
+                    if(@this is Enum @enum) {
+                        return Convert.ToInt64(@enum);
+                    } else {
+                        throw new ArgumentException($"Could not convert object of type {@this.GetType()} to Java.Lang.Object. Does it extend {nameof(IFirestoreObject)}?");
+                    }
             }
-            throw new ArgumentException($"Could not convert object of type {@this.GetType()} to Java.Lang.Object. Does it extend {nameof(IFirestoreObject)}?");
         }
 
         public static Java.Lang.Object ToJavaObject(this IFirestoreObject @this)

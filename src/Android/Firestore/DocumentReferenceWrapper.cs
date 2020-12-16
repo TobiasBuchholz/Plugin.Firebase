@@ -76,7 +76,7 @@ namespace Plugin.Firebase.Android.Firestore
                 .AddOnCompleteListener(new OnCompleteListener(task => {
                     if(task.IsSuccessful) {
                         var snapshot = task.GetResult(Class.FromType(typeof(DocumentSnapshot))).JavaCast<DocumentSnapshot>();
-                        tcs.SetResult(new DocumentSnapshotWrapper<T>(snapshot));
+                        tcs.SetResult(snapshot.ToAbstract<T>());
                     } else {
                         tcs.SetException(task.Exception);
                     }
@@ -91,7 +91,7 @@ namespace Plugin.Firebase.Android.Firestore
         {
             var registration = Wrapped
                 .AddSnapshotListener(includeMetaDataChanges ? MetadataChanges.Include : MetadataChanges.Exclude, new EventListener(
-                    x => onChanged(new DocumentSnapshotWrapper<T>(x.JavaCast<DocumentSnapshot>())), 
+                    x => onChanged(x.JavaCast<DocumentSnapshot>().ToAbstract<T>()), 
                     e => onError?.Invoke(new FirebaseException(e.LocalizedMessage))));
             return new DisposableWithAction(registration.Remove);
         }

@@ -63,21 +63,51 @@ namespace Plugin.Firebase.iOS.Firestore
             return _wrapped.WhereLessThanOrEqualsTo(field, value).ToAbstract();
         }
 
-        public IQuery OrderBy(string field)
+        public IQuery OrderBy(string field, bool descending = false)
         {
-            return _wrapped.OrderedBy(field).ToAbstract();
+            return _wrapped.OrderedBy(field, descending).ToAbstract();
         }
 
-        public IQuery StartingAt(object[] fieldValues)
+        public IQuery StartingAt(params object[] fieldValues)
         {
             return _wrapped.StartingAt(fieldValues).ToAbstract();
         }
 
-        public IQuery EndingAt(object[] fieldValues)
+        public IQuery StartingAt(IDocumentSnapshot snapshot)
+        {
+            return _wrapped.StartingAt(snapshot.ToNative()).ToAbstract();
+        }
+
+        public IQuery StartingAfter(params object[] fieldValues)
+        {
+            return _wrapped.StartingAfter(fieldValues).ToAbstract();
+        }
+
+        public IQuery StartingAfter(IDocumentSnapshot snapshot)
+        {
+            return _wrapped.StartingAfter(snapshot.ToNative()).ToAbstract();
+        }
+
+        public IQuery EndingAt(params object[] fieldValues)
         {
             return _wrapped.EndingAt(fieldValues).ToAbstract();
         }
         
+        public IQuery EndingAt(IDocumentSnapshot snapshot)
+        {
+            return _wrapped.EndingAt(snapshot.ToNative()).ToAbstract();
+        }
+
+        public IQuery EndingBefore(params object[] fieldValues)
+        {
+            return _wrapped.EndingBefore(fieldValues).ToAbstract();
+        }
+
+        public IQuery EndingBefore(IDocumentSnapshot snapshot)
+        {
+            return _wrapped.EndingBefore(snapshot.ToNative()).ToAbstract();
+        }
+
         public IQuery LimitedTo(int limit)
         {
             return _wrapped.LimitedTo(limit).ToAbstract();

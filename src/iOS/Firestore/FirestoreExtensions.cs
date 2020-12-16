@@ -24,6 +24,14 @@ namespace Plugin.Firebase.iOS.Firestore
             throw new FirebaseException($"This implementation of {nameof(IDocumentReference)} is not supported for this method");
         }
         
+        public static DocumentSnapshot ToNative(this IDocumentSnapshot @this)
+        {
+            if(@this is DocumentSnapshotWrapper wrapper) {
+                return wrapper.Wrapped;
+            }
+            throw new FirebaseException($"This implementation of {nameof(IDocumentSnapshot)} is not supported for this method");
+        }
+        
         public static ITransaction ToAbstract(this Transaction @this)
         {
             return new TransactionWrapper(@this);

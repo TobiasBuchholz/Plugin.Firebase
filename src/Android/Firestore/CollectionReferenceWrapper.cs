@@ -64,19 +64,49 @@ namespace Plugin.Firebase.Android.Firestore
             return _wrapped.WhereLessThanOrEqualTo(field, value.ToJavaObject()).ToAbstract();
         }
 
-        public IQuery OrderBy(string field)
+        public IQuery OrderBy(string field, bool descending = false)
         {
-            return _wrapped.OrderBy(field).ToAbstract();
+            return _wrapped.OrderBy(field, descending ? Query.Direction.Descending : Query.Direction.Ascending).ToAbstract();
         }
 
-        public IQuery StartingAt(object[] fieldValues)
+        public IQuery StartingAt(params object[] fieldValues)
         {
             return _wrapped.StartAt(fieldValues.Select(x => x.ToJavaObject()).ToArray()).ToAbstract();
         }
 
-        public IQuery EndingAt(object[] fieldValues)
+        public IQuery StartingAt(IDocumentSnapshot snapshot)
+        {
+            return _wrapped.StartAt(snapshot.ToNative()).ToAbstract();
+        }
+        
+        public IQuery StartingAfter(params object[] fieldValues)
+        {
+            return _wrapped.StartAfter(fieldValues.Select(x => x.ToJavaObject()).ToArray()).ToAbstract();
+        }
+
+        public IQuery StartingAfter(IDocumentSnapshot snapshot)
+        {
+            return _wrapped.StartAfter(snapshot.ToNative()).ToAbstract();
+        }
+
+        public IQuery EndingAt(params object[] fieldValues)
         {
             return _wrapped.EndAt(fieldValues.Select(x => x.ToJavaObject()).ToArray()).ToAbstract();
+        }
+
+        public IQuery EndingAt(IDocumentSnapshot snapshot)
+        {
+            return _wrapped.EndAt(snapshot.ToNative()).ToAbstract();
+        }
+
+        public IQuery EndingBefore(params object[] fieldValues)
+        {
+            return _wrapped.EndBefore(fieldValues.Select(x => x.ToJavaObject()).ToArray()).ToAbstract();
+        }
+
+        public IQuery EndingBefore(IDocumentSnapshot snapshot)
+        {
+            return _wrapped.EndBefore(snapshot.ToNative()).ToAbstract();
         }
 
         public IQuery LimitedTo(int limit)

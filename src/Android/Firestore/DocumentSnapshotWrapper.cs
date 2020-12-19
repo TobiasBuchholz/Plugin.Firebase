@@ -6,28 +6,24 @@ namespace Plugin.Firebase.Android.Firestore
 {
     public sealed class DocumentSnapshotWrapper<T> : DocumentSnapshotWrapper, IDocumentSnapshot<T>
     {
-        public DocumentSnapshotWrapper(DocumentSnapshot snapshot)
-            : base(snapshot)
+        public DocumentSnapshotWrapper(DocumentSnapshot documentSnapshot)
+            : base(documentSnapshot)
         {
-            if(snapshot.Data != null) {
-                Data = snapshot.Data.Cast<T>();
-            }
         }
 
-        public T Data { get; }
+        public new T Data => Wrapped.Data == null ? default(T) : Wrapped.Data.Cast<T>();
     }
-
-    public abstract class DocumentSnapshotWrapper : IDocumentSnapshot
+    
+    public class DocumentSnapshotWrapper : IDocumentSnapshot
     {
-        protected DocumentSnapshotWrapper(DocumentSnapshot snapshot)
+        public DocumentSnapshotWrapper(DocumentSnapshot snapshot)
         {
             Wrapped = snapshot;
-            Metadata = new SnapshotMetadataWrapper(snapshot.Metadata);
-            Reference = new DocumentReferenceWrapper(snapshot.Reference);
         }
 
-        public ISnapshotMetadata Metadata { get; }
-        public IDocumentReference Reference { get; }
+        public object Data => Wrapped.Data;
+        public ISnapshotMetadata Metadata => Wrapped.Metadata.ToAbstract();
+        public IDocumentReference Reference => Wrapped.Reference.ToAbstract();
         public DocumentSnapshot Wrapped { get; }
     }
 }

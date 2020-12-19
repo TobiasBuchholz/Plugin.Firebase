@@ -8,11 +8,18 @@ using FieldValue = Plugin.Firebase.Firestore.FieldValue;
 using NativeFieldValue = Firebase.Firestore.FieldValue;
 using NativeSetOptions = Firebase.Firestore.SetOptions;
 using SetOptions = Plugin.Firebase.Firestore.SetOptions;
+using NativeDocumentChange = Firebase.Firestore.DocumentChange;
+using DocumentChange = Plugin.Firebase.Firestore.DocumentChange;
 
 namespace Plugin.Firebase.Android.Firestore
 {
     public static class FirestoreExtensions
     {
+        public static IDocumentSnapshot ToAbstract(this DocumentSnapshot @this)
+        {
+            return new DocumentSnapshotWrapper(@this);
+        }
+        
         public static IDocumentSnapshot<T> ToAbstract<T>(this DocumentSnapshot @this)
         {
             return new DocumentSnapshotWrapper<T>(@this);
@@ -26,12 +33,40 @@ namespace Plugin.Firebase.Android.Firestore
             throw new FirebaseException($"This implementation of {nameof(IDocumentReference)} is not supported for this method");
         }
 
+        public static IDocumentReference ToAbstract(this DocumentReference @this)
+        {
+            return new DocumentReferenceWrapper(@this);
+        }
+
         public static DocumentSnapshot ToNative(this IDocumentSnapshot @this)
         {
             if(@this is DocumentSnapshotWrapper wrapper) {
                 return wrapper.Wrapped;
             }
             throw new FirebaseException($"This implementation of {nameof(IDocumentSnapshot)} is not supported for this method");
+        }
+        
+        public static DocumentChange ToAbstract(this NativeDocumentChange @this)
+        {
+            return new DocumentChange(
+                @this.Document.ToAbstract(),
+                @this.GetType().ToAbstract(),
+                @this.NewIndex,
+                @this.OldIndex);
+        }
+
+        public static DocumentChangeType ToAbstract(this NativeDocumentChange.Type @this)
+        {
+            switch(@this.Name()) {
+                case "ADDED":
+                    return DocumentChangeType.Added;
+                case "MODIFIED":
+                    return DocumentChangeType.Modified;
+                case "REMOVED":
+                    return DocumentChangeType.Removed;
+                default:
+                    throw new FirebaseException($"Couldn't convert {@this} to abstract {nameof(DocumentChangeType)}");
+            }
         }
         
         public static ITransaction ToAbstract(this Transaction @this)
@@ -62,6 +97,16 @@ namespace Plugin.Firebase.Android.Firestore
             }
             throw new ArgumentException($"Couldn't convert FieldValue to native because of unknown type: {@this.Type}");
         }
+
+        public static IQuery ToAbstract(this Query @this)
+        {
+            return new QueryWrapper(@this);
+        }
+
+        public static ISnapshotMetadata ToAbstract(this SnapshotMetadata @this)
+        {
+            return new SnapshotMetadataWrapper(@this);
+        }
         
         public static NativeSetOptions ToNative(this SetOptions options)
         {
@@ -75,11 +120,6 @@ namespace Plugin.Firebase.Android.Firestore
                 default:
                     throw new ArgumentException($"SetOptions type {options.Type} is not supported.");
             }
-        }
-
-        public static IQuery ToAbstract(this Query @this)
-        {
-            return new QueryWrapper(@this);
         }
     }
 }

@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Plugin.Firebase.Firestore;
+using Xamarin.Essentials;
 using Xunit;
 
 namespace Plugin.Firebase.IntegrationTests.Firestore
@@ -226,6 +228,80 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             
             Assert.Equal(new[] { "1", "2", "3", "4", "5" }, firstPageSnapshot.Documents.Select(x => x.Data.Id));
             Assert.Equal(new[] { "6", "7", "8", "9" }, nextPageSnapshot.Documents.Select(x => x.Data.Id));
+        }
+
+        [Fact]
+        public async Task gets_real_time_updates_on_single_document()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var document = sut.GetDocument("testing/1");
+            await document.SetDataAsync(PokemonFactory.CreateBulbasur());
+
+            var sightingCounts = new List<long>();
+            var disposable = document.AddSnapshotListener<Pokemon>(x => {
+                if(x.Data != null) {
+                    sightingCounts.Add(x.Data.SightingCount);
+                }
+            });
+
+            for(var i = 0; i < 3; i++) {
+                await document.UpdateDataAsync(("sighting_count", i));
+                await Task.Delay(TimeSpan.FromMilliseconds(100));
+            }
+            
+            Assert.Equal(new[] { 0L, 1L, 2L }, sightingCounts.Distinct());
+            disposable.Dispose();
+        }
+
+        [Fact]
+        public async Task gets_real_time_updates_on_multiple_documents()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var collection = sut.GetCollection("testing");
+
+            var changes = new List<IEnumerable<DocumentChangeType>>();
+            var disposable = collection
+                .WhereEqualsTo("poke_type", PokeType.Fire)
+                .AddSnapshotListener<Pokemon>(x => {
+                    changes.Add(x.DocumentChanges.Select(y => y.ChangeType));
+                });
+                
+            await collection.GetDocument("4").SetDataAsync(PokemonFactory.CreateCharmander());
+            await Task.Delay(TimeSpan.FromMilliseconds(500));
+            
+            await collection.GetDocument("5").SetDataAsync(PokemonFactory.CreateCharmeleon());
+            await Task.Delay(TimeSpan.FromMilliseconds(500));
+            
+            await collection.GetDocument("6").SetDataAsync(PokemonFactory.CreateCharizard());
+            await Task.Delay(TimeSpan.FromMilliseconds(500));
+            
+            await collection.GetDocument("4").UpdateDataAsync(("sighting_count", 1337));
+            await Task.Delay(TimeSpan.FromMilliseconds(500));
+
+            await collection.GetDocument("5").DeleteDocumentAsync();
+            await Task.Delay(TimeSpan.FromMilliseconds(500));
+
+            var expectedChangesOnAndroid = new[] {
+                DocumentChangeType.Added,
+                DocumentChangeType.Added,
+                DocumentChangeType.Added,
+                DocumentChangeType.Modified,
+                DocumentChangeType.Removed
+            };
+            
+            var expectedChangesOniOS = new[] {
+                DocumentChangeType.Added,
+                DocumentChangeType.Modified,
+                DocumentChangeType.Added,
+                DocumentChangeType.Modified,
+                DocumentChangeType.Added,
+                DocumentChangeType.Modified,
+                DocumentChangeType.Modified,
+                DocumentChangeType.Removed
+            };
+            
+            Assert.Equal(DeviceInfo.Platform == DevicePlatform.Android ? expectedChangesOnAndroid : expectedChangesOniOS, changes.SelectMany(x => x));
+            disposable.Dispose();
         }
         
         [Fact]

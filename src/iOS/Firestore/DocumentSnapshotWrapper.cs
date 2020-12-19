@@ -9,25 +9,21 @@ namespace Plugin.Firebase.iOS.Firestore
         public DocumentSnapshotWrapper(DocumentSnapshot documentSnapshot)
             : base(documentSnapshot)
         {
-            if(documentSnapshot.Data != null) {
-                Data = documentSnapshot.Data.Cast<T>();
-            }
         }
 
-        public T Data { get; }
+        public new T Data => Wrapped.Data == null ? default(T) : Wrapped.Data.Cast<T>();
     }
     
-    public abstract class DocumentSnapshotWrapper : IDocumentSnapshot
+    public class DocumentSnapshotWrapper : IDocumentSnapshot
     {
-        protected DocumentSnapshotWrapper(DocumentSnapshot snapshot)
+        public DocumentSnapshotWrapper(DocumentSnapshot snapshot)
         {
             Wrapped = snapshot;
-            Metadata = new SnapshotMetadataWrapper(snapshot.Metadata);
-            Reference = new DocumentReferenceWrapper(snapshot.Reference);
         }
 
-        public ISnapshotMetadata Metadata { get; }
-        public IDocumentReference Reference { get; }
+        public object Data => Wrapped.Data;
+        public ISnapshotMetadata Metadata => Wrapped.Metadata.ToAbstract();
+        public IDocumentReference Reference => Wrapped.Reference.ToAbstract();
         public DocumentSnapshot Wrapped { get; }
     }
 }

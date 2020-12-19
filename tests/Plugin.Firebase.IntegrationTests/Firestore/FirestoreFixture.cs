@@ -341,6 +341,16 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             Assert.Equal(PokeType.Undefined, snapshot.Data.PokeType);
         }
 
+        [Fact]
+        public void gets_firestore_settings()
+        {
+            var settings = CrossFirebaseFirestore.Current.Settings;
+            Assert.Equal("firestore.googleapis.com", settings.Host);
+            Assert.True(settings.IsPersistenceEnabled);
+            Assert.True(settings.IsSslEnabled);
+            Assert.Equal(104857600, settings.CacheSizeBytes);
+        }
+
         public async Task DisposeAsync()
         {
             await CrossFirebaseFirestore.Current.DeleteCollectionAsync<Pokemon>("testing", batchSize:10);

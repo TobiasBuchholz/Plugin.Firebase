@@ -37,5 +37,10 @@ namespace Plugin.Firebase.Firestore
         {
             return _firestore.Batch().ToAbstract();
         }
+        
+        public FirestoreSettings Settings {
+            get => _firestore.FirestoreSettings.ToAbstract();
+            set => _firestore.FirestoreSettings = value.ToNative();
+        }
     }
 }

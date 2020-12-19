@@ -9,5 +9,7 @@ namespace Plugin.Firebase.Firestore
         IDocumentReference GetDocument(string documentPath);
         Task<TResult> RunTransactionAsync<TResult>(Func<ITransaction, TResult> updateFunc);
         IWriteBatch CreateBatch();
+        
+        FirestoreSettings Settings { get; set; }
     }
 }

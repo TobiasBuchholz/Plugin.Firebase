@@ -7,6 +7,8 @@ using Plugin.Firebase.iOS.Extensions;
 using DocumentChange = Plugin.Firebase.Firestore.DocumentChange;
 using DocumentChangeType = Plugin.Firebase.Firestore.DocumentChangeType;
 using FieldValue = Plugin.Firebase.Firestore.FieldValue;
+using FirestoreSettings = Plugin.Firebase.Firestore.FirestoreSettings;
+using NativeFirestoreSettings = Firebase.CloudFirestore.FirestoreSettings;
 using NativeFieldValue = Firebase.CloudFirestore.FieldValue;
 using NativeDocumentChange = Firebase.CloudFirestore.DocumentChange;
 using NativeDocumentChangeType = Firebase.CloudFirestore.DocumentChangeType;
@@ -106,6 +108,21 @@ namespace Plugin.Firebase.iOS.Firestore
                     return NativeFieldValue.ServerTimestamp;
             }
             throw new ArgumentException($"Couldn't convert FieldValue to native because of unknown type: {@this.Type}");
+        }
+
+        public static FirestoreSettings ToAbstract(this NativeFirestoreSettings @this)
+        {
+            return new FirestoreSettings(@this.Host, @this.PersistenceEnabled, @this.SslEnabled, @this.CacheSizeBytes);
+        }
+
+        public static NativeFirestoreSettings ToNative(this FirestoreSettings @this)
+        {
+            return new NativeFirestoreSettings {
+                Host = @this.Host,
+                PersistenceEnabled = @this.IsPersistenceEnabled,
+                SslEnabled = @this.IsSslEnabled,
+                CacheSizeBytes = @this.CacheSizeBytes
+            };
         }
     }
 }

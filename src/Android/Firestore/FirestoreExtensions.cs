@@ -121,5 +121,20 @@ namespace Plugin.Firebase.Android.Firestore
                     throw new ArgumentException($"SetOptions type {options.Type} is not supported.");
             }
         }
+        
+        public static FirestoreSettings ToAbstract(this FirebaseFirestoreSettings @this)
+        {
+            return new FirestoreSettings(@this.Host, @this.IsPersistenceEnabled, @this.IsSslEnabled, @this.CacheSizeBytes);
+        }
+
+        public static FirebaseFirestoreSettings ToNative(this FirestoreSettings @this)
+        {
+            return new FirebaseFirestoreSettings.Builder()
+                .SetHost(@this.Host)
+                .SetPersistenceEnabled(@this.IsPersistenceEnabled)
+                .SetSslEnabled(@this.IsSslEnabled)
+                .SetCacheSizeBytes(@this.CacheSizeBytes)
+                .Build();
+        }
     }
 }

@@ -46,7 +46,7 @@ namespace Playground.Features.Auth
                 .DisposeWith(Disposables);
         }
 
-        private Task<FirebaseUser> SignInWithEmailAsync()
+        private Task<IFirebaseUser> SignInWithEmailAsync()
         {
             return _firebaseAuth.SignInWithEmailAndPasswordAsync("test@playground.com", "12345678");
         }
@@ -74,10 +74,10 @@ namespace Playground.Features.Auth
                 .DisposeWith(Disposables);
         }
 
-        private extern FirebaseUser User { [ObservableAsProperty] get; }
+        private extern IFirebaseUser User { [ObservableAsProperty] get; }
         public extern string LoginText { [ObservableAsProperty] get; }
         
-        public ReactiveCommand<Unit, FirebaseUser> SignInWithEmailCommand { get; set; }
+        public ReactiveCommand<Unit, IFirebaseUser> SignInWithEmailCommand { get; set; }
         public ReactiveCommand<Unit, Unit> SignOutCommand { get; set; }
     }
 }

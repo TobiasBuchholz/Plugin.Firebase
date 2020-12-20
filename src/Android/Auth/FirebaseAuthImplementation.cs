@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Android.App;
@@ -9,6 +8,7 @@ using Android.OS;
 using AndroidX.Fragment.App;
 using Firebase.Auth;
 using Plugin.CurrentActivity;
+using Plugin.Firebase.Android.Auth;
 using Plugin.Firebase.Android.Auth.Email;
 using Plugin.Firebase.Android.Auth.Facebook;
 using Plugin.Firebase.Android.Auth.Google;
@@ -53,57 +53,25 @@ namespace Plugin.Firebase.Auth
             return _phoneNumberAuth.VerifyPhoneNumberAsync(Activity, phoneNumber);
         }
 
-        public async Task<FirebaseUser> SignInWithCustomTokenAsync(string token)
+        public async Task<IFirebaseUser> SignInWithCustomTokenAsync(string token)
         {
             var authResult = await _firebaseAuth.SignInWithCustomTokenAsync(token);
-            return CreateFirebaseUser(authResult.User, authResult.AdditionalUserInfo);
+            return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
         }
 
-        private static FirebaseUser CreateFirebaseUser(global::Firebase.Auth.FirebaseUser user, IAdditionalUserInfo additionalUserInfo = null)
-        {
-            return new FirebaseUser(
-                user.Uid,
-                user.DisplayName,
-                user.Email,
-                user.PhotoUrl?.Path, 
-                user.IsEmailVerified,
-                user.IsAnonymous,
-                GetProviderInfos(user.ProviderData, additionalUserInfo));
-        }
-
-        private static IEnumerable<ProviderInfo> GetProviderInfos(IEnumerable<IUserInfo> userInfos, IAdditionalUserInfo additionalUserInfo)
-        {
-            return userInfos.Select(x => new ProviderInfo(
-                x.Uid,
-                x.ProviderId,
-                x.DisplayName,
-                x.Email ?? GetEmailFromAdditionalUserInfo(additionalUserInfo),
-                x.PhoneNumber,
-                x.PhotoUrl?.ToString()));
-        }
-
-        private static string GetEmailFromAdditionalUserInfo(IAdditionalUserInfo additionalUserInfo)
-        {
-            var profile = additionalUserInfo?.Profile;
-            if(profile != null && profile.ContainsKey("email")) {
-                return profile["email"].ToString();
-            }
-            return null;
-        }
-        
-        public async Task<FirebaseUser> SignInWithPhoneNumberVerificationCodeAsync(string verificationCode)
+        public async Task<IFirebaseUser> SignInWithPhoneNumberVerificationCodeAsync(string verificationCode)
         {
             var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
             return await SignInWithCredentialAsync(credential);
         }
         
-        private async Task<FirebaseUser> SignInWithCredentialAsync(AuthCredential credential)
+        private async Task<IFirebaseUser> SignInWithCredentialAsync(AuthCredential credential)
         {
             var authResult = await _firebaseAuth.SignInWithCredentialAsync(credential);
-            return CreateFirebaseUser(authResult.User, authResult.AdditionalUserInfo);
+            return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
         }
         
-        public async Task<FirebaseUser> SignInWithEmailAndPasswordAsync(string email, string password)
+        public async Task<IFirebaseUser> SignInWithEmailAndPasswordAsync(string email, string password)
         {
             try {
                 var credential = await _emailAuth.GetCredentialAsync(email, password);
@@ -114,13 +82,13 @@ namespace Plugin.Firebase.Auth
             }
         }
         
-        public async Task<FirebaseUser> SignInWithEmailLinkAsync(string email, string link)
+        public async Task<IFirebaseUser> SignInWithEmailLinkAsync(string email, string link)
         {
             await _firebaseAuth.SignInWithEmailLink(email, link);
-            return CreateFirebaseUser(_firebaseAuth.CurrentUser);
+            return _firebaseAuth.CurrentUser.ToAbstract();
         }
 
-        public async Task<FirebaseUser> SignInWithGoogleAsync()
+        public async Task<IFirebaseUser> SignInWithGoogleAsync()
         {
             var credential = await _googleAuth.GetCredentialAsync(FragmentActivity);
             return await SignInWithCredentialAsync(credential);
@@ -130,31 +98,31 @@ namespace Plugin.Firebase.Auth
         /// TODO: is not working correctly yet
         /// </summary>
         /// <returns></returns>
-        public async Task<FirebaseUser> SignInWithFacebookAsync()
+        public async Task<IFirebaseUser> SignInWithFacebookAsync()
         {
             var credential = await _facebookAuth.GetCredentialAsync(Activity);
             return await SignInWithCredentialAsync(credential);
         }
 
-        public async Task<FirebaseUser> LinkWithPhoneNumberVerificationCodeAsync(string verificationCode)
+        public async Task<IFirebaseUser> LinkWithPhoneNumberVerificationCodeAsync(string verificationCode)
         {
             var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
             return await LinkWithCredentialAsync(credential);
         }
         
-        private async Task<FirebaseUser> LinkWithCredentialAsync(AuthCredential credential)
+        private async Task<IFirebaseUser> LinkWithCredentialAsync(AuthCredential credential)
         {
             var authResult = await _firebaseAuth.CurrentUser.LinkWithCredentialAsync(credential);
-            return CreateFirebaseUser(authResult.User, authResult.AdditionalUserInfo);
+            return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
         }
 
-        public async Task<FirebaseUser> LinkWithEmailAndPasswordAsync(string email, string password)
+        public async Task<IFirebaseUser> LinkWithEmailAndPasswordAsync(string email, string password)
         {
             var credential = await _emailAuth.GetCredentialAsync(email, password);
             return await LinkWithCredentialAsync(credential);
         }
 
-        public async Task<FirebaseUser> LinkWithGoogleAsync()
+        public async Task<IFirebaseUser> LinkWithGoogleAsync()
         {
             try {
                 var credential = await _googleAuth.GetCredentialAsync(FragmentActivity);
@@ -165,7 +133,7 @@ namespace Plugin.Firebase.Auth
             }
         }
 
-        public async Task<FirebaseUser> LinkWithFacebookAsync()
+        public async Task<IFirebaseUser> LinkWithFacebookAsync()
         {
             try {
                 var credential = await _facebookAuth.GetCredentialAsync(Activity);
@@ -207,6 +175,6 @@ namespace Plugin.Firebase.Auth
         private static Context AppContext =>
             CrossCurrentActivity.Current.AppContext ?? throw new NullReferenceException("AppContext is null, ensure that the MainApplication.cs file is setting the CurrentActivity in your source code so the Firebase Analytics can use it.");
 
-        public FirebaseUser CurrentUser => _firebaseAuth.CurrentUser == null ? null : CreateFirebaseUser(_firebaseAuth.CurrentUser);
+        public IFirebaseUser CurrentUser => _firebaseAuth.CurrentUser?.ToAbstract();
     }
 }

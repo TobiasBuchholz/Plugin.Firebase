@@ -2,7 +2,6 @@ namespace Plugin.Firebase.Auth
 {
     public sealed class ActionCodeSettings
     {
-        
         public void SetAndroidPackageName(string packageName, bool installIfNotAvailable, string minimumVersion)
         {
             AndroidPackageName = packageName;

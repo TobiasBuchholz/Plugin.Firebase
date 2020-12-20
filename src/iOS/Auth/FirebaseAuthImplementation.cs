@@ -8,6 +8,7 @@ using Foundation;
 using Google.SignIn;
 using Plugin.Firebase.Auth.PhoneNumber;
 using Plugin.Firebase.Common;
+using Plugin.Firebase.iOS.Auth;
 using Plugin.Firebase.iOS.Auth.Email;
 using Plugin.Firebase.iOS.Auth.Facebook;
 using Plugin.Firebase.iOS.Auth.Google;
@@ -69,26 +70,14 @@ namespace Plugin.Firebase.Auth
             }
         }
 
-        public async Task<FirebaseUser> SignInWithCustomTokenAsync(string token)
+        public async Task<IFirebaseUser> SignInWithCustomTokenAsync(string token)
         {
             try {
                 var user = await _firebaseAuth.SignInWithCustomTokenAsync(token);
-                return CreateFirebaseUser(user.User);
+                return user.User.ToAbstract();
             } catch(NSErrorException e) {
                 throw new FirebaseException(e.Error?.LocalizedDescription);  
             }
-        }
-
-        private static FirebaseUser CreateFirebaseUser(User user)
-        {
-            return new FirebaseUser(
-                user.Uid,
-                user.DisplayName,
-                user.Email,
-                user.PhotoUrl?.AbsoluteString, 
-                user.IsEmailVerified,
-                user.IsAnonymous,
-                GetProviderInfos(user.ProviderData));
         }
 
         private static IEnumerable<ProviderInfo> GetProviderInfos(IEnumerable<IUserInfo> userInfos)
@@ -96,7 +85,7 @@ namespace Plugin.Firebase.Auth
             return userInfos.Select(x => new ProviderInfo(x.Uid, x.ProviderId, x.DisplayName, x.Email, x.PhoneNumber, x.PhotoUrl?.AbsoluteString));
         }
 
-        public async Task<FirebaseUser> SignInWithPhoneNumberVerificationCodeAsync(string verificationCode)
+        public async Task<IFirebaseUser> SignInWithPhoneNumberVerificationCodeAsync(string verificationCode)
         {
             try {
                 var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
@@ -106,13 +95,13 @@ namespace Plugin.Firebase.Auth
             }
         }
         
-        private async Task<FirebaseUser> SignInWithCredentialAsync(AuthCredential credential)
+        private async Task<IFirebaseUser> SignInWithCredentialAsync(AuthCredential credential)
         {
             var authResult = await _firebaseAuth.SignInWithCredentialAsync(credential);
-            return CreateFirebaseUser(authResult.User);
+            return authResult.User.ToAbstract();
         }
         
-        public async Task<FirebaseUser> SignInWithEmailAndPasswordAsync(string email, string password)
+        public async Task<IFirebaseUser> SignInWithEmailAndPasswordAsync(string email, string password)
         {
             try {
                 var credential = await _emailAuth.GetCredentialAsync(email, password);
@@ -126,13 +115,13 @@ namespace Plugin.Firebase.Auth
             }
         }
         
-        public async Task<FirebaseUser> SignInWithEmailLinkAsync(string email, string link)
+        public async Task<IFirebaseUser> SignInWithEmailLinkAsync(string email, string link)
         {
             var authResult = await _firebaseAuth.SignInWithLinkAsync(email, link);
-            return CreateFirebaseUser(authResult.User);
+            return authResult.User.ToAbstract();
         }
 
-        public async Task<FirebaseUser> SignInWithGoogleAsync()
+        public async Task<IFirebaseUser> SignInWithGoogleAsync()
         {
             try {
                 var credential = await _googleAuth.GetCredentialAsync(ViewController);
@@ -142,7 +131,7 @@ namespace Plugin.Firebase.Auth
             }
         }
 
-        public async Task<FirebaseUser> SignInWithFacebookAsync()
+        public async Task<IFirebaseUser> SignInWithFacebookAsync()
         {
             try {
                 var credential = await _facebookAuth.GetCredentialAsync(ViewController);
@@ -152,7 +141,7 @@ namespace Plugin.Firebase.Auth
             }
         }
 
-        public async Task<FirebaseUser> LinkWithPhoneNumberVerificationCodeAsync(string verificationCode)
+        public async Task<IFirebaseUser> LinkWithPhoneNumberVerificationCodeAsync(string verificationCode)
         {
             try {
                 var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
@@ -162,13 +151,13 @@ namespace Plugin.Firebase.Auth
             }
         }
         
-        private async Task<FirebaseUser> LinkWithCredentialAsync(AuthCredential credential)
+        private async Task<IFirebaseUser> LinkWithCredentialAsync(AuthCredential credential)
         {
             var authResult = await _firebaseAuth.CurrentUser.LinkAsync(credential);
-            return CreateFirebaseUser(authResult.User);
+            return authResult.User.ToAbstract();
         }
         
-        public async Task<FirebaseUser> LinkWithEmailAndPasswordAsync(string email, string password)
+        public async Task<IFirebaseUser> LinkWithEmailAndPasswordAsync(string email, string password)
         {
             try {
                 var credential = await _emailAuth.GetCredentialAsync(email, password);
@@ -178,7 +167,7 @@ namespace Plugin.Firebase.Auth
             }
         }
         
-        public async Task<FirebaseUser> LinkWithGoogleAsync()
+        public async Task<IFirebaseUser> LinkWithGoogleAsync()
         {
             try {
                 var credential = await _googleAuth.GetCredentialAsync(ViewController);
@@ -189,7 +178,7 @@ namespace Plugin.Firebase.Auth
             }
         }
 
-        public async Task<FirebaseUser> LinkWithFacebookAsync()
+        public async Task<IFirebaseUser> LinkWithFacebookAsync()
         {
             try {
                 var credential = await _facebookAuth.GetCredentialAsync(ViewController);
@@ -233,6 +222,6 @@ namespace Plugin.Firebase.Auth
             }
         }
         
-        public FirebaseUser CurrentUser => _firebaseAuth.CurrentUser == null ? null : CreateFirebaseUser(_firebaseAuth.CurrentUser);
+        public IFirebaseUser CurrentUser => _firebaseAuth.CurrentUser?.ToAbstract();
     }
 }

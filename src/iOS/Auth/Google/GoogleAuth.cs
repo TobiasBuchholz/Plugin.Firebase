@@ -20,6 +20,7 @@ namespace Plugin.Firebase.iOS.Auth.Google
         {
             _viewController = viewController;
             _tcs = new TaskCompletionSource<AuthCredential>();
+            SignIn.SharedInstance.PresentingViewController = viewController;
             SignIn.SharedInstance.SignInUser();
             return _tcs.Task;
         }

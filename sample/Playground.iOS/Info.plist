@@ -34,5 +34,14 @@
 	<string>Playground</string>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/AppIcon.appiconset</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.537235599720-ts8n6g1b0esf5bdg55tfom29p6bpbpf8</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

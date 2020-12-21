@@ -35,11 +35,13 @@ namespace Playground.Features.Auth
             var canSignOut = this.WhenAnyValue(x => x.User).Select(x => x != null);
             
             SignInWithEmailCommand = ReactiveCommand.CreateFromTask(SignInWithEmailAsync, canSignIn);
+            SignInWithGoogleCommand = ReactiveCommand.CreateFromTask(SignInWithGoogleAsync, canSignIn);
             SignOutCommand = ReactiveCommand.CreateFromTask(() => _firebaseAuth.SignOutAsync(), canSignOut);
            
             Observable
                 .Merge(
                     SignInWithEmailCommand.ThrownExceptions,
+                    SignInWithGoogleCommand.ThrownExceptions,
                     SignOutCommand.ThrownExceptions)
                 .LogThrownException()
                 .Subscribe(e => _userInteractionService.ShowErrorDialogAsync(Localization.DialogTitleUnexpectedError, e))
@@ -51,6 +53,11 @@ namespace Playground.Features.Auth
             return _firebaseAuth.SignInWithEmailAndPasswordAsync("test@playground.com", "12345678");
         }
 
+        private Task<IFirebaseUser> SignInWithGoogleAsync()
+        {
+            return _firebaseAuth.SignInWithGoogleAsync();
+        }
+
         private void InitProperties()
         {
             InitUserProperty();
@@ -59,8 +66,11 @@ namespace Playground.Features.Auth
 
         private void InitUserProperty()
         {
-            this.WhenAnyObservable(x => x.SignInWithEmailCommand)
-                .Merge(this.WhenAnyObservable(x => x.SignOutCommand).Select(_ => _firebaseAuth.CurrentUser))
+            Observable
+                .Merge(
+                    this.WhenAnyObservable(x => x.SignInWithEmailCommand),
+                    this.WhenAnyObservable(x => x.SignInWithGoogleCommand),
+                    this.WhenAnyObservable(x => x.SignOutCommand).Select(_ => _firebaseAuth.CurrentUser))
                 .StartWith(_firebaseAuth.CurrentUser)
                 .ToPropertyEx(this, x => x.User)
                 .DisposeWith(Disposables);
@@ -78,6 +88,7 @@ namespace Playground.Features.Auth
         public extern string LoginText { [ObservableAsProperty] get; }
         
         public ReactiveCommand<Unit, IFirebaseUser> SignInWithEmailCommand { get; set; }
+        public ReactiveCommand<Unit, IFirebaseUser> SignInWithGoogleCommand { get; set; }
         public ReactiveCommand<Unit, Unit> SignOutCommand { get; set; }
     }
 }

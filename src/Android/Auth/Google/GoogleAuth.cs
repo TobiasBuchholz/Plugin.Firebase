@@ -52,7 +52,7 @@ namespace Plugin.Firebase.Android.Auth.Google
                 var signInAccount = await signInAccountTask.AsAsync<GoogleSignInAccount>();
                 _tcs?.SetResult(GoogleAuthProvider.GetCredential(signInAccount.IdToken, null));
             } else {
-                _tcs?.SetException(new Exception($"Google sign in failed"));
+                _tcs?.SetException(signInAccountTask.Exception);
             }
         }
 

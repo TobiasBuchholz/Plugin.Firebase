@@ -30,7 +30,8 @@ namespace Playground.Droid
             Forms.Init(this, savedInstanceState);
             LogOutputService.Initialize();
             FirebaseApp.InitializeApp(this);
-            FirebaseAuthImplementation.Initialize(this, savedInstanceState, "537235599720-fft999p3e58cgohdffph003folcsnpl7.apps.googleusercontent.com");
+            // googleRequestIdToken from Web Client instead of Android (see https://console.developers.google.com/apis/credentials)
+            FirebaseAuthImplementation.Initialize(this, savedInstanceState, "537235599720-723cgj10dtm47b4ilvuodtp206g0q0fg.apps.googleusercontent.com");
 
             var compositionRoot = new CompositionRoot();
             ViewModelResolver.Initialize(compositionRoot);

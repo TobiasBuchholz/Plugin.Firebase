@@ -26,6 +26,7 @@
     <data name="ButtonTextFetchRemoteConfig"><value>Fetch and activate</value></data>
     <data name="ButtonTextUploadText"><value>Upload text as file</value></data>
     <data name="ButtonTextSignInWithEmail"><value>Sign in with email</value></data>
+    <data name="ButtonTextSignInWithGoogle"><value>Sign in with google</value></data>
     <data name="ButtonTextSignOut"><value>Sign out</value></data>
     
     <!-- labels -->

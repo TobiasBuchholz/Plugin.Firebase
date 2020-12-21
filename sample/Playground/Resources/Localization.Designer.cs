@@ -93,6 +93,24 @@ namespace Playground.Resources {
             }
         }
         
+        internal static string ButtonTextSignInWithPhoneNumber {
+            get {
+                return ResourceManager.GetString("ButtonTextSignInWithPhoneNumber", resourceCulture);
+            }
+        }
+        
+        internal static string ButtonTextSendVerificationCode {
+            get {
+                return ResourceManager.GetString("ButtonTextSendVerificationCode", resourceCulture);
+            }
+        }
+        
+        internal static string ButtonTextSignIn {
+            get {
+                return ResourceManager.GetString("ButtonTextSignIn", resourceCulture);
+            }
+        }
+        
         internal static string ButtonTextSignOut {
             get {
                 return ResourceManager.GetString("ButtonTextSignOut", resourceCulture);
@@ -120,6 +138,18 @@ namespace Playground.Resources {
         internal static string DialogTitleUnexpectedError {
             get {
                 return ResourceManager.GetString("DialogTitleUnexpectedError", resourceCulture);
+            }
+        }
+        
+        internal static string DialogMessageEnterPhoneNumber {
+            get {
+                return ResourceManager.GetString("DialogMessageEnterPhoneNumber", resourceCulture);
+            }
+        }
+        
+        internal static string DialogMessageEnterVerificationCode {
+            get {
+                return ResourceManager.GetString("DialogMessageEnterVerificationCode", resourceCulture);
             }
         }
         

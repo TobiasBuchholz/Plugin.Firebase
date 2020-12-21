@@ -37,6 +37,7 @@ namespace Playground.Features.Auth
             SignInWithEmailCommand = ReactiveCommand.CreateFromTask(SignInWithEmailAsync, canSignIn);
             SignInWithGoogleCommand = ReactiveCommand.CreateFromTask(SignInWithGoogleAsync, canSignIn);
             SignInWithFacebookCommand = ReactiveCommand.CreateFromTask(SignInWithFacebookAsync, canSignIn);
+            SignInWithPhoneNumberCommand = ReactiveCommand.CreateFromTask(SignInWithPhoneNumberAsync, canSignIn);
             SignOutCommand = ReactiveCommand.CreateFromTask(() => _firebaseAuth.SignOutAsync(), canSignOut);
            
             Observable
@@ -44,6 +45,7 @@ namespace Playground.Features.Auth
                     SignInWithEmailCommand.ThrownExceptions,
                     SignInWithGoogleCommand.ThrownExceptions,
                     SignInWithFacebookCommand.ThrownExceptions,
+                    SignInWithPhoneNumberCommand.ThrownExceptions,
                     SignOutCommand.ThrownExceptions)
                 .LogThrownException()
                 .Subscribe(e => _userInteractionService.ShowErrorDialogAsync(Localization.DialogTitleUnexpectedError, e))
@@ -65,6 +67,37 @@ namespace Playground.Features.Auth
             return _firebaseAuth.SignInWithFacebookAsync();
         }
 
+        private async Task<IFirebaseUser> SignInWithPhoneNumberAsync()
+        {
+            var phoneNumber = await AskForPhoneNumberAsync();
+            return string.IsNullOrEmpty(phoneNumber) ? null : await SignInWithPhoneNumberAsync(phoneNumber);
+        }
+
+        private async Task<string> AskForPhoneNumberAsync()
+        {
+            return await _userInteractionService.ShowAsPromptAsync(new UserInfoBuilder()
+                .WithMessage(Localization.DialogMessageEnterPhoneNumber)
+                .WithDefaultButton(Localization.ButtonTextSendVerificationCode)
+                .WithCancelButton(Localization.Cancel)
+                .Build());
+        }
+
+        private async Task<IFirebaseUser> SignInWithPhoneNumberAsync(string phoneNumber)
+        {
+            await _firebaseAuth.VerifyPhoneNumberAsync(phoneNumber);
+            var verificationCode = await AskForVerificationCodeAsync();
+            return string.IsNullOrEmpty(verificationCode) ? null : await _firebaseAuth.SignInWithPhoneNumberVerificationCodeAsync(verificationCode);
+        }
+
+        private async Task<string> AskForVerificationCodeAsync()
+        {
+            return await _userInteractionService.ShowAsPromptAsync(new UserInfoBuilder()
+                .WithMessage(Localization.DialogMessageEnterVerificationCode)
+                .WithDefaultButton(Localization.ButtonTextSignIn)
+                .WithCancelButton(Localization.Cancel)
+                .Build());
+        }
+
         private void InitProperties()
         {
             InitUserProperty();
@@ -78,6 +111,7 @@ namespace Playground.Features.Auth
                     this.WhenAnyObservable(x => x.SignInWithEmailCommand),
                     this.WhenAnyObservable(x => x.SignInWithGoogleCommand),
                     this.WhenAnyObservable(x => x.SignInWithFacebookCommand),
+                    this.WhenAnyObservable(x => x.SignInWithPhoneNumberCommand),
                     this.WhenAnyObservable(x => x.SignOutCommand).Select(_ => _firebaseAuth.CurrentUser))
                 .StartWith(_firebaseAuth.CurrentUser)
                 .ToPropertyEx(this, x => x.User)
@@ -98,6 +132,7 @@ namespace Playground.Features.Auth
         public ReactiveCommand<Unit, IFirebaseUser> SignInWithEmailCommand { get; set; }
         public ReactiveCommand<Unit, IFirebaseUser> SignInWithGoogleCommand { get; set; }
         public ReactiveCommand<Unit, IFirebaseUser> SignInWithFacebookCommand { get; set; }
+        public ReactiveCommand<Unit, IFirebaseUser> SignInWithPhoneNumberCommand { get; set; }
         public ReactiveCommand<Unit, Unit> SignOutCommand { get; set; }
     }
 }

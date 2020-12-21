@@ -28,6 +28,9 @@
     <data name="ButtonTextSignInWithEmail"><value>Sign in with email</value></data>
     <data name="ButtonTextSignInWithGoogle"><value>Sign in with google</value></data>
     <data name="ButtonTextSignInWithFacebook"><value>Sign in with facebook</value></data>
+    <data name="ButtonTextSignInWithPhoneNumber"><value>Sign in with phone number</value></data>
+    <data name="ButtonTextSendVerificationCode"><value>Send verification code</value></data>
+    <data name="ButtonTextSignIn"><value>Sign in</value></data>
     <data name="ButtonTextSignOut"><value>Sign out</value></data>
     
     <!-- labels -->
@@ -39,6 +42,8 @@
 
     <!-- alerts -->
     <data name="DialogTitleUnexpectedError"><value>Unexpected Error</value></data>
+    <data name="DialogMessageEnterPhoneNumber"><value>Enter your phone number so Firebase can send a verification code</value></data>
+    <data name="DialogMessageEnterVerificationCode"><value>Enter the verification code</value></data>
 
     <!-- common -->
     <data name="Ok"><value>OK</value></data>

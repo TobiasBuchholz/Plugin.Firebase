@@ -12,7 +12,7 @@ namespace Plugin.Firebase.Android.Auth.Facebook
     {
         private readonly ICallbackManager _callbackManager;
         
-        public FacebookAuth(Context context)
+        public FacebookAuth()
         {
             FacebookSdk.FullyInitialize();
             _callbackManager = CallbackManagerFactory.Create();

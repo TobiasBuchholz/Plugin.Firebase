@@ -44,7 +44,7 @@ namespace Plugin.Firebase.Auth
             _firebaseAuth = FirebaseAuth.Instance;
             _emailAuth = new EmailAuth();
             _googleAuth = new GoogleAuth(Activity, _googleRequestIdToken);
-            _facebookAuth = new FacebookAuth(AppContext);
+            _facebookAuth = new FacebookAuth();
             _phoneNumberAuth = new PhoneNumberAuth();
         }
 
@@ -94,10 +94,6 @@ namespace Plugin.Firebase.Auth
             return await SignInWithCredentialAsync(credential);
         }
 
-        /// <summary>
-        /// TODO: is not working correctly yet
-        /// </summary>
-        /// <returns></returns>
         public async Task<IFirebaseUser> SignInWithFacebookAsync()
         {
             var credential = await _facebookAuth.GetCredentialAsync(Activity);

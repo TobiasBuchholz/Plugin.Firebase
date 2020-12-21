@@ -31,7 +31,7 @@ namespace Playground.iOS
             LogOutputService.Initialize();
             Firebase.Core.App.Configure();
             FirebaseAnalyticsImplementation.Initialize();
-            FirebaseAuthImplementation.Initialize(app, options, "1234567890", "playground");
+            FirebaseAuthImplementation.Initialize(app, options, "151743924915235", "Plugin Firebase Playground");
 
             var compositionRoot = new CompositionRoot();
             ViewModelResolver.Initialize(compositionRoot);

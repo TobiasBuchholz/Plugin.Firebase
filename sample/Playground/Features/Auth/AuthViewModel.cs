@@ -36,12 +36,14 @@ namespace Playground.Features.Auth
             
             SignInWithEmailCommand = ReactiveCommand.CreateFromTask(SignInWithEmailAsync, canSignIn);
             SignInWithGoogleCommand = ReactiveCommand.CreateFromTask(SignInWithGoogleAsync, canSignIn);
+            SignInWithFacebookCommand = ReactiveCommand.CreateFromTask(SignInWithFacebookAsync, canSignIn);
             SignOutCommand = ReactiveCommand.CreateFromTask(() => _firebaseAuth.SignOutAsync(), canSignOut);
            
             Observable
                 .Merge(
                     SignInWithEmailCommand.ThrownExceptions,
                     SignInWithGoogleCommand.ThrownExceptions,
+                    SignInWithFacebookCommand.ThrownExceptions,
                     SignOutCommand.ThrownExceptions)
                 .LogThrownException()
                 .Subscribe(e => _userInteractionService.ShowErrorDialogAsync(Localization.DialogTitleUnexpectedError, e))
@@ -58,6 +60,11 @@ namespace Playground.Features.Auth
             return _firebaseAuth.SignInWithGoogleAsync();
         }
 
+        private Task<IFirebaseUser> SignInWithFacebookAsync()
+        {
+            return _firebaseAuth.SignInWithFacebookAsync();
+        }
+
         private void InitProperties()
         {
             InitUserProperty();
@@ -70,6 +77,7 @@ namespace Playground.Features.Auth
                 .Merge(
                     this.WhenAnyObservable(x => x.SignInWithEmailCommand),
                     this.WhenAnyObservable(x => x.SignInWithGoogleCommand),
+                    this.WhenAnyObservable(x => x.SignInWithFacebookCommand),
                     this.WhenAnyObservable(x => x.SignOutCommand).Select(_ => _firebaseAuth.CurrentUser))
                 .StartWith(_firebaseAuth.CurrentUser)
                 .ToPropertyEx(this, x => x.User)
@@ -89,6 +97,7 @@ namespace Playground.Features.Auth
         
         public ReactiveCommand<Unit, IFirebaseUser> SignInWithEmailCommand { get; set; }
         public ReactiveCommand<Unit, IFirebaseUser> SignInWithGoogleCommand { get; set; }
+        public ReactiveCommand<Unit, IFirebaseUser> SignInWithFacebookCommand { get; set; }
         public ReactiveCommand<Unit, Unit> SignOutCommand { get; set; }
     }
 }

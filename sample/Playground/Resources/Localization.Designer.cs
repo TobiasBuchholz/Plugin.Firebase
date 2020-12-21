@@ -87,6 +87,12 @@ namespace Playground.Resources {
             }
         }
         
+        internal static string ButtonTextSignInWithFacebook {
+            get {
+                return ResourceManager.GetString("ButtonTextSignInWithFacebook", resourceCulture);
+            }
+        }
+        
         internal static string ButtonTextSignOut {
             get {
                 return ResourceManager.GetString("ButtonTextSignOut", resourceCulture);

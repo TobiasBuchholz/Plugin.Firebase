@@ -16,7 +16,7 @@ namespace Playground.Features.Auth
             InitializeViewModel();
             
             Content = new Grid {
-                    RowDefinitions = Rows.Define(Star, Auto, Auto),
+                    RowDefinitions = Rows.Define(Star, Auto, Auto, Auto, Star),
                     Children = {
                         new Label { TextColor = Color.Black }
                             .Row(0)
@@ -25,15 +25,20 @@ namespace Playground.Features.Auth
                         new Button { Text = Localization.ButtonTextSignInWithEmail, TextColor = Color.Black }
                             .Row(1)
                             .FillHorizontal()
-                            .Bottom()
+                            .Top()
                             .Bind(nameof(Vm.SignInWithEmailCommand)),
                         new Button { Text = Localization.ButtonTextSignInWithGoogle, TextColor = Color.Black }
                             .Row(2)
                             .FillHorizontal()
-                            .Bottom()
+                            .Top()
                             .Bind(nameof(Vm.SignInWithGoogleCommand)),
-                        new Button { Text = Localization.ButtonTextSignOut, TextColor = Color.Black }
+                        new Button { Text = Localization.ButtonTextSignInWithFacebook, TextColor = Color.Black }
                             .Row(3)
+                            .FillHorizontal()
+                            .Top()
+                            .Bind(nameof(Vm.SignInWithFacebookCommand)),
+                        new Button { Text = Localization.ButtonTextSignOut, TextColor = Color.Black }
+                            .Row(4)
                             .FillHorizontal()
                             .Bottom()
                             .Bind(nameof(Vm.SignOutCommand))

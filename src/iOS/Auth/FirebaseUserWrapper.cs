@@ -5,6 +5,7 @@ using Firebase.Auth;
 using Foundation;
 using Plugin.Firebase.Auth;
 using ActionCodeSettings = Plugin.Firebase.Auth.ActionCodeSettings;
+using UserMetadata = Plugin.Firebase.Auth.UserMetadata;
 
 namespace Plugin.Firebase.iOS.Auth
 {
@@ -63,8 +64,10 @@ namespace Plugin.Firebase.iOS.Auth
         public string DisplayName => _wrapped.DisplayName;
         public string Email => _wrapped.Email;
         public string PhotoUrl => _wrapped.PhotoUrl?.AbsoluteString;
+        public string ProviderId => _wrapped.ProviderId;
         public bool IsEmailVerified => _wrapped.IsEmailVerified;
         public bool IsAnonymous => _wrapped.IsAnonymous;
-        public IEnumerable<ProviderInfo> ProviderInfos => _wrapped.ProviderData.Select(x => x.ToAbstract());
+        public IEnumerable<ProviderInfo> ProviderInfos => _wrapped.ProviderData?.Select(x => x.ToAbstract());
+        public UserMetadata Metadata => _wrapped.Metadata?.ToAbstract();
     }
 }

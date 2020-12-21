@@ -16,8 +16,10 @@ namespace Plugin.Firebase.Auth
         string DisplayName { get; }
         string Email { get; }
         string PhotoUrl { get; }
+        string ProviderId { get; }
         bool IsEmailVerified { get; }
         bool IsAnonymous { get; }
         IEnumerable<ProviderInfo> ProviderInfos { get; }
+        UserMetadata Metadata { get; }
     }
 }

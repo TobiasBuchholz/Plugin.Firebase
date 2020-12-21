@@ -1,3 +1,4 @@
+using System;
 using Firebase.Auth;
 using Plugin.Firebase.Auth;
 using ActionCodeSettings = Plugin.Firebase.Auth.ActionCodeSettings;
@@ -41,6 +42,13 @@ namespace Plugin.Firebase.Android.Auth
                 .SetIOSBundleId(@this.IOSBundleId)
                 .SetAndroidPackageName(@this.AndroidPackageName, @this.AndroidInstallIfNotAvailable, @this.AndroidMinimumVersion)
                 .Build();
+        }
+
+        public static UserMetadata ToAbstract(this IFirebaseUserMetadata @this)
+        {
+            return new UserMetadata(
+                DateTimeOffset.FromUnixTimeMilliseconds(@this.CreationTimestamp),
+                DateTimeOffset.FromUnixTimeMilliseconds(@this.LastSignInTimestamp));
         }
     }
 }

@@ -1,8 +1,11 @@
 using Firebase.Auth;
 using Foundation;
 using Plugin.Firebase.Auth;
+using Plugin.Firebase.iOS.Extensions;
 using ActionCodeSettings = Plugin.Firebase.Auth.ActionCodeSettings;
 using NativeActionCodeSettings = Firebase.Auth.ActionCodeSettings;
+using UserMetadata = Plugin.Firebase.Auth.UserMetadata;
+using NativeUserMetadata = Firebase.Auth.UserMetadata;
 
 namespace Plugin.Firebase.iOS.Auth
 {
@@ -41,6 +44,13 @@ namespace Plugin.Firebase.iOS.Auth
             settings.IOSBundleId = @this.IOSBundleId;
             settings.SetAndroidPackageName(@this.AndroidPackageName, @this.AndroidInstallIfNotAvailable, @this.AndroidMinimumVersion);
             return settings;
+        }
+
+        public static UserMetadata ToAbstract(this NativeUserMetadata @this)
+        {
+            return new UserMetadata(
+                @this.CreationDate.ToDateTimeOffset(),
+                @this.LastSignInDate.ToDateTimeOffset());
         }
     }
 }

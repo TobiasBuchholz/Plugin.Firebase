@@ -104,6 +104,12 @@ namespace Plugin.Firebase.Auth
             return await SignInWithCredentialAsync(credential);
         }
 
+        public async Task<IFirebaseUser> SignInAnonymouslyAsync()
+        {
+            var authResult = await _firebaseAuth.SignInAnonymouslyAsync();
+            return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
+        }
+
         public async Task<IFirebaseUser> LinkWithPhoneNumberVerificationCodeAsync(string verificationCode)
         {
             var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);

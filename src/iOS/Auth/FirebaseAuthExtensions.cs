@@ -8,20 +8,29 @@ namespace Plugin.Firebase.iOS.Auth
 {
     public static class FirebaseAuthExtensions
     {
-        public static FirebaseUserWrapper ToAbstract(this User @this)
+        public static FirebaseUserWrapper ToAbstract(this User @this, AdditionalUserInfo additionalUserInfo = null)
         {
             return new FirebaseUserWrapper(@this);
         }
         
-        public static ProviderInfo ToAbstract(this IUserInfo @this)
+        public static ProviderInfo ToAbstract(this IUserInfo @this, AdditionalUserInfo additionalUserInfo = null)
         {
             return new ProviderInfo
                 (@this.Uid,
                 @this.ProviderId,
                 @this.DisplayName,
-                @this.Email,
+                @this.Email ?? GetEmailFromAdditionalUserInfo(additionalUserInfo),
                 @this.PhoneNumber,
                 @this.PhotoUrl?.AbsoluteString);
+        }
+        
+        private static string GetEmailFromAdditionalUserInfo(AdditionalUserInfo additionalUserInfo)
+        {
+            var profile = additionalUserInfo?.Profile;
+            if(profile != null && profile.ContainsKey(new NSString("email"))) {
+                return profile["email"].ToString();
+            }
+            return null;
         }
         
         public static NativeActionCodeSettings ToNative(this ActionCodeSettings @this)

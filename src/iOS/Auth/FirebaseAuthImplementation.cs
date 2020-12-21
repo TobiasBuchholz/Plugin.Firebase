@@ -98,7 +98,7 @@ namespace Plugin.Firebase.Auth
         private async Task<IFirebaseUser> SignInWithCredentialAsync(AuthCredential credential)
         {
             var authResult = await _firebaseAuth.SignInWithCredentialAsync(credential);
-            return authResult.User.ToAbstract();
+            return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
         }
         
         public async Task<IFirebaseUser> SignInWithEmailAndPasswordAsync(string email, string password)
@@ -118,7 +118,7 @@ namespace Plugin.Firebase.Auth
         public async Task<IFirebaseUser> SignInWithEmailLinkAsync(string email, string link)
         {
             var authResult = await _firebaseAuth.SignInWithLinkAsync(email, link);
-            return authResult.User.ToAbstract();
+            return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
         }
 
         public async Task<IFirebaseUser> SignInWithGoogleAsync()
@@ -141,6 +141,16 @@ namespace Plugin.Firebase.Auth
             }
         }
 
+        public async Task<IFirebaseUser> SignInAnonymouslyAsync()
+        {
+            try {
+                 var authResult = await _firebaseAuth.SignInAnonymouslyAsync();
+                 return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
+            } catch(NSErrorException e) {
+                throw new FirebaseException(e.Error?.LocalizedDescription);
+            }
+        }
+
         public async Task<IFirebaseUser> LinkWithPhoneNumberVerificationCodeAsync(string verificationCode)
         {
             try {
@@ -154,7 +164,7 @@ namespace Plugin.Firebase.Auth
         private async Task<IFirebaseUser> LinkWithCredentialAsync(AuthCredential credential)
         {
             var authResult = await _firebaseAuth.CurrentUser.LinkAsync(credential);
-            return authResult.User.ToAbstract();
+            return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
         }
         
         public async Task<IFirebaseUser> LinkWithEmailAndPasswordAsync(string email, string password)

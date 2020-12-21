@@ -23,6 +23,18 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         }
 
         [Fact]
+        public async Task signs_in_user_anonymously()
+        {
+            var sut = CrossFirebaseAuth.Current;
+            Assert.Null(sut.CurrentUser);
+
+            var user = await sut.SignInAnonymouslyAsync();
+            Assert.NotNull(user);
+            Assert.NotNull(sut.CurrentUser);
+            Assert.True(user.IsAnonymous);
+        }
+
+        [Fact]
         public async Task signs_out_user()
         {
             var sut = CrossFirebaseAuth.Current;

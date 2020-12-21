@@ -12,6 +12,7 @@ namespace Plugin.Firebase.Auth
         Task<IFirebaseUser> SignInWithEmailLinkAsync(string email, string link);
         Task<IFirebaseUser> SignInWithGoogleAsync();
         Task<IFirebaseUser> SignInWithFacebookAsync();
+        Task<IFirebaseUser> SignInAnonymouslyAsync();
         Task<IFirebaseUser> LinkWithPhoneNumberVerificationCodeAsync(string verificationCode);
         Task<IFirebaseUser> LinkWithEmailAndPasswordAsync(string email, string password);
         Task<IFirebaseUser> LinkWithGoogleAsync();

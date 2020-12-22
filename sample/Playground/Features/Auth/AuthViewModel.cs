@@ -34,6 +34,7 @@ namespace Playground.Features.Auth
             var canSignIn = this.WhenAnyValue(x => x.User).Select(x => x == null);
             var canSignOut = this.WhenAnyValue(x => x.User).Select(x => x != null);
             
+            SignInAnonymouslyCommand = ReactiveCommand.CreateFromTask(SignInAnonymouslyAsync, canSignIn);
             SignInWithEmailCommand = ReactiveCommand.CreateFromTask(SignInWithEmailAsync, canSignIn);
             SignInWithGoogleCommand = ReactiveCommand.CreateFromTask(SignInWithGoogleAsync, canSignIn);
             SignInWithFacebookCommand = ReactiveCommand.CreateFromTask(SignInWithFacebookAsync, canSignIn);
@@ -42,6 +43,7 @@ namespace Playground.Features.Auth
            
             Observable
                 .Merge(
+                    SignInAnonymouslyCommand.ThrownExceptions,
                     SignInWithEmailCommand.ThrownExceptions,
                     SignInWithGoogleCommand.ThrownExceptions,
                     SignInWithFacebookCommand.ThrownExceptions,
@@ -52,9 +54,34 @@ namespace Playground.Features.Auth
                 .DisposeWith(Disposables);
         }
 
-        private Task<IFirebaseUser> SignInWithEmailAsync()
+        private Task<IFirebaseUser> SignInAnonymouslyAsync()
         {
-            return _firebaseAuth.SignInWithEmailAndPasswordAsync("test@playground.com", "12345678");
+            return _firebaseAuth.SignInAnonymouslyAsync();
+        }
+
+        private async Task<IFirebaseUser> SignInWithEmailAsync()
+        {
+            var email = await AskForEmailAsync();
+            var password = await AskForPasswordAsync();
+            return await _firebaseAuth.SignInWithEmailAndPasswordAsync(email, password);
+        }
+
+        private Task<string> AskForEmailAsync()
+        {
+            return _userInteractionService.ShowAsPromptAsync(new UserInfoBuilder()
+                .WithMessage(Localization.DialogMessageEnterEmail)
+                .WithDefaultButton(Localization.Continue)
+                .WithCancelButton(Localization.Cancel)
+                .Build());
+        }
+        
+        private Task<string> AskForPasswordAsync()
+        {
+            return _userInteractionService.ShowAsPromptAsync(new UserInfoBuilder()
+                .WithMessage(Localization.DialogMessageEnterPassword)
+                .WithDefaultButton(Localization.ButtonTextSignIn)
+                .WithCancelButton(Localization.Cancel)
+                .Build());
         }
 
         private Task<IFirebaseUser> SignInWithGoogleAsync()
@@ -73,9 +100,9 @@ namespace Playground.Features.Auth
             return string.IsNullOrEmpty(phoneNumber) ? null : await SignInWithPhoneNumberAsync(phoneNumber);
         }
 
-        private async Task<string> AskForPhoneNumberAsync()
+        private Task<string> AskForPhoneNumberAsync()
         {
-            return await _userInteractionService.ShowAsPromptAsync(new UserInfoBuilder()
+            return _userInteractionService.ShowAsPromptAsync(new UserInfoBuilder()
                 .WithMessage(Localization.DialogMessageEnterPhoneNumber)
                 .WithDefaultButton(Localization.ButtonTextSendVerificationCode)
                 .WithCancelButton(Localization.Cancel)
@@ -89,9 +116,9 @@ namespace Playground.Features.Auth
             return string.IsNullOrEmpty(verificationCode) ? null : await _firebaseAuth.SignInWithPhoneNumberVerificationCodeAsync(verificationCode);
         }
 
-        private async Task<string> AskForVerificationCodeAsync()
+        private Task<string> AskForVerificationCodeAsync()
         {
-            return await _userInteractionService.ShowAsPromptAsync(new UserInfoBuilder()
+            return _userInteractionService.ShowAsPromptAsync(new UserInfoBuilder()
                 .WithMessage(Localization.DialogMessageEnterVerificationCode)
                 .WithDefaultButton(Localization.ButtonTextSignIn)
                 .WithCancelButton(Localization.Cancel)
@@ -108,6 +135,7 @@ namespace Playground.Features.Auth
         {
             Observable
                 .Merge(
+                    this.WhenAnyObservable(x => x.SignInAnonymouslyCommand),
                     this.WhenAnyObservable(x => x.SignInWithEmailCommand),
                     this.WhenAnyObservable(x => x.SignInWithGoogleCommand),
                     this.WhenAnyObservable(x => x.SignInWithFacebookCommand),
@@ -129,6 +157,7 @@ namespace Playground.Features.Auth
         private extern IFirebaseUser User { [ObservableAsProperty] get; }
         public extern string LoginText { [ObservableAsProperty] get; }
         
+        public ReactiveCommand<Unit, IFirebaseUser> SignInAnonymouslyCommand { get; set; }
         public ReactiveCommand<Unit, IFirebaseUser> SignInWithEmailCommand { get; set; }
         public ReactiveCommand<Unit, IFirebaseUser> SignInWithGoogleCommand { get; set; }
         public ReactiveCommand<Unit, IFirebaseUser> SignInWithFacebookCommand { get; set; }

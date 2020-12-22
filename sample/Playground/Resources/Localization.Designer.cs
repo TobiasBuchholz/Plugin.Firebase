@@ -75,6 +75,12 @@ namespace Playground.Resources {
             }
         }
         
+        internal static string ButtonTextSignInAnonymously {
+            get {
+                return ResourceManager.GetString("ButtonTextSignInAnonymously", resourceCulture);
+            }
+        }
+        
         internal static string ButtonTextSignInWithEmail {
             get {
                 return ResourceManager.GetString("ButtonTextSignInWithEmail", resourceCulture);
@@ -141,6 +147,18 @@ namespace Playground.Resources {
             }
         }
         
+        internal static string DialogMessageEnterEmail {
+            get {
+                return ResourceManager.GetString("DialogMessageEnterEmail", resourceCulture);
+            }
+        }
+        
+        internal static string DialogMessageEnterPassword {
+            get {
+                return ResourceManager.GetString("DialogMessageEnterPassword", resourceCulture);
+            }
+        }
+        
         internal static string DialogMessageEnterPhoneNumber {
             get {
                 return ResourceManager.GetString("DialogMessageEnterPhoneNumber", resourceCulture);
@@ -156,6 +174,12 @@ namespace Playground.Resources {
         internal static string Ok {
             get {
                 return ResourceManager.GetString("Ok", resourceCulture);
+            }
+        }
+        
+        internal static string Continue {
+            get {
+                return ResourceManager.GetString("Continue", resourceCulture);
             }
         }
         

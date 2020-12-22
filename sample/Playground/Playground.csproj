@@ -9,6 +9,7 @@
     <DefineConstants>TRACE;DEBUG;NETSTANDARD;NETSTANDARD2_0;LOGGING;</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Genesis.Observables" Version="3.0.0" />
     <PackageReference Include="ReactiveUI" Version="12.1.5" />
     <PackageReference Include="ReactiveUI.Fody" Version="12.1.5" />
     <PackageReference Include="ReactiveUI.XamForms" Version="12.1.5" />

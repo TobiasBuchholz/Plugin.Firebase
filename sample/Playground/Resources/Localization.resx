@@ -27,6 +27,7 @@
     <data name="ButtonTextUploadText"><value>Upload text as file</value></data>
     <data name="ButtonTextSignInAnonymously"><value>Sign in anonymously</value></data>
     <data name="ButtonTextSignInWithEmail"><value>Sign in with email</value></data>
+    <data name="ButtonTextSignInWithEmailLink"><value>Sign in with email link</value></data>
     <data name="ButtonTextSignInWithGoogle"><value>Sign in with google</value></data>
     <data name="ButtonTextSignInWithFacebook"><value>Sign in with facebook</value></data>
     <data name="ButtonTextSignInWithPhoneNumber"><value>Sign in with phone number</value></data>
@@ -47,6 +48,8 @@
     <data name="DialogMessageEnterPassword"><value>Enter your password</value></data>
     <data name="DialogMessageEnterPhoneNumber"><value>Enter your phone number so Firebase can send a verification code</value></data>
     <data name="DialogMessageEnterVerificationCode"><value>Enter the verification code</value></data>
+    <data name="DialogTitleSignInLinkSent"><value>Login link sent</value></data>
+    <data name="DialogMessageSignInLinkSent"><value>Please check your inbox, we've sent a login link to your email address. Tap on the link to get signed in automatically.</value></data>
 
     <!-- common -->
     <data name="Ok"><value>OK</value></data>

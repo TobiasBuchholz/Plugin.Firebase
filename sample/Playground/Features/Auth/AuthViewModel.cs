@@ -2,9 +2,12 @@ using System;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using Playground.Common.Base;
 using Playground.Common.Extensions;
+using Playground.Common.Services.Auth;
+using Playground.Common.Services.Scheduler;
 using Playground.Common.Services.UserInteraction;
 using Playground.Resources;
 using Plugin.Firebase.Auth;
@@ -15,15 +18,18 @@ namespace Playground.Features.Auth
 {
     public sealed class AuthViewModel : ViewModelBase
     {
+        private readonly IAuthService _authService;
         private readonly IUserInteractionService _userInteractionService;
-        private readonly IFirebaseAuth _firebaseAuth;
+        private readonly ISchedulerService _schedulerService;
         
         public AuthViewModel(
+            IAuthService authService,
             IUserInteractionService userInteractionService,
-            IFirebaseAuth firebaseAuth)
+            ISchedulerService schedulerService)
         {
+            _authService = authService;
             _userInteractionService = userInteractionService;
-            _firebaseAuth = firebaseAuth;
+            _schedulerService = schedulerService;
 
             InitCommands();
             InitProperties();
@@ -31,20 +37,22 @@ namespace Playground.Features.Auth
 
         private void InitCommands()
         {
-            var canSignIn = this.WhenAnyValue(x => x.User).Select(x => x == null);
-            var canSignOut = this.WhenAnyValue(x => x.User).Select(x => x != null);
+            var canSignIn = this.WhenAnyValue(x => x.User).Select(x => x == null).ObserveOn(_schedulerService.Main);
+            var canSignOut = this.WhenAnyValue(x => x.User).Select(x => x != null).ObserveOn(_schedulerService.Main);
             
-            SignInAnonymouslyCommand = ReactiveCommand.CreateFromTask(SignInAnonymouslyAsync, canSignIn);
+            SignInAnonymouslyCommand = ReactiveCommand.CreateFromObservable(SignInAnonymously, canSignIn);
             SignInWithEmailCommand = ReactiveCommand.CreateFromTask(SignInWithEmailAsync, canSignIn);
-            SignInWithGoogleCommand = ReactiveCommand.CreateFromTask(SignInWithGoogleAsync, canSignIn);
-            SignInWithFacebookCommand = ReactiveCommand.CreateFromTask(SignInWithFacebookAsync, canSignIn);
-            SignInWithPhoneNumberCommand = ReactiveCommand.CreateFromTask(SignInWithPhoneNumberAsync, canSignIn);
-            SignOutCommand = ReactiveCommand.CreateFromTask(() => _firebaseAuth.SignOutAsync(), canSignOut);
+            SignInWithEmailLinkCommand = ReactiveCommand.CreateFromTask(SignInWithEmailLinkAsync, canSignIn);
+            SignInWithGoogleCommand = ReactiveCommand.CreateFromObservable(SignInWithGoogle, canSignIn);
+            SignInWithFacebookCommand = ReactiveCommand.CreateFromObservable(SignInWithFacebook, canSignIn);
+            SignInWithPhoneNumberCommand = ReactiveCommand.CreateFromObservable(SignInWithPhoneNumber, canSignIn);
+            SignOutCommand = ReactiveCommand.CreateFromObservable(SignOut, canSignOut);
            
             Observable
                 .Merge(
                     SignInAnonymouslyCommand.ThrownExceptions,
                     SignInWithEmailCommand.ThrownExceptions,
+                    SignInWithEmailLinkCommand.ThrownExceptions,
                     SignInWithGoogleCommand.ThrownExceptions,
                     SignInWithFacebookCommand.ThrownExceptions,
                     SignInWithPhoneNumberCommand.ThrownExceptions,
@@ -54,16 +62,16 @@ namespace Playground.Features.Auth
                 .DisposeWith(Disposables);
         }
 
-        private Task<IFirebaseUser> SignInAnonymouslyAsync()
+        private IObservable<Unit> SignInAnonymously()
         {
-            return _firebaseAuth.SignInAnonymouslyAsync();
+            return _authService.SignAnonymously();
         }
 
-        private async Task<IFirebaseUser> SignInWithEmailAsync()
+        private async Task<Unit> SignInWithEmailAsync()
         {
             var email = await AskForEmailAsync();
             var password = await AskForPasswordAsync();
-            return await _firebaseAuth.SignInWithEmailAndPasswordAsync(email, password);
+            return await _authService.SignInWithEmailAndPassword(email, password).ToTask();
         }
 
         private Task<string> AskForEmailAsync()
@@ -84,20 +92,28 @@ namespace Playground.Features.Auth
                 .Build());
         }
 
-        private Task<IFirebaseUser> SignInWithGoogleAsync()
+        private async Task SignInWithEmailLinkAsync()
         {
-            return _firebaseAuth.SignInWithGoogleAsync();
+            var email = await AskForEmailAsync();
+            await _authService.SendSignInLink(email);
+            await _userInteractionService.ShowDefaultDialogAsync(Localization.DialogTitleSignInLinkSent, Localization.DialogMessageSignInLinkSent);
+        }
+        
+        private IObservable<Unit> SignInWithGoogle()
+        {
+            return _authService.SignInWithGoogle();
         }
 
-        private Task<IFirebaseUser> SignInWithFacebookAsync()
+        private IObservable<Unit> SignInWithFacebook()
         {
-            return _firebaseAuth.SignInWithFacebookAsync();
+            return _authService.SignInWithFacebook();
         }
 
-        private async Task<IFirebaseUser> SignInWithPhoneNumberAsync()
+        private IObservable<Unit> SignInWithPhoneNumber()
         {
-            var phoneNumber = await AskForPhoneNumberAsync();
-            return string.IsNullOrEmpty(phoneNumber) ? null : await SignInWithPhoneNumberAsync(phoneNumber);
+            return AskForPhoneNumberAsync()
+                .ToObservable()
+                .SelectMany(x => string.IsNullOrEmpty(x) ? Observables.Unit : SignInWithPhoneNumber(x));
         }
 
         private Task<string> AskForPhoneNumberAsync()
@@ -109,11 +125,12 @@ namespace Playground.Features.Auth
                 .Build());
         }
 
-        private async Task<IFirebaseUser> SignInWithPhoneNumberAsync(string phoneNumber)
+        private IObservable<Unit> SignInWithPhoneNumber(string phoneNumber)
         {
-            await _firebaseAuth.VerifyPhoneNumberAsync(phoneNumber);
-            var verificationCode = await AskForVerificationCodeAsync();
-            return string.IsNullOrEmpty(verificationCode) ? null : await _firebaseAuth.SignInWithPhoneNumberVerificationCodeAsync(verificationCode);
+            return _authService
+                .VerifyPhoneNumber(phoneNumber)
+                .SelectMany(_ => AskForVerificationCodeAsync())
+                .SelectMany(x => string.IsNullOrEmpty(x) ? null : _authService.SignInWithPhoneNumberVerificationCode(x));
         }
 
         private Task<string> AskForVerificationCodeAsync()
@@ -125,6 +142,11 @@ namespace Playground.Features.Auth
                 .Build());
         }
 
+        private IObservable<Unit> SignOut()
+        {
+            return _authService.SignOut();
+        }
+
         private void InitProperties()
         {
             InitUserProperty();
@@ -133,15 +155,8 @@ namespace Playground.Features.Auth
 
         private void InitUserProperty()
         {
-            Observable
-                .Merge(
-                    this.WhenAnyObservable(x => x.SignInAnonymouslyCommand),
-                    this.WhenAnyObservable(x => x.SignInWithEmailCommand),
-                    this.WhenAnyObservable(x => x.SignInWithGoogleCommand),
-                    this.WhenAnyObservable(x => x.SignInWithFacebookCommand),
-                    this.WhenAnyObservable(x => x.SignInWithPhoneNumberCommand),
-                    this.WhenAnyObservable(x => x.SignOutCommand).Select(_ => _firebaseAuth.CurrentUser))
-                .StartWith(_firebaseAuth.CurrentUser)
+            _authService
+                .CurrentUserTicks
                 .ToPropertyEx(this, x => x.User)
                 .DisposeWith(Disposables);
         }
@@ -157,11 +172,12 @@ namespace Playground.Features.Auth
         private extern IFirebaseUser User { [ObservableAsProperty] get; }
         public extern string LoginText { [ObservableAsProperty] get; }
         
-        public ReactiveCommand<Unit, IFirebaseUser> SignInAnonymouslyCommand { get; set; }
-        public ReactiveCommand<Unit, IFirebaseUser> SignInWithEmailCommand { get; set; }
-        public ReactiveCommand<Unit, IFirebaseUser> SignInWithGoogleCommand { get; set; }
-        public ReactiveCommand<Unit, IFirebaseUser> SignInWithFacebookCommand { get; set; }
-        public ReactiveCommand<Unit, IFirebaseUser> SignInWithPhoneNumberCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> SignInAnonymouslyCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> SignInWithEmailCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> SignInWithEmailLinkCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> SignInWithGoogleCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> SignInWithFacebookCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> SignInWithPhoneNumberCommand { get; set; }
         public ReactiveCommand<Unit, Unit> SignOutCommand { get; set; }
     }
 }

@@ -32,23 +32,28 @@ namespace Playground.Features.Auth
                             .FillHorizontal()
                             .Top()
                             .Bind(nameof(Vm.SignInWithEmailCommand)),
-                        new Button { Text = Localization.ButtonTextSignInWithGoogle, TextColor = Color.Black }
+                        new Button { Text = Localization.ButtonTextSignInWithEmailLink, TextColor = Color.Black }
                             .Row(3)
+                            .FillHorizontal()
+                            .Top()
+                            .Bind(nameof(Vm.SignInWithEmailLinkCommand)),
+                        new Button { Text = Localization.ButtonTextSignInWithGoogle, TextColor = Color.Black }
+                            .Row(4)
                             .FillHorizontal()
                             .Top()
                             .Bind(nameof(Vm.SignInWithGoogleCommand)),
                         new Button { Text = Localization.ButtonTextSignInWithFacebook, TextColor = Color.Black }
-                            .Row(4)
+                            .Row(5)
                             .FillHorizontal()
                             .Top()
                             .Bind(nameof(Vm.SignInWithFacebookCommand)),
                         new Button { Text = Localization.ButtonTextSignInWithPhoneNumber, TextColor = Color.Black }
-                            .Row(5)
+                            .Row(6)
                             .FillHorizontal()
                             .Top()
                             .Bind(nameof(Vm.SignInWithPhoneNumberCommand)),
                         new Button { Text = Localization.ButtonTextSignOut, TextColor = Color.Black }
-                            .Row(6)
+                            .Row(7)
                             .FillHorizontal()
                             .Bottom()
                             .Bind(nameof(Vm.SignOutCommand))

@@ -87,6 +87,12 @@ namespace Playground.Resources {
             }
         }
         
+        internal static string ButtonTextSignInWithEmailLink {
+            get {
+                return ResourceManager.GetString("ButtonTextSignInWithEmailLink", resourceCulture);
+            }
+        }
+        
         internal static string ButtonTextSignInWithGoogle {
             get {
                 return ResourceManager.GetString("ButtonTextSignInWithGoogle", resourceCulture);
@@ -168,6 +174,18 @@ namespace Playground.Resources {
         internal static string DialogMessageEnterVerificationCode {
             get {
                 return ResourceManager.GetString("DialogMessageEnterVerificationCode", resourceCulture);
+            }
+        }
+        
+        internal static string DialogTitleSignInLinkSent {
+            get {
+                return ResourceManager.GetString("DialogTitleSignInLinkSent", resourceCulture);
+            }
+        }
+        
+        internal static string DialogMessageSignInLinkSent {
+            get {
+                return ResourceManager.GetString("DialogMessageSignInLinkSent", resourceCulture);
             }
         }
         

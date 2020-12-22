@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
@@ -10,6 +11,7 @@ using Playground.Common.Services.Logging;
 using Playground.Common.Services.Scheduler;
 using Playground.Droid.Services.Composition;
 using Plugin.Firebase.Auth;
+using Plugin.Firebase.DynamicLinks;
 using Xamarin.Forms;
 
 namespace Playground.Droid
@@ -36,7 +38,13 @@ namespace Playground.Droid
             var compositionRoot = new CompositionRoot();
             ViewModelResolver.Initialize(compositionRoot);
             Schedulers.Initialize(compositionRoot.ResolveSchedulerService());
+            HandleIntent(Intent);
             LoadApplication(new App());
+        }
+        
+        private static void HandleIntent(Intent intent)
+        {
+            FirebaseDynamicLinksImplementation.HandleDynamicLinkAsync(intent).Ignore();
         }
         
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
@@ -49,6 +57,12 @@ namespace Playground.Droid
         {
             base.OnActivityResult(requestCode, resultCode, data);
             FirebaseAuthImplementation.HandleActivityResultAsync(requestCode, resultCode, data);
+        }
+        
+        protected override void OnNewIntent(Intent intent)
+        {
+            base.OnNewIntent(intent);
+            HandleIntent(intent);
         }
     }
 }

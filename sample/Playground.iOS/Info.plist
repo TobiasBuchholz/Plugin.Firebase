@@ -37,11 +37,16 @@
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
+			<key>CFBundleURLName</key>
+			<string>Bundle ID</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string>com.tobishiba.playground</string>
 				<string>com.googleusercontent.apps.537235599720-ts8n6g1b0esf5bdg55tfom29p6bpbpf8</string>
 				<string>fb151743924915235</string>
 			</array>
+			<key>CFBundleURLTypes</key>
+			<string>Editor</string>
 		</dict>
 	</array>
 	<key>FacebookAppID</key>

@@ -9,13 +9,13 @@ using Playground.Common.Services.Composition;
 using Playground.Common.Services.Logging;
 using Playground.Common.Services.Scheduler;
 using Playground.Droid.Services.Composition;
-using Plugin.Firebase.Analytics;
 using Plugin.Firebase.Auth;
 using Xamarin.Forms;
 
 namespace Playground.Droid
 {
-    [Activity(Label = "Playground", Icon = "@mipmap/icon", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize)]
+    // Activity attribute is not needed since MainActivity gets registered
+    // in AndroidManifest.xml because of the Firebase Dynamic Link feature
     public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {
         protected override void OnCreate(Bundle savedInstanceState)

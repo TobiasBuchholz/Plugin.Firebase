@@ -46,6 +46,10 @@ namespace Playground.Features.Auth
             SignInWithGoogleCommand = ReactiveCommand.CreateFromObservable(SignInWithGoogle, canSignIn);
             SignInWithFacebookCommand = ReactiveCommand.CreateFromObservable(SignInWithFacebook, canSignIn);
             SignInWithPhoneNumberCommand = ReactiveCommand.CreateFromObservable(SignInWithPhoneNumber, canSignIn);
+            LinkWithEmailCommand = ReactiveCommand.CreateFromTask(LinkWithEmailAsync);
+            LinkWithGoogleCommand = ReactiveCommand.CreateFromObservable(LinkWithGoogle);
+            LinkWithFacebookCommand = ReactiveCommand.CreateFromObservable(LinkWithFacebook);
+            LinkWithPhoneNumberCommand = ReactiveCommand.CreateFromObservable(LinkWithPhoneNumber);
             SignOutCommand = ReactiveCommand.CreateFromObservable(SignOut, canSignOut);
            
             Observable
@@ -56,6 +60,10 @@ namespace Playground.Features.Auth
                     SignInWithGoogleCommand.ThrownExceptions,
                     SignInWithFacebookCommand.ThrownExceptions,
                     SignInWithPhoneNumberCommand.ThrownExceptions,
+                    LinkWithEmailCommand.ThrownExceptions,
+                    LinkWithGoogleCommand.ThrownExceptions,
+                    LinkWithFacebookCommand.ThrownExceptions,
+                    LinkWithPhoneNumberCommand.ThrownExceptions,
                     SignOutCommand.ThrownExceptions)
                 .LogThrownException()
                 .Subscribe(e => _userInteractionService.ShowErrorDialogAsync(Localization.DialogTitleUnexpectedError, e))
@@ -67,11 +75,11 @@ namespace Playground.Features.Auth
             return _authService.SignAnonymously();
         }
 
-        private async Task<Unit> SignInWithEmailAsync()
+        private async Task SignInWithEmailAsync()
         {
             var email = await AskForEmailAsync();
             var password = await AskForPasswordAsync();
-            return await _authService.SignInWithEmailAndPassword(email, password).ToTask();
+            await _authService.SignInWithEmailAndPassword(email, password).ToTask();
         }
 
         private Task<string> AskForEmailAsync()
@@ -127,8 +135,9 @@ namespace Playground.Features.Auth
 
         private IObservable<Unit> SignInWithPhoneNumber(string phoneNumber)
         {
-            return _authService
-                .VerifyPhoneNumber(phoneNumber)
+            return Observable
+                .Defer(() => _authService.VerifyPhoneNumber(phoneNumber))
+                .SubscribeOn(_schedulerService.Main)
                 .SelectMany(_ => AskForVerificationCodeAsync())
                 .SelectMany(x => string.IsNullOrEmpty(x) ? null : _authService.SignInWithPhoneNumberVerificationCode(x));
         }
@@ -142,6 +151,39 @@ namespace Playground.Features.Auth
                 .Build());
         }
 
+        private async Task LinkWithEmailAsync()
+        {
+            var email = await AskForEmailAsync();
+            var password = await AskForPasswordAsync();
+            await _authService.LinkWithEmailAndPassword(email, password).ToTask();
+        }
+
+        private IObservable<Unit> LinkWithGoogle()
+        {
+            return _authService.LinkWithGoogle();
+        }
+        
+        private IObservable<Unit> LinkWithFacebook()
+        {
+            return _authService.LinkWithFacebook();
+        }
+
+        private IObservable<Unit> LinkWithPhoneNumber()
+        {
+            return AskForPhoneNumberAsync()
+                .ToObservable()
+                .SelectMany(x => string.IsNullOrEmpty(x) ? Observables.Unit : LinkWithPhoneNumber(x));
+        }
+
+        private IObservable<Unit> LinkWithPhoneNumber(string phoneNumber)
+        {
+            return Observable
+                .Defer(() => _authService.VerifyPhoneNumber(phoneNumber))
+                .SubscribeOn(_schedulerService.Main)
+                .SelectMany(_ => AskForVerificationCodeAsync())
+                .SelectMany(x => string.IsNullOrEmpty(x) ? null : _authService.LinkWithPhoneNumberVerificationCode(x));
+        }
+
         private IObservable<Unit> SignOut()
         {
             return _authService.SignOut();
@@ -150,6 +192,8 @@ namespace Playground.Features.Auth
         private void InitProperties()
         {
             InitUserProperty();
+            InitIsSignedInProperty();
+            InitIsSignedInAnonymouslyProperty();
             InitLoginTextProperty();
         }
 
@@ -158,6 +202,22 @@ namespace Playground.Features.Auth
             _authService
                 .CurrentUserTicks
                 .ToPropertyEx(this, x => x.User)
+                .DisposeWith(Disposables);
+        }
+
+        private void InitIsSignedInProperty()
+        {
+            this.WhenAnyValue(x => x.User)
+                .Select(x => x != null)
+                .ToPropertyEx(this, x => x.IsSignedIn)
+                .DisposeWith(Disposables);
+        }
+
+        private void InitIsSignedInAnonymouslyProperty()
+        {
+            this.WhenAnyValue(x => x.User)
+                .Select(x => x?.IsAnonymous ?? false)
+                .ToPropertyEx(this, x => x.IsSignedInAnonymously)
                 .DisposeWith(Disposables);
         }
 
@@ -171,6 +231,8 @@ namespace Playground.Features.Auth
 
         private extern IFirebaseUser User { [ObservableAsProperty] get; }
         public extern string LoginText { [ObservableAsProperty] get; }
+        public extern bool IsSignedIn { [ObservableAsProperty] get; }
+        public extern bool IsSignedInAnonymously { [ObservableAsProperty] get; }
         
         public ReactiveCommand<Unit, Unit> SignInAnonymouslyCommand { get; set; }
         public ReactiveCommand<Unit, Unit> SignInWithEmailCommand { get; set; }
@@ -178,6 +240,10 @@ namespace Playground.Features.Auth
         public ReactiveCommand<Unit, Unit> SignInWithGoogleCommand { get; set; }
         public ReactiveCommand<Unit, Unit> SignInWithFacebookCommand { get; set; }
         public ReactiveCommand<Unit, Unit> SignInWithPhoneNumberCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> LinkWithEmailCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> LinkWithGoogleCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> LinkWithFacebookCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> LinkWithPhoneNumberCommand { get; set; }
         public ReactiveCommand<Unit, Unit> SignOutCommand { get; set; }
     }
 }

@@ -32,6 +32,10 @@
     <data name="ButtonSignInWithFacebook"><value>Sign in with facebook</value></data>
     <data name="ButtonSignInWithPhoneNumber"><value>Sign in with phone number</value></data>
     <data name="ButtonSendVerificationCode"><value>Send verification code</value></data>
+    <data name="ButtonLinkWithEmail"><value>Link with email</value></data>
+    <data name="ButtonLinkWithGoogle"><value>Link with google</value></data>
+    <data name="ButtonLinkWithFacebook"><value>Link with facebook</value></data>
+    <data name="ButtonLinkWithPhoneNumber"><value>Link with phone number</value></data>
     <data name="ButtonSignIn"><value>Sign in</value></data>
     <data name="ButtonSignOut"><value>Sign out</value></data>
     

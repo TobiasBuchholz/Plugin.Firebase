@@ -30,38 +30,46 @@ namespace Playground.Common.Services.Auth
 
         public IObservable<Unit> SignAnonymously()
         {
-            return SignInWithTask(_firebaseAuth.SignInAnonymouslyAsync());
+            return RunAuthTask(_firebaseAuth.SignInAnonymouslyAsync(), signOutWhenFailed:true);
         }
 
-        private IObservable<Unit> SignInWithTask(Task<IFirebaseUser> signInTask)
+        private IObservable<Unit> RunAuthTask(Task<IFirebaseUser> task, bool signOutWhenFailed = false)
         {
             _isSignInRunningSubject.OnNext(true);
             return Observable
-                .FromAsync(_ => signInTask)
+                .FromAsync(_ => task)
                 .Do(_currentUserSubject.OnNext)
                 .ToUnit()
-                .Catch<Unit, Exception>(e => SignOut().SelectMany(Observable.Throw<Unit>(e)))
+                .Catch<Unit, Exception>(e => (signOutWhenFailed ? SignOut() : Observables.Unit).SelectMany(Observable.Throw<Unit>(e)))
                 .Finally(() => _isSignInRunningSubject.OnNext(false));
         }
 
         public IObservable<Unit> SignInWithEmailAndPassword(string email, string password)
         {
-            return SignInWithTask(_firebaseAuth.SignInWithEmailAndPasswordAsync(email, password));
+            return RunAuthTask(
+                _firebaseAuth.SignInWithEmailAndPasswordAsync(email, password), 
+                signOutWhenFailed:true);
         }
 
         public IObservable<Unit> SignInWithEmailLink(string email, string link)
         {
-            return SignInWithTask(_firebaseAuth.SignInWithEmailLinkAsync(email, link));
+            return RunAuthTask(
+                _firebaseAuth.SignInWithEmailLinkAsync(email, link),
+                signOutWhenFailed:true);
         }
 
         public IObservable<Unit> SignInWithGoogle()
         {
-            return SignInWithTask(_firebaseAuth.SignInWithGoogleAsync());
+            return RunAuthTask(
+                _firebaseAuth.SignInWithGoogleAsync(),
+                signOutWhenFailed:true);
         }
 
         public IObservable<Unit> SignInWithFacebook()
         {
-            return SignInWithTask(_firebaseAuth.SignInWithFacebookAsync());
+            return RunAuthTask(
+                _firebaseAuth.SignInWithFacebookAsync(),
+                signOutWhenFailed:true);
         }
 
         public IObservable<Unit> VerifyPhoneNumber(string phoneNumber)
@@ -71,7 +79,29 @@ namespace Playground.Common.Services.Auth
 
         public IObservable<Unit> SignInWithPhoneNumberVerificationCode(string verificationCode)
         {
-            return SignInWithTask(_firebaseAuth.SignInWithPhoneNumberVerificationCodeAsync(verificationCode));
+            return RunAuthTask(
+                _firebaseAuth.SignInWithPhoneNumberVerificationCodeAsync(verificationCode),
+                signOutWhenFailed:true);
+        }
+
+        public IObservable<Unit> LinkWithEmailAndPassword(string email, string password)
+        {
+            return RunAuthTask(_firebaseAuth.LinkWithEmailAndPasswordAsync(email, password));
+        }
+
+        public IObservable<Unit> LinkWithGoogle()
+        {
+            return RunAuthTask(_firebaseAuth.LinkWithGoogleAsync());
+        }
+
+        public IObservable<Unit> LinkWithFacebook()
+        {
+            return RunAuthTask(_firebaseAuth.LinkWithFacebookAsync());
+        }
+
+        public IObservable<Unit> LinkWithPhoneNumberVerificationCode(string verificationCode)
+        {
+            return RunAuthTask(_firebaseAuth.LinkWithPhoneNumberVerificationCodeAsync(verificationCode));
         }
 
         public IObservable<Unit> SendSignInLink(string toEmail)

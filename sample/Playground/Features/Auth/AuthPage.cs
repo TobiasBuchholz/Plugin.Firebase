@@ -16,50 +16,79 @@ namespace Playground.Features.Auth
             InitializeViewModel();
             
             Content = new Grid {
-                    RowDefinitions = Rows.Define(Star, Auto, Auto, Auto, Auto, Auto, Star),
+                    RowDefinitions = Rows.Define(Star, Star),
                     Children = {
                         new Label { TextColor = Color.Black }
                             .Row(0)
                             .Center()
                             .Bind(nameof(Vm.LoginText)),
-                        new Button { Text = Localization.ButtonSignInAnonymously, TextColor = Color.Black }
+                        CreateSignInButtonsLayout()
                             .Row(1)
                             .FillHorizontal()
                             .Top()
-                            .Bind(nameof(Vm.SignInAnonymouslyCommand)),
-                        new Button { Text = Localization.ButtonSignInWithEmail, TextColor = Color.Black }
-                            .Row(2)
+                            .Bind(IsVisibleProperty, nameof(Vm.IsSignedIn), convert:Negate),
+                        CreateLinkingButtonsLayout()
+                            .Row(1)
                             .FillHorizontal()
                             .Top()
-                            .Bind(nameof(Vm.SignInWithEmailCommand)),
-                        new Button { Text = Localization.ButtonSignInWithEmailLink, TextColor = Color.Black }
-                            .Row(3)
-                            .FillHorizontal()
-                            .Top()
-                            .Bind(nameof(Vm.SignInWithEmailLinkCommand)),
-                        new Button { Text = Localization.ButtonSignInWithGoogle, TextColor = Color.Black }
-                            .Row(4)
-                            .FillHorizontal()
-                            .Top()
-                            .Bind(nameof(Vm.SignInWithGoogleCommand)),
-                        new Button { Text = Localization.ButtonSignInWithFacebook, TextColor = Color.Black }
-                            .Row(5)
-                            .FillHorizontal()
-                            .Top()
-                            .Bind(nameof(Vm.SignInWithFacebookCommand)),
-                        new Button { Text = Localization.ButtonSignInWithPhoneNumber, TextColor = Color.Black }
-                            .Row(6)
-                            .FillHorizontal()
-                            .Top()
-                            .Bind(nameof(Vm.SignInWithPhoneNumberCommand)),
+                            .Bind(IsVisibleProperty, nameof(Vm.IsSignedInAnonymously)),
                         new Button { Text = Localization.ButtonSignOut, TextColor = Color.Black }
-                            .Row(7)
+                            .Row(1)
                             .FillHorizontal()
                             .Bottom()
+                            .Bind(IsVisibleProperty, nameof(Vm.IsSignedIn))
                             .Bind(nameof(Vm.SignOutCommand))
                     }
                 }
                 .Margin(24);
+        }
+
+        private static StackLayout CreateSignInButtonsLayout()
+        {
+            return new StackLayout {
+                Orientation = StackOrientation.Vertical,
+                Children = {
+                    new Button { Text = Localization.ButtonSignInAnonymously, TextColor = Color.Black }
+                        .FillHorizontal()
+                        .Bind(nameof(Vm.SignInAnonymouslyCommand)),
+                    new Button { Text = Localization.ButtonSignInWithEmail, TextColor = Color.Black }
+                        .FillHorizontal()
+                        .Bind(nameof(Vm.SignInWithEmailCommand)),
+                    new Button { Text = Localization.ButtonSignInWithEmailLink, TextColor = Color.Black }
+                        .FillHorizontal()
+                        .Bind(nameof(Vm.SignInWithEmailLinkCommand)),
+                    new Button { Text = Localization.ButtonSignInWithGoogle, TextColor = Color.Black }
+                        .FillHorizontal()
+                        .Bind(nameof(Vm.SignInWithGoogleCommand)),
+                    new Button { Text = Localization.ButtonSignInWithFacebook, TextColor = Color.Black }
+                        .FillHorizontal()
+                        .Bind(nameof(Vm.SignInWithFacebookCommand)),
+                    new Button { Text = Localization.ButtonSignInWithPhoneNumber, TextColor = Color.Black }
+                        .FillHorizontal()
+                        .Bind(nameof(Vm.SignInWithPhoneNumberCommand)),
+                }
+            };
+        }
+
+        private static StackLayout CreateLinkingButtonsLayout()
+        {
+            return new StackLayout {
+                Orientation = StackOrientation.Vertical,
+                Children = {
+                    new Button { Text = Localization.ButtonLinkWithEmail, TextColor = Color.Black }
+                        .FillHorizontal()
+                        .Bind(nameof(Vm.LinkWithEmailCommand)),
+                    new Button { Text = Localization.ButtonLinkWithGoogle, TextColor = Color.Black }
+                        .FillHorizontal()
+                        .Bind(nameof(Vm.LinkWithGoogleCommand)),
+                    new Button { Text = Localization.ButtonLinkWithFacebook, TextColor = Color.Black }
+                        .FillHorizontal()
+                        .Bind(nameof(Vm.LinkWithFacebookCommand)),
+                    new Button { Text = Localization.ButtonLinkWithPhoneNumber, TextColor = Color.Black }
+                        .FillHorizontal()
+                        .Bind(nameof(Vm.LinkWithPhoneNumberCommand))
+                }
+            };
         }
     }
 }

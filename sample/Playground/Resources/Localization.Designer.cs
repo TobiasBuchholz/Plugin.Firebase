@@ -117,6 +117,30 @@ namespace Playground.Resources {
             }
         }
         
+        internal static string ButtonLinkWithEmail {
+            get {
+                return ResourceManager.GetString("ButtonLinkWithEmail", resourceCulture);
+            }
+        }
+        
+        internal static string ButtonLinkWithGoogle {
+            get {
+                return ResourceManager.GetString("ButtonLinkWithGoogle", resourceCulture);
+            }
+        }
+        
+        internal static string ButtonLinkWithFacebook {
+            get {
+                return ResourceManager.GetString("ButtonLinkWithFacebook", resourceCulture);
+            }
+        }
+        
+        internal static string ButtonLinkWithPhoneNumber {
+            get {
+                return ResourceManager.GetString("ButtonLinkWithPhoneNumber", resourceCulture);
+            }
+        }
+        
         internal static string ButtonSignIn {
             get {
                 return ResourceManager.GetString("ButtonSignIn", resourceCulture);

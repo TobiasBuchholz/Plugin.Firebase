@@ -26,17 +26,22 @@ namespace Playground.Features.Auth
                             .Row(1)
                             .FillHorizontal()
                             .Top()
-                            .Bind(IsVisibleProperty, nameof(Vm.IsSignedIn), convert:Negate),
+                            .Bind(IsVisibleProperty, nameof(Vm.ShowsSignInButtons)),
                         CreateLinkingButtonsLayout()
                             .Row(1)
                             .FillHorizontal()
                             .Top()
-                            .Bind(IsVisibleProperty, nameof(Vm.IsSignedInAnonymously)),
+                            .Bind(IsVisibleProperty, nameof(Vm.ShowsLinkingButtons)),
+                        new ActivityIndicator()
+                            .Row(1)
+                            .CenterHorizontal()
+                            .Top()
+                            .Bind(ActivityIndicator.IsRunningProperty, nameof(Vm.IsInProgress)),
                         new Button { Text = Localization.ButtonSignOut, TextColor = Color.Black }
                             .Row(1)
                             .FillHorizontal()
                             .Bottom()
-                            .Bind(IsVisibleProperty, nameof(Vm.IsSignedIn))
+                            .Bind(IsVisibleProperty, nameof(Vm.ShowsSignOutButton))
                             .Bind(nameof(Vm.SignOutCommand))
                     }
                 }

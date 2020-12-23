@@ -192,8 +192,10 @@ namespace Playground.Features.Auth
         private void InitProperties()
         {
             InitUserProperty();
-            InitIsSignedInProperty();
-            InitIsSignedInAnonymouslyProperty();
+            InitShowsSignInButtonsProperty();
+            InitShowsLinkingButtons();
+            InitShowsSignOutButtonProperty();
+            InitIsInProgressProperty();
             InitLoginTextProperty();
         }
 
@@ -205,19 +207,35 @@ namespace Playground.Features.Auth
                 .DisposeWith(Disposables);
         }
 
-        private void InitIsSignedInProperty()
+        private void InitShowsSignInButtonsProperty()
         {
-            this.WhenAnyValue(x => x.User)
-                .Select(x => x != null)
-                .ToPropertyEx(this, x => x.IsSignedIn)
+            this.WhenAnyValue(x => x.User, x => x.IsInProgress)
+                .Select(x => x.Item1 == null && !x.Item2)
+                .ToPropertyEx(this, x => x.ShowsSignInButtons)
                 .DisposeWith(Disposables);
         }
 
-        private void InitIsSignedInAnonymouslyProperty()
+        private void InitShowsLinkingButtons()
         {
-            this.WhenAnyValue(x => x.User)
-                .Select(x => x?.IsAnonymous ?? false)
-                .ToPropertyEx(this, x => x.IsSignedInAnonymously)
+            this.WhenAnyValue(x => x.User, x => x.IsInProgress)
+                .Select(x => (x.Item1?.IsAnonymous ?? false) && !x.Item2)
+                .ToPropertyEx(this, x => x.ShowsLinkingButtons)
+                .DisposeWith(Disposables);
+        }
+
+        private void InitShowsSignOutButtonProperty()
+        {
+            this.WhenAnyValue(x => x.User, x => x.IsInProgress)
+                .Select(x => x.Item1 != null && !x.Item2)
+                .ToPropertyEx(this, x => x.ShowsSignOutButton)
+                .DisposeWith(Disposables);
+        }
+
+        private void InitIsInProgressProperty()
+        {
+            _authService
+                .IsSignInRunningTicks
+                .ToPropertyEx(this, x => x.IsInProgress)
                 .DisposeWith(Disposables);
         }
 
@@ -231,8 +249,10 @@ namespace Playground.Features.Auth
 
         private extern IFirebaseUser User { [ObservableAsProperty] get; }
         public extern string LoginText { [ObservableAsProperty] get; }
-        public extern bool IsSignedIn { [ObservableAsProperty] get; }
-        public extern bool IsSignedInAnonymously { [ObservableAsProperty] get; }
+        public extern bool ShowsSignInButtons { [ObservableAsProperty] get; }
+        public extern bool ShowsLinkingButtons { [ObservableAsProperty] get; }
+        public extern bool ShowsSignOutButton { [ObservableAsProperty] get; }
+        public extern bool IsInProgress { [ObservableAsProperty] get; }
         
         public ReactiveCommand<Unit, Unit> SignInAnonymouslyCommand { get; set; }
         public ReactiveCommand<Unit, Unit> SignInWithEmailCommand { get; set; }

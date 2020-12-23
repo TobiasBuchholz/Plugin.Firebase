@@ -22,37 +22,37 @@ namespace Playground.Features.Auth
                             .Row(0)
                             .Center()
                             .Bind(nameof(Vm.LoginText)),
-                        new Button { Text = Localization.ButtonTextSignInAnonymously, TextColor = Color.Black }
+                        new Button { Text = Localization.ButtonSignInAnonymously, TextColor = Color.Black }
                             .Row(1)
                             .FillHorizontal()
                             .Top()
                             .Bind(nameof(Vm.SignInAnonymouslyCommand)),
-                        new Button { Text = Localization.ButtonTextSignInWithEmail, TextColor = Color.Black }
+                        new Button { Text = Localization.ButtonSignInWithEmail, TextColor = Color.Black }
                             .Row(2)
                             .FillHorizontal()
                             .Top()
                             .Bind(nameof(Vm.SignInWithEmailCommand)),
-                        new Button { Text = Localization.ButtonTextSignInWithEmailLink, TextColor = Color.Black }
+                        new Button { Text = Localization.ButtonSignInWithEmailLink, TextColor = Color.Black }
                             .Row(3)
                             .FillHorizontal()
                             .Top()
                             .Bind(nameof(Vm.SignInWithEmailLinkCommand)),
-                        new Button { Text = Localization.ButtonTextSignInWithGoogle, TextColor = Color.Black }
+                        new Button { Text = Localization.ButtonSignInWithGoogle, TextColor = Color.Black }
                             .Row(4)
                             .FillHorizontal()
                             .Top()
                             .Bind(nameof(Vm.SignInWithGoogleCommand)),
-                        new Button { Text = Localization.ButtonTextSignInWithFacebook, TextColor = Color.Black }
+                        new Button { Text = Localization.ButtonSignInWithFacebook, TextColor = Color.Black }
                             .Row(5)
                             .FillHorizontal()
                             .Top()
                             .Bind(nameof(Vm.SignInWithFacebookCommand)),
-                        new Button { Text = Localization.ButtonTextSignInWithPhoneNumber, TextColor = Color.Black }
+                        new Button { Text = Localization.ButtonSignInWithPhoneNumber, TextColor = Color.Black }
                             .Row(6)
                             .FillHorizontal()
                             .Top()
                             .Bind(nameof(Vm.SignInWithPhoneNumberCommand)),
-                        new Button { Text = Localization.ButtonTextSignOut, TextColor = Color.Black }
+                        new Button { Text = Localization.ButtonSignOut, TextColor = Color.Black }
                             .Row(7)
                             .FillHorizontal()
                             .Bottom()

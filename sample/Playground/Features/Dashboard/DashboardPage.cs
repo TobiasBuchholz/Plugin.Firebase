@@ -20,11 +20,11 @@ namespace Playground.Features.Dashboard
                     Visual = VisualMarker.Material,
                     Margin = 32,
                     Children = {
-                        new Button { Text = Localization.ButtonTextAuth, TextColor = Color.Black }
+                        new Button { Text = Localization.ButtonAuth, TextColor = Color.Black }
                             .Bind(nameof(Vm.NavigateToAuthPageCommand)),
-                        new Button { Text = Localization.ButtonTextRemoteConfig, TextColor = Color.Black }
+                        new Button { Text = Localization.ButtonRemoteConfig, TextColor = Color.Black }
                             .Bind(nameof(Vm.NavigateToRemoteConfigPageCommand)),
-                        new Button { Text = Localization.ButtonTextStorage, TextColor = Color.Black }
+                        new Button { Text = Localization.ButtonStorage, TextColor = Color.Black }
                             .Bind(nameof(Vm.NavigateToStoragePageCommand))
                     }
                 }

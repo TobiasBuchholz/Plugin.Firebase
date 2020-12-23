@@ -21,7 +21,7 @@ namespace Playground.Features.RemoteConfig
                     new Label { TextColor = Color.Black }
                         .Center()
                         .Bind(nameof(Vm.SomeRemoteConfigValue)),
-                    new Button { Text = Localization.ButtonTextFetchRemoteConfig, TextColor = Color.Black }
+                    new Button { Text = Localization.ButtonFetchRemoteConfig, TextColor = Color.Black }
                         .Bottom()
                         .Bind(nameof(Vm.FetchAndActivateCommand)),
                 }

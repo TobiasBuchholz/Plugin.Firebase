@@ -20,20 +20,20 @@
     </resheader>
 
     <!-- buttons -->
-    <data name="ButtonTextAuth"><value>Auth</value></data>
-    <data name="ButtonTextRemoteConfig"><value>Remote config</value></data>
-    <data name="ButtonTextStorage"><value>Storage</value></data>
-    <data name="ButtonTextFetchRemoteConfig"><value>Fetch and activate</value></data>
-    <data name="ButtonTextUploadText"><value>Upload text as file</value></data>
-    <data name="ButtonTextSignInAnonymously"><value>Sign in anonymously</value></data>
-    <data name="ButtonTextSignInWithEmail"><value>Sign in with email</value></data>
-    <data name="ButtonTextSignInWithEmailLink"><value>Sign in with email link</value></data>
-    <data name="ButtonTextSignInWithGoogle"><value>Sign in with google</value></data>
-    <data name="ButtonTextSignInWithFacebook"><value>Sign in with facebook</value></data>
-    <data name="ButtonTextSignInWithPhoneNumber"><value>Sign in with phone number</value></data>
-    <data name="ButtonTextSendVerificationCode"><value>Send verification code</value></data>
-    <data name="ButtonTextSignIn"><value>Sign in</value></data>
-    <data name="ButtonTextSignOut"><value>Sign out</value></data>
+    <data name="ButtonAuth"><value>Auth</value></data>
+    <data name="ButtonRemoteConfig"><value>Remote config</value></data>
+    <data name="ButtonStorage"><value>Storage</value></data>
+    <data name="ButtonFetchRemoteConfig"><value>Fetch and activate</value></data>
+    <data name="ButtonUploadText"><value>Upload text as file</value></data>
+    <data name="ButtonSignInAnonymously"><value>Sign in anonymously</value></data>
+    <data name="ButtonSignInWithEmail"><value>Sign in with email</value></data>
+    <data name="ButtonSignInWithEmailLink"><value>Sign in with email link</value></data>
+    <data name="ButtonSignInWithGoogle"><value>Sign in with google</value></data>
+    <data name="ButtonSignInWithFacebook"><value>Sign in with facebook</value></data>
+    <data name="ButtonSignInWithPhoneNumber"><value>Sign in with phone number</value></data>
+    <data name="ButtonSendVerificationCode"><value>Send verification code</value></data>
+    <data name="ButtonSignIn"><value>Sign in</value></data>
+    <data name="ButtonSignOut"><value>Sign out</value></data>
     
     <!-- labels -->
     <data name="LabelUserIsSignedIn"><value>Signed in with: %s</value></data>

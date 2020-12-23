@@ -25,7 +25,7 @@ namespace Playground.Features.Storage
                         .CenterVertical()
                         .FillHorizontal()
                         .Bind(nameof(Vm.Text), BindingMode.TwoWay),
-                    new Button { Text = Localization.ButtonTextUploadText, TextColor = Color.Black }
+                    new Button { Text = Localization.ButtonUploadText, TextColor = Color.Black }
                         .Bottom()
                         .Bind(nameof(Vm.UploadTextCommand)),
                 }

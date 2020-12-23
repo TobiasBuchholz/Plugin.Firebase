@@ -45,87 +45,87 @@ namespace Playground.Resources {
             }
         }
         
-        internal static string ButtonTextAuth {
+        internal static string ButtonAuth {
             get {
-                return ResourceManager.GetString("ButtonTextAuth", resourceCulture);
+                return ResourceManager.GetString("ButtonAuth", resourceCulture);
             }
         }
         
-        internal static string ButtonTextRemoteConfig {
+        internal static string ButtonRemoteConfig {
             get {
-                return ResourceManager.GetString("ButtonTextRemoteConfig", resourceCulture);
+                return ResourceManager.GetString("ButtonRemoteConfig", resourceCulture);
             }
         }
         
-        internal static string ButtonTextStorage {
+        internal static string ButtonStorage {
             get {
-                return ResourceManager.GetString("ButtonTextStorage", resourceCulture);
+                return ResourceManager.GetString("ButtonStorage", resourceCulture);
             }
         }
         
-        internal static string ButtonTextFetchRemoteConfig {
+        internal static string ButtonFetchRemoteConfig {
             get {
-                return ResourceManager.GetString("ButtonTextFetchRemoteConfig", resourceCulture);
+                return ResourceManager.GetString("ButtonFetchRemoteConfig", resourceCulture);
             }
         }
         
-        internal static string ButtonTextUploadText {
+        internal static string ButtonUploadText {
             get {
-                return ResourceManager.GetString("ButtonTextUploadText", resourceCulture);
+                return ResourceManager.GetString("ButtonUploadText", resourceCulture);
             }
         }
         
-        internal static string ButtonTextSignInAnonymously {
+        internal static string ButtonSignInAnonymously {
             get {
-                return ResourceManager.GetString("ButtonTextSignInAnonymously", resourceCulture);
+                return ResourceManager.GetString("ButtonSignInAnonymously", resourceCulture);
             }
         }
         
-        internal static string ButtonTextSignInWithEmail {
+        internal static string ButtonSignInWithEmail {
             get {
-                return ResourceManager.GetString("ButtonTextSignInWithEmail", resourceCulture);
+                return ResourceManager.GetString("ButtonSignInWithEmail", resourceCulture);
             }
         }
         
-        internal static string ButtonTextSignInWithEmailLink {
+        internal static string ButtonSignInWithEmailLink {
             get {
-                return ResourceManager.GetString("ButtonTextSignInWithEmailLink", resourceCulture);
+                return ResourceManager.GetString("ButtonSignInWithEmailLink", resourceCulture);
             }
         }
         
-        internal static string ButtonTextSignInWithGoogle {
+        internal static string ButtonSignInWithGoogle {
             get {
-                return ResourceManager.GetString("ButtonTextSignInWithGoogle", resourceCulture);
+                return ResourceManager.GetString("ButtonSignInWithGoogle", resourceCulture);
             }
         }
         
-        internal static string ButtonTextSignInWithFacebook {
+        internal static string ButtonSignInWithFacebook {
             get {
-                return ResourceManager.GetString("ButtonTextSignInWithFacebook", resourceCulture);
+                return ResourceManager.GetString("ButtonSignInWithFacebook", resourceCulture);
             }
         }
         
-        internal static string ButtonTextSignInWithPhoneNumber {
+        internal static string ButtonSignInWithPhoneNumber {
             get {
-                return ResourceManager.GetString("ButtonTextSignInWithPhoneNumber", resourceCulture);
+                return ResourceManager.GetString("ButtonSignInWithPhoneNumber", resourceCulture);
             }
         }
         
-        internal static string ButtonTextSendVerificationCode {
+        internal static string ButtonSendVerificationCode {
             get {
-                return ResourceManager.GetString("ButtonTextSendVerificationCode", resourceCulture);
+                return ResourceManager.GetString("ButtonSendVerificationCode", resourceCulture);
             }
         }
         
-        internal static string ButtonTextSignIn {
+        internal static string ButtonSignIn {
             get {
-                return ResourceManager.GetString("ButtonTextSignIn", resourceCulture);
+                return ResourceManager.GetString("ButtonSignIn", resourceCulture);
             }
         }
         
-        internal static string ButtonTextSignOut {
+        internal static string ButtonSignOut {
             get {
-                return ResourceManager.GetString("ButtonTextSignOut", resourceCulture);
+                return ResourceManager.GetString("ButtonSignOut", resourceCulture);
             }
         }
         

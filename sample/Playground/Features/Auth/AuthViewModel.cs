@@ -87,7 +87,7 @@ namespace Playground.Features.Auth
         {
             return _userInteractionService.ShowAsPromptAsync(new UserInfoBuilder()
                 .WithMessage(Localization.DialogMessageEnterPassword)
-                .WithDefaultButton(Localization.ButtonTextSignIn)
+                .WithDefaultButton(Localization.ButtonSignIn)
                 .WithCancelButton(Localization.Cancel)
                 .Build());
         }
@@ -120,7 +120,7 @@ namespace Playground.Features.Auth
         {
             return _userInteractionService.ShowAsPromptAsync(new UserInfoBuilder()
                 .WithMessage(Localization.DialogMessageEnterPhoneNumber)
-                .WithDefaultButton(Localization.ButtonTextSendVerificationCode)
+                .WithDefaultButton(Localization.ButtonSendVerificationCode)
                 .WithCancelButton(Localization.Cancel)
                 .Build());
         }
@@ -137,7 +137,7 @@ namespace Playground.Features.Auth
         {
             return _userInteractionService.ShowAsPromptAsync(new UserInfoBuilder()
                 .WithMessage(Localization.DialogMessageEnterVerificationCode)
-                .WithDefaultButton(Localization.ButtonTextSignIn)
+                .WithDefaultButton(Localization.ButtonSignIn)
                 .WithCancelButton(Localization.Cancel)
                 .Build());
         }

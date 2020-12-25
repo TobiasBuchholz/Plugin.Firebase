@@ -141,6 +141,12 @@ namespace Playground.Resources {
             }
         }
         
+        internal static string ButtonUnlinkProvider {
+            get {
+                return ResourceManager.GetString("ButtonUnlinkProvider", resourceCulture);
+            }
+        }
+        
         internal static string ButtonSignIn {
             get {
                 return ResourceManager.GetString("ButtonSignIn", resourceCulture);
@@ -156,6 +162,12 @@ namespace Playground.Resources {
         internal static string LabelUserIsSignedIn {
             get {
                 return ResourceManager.GetString("LabelUserIsSignedIn", resourceCulture);
+            }
+        }
+        
+        internal static string LabelUserIsSignedInWithoutEmail {
+            get {
+                return ResourceManager.GetString("LabelUserIsSignedInWithoutEmail", resourceCulture);
             }
         }
         
@@ -210,6 +222,18 @@ namespace Playground.Resources {
         internal static string DialogMessageSignInLinkSent {
             get {
                 return ResourceManager.GetString("DialogMessageSignInLinkSent", resourceCulture);
+            }
+        }
+        
+        internal static string DialogTitleUnlinkProvider {
+            get {
+                return ResourceManager.GetString("DialogTitleUnlinkProvider", resourceCulture);
+            }
+        }
+        
+        internal static string DialogMessageUnlinkProvider {
+            get {
+                return ResourceManager.GetString("DialogMessageUnlinkProvider", resourceCulture);
             }
         }
         

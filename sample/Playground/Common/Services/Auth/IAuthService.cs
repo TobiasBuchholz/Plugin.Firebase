@@ -18,7 +18,9 @@ namespace Playground.Common.Services.Auth
         IObservable<Unit> LinkWithGoogle();
         IObservable<Unit> LinkWithFacebook();
         IObservable<Unit> LinkWithPhoneNumberVerificationCode(string verificationCode);
+        IObservable<Unit> UnlinkProvider(string providerId);
         IObservable<Unit> SignOut();
+        IObservable<string[]> FetchSignInMethods(string email);
 
         bool IsSignInWithEmailLink(string link);
         IFirebaseUser CurrentUser { get; }

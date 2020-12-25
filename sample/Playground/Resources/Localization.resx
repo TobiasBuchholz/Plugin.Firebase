@@ -36,12 +36,16 @@
     <data name="ButtonLinkWithGoogle"><value>Link with google</value></data>
     <data name="ButtonLinkWithFacebook"><value>Link with facebook</value></data>
     <data name="ButtonLinkWithPhoneNumber"><value>Link with phone number</value></data>
+    <data name="ButtonUnlinkProvider"><value>Unlink provider</value></data>
     <data name="ButtonSignIn"><value>Sign in</value></data>
     <data name="ButtonSignOut"><value>Sign out</value></data>
     
     <!-- labels -->
-    <data name="LabelUserIsSignedIn"><value>Signed in with: %s</value></data>
-    <data name="LabelUserIsSignedOut"><value>User is signed out</value></data>
+    <data name="LabelUserIsSignedIn"><value>You are signed in:
+        Email: %1$s
+        Method: %2$s</value></data>
+    <data name="LabelUserIsSignedInWithoutEmail"><value>You are signed in without using an email address</value></data>
+    <data name="LabelUserIsSignedOut"><value>You are signed out</value></data>
     
     <!-- entry placeholders -->
     <data name="EntryPlaceholderStorage"><value>Enter text for upload</value></data>
@@ -54,6 +58,8 @@
     <data name="DialogMessageEnterVerificationCode"><value>Enter the verification code</value></data>
     <data name="DialogTitleSignInLinkSent"><value>Login link sent</value></data>
     <data name="DialogMessageSignInLinkSent"><value>Please check your inbox, we've sent a login link to your email address. Tap on the link to get signed in automatically.</value></data>
+    <data name="DialogTitleUnlinkProvider"><value>Unlink provider</value></data>
+    <data name="DialogMessageUnlinkProvider"><value>Please select the provider you want to unlink</value></data>
 
     <!-- common -->
     <data name="Ok"><value>OK</value></data>

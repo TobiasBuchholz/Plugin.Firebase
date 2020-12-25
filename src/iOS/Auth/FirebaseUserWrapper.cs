@@ -55,6 +55,11 @@ namespace Plugin.Firebase.iOS.Auth
                 : _wrapped.SendEmailVerificationAsync(actionCodeSettings.ToNative());
         }
 
+        public Task UnlinkAsync(string providerId)
+        {
+            return _wrapped.UnlinkAsync(providerId);
+        }
+
         public Task DeleteAsync()
         {
             return _wrapped.DeleteAsync();

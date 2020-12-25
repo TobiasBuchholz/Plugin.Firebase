@@ -10,6 +10,7 @@ namespace Plugin.Firebase.Auth
         Task UpdatePhoneNumberAsync(string verificationId, string smsCode);
         Task UpdateProfileAsync(string displayName = null, string photoUrl = null);
         Task SendEmailVerificationAsync(ActionCodeSettings actionCodeSettings = null);
+        Task UnlinkAsync(string providerId);
         Task DeleteAsync();
         
         string Uid { get; }

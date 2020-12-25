@@ -18,7 +18,7 @@ namespace Playground.Features.Auth
             Content = new Grid {
                     RowDefinitions = Rows.Define(Star, Star),
                     Children = {
-                        new Label { TextColor = Color.Black }
+                        new Label { TextColor = Color.Black, HorizontalTextAlignment = TextAlignment.Center }
                             .Row(0)
                             .Center()
                             .Bind(nameof(Vm.LoginText)),
@@ -37,12 +37,11 @@ namespace Playground.Features.Auth
                             .CenterHorizontal()
                             .Top()
                             .Bind(ActivityIndicator.IsRunningProperty, nameof(Vm.IsInProgress)),
-                        new Button { Text = Localization.ButtonSignOut, TextColor = Color.Black }
+                        CreateSignOutButtonsLayout()
                             .Row(1)
                             .FillHorizontal()
                             .Bottom()
-                            .Bind(IsVisibleProperty, nameof(Vm.ShowsSignOutButton))
-                            .Bind(nameof(Vm.SignOutCommand))
+                            .Bind(IsVisibleProperty, nameof(Vm.ShowsSignOutButtons))
                     }
                 }
                 .Margin(24);
@@ -92,6 +91,21 @@ namespace Playground.Features.Auth
                     new Button { Text = Localization.ButtonLinkWithPhoneNumber, TextColor = Color.Black }
                         .FillHorizontal()
                         .Bind(nameof(Vm.LinkWithPhoneNumberCommand))
+                }
+            };
+        }
+
+        private static StackLayout CreateSignOutButtonsLayout()
+        {
+            return new StackLayout {
+                Orientation = StackOrientation.Vertical,
+                Children = {
+                    new Button { Text = Localization.ButtonUnlinkProvider, TextColor = Color.Black }
+                        .FillHorizontal()
+                        .Bind(nameof(Vm.UnlinkProviderCommand)),
+                    new Button { Text = Localization.ButtonSignOut, TextColor = Color.Black }
+                        .FillHorizontal()
+                        .Bind(nameof(Vm.SignOutCommand))
                 }
             };
         }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -104,6 +105,15 @@ namespace Playground.Common.Services.Auth
             return RunAuthTask(_firebaseAuth.LinkWithPhoneNumberVerificationCodeAsync(verificationCode));
         }
 
+        public IObservable<Unit> UnlinkProvider(string providerId)
+        {
+            return RunAuthTask(CurrentUser
+                .UnlinkAsync(providerId)
+                .ToObservable()
+                .Select(_ => _firebaseAuth.CurrentUser)
+                .ToTask());
+        }
+
         public IObservable<Unit> SendSignInLink(string toEmail)
         {
             return _firebaseAuth
@@ -128,6 +138,11 @@ namespace Playground.Common.Services.Auth
                 .SignOutAsync()
                 .ToObservable()
                 .Do(_ => HandleUserSignedOut());
+        }
+
+        public IObservable<string[]> FetchSignInMethods(string email)
+        {
+            return _firebaseAuth.FetchSignInMethodsAsync(email).ToObservable();
         }
 
         private void HandleUserSignedOut()

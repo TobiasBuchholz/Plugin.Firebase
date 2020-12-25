@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -50,6 +51,7 @@ namespace Playground.Features.Auth
             LinkWithGoogleCommand = ReactiveCommand.CreateFromObservable(LinkWithGoogle);
             LinkWithFacebookCommand = ReactiveCommand.CreateFromObservable(LinkWithFacebook);
             LinkWithPhoneNumberCommand = ReactiveCommand.CreateFromObservable(LinkWithPhoneNumber);
+            UnlinkProviderCommand = ReactiveCommand.CreateFromObservable(UnlinkProvider);
             SignOutCommand = ReactiveCommand.CreateFromObservable(SignOut, canSignOut);
            
             Observable
@@ -64,6 +66,7 @@ namespace Playground.Features.Auth
                     LinkWithGoogleCommand.ThrownExceptions,
                     LinkWithFacebookCommand.ThrownExceptions,
                     LinkWithPhoneNumberCommand.ThrownExceptions,
+                    UnlinkProviderCommand.ThrownExceptions,
                     SignOutCommand.ThrownExceptions)
                 .LogThrownException()
                 .Subscribe(e => _userInteractionService.ShowErrorDialogAsync(Localization.DialogTitleUnexpectedError, e))
@@ -184,6 +187,24 @@ namespace Playground.Features.Auth
                 .SelectMany(x => string.IsNullOrEmpty(x) ? null : _authService.LinkWithPhoneNumberVerificationCode(x));
         }
 
+        private IObservable<Unit> UnlinkProvider()
+        {
+            return AskForProviderIdAsync()
+                .ToObservable()
+                .SelectMany(x => _authService.UnlinkProvider(x))
+                .Catch<Unit, ArgumentException>(_ => Observables.Unit);
+        }
+
+        private async Task<string> AskForProviderIdAsync()
+        {
+            var builder = new UserInfoBuilder().WithTitle(Localization.DialogTitleUnlinkProvider).WithMessage(Localization.DialogMessageUnlinkProvider);
+            var providerIds = _authService.CurrentUser.ProviderInfos.Select(x => x.ProviderId).ToList();
+            providerIds.ForEach(x => builder.WithDefaultButton(x));
+            
+            var index = await _userInteractionService.ShowAsActionSheetAsync(builder.Build());
+            return index >= 0 ? providerIds[index] : throw new ArgumentException("No provider selected");
+        }
+
         private IObservable<Unit> SignOut()
         {
             return _authService.SignOut();
@@ -227,7 +248,7 @@ namespace Playground.Features.Auth
         {
             this.WhenAnyValue(x => x.User, x => x.IsInProgress)
                 .Select(x => x.Item1 != null && !x.Item2)
-                .ToPropertyEx(this, x => x.ShowsSignOutButton)
+                .ToPropertyEx(this, x => x.ShowsSignOutButtons)
                 .DisposeWith(Disposables);
         }
 
@@ -242,16 +263,29 @@ namespace Playground.Features.Auth
         private void InitLoginTextProperty()
         {
             this.WhenAnyValue(x => x.User)
-                .Select(x => x == null ? Localization.LabelUserIsSignedOut : Localization.LabelUserIsSignedIn.WithParams(x.Email))
+                .SelectMany(GetLoginText)
                 .ToPropertyEx(this, x => x.LoginText)
                 .DisposeWith(Disposables);
+        }
+
+        private IObservable<string> GetLoginText(IFirebaseUser user)
+        {
+            if(user == null) {
+                return Observable.Return(Localization.LabelUserIsSignedOut);
+            } else if(string.IsNullOrEmpty(user.Email)) {
+                return Observable.Return(Localization.LabelUserIsSignedInWithoutEmail);
+            } else {
+                return _authService
+                    .FetchSignInMethods(user.Email)
+                    .Select(x => Localization.LabelUserIsSignedIn.WithParams(user.Email, x?.FirstOrDefault()));
+            }
         }
 
         private extern IFirebaseUser User { [ObservableAsProperty] get; }
         public extern string LoginText { [ObservableAsProperty] get; }
         public extern bool ShowsSignInButtons { [ObservableAsProperty] get; }
         public extern bool ShowsLinkingButtons { [ObservableAsProperty] get; }
-        public extern bool ShowsSignOutButton { [ObservableAsProperty] get; }
+        public extern bool ShowsSignOutButtons { [ObservableAsProperty] get; }
         public extern bool IsInProgress { [ObservableAsProperty] get; }
         
         public ReactiveCommand<Unit, Unit> SignInAnonymouslyCommand { get; set; }
@@ -264,6 +298,7 @@ namespace Playground.Features.Auth
         public ReactiveCommand<Unit, Unit> LinkWithGoogleCommand { get; set; }
         public ReactiveCommand<Unit, Unit> LinkWithFacebookCommand { get; set; }
         public ReactiveCommand<Unit, Unit> LinkWithPhoneNumberCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> UnlinkProviderCommand { get; set; }
         public ReactiveCommand<Unit, Unit> SignOutCommand { get; set; }
     }
 }

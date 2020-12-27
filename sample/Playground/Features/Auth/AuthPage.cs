@@ -32,7 +32,7 @@ namespace Playground.Features.Auth
                             .FillHorizontal()
                             .Top()
                             .Bind(IsVisibleProperty, nameof(Vm.ShowsLinkingButtons)),
-                        new ActivityIndicator()
+                        new ActivityIndicator { Color = Color.Black }
                             .Row(1)
                             .CenterHorizontal()
                             .Top()

@@ -12,12 +12,12 @@ namespace Plugin.Firebase.Android.CloudMessaging
         public override void OnMessageReceived(RemoteMessage message)
         {
             base.OnMessageReceived(message);
-            FirebaseCloudMessagingImplementation.Instance.OnNotificationReceived(message.ToFCMNotification());
+            CrossFirebaseCloudMessaging.Current.OnNotificationReceived(message.ToFCMNotification());
         }
 
         public override async void OnNewToken(string token)
         {
-            await FirebaseCloudMessagingImplementation.Instance.OnTokenRefreshAsync();
+            await CrossFirebaseCloudMessaging.Current.OnTokenRefreshAsync();
         }
     }
 }

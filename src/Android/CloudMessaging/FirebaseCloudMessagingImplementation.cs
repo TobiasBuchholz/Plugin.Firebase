@@ -17,26 +17,9 @@ using Plugin.Firebase.Common;
     {
         private const string IntentKeyFCMNotification = "intent_key_fcm_notification";
         private static Context _context;
-        private static FirebaseCloudMessagingImplementation _instance;
-
-        public static FirebaseCloudMessagingImplementation Instance {
-            get {
-                if(_instance == null) {
-                    throw new FirebaseException($"Make sure to call {nameof(FirebaseCloudMessagingImplementation)}.Initialize() before accessing it's Instance");
-                }
-                return _instance;
-            }
-        }
         
         public static string ChannelId { get; set; }
         public static Action<FCMNotification> ShowLocalNotificationAction { private get; set; }
-
-        public static void Initialize()
-        {
-            if(_instance == null) {
-                _instance = new FirebaseCloudMessagingImplementation();
-            }
-        }
         
         private FCMNotification _missedTappedNotification;
 
@@ -97,6 +80,7 @@ using Plugin.Firebase.Common;
             var pendingIntent = PendingIntent.GetActivity(_context, 0, intent, 0);
 
             var builder = new NotificationCompat.Builder(_context, ChannelId)
+                .SetSmallIcon(global::Android.Resource.Drawable.SymDefAppIcon)
                 .SetContentTitle(notification.Title)
                 .SetContentText(notification.Body)
                 .SetPriority(NotificationCompat.PriorityDefault)
@@ -107,10 +91,10 @@ using Plugin.Firebase.Common;
             notificationManager.Notify(1337, builder.Build());
         }
         
-        public void OnNewIntent(Intent intent)
+        public static void OnNewIntent(Intent intent)
         {
             if(intent.Extras != null) {
-                HandleNotificationFromIntent(intent);
+                ((FirebaseCloudMessagingImplementation) CrossFirebaseCloudMessaging.Current).HandleNotificationFromIntent(intent);
             }
         }
 
@@ -128,7 +112,7 @@ using Plugin.Firebase.Common;
         public async Task<string> GetTokenAsync()
         {
             var result = await FirebaseInstanceId.Instance.GetInstanceId().AsAsync<IInstanceIdResult>();
-            return result.Token;
+            return string.IsNullOrEmpty(result.Token) ? throw new FirebaseException("Couldn't retrieve FCM token") : result.Token;
         }
 
         public Task SubscribeToTopicAsync(string topic)

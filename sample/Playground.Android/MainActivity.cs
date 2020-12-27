@@ -11,6 +11,7 @@ using Playground.Common.Services.Logging;
 using Playground.Common.Services.Scheduler;
 using Playground.Droid.Services.Composition;
 using Plugin.Firebase.Auth;
+using Plugin.Firebase.CloudMessaging;
 using Plugin.Firebase.DynamicLinks;
 using Xamarin.Forms;
 
@@ -39,12 +40,30 @@ namespace Playground.Droid
             ViewModelResolver.Initialize(compositionRoot);
             Schedulers.Initialize(compositionRoot.ResolveSchedulerService());
             HandleIntent(Intent);
+            CreateNotificationChannelIfNeeded();
             LoadApplication(new App());
         }
         
         private static void HandleIntent(Intent intent)
         {
+            FirebaseCloudMessagingImplementation.OnNewIntent(intent);
             FirebaseDynamicLinksImplementation.HandleDynamicLinkAsync(intent).Ignore();
+        }
+        
+        private void CreateNotificationChannelIfNeeded()
+        {
+            if(Build.VERSION.SdkInt >= BuildVersionCodes.O) {
+                CreateNotificationChannel();
+            }
+        }
+
+        private void CreateNotificationChannel()
+        {
+            var channelId = $"{PackageName}.general";
+            var notificationManager = (NotificationManager) GetSystemService(NotificationService);
+            var channel = new NotificationChannel(channelId, "General", NotificationImportance.Default);
+            notificationManager.CreateNotificationChannel(channel);
+            FirebaseCloudMessagingImplementation.ChannelId = channelId;
         }
         
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)

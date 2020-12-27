@@ -6,6 +6,7 @@ using Playground.Common.Services.Scheduler;
 using Playground.iOS.Services.Composition;
 using Plugin.Firebase.Analytics;
 using Plugin.Firebase.Auth;
+using Plugin.Firebase.CloudMessaging;
 using UIKit;
 using Xamarin.Forms;
 
@@ -32,6 +33,7 @@ namespace Playground.iOS
             Firebase.Core.App.Configure();
             FirebaseAnalyticsImplementation.Initialize();
             FirebaseAuthImplementation.Initialize(app, options, "151743924915235", "Plugin Firebase Playground");
+            FirebaseCloudMessagingImplementation.Initialize();
 
             var compositionRoot = new CompositionRoot();
             ViewModelResolver.Initialize(compositionRoot);

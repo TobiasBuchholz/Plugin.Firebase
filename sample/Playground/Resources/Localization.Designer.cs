@@ -51,6 +51,12 @@ namespace Playground.Resources {
             }
         }
         
+        internal static string ButtonCloudMessaging {
+            get {
+                return ResourceManager.GetString("ButtonCloudMessaging", resourceCulture);
+            }
+        }
+        
         internal static string ButtonRemoteConfig {
             get {
                 return ResourceManager.GetString("ButtonRemoteConfig", resourceCulture);
@@ -159,6 +165,54 @@ namespace Playground.Resources {
             }
         }
         
+        internal static string ButtonCheckFcmValidity {
+            get {
+                return ResourceManager.GetString("ButtonCheckFcmValidity", resourceCulture);
+            }
+        }
+        
+        internal static string ButtonRegisterFcmToken {
+            get {
+                return ResourceManager.GetString("ButtonRegisterFcmToken", resourceCulture);
+            }
+        }
+        
+        internal static string ButtonUnregisterFcmToken {
+            get {
+                return ResourceManager.GetString("ButtonUnregisterFcmToken", resourceCulture);
+            }
+        }
+        
+        internal static string ButtonSubscribeToTopic {
+            get {
+                return ResourceManager.GetString("ButtonSubscribeToTopic", resourceCulture);
+            }
+        }
+        
+        internal static string ButtonUnsubscribeFromTopic {
+            get {
+                return ResourceManager.GetString("ButtonUnsubscribeFromTopic", resourceCulture);
+            }
+        }
+        
+        internal static string ButtonTriggerNotificationViaToken {
+            get {
+                return ResourceManager.GetString("ButtonTriggerNotificationViaToken", resourceCulture);
+            }
+        }
+        
+        internal static string ButtonTriggerNotificationViaTopic {
+            get {
+                return ResourceManager.GetString("ButtonTriggerNotificationViaTopic", resourceCulture);
+            }
+        }
+        
+        internal static string ButtonTriggerNotification {
+            get {
+                return ResourceManager.GetString("ButtonTriggerNotification", resourceCulture);
+            }
+        }
+        
         internal static string LabelUserIsSignedIn {
             get {
                 return ResourceManager.GetString("LabelUserIsSignedIn", resourceCulture);
@@ -234,6 +288,30 @@ namespace Playground.Resources {
         internal static string DialogMessageUnlinkProvider {
             get {
                 return ResourceManager.GetString("DialogMessageUnlinkProvider", resourceCulture);
+            }
+        }
+        
+        internal static string DialogTitleCloudMessaging {
+            get {
+                return ResourceManager.GetString("DialogTitleCloudMessaging", resourceCulture);
+            }
+        }
+        
+        internal static string DialogMessageFcmValid {
+            get {
+                return ResourceManager.GetString("DialogMessageFcmValid", resourceCulture);
+            }
+        }
+        
+        internal static string DialogMessageEnterTopic {
+            get {
+                return ResourceManager.GetString("DialogMessageEnterTopic", resourceCulture);
+            }
+        }
+        
+        internal static string DialogMessageEnterCloudMessageBody {
+            get {
+                return ResourceManager.GetString("DialogMessageEnterCloudMessageBody", resourceCulture);
             }
         }
         

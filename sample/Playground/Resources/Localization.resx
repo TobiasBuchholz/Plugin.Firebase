@@ -21,6 +21,7 @@
 
     <!-- buttons -->
     <data name="ButtonAuth"><value>Auth</value></data>
+    <data name="ButtonCloudMessaging"><value>Cloud Messaging</value></data>
     <data name="ButtonRemoteConfig"><value>Remote config</value></data>
     <data name="ButtonStorage"><value>Storage</value></data>
     <data name="ButtonFetchRemoteConfig"><value>Fetch and activate</value></data>
@@ -39,6 +40,14 @@
     <data name="ButtonUnlinkProvider"><value>Unlink provider</value></data>
     <data name="ButtonSignIn"><value>Sign in</value></data>
     <data name="ButtonSignOut"><value>Sign out</value></data>
+    <data name="ButtonCheckFcmValidity"><value>Check validity</value></data>
+    <data name="ButtonRegisterFcmToken"><value>Register FCM token</value></data>
+    <data name="ButtonUnregisterFcmToken"><value>Unregister FCM token</value></data>
+    <data name="ButtonSubscribeToTopic"><value>Subscribe to topic</value></data>
+    <data name="ButtonUnsubscribeFromTopic"><value>Unsubscribe from topic</value></data>
+    <data name="ButtonTriggerNotificationViaToken"><value>Trigger notification via token</value></data>
+    <data name="ButtonTriggerNotificationViaTopic"><value>Trigger notification via topic</value></data>
+    <data name="ButtonTriggerNotification"><value>Trigger notification</value></data>
     
     <!-- labels -->
     <data name="LabelUserIsSignedIn"><value>You are signed in:
@@ -60,6 +69,10 @@
     <data name="DialogMessageSignInLinkSent"><value>Please check your inbox, we've sent a login link to your email address. Tap on the link to get signed in automatically.</value></data>
     <data name="DialogTitleUnlinkProvider"><value>Unlink provider</value></data>
     <data name="DialogMessageUnlinkProvider"><value>Please select the provider you want to unlink</value></data>
+    <data name="DialogTitleCloudMessaging"><value>Cloud messaging</value></data>
+    <data name="DialogMessageFcmValid"><value>The validity check was successful</value></data>
+    <data name="DialogMessageEnterTopic"><value>Enter the name of the topic</value></data>
+    <data name="DialogMessageEnterCloudMessageBody"><value>Enter some message you want to receive</value></data>
 
     <!-- common -->
     <data name="Ok"><value>OK</value></data>

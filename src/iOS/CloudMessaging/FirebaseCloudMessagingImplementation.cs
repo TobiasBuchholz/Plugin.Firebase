@@ -13,29 +13,29 @@ namespace Plugin.Firebase.CloudMessaging
 {
     public sealed class FirebaseCloudMessagingImplementation : NSObject, IFirebaseCloudMessaging, IUNUserNotificationCenterDelegate, IMessagingDelegate
     {
-        private static FirebaseCloudMessagingImplementation _instance;
-
-        public static FirebaseCloudMessagingImplementation Instance {
-            get {
-                if(_instance == null) {
-                    throw new FirebaseException($"Make sure to call {nameof(FirebaseCloudMessagingImplementation)}.Initialize() before accessing it's Instance");
-                }
-                return _instance;
-            }
-        }
-
-        public static void Initialize()
-        {
-            if(_instance == null) {
-                _instance = new FirebaseCloudMessagingImplementation();
-                _instance.RegisterForRemoteNotifications();
-                InstanceId.Notifications.ObserveTokenRefresh((sender, e) => _instance.OnTokenRefreshAsync());
-                _instance.OnTokenRefreshAsync();
-            }
-        }
-        
         private FCMNotification _missedTappedNotification;
         
+        public static void Initialize()
+        {
+            var instance = (FirebaseCloudMessagingImplementation) CrossFirebaseCloudMessaging.Current;
+            instance.RegisterForRemoteNotifications();
+            InstanceId.Notifications.ObserveTokenRefresh((sender, e) => instance.OnTokenRefreshAsync());
+            instance.OnTokenRefreshAsync();
+        }
+        
+        private void RegisterForRemoteNotifications()
+        {
+            if(UIDevice.CurrentDevice.CheckSystemVersion(10, 0)) {
+                UNUserNotificationCenter.Current.Delegate = this;
+                Messaging.SharedInstance.Delegate = this;
+                UIApplication.SharedApplication.RegisterForRemoteNotifications();
+            } else {
+                var allNotificationTypes = UIUserNotificationType.Alert | UIUserNotificationType.Badge | UIUserNotificationType.Sound;
+                var settings = UIUserNotificationSettings.GetSettingsForTypes(allNotificationTypes, null);
+                UIApplication.SharedApplication.RegisterUserNotificationSettings(settings);
+            }
+        }
+
         public Task OnTokenRefreshAsync()
         {
             TokenChanged?.Invoke(this, new FCMTokenChangedEventArgs(Messaging.SharedInstance.FcmToken));
@@ -61,19 +61,6 @@ namespace Plugin.Firebase.CloudMessaging
                 });
         }
         
-        private void RegisterForRemoteNotifications()
-        {
-            if(UIDevice.CurrentDevice.CheckSystemVersion(10, 0)) {
-                UNUserNotificationCenter.Current.Delegate = this;
-                Messaging.SharedInstance.Delegate = this;
-                UIApplication.SharedApplication.RegisterForRemoteNotifications();
-            } else {
-                var allNotificationTypes = UIUserNotificationType.Alert | UIUserNotificationType.Badge | UIUserNotificationType.Sound;
-                var settings = UIUserNotificationSettings.GetSettingsForTypes(allNotificationTypes, null);
-                UIApplication.SharedApplication.RegisterUserNotificationSettings(settings);
-            }
-        }
-
         [Export("userNotificationCenter:willPresentNotification:withCompletionHandler:")]
         public void WillPresentNotification(UNUserNotificationCenter center, UNNotification notification, Action<UNNotificationPresentationOptions> completionHandler)
         {
@@ -104,7 +91,8 @@ namespace Plugin.Firebase.CloudMessaging
 
         public Task<string> GetTokenAsync()
         {
-            return Task.FromResult(Messaging.SharedInstance.FcmToken);
+            var token = Messaging.SharedInstance.FcmToken;
+            return string.IsNullOrEmpty(token) ? throw new FirebaseException("Couldn't retrieve FCM token") : Task.FromResult(token);
         }
         
         public Task SubscribeToTopicAsync(string topic)

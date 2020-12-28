@@ -54,7 +54,6 @@ namespace Plugin.Firebase.IntegrationTests.Analytics
         {
             var sut = CrossFirebaseAnalytics.Current;
             sut.IsAnalyticsCollectionEnabled = true;
-            sut.SetCurrentScreen("TestScreen", "TestScreenClassOverride");
             sut.SetSessionTimoutDuration(TimeSpan.FromSeconds(90));
             sut.ResetAnalyticsData();
         }

@@ -20,6 +20,7 @@ namespace Playground.Features.Storage
                 Children = {
                     new Entry {
                             Placeholder = Localization.EntryPlaceholderStorage,
+                            PlaceholderColor = Color.DarkGray,
                             TextColor = Color.Black
                         }
                         .CenterVertical()

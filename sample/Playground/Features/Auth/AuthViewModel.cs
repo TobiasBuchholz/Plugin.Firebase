@@ -142,7 +142,7 @@ namespace Playground.Features.Auth
                 .Defer(() => _authService.VerifyPhoneNumber(phoneNumber))
                 .SubscribeOn(_schedulerService.Main)
                 .SelectMany(_ => AskForVerificationCodeAsync())
-                .SelectMany(x => string.IsNullOrEmpty(x) ? null : _authService.SignInWithPhoneNumberVerificationCode(x));
+                .SelectMany(x => string.IsNullOrEmpty(x) ? Observables.Unit : _authService.SignInWithPhoneNumberVerificationCode(x));
         }
 
         private Task<string> AskForVerificationCodeAsync()

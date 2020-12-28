@@ -40,11 +40,6 @@ namespace Plugin.Firebase.Analytics
             FirebaseAnalytics.SetUserProperty(value, name);
         }
 
-        public void SetCurrentScreen(string screenName, string screenClassOverride)
-        {
-            FirebaseAnalytics.SetScreenNameAndClass(screenName, screenClassOverride);
-        }
-
         public void SetSessionTimoutDuration(TimeSpan duration)
         {
             FirebaseAnalytics.SetSessionTimeoutInterval(duration.TotalSeconds);

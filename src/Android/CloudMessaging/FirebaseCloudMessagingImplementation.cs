@@ -5,7 +5,6 @@ using Android.Content;
 using Android.Gms.Common;
 using Android.Gms.Extensions;
 using AndroidX.Core.App;
-using Firebase.Iid;
 using Firebase.Messaging;
 using Plugin.Firebase.Android.CloudMessaging;
 using Plugin.Firebase.CloudMessaging.EventArgs;
@@ -93,7 +92,7 @@ using Plugin.Firebase.Common;
         
         public static void OnNewIntent(Intent intent)
         {
-            if(intent.Extras != null) {
+            if(intent.Extras != null && intent.HasExtra(IntentKeyFCMNotification)) {
                 ((FirebaseCloudMessagingImplementation) CrossFirebaseCloudMessaging.Current).HandleNotificationFromIntent(intent);
             }
         }
@@ -111,8 +110,8 @@ using Plugin.Firebase.Common;
 
         public async Task<string> GetTokenAsync()
         {
-            var result = await FirebaseInstanceId.Instance.GetInstanceId().AsAsync<IInstanceIdResult>();
-            return string.IsNullOrEmpty(result.Token) ? throw new FirebaseException("Couldn't retrieve FCM token") : result.Token;
+            var token = (await FirebaseMessaging.Instance.GetToken()).ToString();
+            return string.IsNullOrEmpty(token) ? throw new FirebaseException("Couldn't retrieve FCM token") : token;
         }
 
         public Task SubscribeToTopicAsync(string topic)

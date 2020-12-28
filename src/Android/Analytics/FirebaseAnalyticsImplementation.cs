@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Android.Content;
 using Android.Gms.Extensions;
 using Firebase.Analytics;
-using Plugin.CurrentActivity;
 using Plugin.Firebase.Common;
 
 namespace Plugin.Firebase.Analytics
@@ -42,11 +41,6 @@ namespace Plugin.Firebase.Analytics
         public void SetUserProperty(string name, string value)
         {
             _firebaseAnalytics.SetUserProperty(name, value);
-        }
-
-        public void SetCurrentScreen(string screenName, string screenClassOverride)
-        {
-            _firebaseAnalytics.SetCurrentScreen(CrossCurrentActivity.Current.Activity, screenName, screenClassOverride);
         }
 
         public void SetSessionTimoutDuration(TimeSpan duration)

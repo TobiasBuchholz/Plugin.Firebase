@@ -13,7 +13,6 @@ namespace Plugin.Firebase.Analytics
 
         void SetUserId(string id);
         void SetUserProperty(string name, string value);
-        void SetCurrentScreen(string screenName, string screenClassOverride);
         void SetSessionTimoutDuration(TimeSpan duration);
         void ResetAnalyticsData();
         

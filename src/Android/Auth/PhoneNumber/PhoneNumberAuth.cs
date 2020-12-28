@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Android.App;
 using Firebase.Auth;
+using Java.Lang;
 using Java.Util.Concurrent;
 
 namespace Plugin.Firebase.Android.Auth.PhoneNumber
@@ -12,7 +13,15 @@ namespace Plugin.Firebase.Android.Auth.PhoneNumber
         public Task VerifyPhoneNumberAsync(Activity activity, string phoneNumber)
         {
             var callbacks = new PhoneVerificationStateChangeCallbacks(onCodeSent: x => _verificationId = x.VerificationId);
-            PhoneAuthProvider.Instance.VerifyPhoneNumber(phoneNumber, 60, TimeUnit.Seconds, activity, callbacks);
+            var options = PhoneAuthOptions
+                .NewBuilder()
+                .SetPhoneNumber(phoneNumber)
+                .SetTimeout(new Long(60), TimeUnit.Seconds)
+                .SetActivity(activity)
+                .SetCallbacks(callbacks)
+                .Build();
+            
+            PhoneAuthProvider.VerifyPhoneNumber(options);
             return Task.CompletedTask;
         }
 

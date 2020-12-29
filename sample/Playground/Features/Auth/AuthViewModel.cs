@@ -83,8 +83,9 @@ namespace Playground.Features.Auth
         private async Task SignInWithEmailAsync()
         {
             var email = await AskForEmailAsync();
-            var password = await AskForPasswordAsync();
-            await _authService.SignInWithEmailAndPassword(email, password).ToTask();
+            if(!string.IsNullOrEmpty(email)) {
+                await SignInWithEmailAsync(email);
+            }
         }
 
         private Task<string> AskForEmailAsync()
@@ -94,6 +95,14 @@ namespace Playground.Features.Auth
                 .WithDefaultButton(Localization.Continue)
                 .WithCancelButton(Localization.Cancel)
                 .Build());
+        }
+        
+        private async Task SignInWithEmailAsync(string email)
+        {
+            var password = await AskForPasswordAsync();
+            if(!string.IsNullOrEmpty(password)) {
+                await _authService.SignInWithEmailAndPassword(email, password).ToTask();
+            }
         }
         
         private Task<string> AskForPasswordAsync()
@@ -108,10 +117,17 @@ namespace Playground.Features.Auth
         private async Task SignInWithEmailLinkAsync()
         {
             var email = await AskForEmailAsync();
+            if(!string.IsNullOrEmpty(email)) {
+                await SignInWithEmailLinkAsync(email);
+            }
+        }
+        
+        private async Task SignInWithEmailLinkAsync(string email)
+        {
             await _authService.SendSignInLink(email);
             await _userInteractionService.ShowDefaultDialogAsync(Localization.DialogTitleSignInLinkSent, Localization.DialogMessageSignInLinkSent);
         }
-        
+
         private IObservable<Unit> SignInWithGoogle()
         {
             return _authService.SignInWithGoogle();
@@ -159,8 +175,17 @@ namespace Playground.Features.Auth
         private async Task LinkWithEmailAsync()
         {
             var email = await AskForEmailAsync();
+            if(!string.IsNullOrEmpty(email)) {
+                await LinkWithEmailAsync(email);
+            }
+        }
+
+        private async Task LinkWithEmailAsync(string email)
+        {
             var password = await AskForPasswordAsync();
-            await _authService.LinkWithEmailAndPassword(email, password).ToTask();
+            if(!string.IsNullOrEmpty(password)) {
+                await _authService.LinkWithEmailAndPassword(email, password).ToTask();
+            }
         }
 
         private IObservable<Unit> LinkWithGoogle()
@@ -256,8 +281,12 @@ namespace Playground.Features.Auth
 
         private void InitIsInProgressProperty()
         {
-            _authService
-                .IsSignInRunningTicks
+            Observable
+                .Merge(
+                    _authService.IsSignInRunningTicks,
+                    this.WhenAnyObservable(x => x.SignInWithEmailLinkCommand.IsExecuting),
+                    this.WhenAnyObservable(x => x.SignInWithPhoneNumberCommand.IsExecuting),
+                    this.WhenAnyObservable(x => x.LinkWithPhoneNumberCommand.IsExecuting))
                 .ToPropertyEx(this, x => x.IsInProgress)
                 .DisposeWith(Disposables);
         }

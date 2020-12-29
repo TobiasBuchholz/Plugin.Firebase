@@ -2,11 +2,13 @@ using Playground.Common.Base;
 using Playground.Resources;
 using Xamarin.Forms;
 using Xamarin.Forms.Markup;
+using Xamarin.Forms.Internals;
 using Color = System.Drawing.Color;
 using Vm = Playground.Features.Storage.StorageViewModel;
 
 namespace Playground.Features.Storage
 {
+    [Preserve(AllMembers = true)]
     public sealed class StoragePage : ContentPageBase<Vm>
     {
         public StoragePage() => Build();

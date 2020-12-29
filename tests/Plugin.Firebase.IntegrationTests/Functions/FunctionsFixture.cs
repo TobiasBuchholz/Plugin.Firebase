@@ -1,10 +1,12 @@
 using System;
 using System.Threading.Tasks;
+using Android.Runtime;
 using Plugin.Firebase.Functions;
 using Xunit;
 
 namespace Plugin.Firebase.IntegrationTests.Functions
 {
+    [Preserve(AllMembers = true)]
     public sealed class FunctionsFixture
     {
         [Fact]

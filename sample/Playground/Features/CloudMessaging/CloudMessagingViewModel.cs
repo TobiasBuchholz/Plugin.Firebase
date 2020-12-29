@@ -9,9 +9,11 @@ using Playground.Common.Services.UserInteraction;
 using Playground.Resources;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
+using Xamarin.Forms.Internals;
 
 namespace Playground.Features.CloudMessaging
 {
+    [Preserve(AllMembers = true)]
     public sealed class CloudMessagingViewModel : ViewModelBase
     {
         private readonly IPushNotificationService _pushNotificationService;

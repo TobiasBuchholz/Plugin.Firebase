@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Android.Runtime;
 using Plugin.Firebase.RemoteConfig;
 using Xamarin.Essentials;
 using Xunit;
 
 namespace Plugin.Firebase.IntegrationTests.RemoteConfig
 {
+    [Preserve(AllMembers = true)]
     public sealed class RemoteConfigFixture
     {
         [Fact]

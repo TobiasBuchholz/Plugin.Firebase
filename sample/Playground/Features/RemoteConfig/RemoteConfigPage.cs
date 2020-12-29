@@ -2,11 +2,13 @@ using Playground.Common.Base;
 using Playground.Resources;
 using Xamarin.Forms;
 using Xamarin.Forms.Markup;
+using Xamarin.Forms.Internals;
 using Color = System.Drawing.Color;
 using Vm = Playground.Features.RemoteConfig.RemoteConfigViewModel;
 
 namespace Playground.Features.RemoteConfig
 {
+    [Preserve(AllMembers = true)]
     public sealed class RemoteConfigPage : ContentPageBase<Vm>
     {
         public RemoteConfigPage() => Build();

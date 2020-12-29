@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Xamarin.Forms.Internals;
 
 namespace Playground.Common.Services.PushNotification
 {
+    [Preserve(AllMembers = true)]
     public sealed class PushNotification
     {
         public static PushNotification FromTokens(IEnumerable<string> fcmTokens, string title, string body)

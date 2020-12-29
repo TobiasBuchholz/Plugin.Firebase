@@ -2,10 +2,12 @@ using Playground.Common.Base;
 using Playground.Resources;
 using Xamarin.Forms;
 using Xamarin.Forms.Markup;
+using Xamarin.Forms.Internals;
 using Vm = Playground.Features.Dashboard.DashboardViewModel;
 
 namespace Playground.Features.Dashboard
 {
+    [Preserve(AllMembers = true)]
     public sealed class DashboardPage : ContentPageBase<Vm>
     {
         public DashboardPage() => Build();

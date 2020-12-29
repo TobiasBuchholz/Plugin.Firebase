@@ -11,6 +11,7 @@ using UserNotifications;
 
 namespace Plugin.Firebase.CloudMessaging
 {
+    [Preserve(AllMembers = true)]
     public sealed class FirebaseCloudMessagingImplementation : NSObject, IFirebaseCloudMessaging, IUNUserNotificationCenterDelegate, IMessagingDelegate
     {
         private FCMNotification _missedTappedNotification;

@@ -8,6 +8,7 @@ using DynamicLink = Firebase.DynamicLinks.DynamicLink;
 
 namespace Plugin.Firebase.DynamicLinks
 {
+    [Preserve(AllMembers = true)]
     public sealed class FirebaseDynamicLinksImplementation : IFirebaseDynamicLinks
     {
         private static event EventHandler<DynamicLinkReceivedEventArgs> _dynamicLinkReceived;

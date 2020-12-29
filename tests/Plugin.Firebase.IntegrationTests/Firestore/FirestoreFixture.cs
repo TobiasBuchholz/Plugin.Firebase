@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Android.Runtime;
 using Plugin.Firebase.Firestore;
 using Xamarin.Essentials;
 using Xunit;
@@ -9,6 +10,7 @@ using Xunit;
 namespace Plugin.Firebase.IntegrationTests.Firestore
 {
     [Collection("Sequential")]
+    [Preserve(AllMembers = true)]
     public sealed class FirestoreFixture : IAsyncLifetime
     {
         public Task InitializeAsync()

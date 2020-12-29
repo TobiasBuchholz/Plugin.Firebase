@@ -4,6 +4,7 @@ using Android.App;
 using Android.Content;
 using Android.Gms.Common;
 using Android.Gms.Extensions;
+using Android.Runtime;
 using AndroidX.Core.App;
 using Firebase.Messaging;
 using Plugin.Firebase.Android.CloudMessaging;
@@ -12,6 +13,7 @@ using Plugin.Firebase.Common;
 
  namespace Plugin.Firebase.CloudMessaging
 {
+    [Preserve(AllMembers = true)]
     public sealed class FirebaseCloudMessagingImplementation : DisposableBase, IFirebaseCloudMessaging
     {
         private const string IntentKeyFCMNotification = "intent_key_fcm_notification";
@@ -127,7 +129,6 @@ using Plugin.Firebase.Common;
         public event EventHandler<FCMTokenChangedEventArgs> TokenChanged;
         public event EventHandler<FCMNotificationReceivedEventArgs> NotificationReceived;
         public event EventHandler<FCMErrorEventArgs> Error;
-        
 
         private event EventHandler<FCMNotificationTappedEventArgs> _notificationTapped;
         public event EventHandler<FCMNotificationTappedEventArgs> NotificationTapped {

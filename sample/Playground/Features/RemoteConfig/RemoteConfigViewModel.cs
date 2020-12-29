@@ -9,9 +9,11 @@ using Playground.Resources;
 using Plugin.Firebase.RemoteConfig;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
+using Xamarin.Forms.Internals;
 
 namespace Playground.Features.RemoteConfig
 {
+    [Preserve(AllMembers = true)]
     public sealed class RemoteConfigViewModel : ViewModelBase
     {
         private const string RemoteConfigKey = "some_remote_config_key";

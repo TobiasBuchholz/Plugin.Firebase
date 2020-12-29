@@ -1,11 +1,13 @@
 using System;
 using System.Threading.Tasks;
+using Android.Runtime;
 using Plugin.Firebase.Auth;
 using Xunit;
 
 namespace Plugin.Firebase.IntegrationTests.Auth
 {
     [Collection("Sequential")]
+    [Preserve(AllMembers = true)]
     public sealed class AuthFixture : IAsyncLifetime
     {
         public Task InitializeAsync()

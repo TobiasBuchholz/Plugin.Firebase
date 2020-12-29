@@ -1,20 +1,20 @@
 using System;
-using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Playground.Common.Base;
-using Playground.Common.Services.Logging;
 using Playground.Common.Services.UserInteraction;
 using Playground.Resources;
 using Plugin.Firebase.Storage;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
+using Xamarin.Forms.Internals;
 
 namespace Playground.Features.Storage
 {
+    [Preserve(AllMembers = true)]
     public sealed class StorageViewModel : ViewModelBase
     {
         private readonly IUserInteractionService _userInteractionService;

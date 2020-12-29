@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Android.Runtime;
 using Plugin.Firebase.Common;
 using Plugin.Firebase.Firestore;
 using Plugin.Firebase.Shared.Common.Extensions;
@@ -8,6 +9,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
 {
     public sealed class Pokemon : IFirestoreObject
     {
+        [Preserve]
         public Pokemon()
         {
             // needed for firestore

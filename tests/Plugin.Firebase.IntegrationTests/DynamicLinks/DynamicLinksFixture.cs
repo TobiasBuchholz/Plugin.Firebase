@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Android.Runtime;
 using Plugin.Firebase.DynamicLinks;
 using Plugin.Firebase.DynamicLinks.Parameters;
 using Xamarin.Essentials;
@@ -6,6 +7,7 @@ using Xunit;
 
 namespace Plugin.Firebase.IntegrationTests.DynamicLinks
 {
+    [Preserve(AllMembers = true)]
     public sealed class DynamicLinksFixture
     {
         [Fact]

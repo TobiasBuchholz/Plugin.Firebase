@@ -14,9 +14,11 @@ using Playground.Resources;
 using Plugin.Firebase.Auth;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
+using Xamarin.Forms.Internals;
 
 namespace Playground.Features.Auth
 {
+    [Preserve(AllMembers = true)]
     public sealed class AuthViewModel : ViewModelBase
     {
         private readonly IAuthService _authService;

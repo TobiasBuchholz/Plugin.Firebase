@@ -4,12 +4,14 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Android.Runtime;
 using Plugin.Firebase.Storage;
 using Xamarin.Essentials;
 using Xunit;
 
 namespace Plugin.Firebase.IntegrationTests.Storage
 {
+    [Preserve(AllMembers = true)]
     public sealed class StorageFixture : IDisposable
     {
         [Fact]

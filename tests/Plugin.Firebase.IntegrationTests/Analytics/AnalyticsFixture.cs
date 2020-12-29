@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Android.Runtime;
 using Plugin.Firebase.Analytics;
 using Xunit;
 
 namespace Plugin.Firebase.IntegrationTests.Analytics
 {
+    [Preserve(AllMembers = true)]
     public sealed class AnalyticsFixture
     {
         [Fact]

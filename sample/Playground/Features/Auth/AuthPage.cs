@@ -2,11 +2,13 @@ using Playground.Common.Base;
 using Playground.Resources;
 using Xamarin.Forms;
 using Xamarin.Forms.Markup;
+using Xamarin.Forms.Internals;
 using Vm = Playground.Features.Auth.AuthViewModel;
 using static Xamarin.Forms.Markup.GridRowsColumns;
 
 namespace Playground.Features.Auth
 {
+    [Preserve(AllMembers = true)]
     public sealed class AuthPage : ContentPageBase<Vm>
     {
         public AuthPage() => Build();

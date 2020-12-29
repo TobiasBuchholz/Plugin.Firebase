@@ -2,10 +2,12 @@ using Playground.Common.Base;
 using Playground.Resources;
 using Xamarin.Forms;
 using Xamarin.Forms.Markup;
+using Xamarin.Forms.Internals;
 using Vm = Playground.Features.CloudMessaging.CloudMessagingViewModel;
 
 namespace Playground.Features.CloudMessaging
 {
+    [Preserve(AllMembers = true)]
     public sealed class CloudMessagingPage : ContentPageBase<Vm>
     {
         public CloudMessagingPage() => Build();

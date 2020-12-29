@@ -2,14 +2,15 @@ using System;
 using System.Threading.Tasks;
 using Android.Content;
 using Android.Gms.Extensions;
+using Android.Runtime;
 using Firebase.DynamicLinks;
-using Plugin.Firebase.DynamicLinks;
 using Plugin.Firebase.DynamicLinks.EventArgs;
 using Plugin.Firebase.Android.DynamicLinks;
 using Exception = Java.Lang.Exception;
 
 namespace Plugin.Firebase.DynamicLinks
 {
+    [Preserve(AllMembers = true)]
     public class FirebaseDynamicLinksImplementation : IFirebaseDynamicLinks
     {
         private static event EventHandler<DynamicLinkReceivedEventArgs> _dynamicLinkReceived;

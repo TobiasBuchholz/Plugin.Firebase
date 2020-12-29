@@ -1,10 +1,12 @@
+using Android.Runtime;
 using Plugin.Firebase.Common;
 using Plugin.Firebase.Firestore;
 
 namespace Plugin.Firebase.IntegrationTests.Firestore
-{
+{    
     public sealed class SightingLocation : IFirestoreObject
     {
+        [Preserve]
         public SightingLocation()
         {
             // needed for firestore

@@ -1,4 +1,5 @@
 using System;
+using Android.Runtime;
 using Plugin.Firebase.Analytics;
 using Plugin.Firebase.Auth;
 using Plugin.Firebase.CloudMessaging;
@@ -11,12 +12,13 @@ using Xunit;
 
 namespace Plugin.Firebase.IntegrationTests
 {
+    [Preserve(AllMembers = true)]
     public class MustPassFixture
     {
         [Fact]
         public void must_pass()
         {
-            // Assert.True(CrossFirebaseAnalytics.IsSupported); -> disabled on Android because of build issues
+            Assert.True(CrossFirebaseAnalytics.IsSupported);
             Assert.True(CrossFirebaseAuth.IsSupported);
             Assert.True(CrossFirebaseCloudMessaging.IsSupported);
             Assert.True(CrossFirebaseDynamicLinks.IsSupported);

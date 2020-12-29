@@ -6,9 +6,11 @@ using Playground.Common.Services.Navigation;
 using Playground.Common.Services.PushNotification;
 using Playground.Common.Services.UserInteraction;
 using ReactiveUI;
+using Xamarin.Forms.Internals;
 
 namespace Playground.Features.Dashboard
 {
+    [Preserve(AllMembers = true)]
     public sealed class DashboardViewModel : ViewModelBase
     {
         private readonly INavigationService _navigationService;

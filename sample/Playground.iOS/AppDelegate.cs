@@ -7,6 +7,8 @@ using Playground.iOS.Services.Composition;
 using Plugin.Firebase.Analytics;
 using Plugin.Firebase.Auth;
 using Plugin.Firebase.CloudMessaging;
+using Plugin.Firebase.iOS;
+using Plugin.Firebase.Shared;
 using UIKit;
 using Xamarin.Forms;
 
@@ -30,10 +32,7 @@ namespace Playground.iOS
             Forms.SetFlags("Markup_Experimental");
             Forms.Init();
             LogOutputService.Initialize();
-            Firebase.Core.App.Configure();
-            FirebaseAnalyticsImplementation.Initialize();
-            FirebaseAuthImplementation.Initialize(app, options, "151743924915235", "Plugin Firebase Playground");
-            FirebaseCloudMessagingImplementation.Initialize();
+            CrossFirebase.Initialize(app, options, CreateCrossFirebaseSettings());
 
             var compositionRoot = new CompositionRoot();
             ViewModelResolver.Initialize(compositionRoot);
@@ -41,6 +40,22 @@ namespace Playground.iOS
             LoadApplication(new App());
 
             return base.FinishedLaunching(app, options);
+        }
+
+        private static CrossFirebaseSettings CreateCrossFirebaseSettings()
+        {
+            return new CrossFirebaseSettings(
+                isAnalyticsEnabled:true,
+                isAuthEnabled:true,
+                isCloudMessagingEnabled:true,
+                isDynamicLinksEnabled:true,
+                isFirestoreEnabled:true,
+                isFunctionsEnabled:true,
+                isRemoteConfigEnabled:true,
+                isStorageEnabled:true,
+                facebookId:"151743924915235",
+                facebookAppName:"Plugin Firebase Playground",
+                googleRequestIdToken:"537235599720-723cgj10dtm47b4ilvuodtp206g0q0fg.apps.googleusercontent.com");
         }
     }
 }

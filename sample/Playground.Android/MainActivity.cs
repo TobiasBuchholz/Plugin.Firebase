@@ -5,14 +5,15 @@ using Android.Content;
 using Android.Content.PM;
 using Android.Runtime;
 using Android.OS;
-using Firebase;
 using Playground.Common.Services.Composition;
 using Playground.Common.Services.Logging;
 using Playground.Common.Services.Scheduler;
 using Playground.Droid.Services.Composition;
+using Plugin.Firebase.Android;
 using Plugin.Firebase.Auth;
 using Plugin.Firebase.CloudMessaging;
 using Plugin.Firebase.DynamicLinks;
+using Plugin.Firebase.Shared;
 using Xamarin.Forms;
 
 namespace Playground.Droid
@@ -32,9 +33,7 @@ namespace Playground.Droid
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             Forms.Init(this, savedInstanceState);
             LogOutputService.Initialize();
-            FirebaseApp.InitializeApp(this);
-            // googleRequestIdToken from Web Client instead of Android (see https://console.developers.google.com/apis/credentials)
-            FirebaseAuthImplementation.Initialize(this, savedInstanceState, "537235599720-723cgj10dtm47b4ilvuodtp206g0q0fg.apps.googleusercontent.com");
+            CrossFirebase.Initialize(this, savedInstanceState, CreateCrossFirebaseSettings());
 
             var compositionRoot = new CompositionRoot();
             ViewModelResolver.Initialize(compositionRoot);
@@ -42,6 +41,22 @@ namespace Playground.Droid
             HandleIntent(Intent);
             CreateNotificationChannelIfNeeded();
             LoadApplication(new App());
+        }
+
+        private static CrossFirebaseSettings CreateCrossFirebaseSettings()
+        {
+            return new CrossFirebaseSettings(
+                isAnalyticsEnabled:true,
+                isAuthEnabled:true,
+                isCloudMessagingEnabled:true,
+                isDynamicLinksEnabled:true,
+                isFirestoreEnabled:true,
+                isFunctionsEnabled:true,
+                isRemoteConfigEnabled:true,
+                isStorageEnabled:true,
+                facebookId:"151743924915235",
+                facebookAppName:"Plugin Firebase Playground",
+                googleRequestIdToken:"537235599720-723cgj10dtm47b4ilvuodtp206g0q0fg.apps.googleusercontent.com");
         }
         
         private static void HandleIntent(Intent intent)

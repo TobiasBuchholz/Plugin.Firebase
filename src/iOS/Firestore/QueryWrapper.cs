@@ -22,27 +22,27 @@ namespace Plugin.Firebase.iOS.Firestore
 
         public IQuery WhereGreaterThan(string field, object value)
         {
-            return _wrapped.WhereGreaterThan(field, value).ToAbstract();;
+            return _wrapped.WhereGreaterThan(field, value).ToAbstract();
         }
 
         public IQuery WhereLessThan(string field, object value)
         {
-            return _wrapped.WhereLessThan(field, value).ToAbstract();;
+            return _wrapped.WhereLessThan(field, value).ToAbstract();
         }
 
         public IQuery WhereGreaterThanOrEqualsTo(string field, object value)
         {
-            return _wrapped.WhereGreaterThanOrEqualsTo(field, value).ToAbstract();;
+            return _wrapped.WhereGreaterThanOrEqualsTo(field, value).ToAbstract();
         }
 
         public IQuery WhereLessThanOrEqualsTo(string field, object value)
         {
-            return _wrapped.WhereLessThanOrEqualsTo(field, value).ToAbstract();;
+            return _wrapped.WhereLessThanOrEqualsTo(field, value).ToAbstract();
         }
 
-        public IQuery OrderBy(string field)
+        public IQuery OrderBy(string field, bool descending = false)
         {
-            return _wrapped.OrderedBy(field).ToAbstract();;
+            return _wrapped.OrderedBy(field, descending).ToAbstract();
         }
 
         public IQuery StartingAt(params object[] fieldValues)

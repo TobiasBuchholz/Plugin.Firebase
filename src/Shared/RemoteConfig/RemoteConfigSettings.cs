@@ -2,6 +2,9 @@ using System;
 
 namespace Plugin.Firebase.RemoteConfig
 {
+    /// <summary>
+    /// Firebase Remote Config settings.
+    /// </summary>
     public sealed class RemoteConfigSettings
     {
         public RemoteConfigSettings(
@@ -31,7 +34,14 @@ namespace Plugin.Firebase.RemoteConfig
             return $"[{nameof(RemoteConfigSettings)}: {nameof(MinimumFetchInterval)}={MinimumFetchInterval}, {nameof(FetchTimeout)}={FetchTimeout}]";
         }
 
+        /// <summary>
+        /// Returns the minimum interval between successive fetches calls in seconds.
+        /// </summary>
         public TimeSpan MinimumFetchInterval { get; }
+        
+        /// <summary>
+        /// Returns the fetch timeout in seconds. 
+        /// </summary>
         public TimeSpan FetchTimeout { get; }
     }
 }

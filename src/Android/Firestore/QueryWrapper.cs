@@ -44,9 +44,9 @@ namespace Plugin.Firebase.Android.Firestore
             return _wrapped.WhereLessThanOrEqualTo(field, value.ToJavaObject()).ToAbstract();
         }
 
-        public IQuery OrderBy(string field)
+        public IQuery OrderBy(string field, bool descending = false)
         {
-            return _wrapped.OrderBy(field).ToAbstract();
+            return _wrapped.OrderBy(field, descending ? Query.Direction.Descending : Query.Direction.Ascending).ToAbstract();
         }
 
         public IQuery StartingAt(object[] fieldValues)

@@ -22,23 +22,23 @@ Dynamic Links are links into an app that work whether or not users have installe
 ```xml
   <key>com.apple.developer.associated-domains</key>
   <array>
-  	<string>applinks:myfancyapp.page.link</string>
+    <string>applinks:myfancyapp.page.link</string>
   </array>
 ```
 - add url scheme to your apps ```Info.plist```:
 ```xml
   <key>CFBundleURLTypes</key>
   <array>
-  	<dict>
-  		<key>CFBundleURLName</key>
-  		<string>Bundle ID</string>
-  		<key>CFBundleURLSchemes</key>
-  		<array>
-  			<string>my.fancy.app</string>
-  		</array>
-  		<key>CFBundleURLTypes</key>
-  		<string>Editor</string>
-  	</dict>
+    <dict>
+      <key>CFBundleURLName</key>
+      <string>Bundle ID</string>
+      <key>CFBundleURLSchemes</key>
+      <array>
+        <string>my.fancy.app</string>
+      </array>
+      <key>CFBundleURLTypes</key>
+      <string>Editor</string>
+    </dict>
   </array>
 ```
 - For more specific instructions take a look at the official [Firebase documentation](https://firebase.google.com/docs/dynamic-links?hl=en)

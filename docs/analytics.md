@@ -10,7 +10,7 @@ Firebase Analytics collects usage and behavior data for your app. The SDK logs t
 - Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/README.md#basic-setup)
 - Initialize CrossFirebase with Analytics enabled:
 
-```
+```c#
   CrossFirebase.Initialize(..., new CrossFirebaseSettings(isAnalyticsEnabled:true));
 ```
 

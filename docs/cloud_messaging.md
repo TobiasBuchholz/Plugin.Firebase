@@ -32,17 +32,17 @@ Firebase Cloud Messaging offers a broad range of messaging options and capabilit
 - Add the following code snippet to the ```<application>``` tag in your apps ```AndroidManifest.xml```:
 ```xml
   <receiver
-  		android:name="com.google.firebase.iid.FirebaseInstanceIdInternalReceiver"
-  		android:exported="false" />
+    android:name="com.google.firebase.iid.FirebaseInstanceIdInternalReceiver"
+    android:exported="false" />
   <receiver
-  		android:name="com.google.firebase.iid.FirebaseInstanceIdReceiver"
-  		android:exported="true"
-  		android:permission="com.google.android.c2dm.permission.SEND">
-  	<intent-filter>
-  		<action android:name="com.google.android.c2dm.intent.RECEIVE" />
-  		<action android:name="com.google.android.c2dm.intent.REGISTRATION" />
-  		<category android:name="${applicationId}" />
-  	</intent-filter>
+    android:name="com.google.firebase.iid.FirebaseInstanceIdReceiver"
+    android:exported="true"
+    android:permission="com.google.android.c2dm.permission.SEND">
+    <intent-filter>
+      <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+      <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+      <category android:name="${applicationId}" />
+    </intent-filter>
   </receiver>
 ```
 - Call ```FirebaseCloudMessagingImplementation.OnNewIntent(intent)``` from ```MainActivity.OnCreate(...)``` and ```MainActivity.OnNewIntent(...)```

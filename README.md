@@ -25,9 +25,9 @@ In the [docs folder](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/mast
 
 In the [sample folder](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/sample) you can find a sample Xamarin.Forms project. This project serves as a base to play around with the plugin and to test features that are hard to test automatically (like Authentication or Cloud Messages). [playground-functions](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/sample/playground-functions) is a Cloud Functions project and contains the code to enable sending Cloud Messages from the backend.
 
-In the [tests folder](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests) you can find a Xamarin.Forms project that lets you run integration tests. You should definitely check out the ```*Fixture.cs``` files to learn how the plugin is supposed to work. All the tests should pass successfully when they get executed on a real device.
+In the [tests folder](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests) you can find a Xamarin.Forms project that lets you run integration tests. You should definitely check out the ```*Fixture.cs``` files to learn how the plugin is supposed to work. All the tests should pass when they get executed on a real device.
 
-In case you would like to run the sample or test project by yourself, you need to add the ```GoogleService-Info.plist``` and ```google-services.json``` file of your own firebase project and adapt the other config files like ```Info.plist, Entitlements.plist, AndroidManifest.xml```.
+In case you would like to run the sample or test project by yourself, you need to add the ```GoogleService-Info.plist``` and ```google-services.json``` files of your own firebase project and adapt the other config files like ```Info.plist, Entitlements.plist, AndroidManifest.xml```.
 
 ## License
 

@@ -28,22 +28,22 @@ You can use [Firebase Authentication](https://firebase.google.com/docs/auth) to 
 
 ```xml
   <dict>
-  	<key>keychain-access-groups</key>
-  	<array>
-  		<string>$(AppIdentifierPrefix)my.fancy.app</string>
-  	</array>
+    <key>keychain-access-groups</key>
+    <array>
+      <string>$(AppIdentifierPrefix)my.fancy.app</string>
+    </array>
   </dict>
 ```
 - In case you are using Authentication via Google, add an url scheme to your apps ```Info.plist```:
 ```xml
   <key>CFBundleURLTypes</key>
   <array>
-  	<dict>
-  		<key>CFBundleURLSchemes</key>
-  		<array>
-  			<string>com.googleusercontent.apps.123456-abcdef</string>
-  		</array>
-  	</dict>
+    <dict>
+      <key>CFBundleURLSchemes</key>
+      <array>
+        <string>com.googleusercontent.apps.123456-abcdef</string>
+      </array>
+    </dict>
   </array>
 ```
 - For more specific instructions take a look at the official [Firebase documentation](https://firebase.google.com/docs/auth/ios/start?hl=en)

@@ -1,4 +1,4 @@
-#Auth
+# Auth
 
 You can use [Firebase Authentication](https://firebase.google.com/docs/auth) to allow users to sign in to your app using one or more sign-in methods, including email address and password sign-in, and federated identity providers such as Google Sign-in and Facebook Login.
 
@@ -7,7 +7,7 @@ You can use [Firebase Authentication](https://firebase.google.com/docs/auth) to 
 - Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/README.md#basic-setup)
 - Enable Authentication at your project in the [Firebase Console](https://console.firebase.google.com/).
 - Initialize CrossFirebase with Auth enabled:
-```
+```c#
   CrossFirebase.Initialize(..., new CrossFirebaseSettings(isAuthEnabled:true));
 ```
 - If you want to enable authentication via Facebook or Google, initialize CrossFirebase with the appropriate settings:
@@ -26,7 +26,7 @@ You can use [Firebase Authentication](https://firebase.google.com/docs/auth) to 
 ### iOS specifics
 - Enable keychain entitlement in Entitlements.plist:
 
-```
+```xml
   <dict>
   	<key>keychain-access-groups</key>
   	<array>
@@ -35,7 +35,7 @@ You can use [Firebase Authentication](https://firebase.google.com/docs/auth) to 
   </dict>
 ```
 - In case you are using Authentication via Google, add an url scheme to your apps ```Info.plist```:
-```
+```xml
   <key>CFBundleURLTypes</key>
   <array>
   	<dict>
@@ -52,7 +52,7 @@ You can use [Firebase Authentication](https://firebase.google.com/docs/auth) to 
 
 - Call ```FirebaseAuthImplementation.HandleActivityResultAsync(requestCode, resultCode, data);``` from ```MainActivity.OnActivityResult(...)```
 - In case you are using Authentication via Facebook, add the following code to your apps ```AndroidManifest.xml```:
-```
+```xml
   <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id" />
   <activity android:name="com.facebook.FacebookActivity" android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation" android:label="@string/app_name" />
   <activity android:name="com.facebook.CustomTabActivity" android:exported="true">
@@ -71,7 +71,7 @@ You can use [Firebase Authentication](https://firebase.google.com/docs/auth) to 
 Take a look at the [documentation](https://github.com/xamarin/GoogleApisForiOSComponents/blob/master/docs/Firebase/Auth/GettingStarted.md) for the Xamarin.Firebase.iOS.Auth packages, because Plugin.Firebase's code is abstracted but still very similar.
 
 Since code should be documenting itself you can also take a look at the following classes:
-- [src/.../IFirebaseAuthentication.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Auth/IFirebaseAuth.cs)
+- [src/.../IFirebaseAuth.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Auth/IFirebaseAuth.cs)
 - [src/.../IFirebaseUser.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Auth/IFirebaseUser.cs)
 - [tests/.../AuthFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Auth/AuthFixture.cs)
 - [sample/.../AuthService.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/sample/Playground/Common/Services/Auth/AuthService.cs)

@@ -8,7 +8,7 @@ You can use Firebase Remote Config to define parameters in your app and update t
 - Add a Remote Config key-value pair at your project in the [Firebase Console](https://console.firebase.google.com/)
 - Initialize CrossFirebase with Remote Config enabled:
 
-```
+```c#
   CrossFirebase.Initialize(..., new CrossFirebaseSettings(isRemoteConfigEnabled:true));
 ```
 
@@ -18,4 +18,4 @@ Take a look at the [documentation](https://github.com/xamarin/GoogleApisForiOSCo
 
 Since code should be documenting itself you can also take a look at the following classes:
 - [src/.../IFirebaseRemoteConfig.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/RemoteConfig/IFirebaseRemoteConfig.cs)
-- [tests/.../RemoteConfigFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Firestore/RemoteConfigFixture.cs)
+- [tests/.../RemoteConfigFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/RemoteConfig/RemoteConfigFixture.cs)

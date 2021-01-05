@@ -8,19 +8,19 @@ Firebase Cloud Messaging offers a broad range of messaging options and capabilit
 - Enable Cloud Messaging at your project in the [Firebase Console](https://console.firebase.google.com/)
 - Initialize CrossFirebase with Cloud Messaging enabled:
 
-```
+```c#
   CrossFirebase.Initialize(..., new CrossFirebaseSettings(isCloudMessagingEnabled:true));
 ```
 - Make sure the device is able to receive cloud messages and the user has granted the permissions for it:
-```
+```c#
   CrossFirebaseCloudMessaging.Current.CheckIfValid()
 ```
 
 ### iOS specifics
-- Go to developers.apple.com -> Certificates, Identifiers & Profiles -> enable Push Notifications in your provisioning profile, download and double tap it
+- Go to [developers.apple.com](https://developer.apple.com/) -> Certificates, Identifiers & Profiles -> enable Push Notifications in your provisioning profile, download and double tap it
 - [Create and upload APNs authentication key](https://firebase.google.com/docs/cloud-messaging/ios/client#upload_your_apns_authentication_key) to your project in the [Firebase Console](https://console.firebase.google.com/)
 - Enable Push Notifications in your apps ```Entitlements.plist```:
-```
+```xml
   <key>aps-environment</key>
   <string>development</string>
 ```
@@ -30,7 +30,7 @@ Firebase Cloud Messaging offers a broad range of messaging options and capabilit
 
 ### Android specifics
 - Add the following code snippet to the ```<application>``` tag in your apps ```AndroidManifest.xml```:
-```
+```xml
   <receiver
   		android:name="com.google.firebase.iid.FirebaseInstanceIdInternalReceiver"
   		android:exported="false" />
@@ -47,7 +47,7 @@ Firebase Cloud Messaging offers a broad range of messaging options and capabilit
 ```
 - Call ```FirebaseCloudMessagingImplementation.OnNewIntent(intent)``` from ```MainActivity.OnCreate(...)``` and ```MainActivity.OnNewIntent(...)```
 - Create a notification channel and set the ```ChannelId``` to ```FirebaseCloudMessagingImplementation```:
-```
+```c#
   private void CreateNotificationChannel()
   {
       var channelId = $"{Application.Context.PackageName}.general";

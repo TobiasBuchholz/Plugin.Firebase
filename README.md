@@ -15,7 +15,7 @@ This is a wrapper library around the native Android and iOS Firebase Xamarin SDK
 3. Add ```[GoogleService-Info.plist|google-services.json]``` file to your app project.
 4. Set ```[GoogleService-Info.plist|google-services.json]``` **build action** behaviour to ```[Bundle Resource|GoogleServicesJson]``` by Right clicking/Build Action.
 5. Add the following line of code to the place where your app gets bootstrapped:
-```
+```c#
   CrossFirebase.Initialize(..., new CrossFirebaseSettings(...));
 ```
 

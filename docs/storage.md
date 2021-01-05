@@ -8,7 +8,7 @@ Firebase Storage lets you upload and share user generated content, such as image
 - Enable Storage at your project in the [Firebase Console](https://console.firebase.google.com/)
 - Initialize CrossFirebase with Storage enabled:
 
-```
+```c#
   CrossFirebase.Initialize(..., new CrossFirebaseSettings(isStorageEnabled:true));
 ```
 
@@ -18,4 +18,8 @@ Take a look at the [documentation](https://github.com/xamarin/GoogleApisForiOSCo
 
 Since code should be documenting itself you can also take a look at the following classes:
 - [src/.../IFirebaseStorage.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Storage/IFirebaseStorage.cs)
+- [src/.../IStorageReference.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Storage/IStorageReference.cs)
+- [src/.../IStorageMetaData.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Storage/IStorageMetaData.cs)
+- [src/.../IStorageTransferTask.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Storage/IStorageTransferTask.cs)
+- [src/.../IStorageReference.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Storage/IStorageReference.cs)
 - [tests/.../StorageFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Firestore/StorageFixture.cs)

@@ -8,10 +8,9 @@ Cloud Firestore is a flexible, scalable database for mobile, web, and server dev
 - Enable Cloud Firestore at your project in the [Firebase Console](https://console.firebase.google.com/)
 - Initialize CrossFirebase with Firestore enabled:
 
-```
+```c#
   CrossFirebase.Initialize(..., new CrossFirebaseSettings(isFirestoreEnabled:true));
 ```
-
 
 ## Usage
 

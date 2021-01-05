@@ -9,7 +9,7 @@ Cloud Functions for Firebase is a serverless framework that lets you automatical
 - [Deploy](https://firebase.google.com/docs/functions/get-started?hl=en) your own function
 - Initialize CrossFirebase with Functions enabled:
 
-```
+```c#
   CrossFirebase.Initialize(..., new CrossFirebaseSettings(isFunctionsEnabled:true));
 ```
 

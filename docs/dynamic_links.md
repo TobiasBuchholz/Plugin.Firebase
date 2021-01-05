@@ -10,7 +10,7 @@ Dynamic Links are links into an app that work whether or not users have installe
 - Enable Dynamic Links at your project in the [Firebase Console](https://console.firebase.google.com/)
 - Initialize CrossFirebase with Dynamic Links enabled:
 
-```
+```c#
   CrossFirebase.Initialize(..., new CrossFirebaseSettings(isDynamicLinksEnabled:true));
 ```
 
@@ -19,14 +19,14 @@ Dynamic Links are links into an app that work whether or not users have installe
 - Go to developers.apple.com -> Certificates, Identifiers & Profiles -> App IDs -> choose your app and enable 'Associated Domains'
 - Go to provisioning profiles -> choose your profile, make it valid again, download and double tap it
 - add associated domains to your apps ```Entitlements.plist```:
-```
+```xml
   <key>com.apple.developer.associated-domains</key>
   <array>
   	<string>applinks:myfancyapp.page.link</string>
   </array>
 ```
 - add url scheme to your apps ```Info.plist```:
-```
+```xml
   <key>CFBundleURLTypes</key>
   <array>
   	<dict>
@@ -51,7 +51,7 @@ Dynamic Links are links into an app that work whether or not users have installe
 - Go to firebase console -> Project Settings -> choose your android app -> insert the SHA-1 and SHA-256 fingerprints
 - Call ```FirebaseDynamicLinksImplementation.HandleDynamicLinkAsync(intent)``` from ```MainActivity.OnCreate(...)``` and ```MainActivity.OnNewIntent(...)```
 - Add your ```MainActivity``` to the ```<application>``` tag in your apps ```AndroidManifest.xml```:
-```
+```xml
   <activity
     android:name="my.fancy.app.MainActivity"
     android:label="@string/app_name"

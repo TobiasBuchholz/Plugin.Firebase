@@ -43,15 +43,6 @@ namespace Plugin.Firebase.Shared
                    $"{nameof(IsStorageEnabled)}={IsStorageEnabled}]";
         }
 
-        public void ThrowWhenConfiguredWrong()
-        {
-            if(IsAuthEnabled && (string.IsNullOrEmpty(FacebookId) || string.IsNullOrEmpty(FacebookAppName) || string.IsNullOrEmpty(GoogleRequestIdToken))) {
-                throw new FirebaseException(
-                    $"Auth is enabled but not configured correctly. " +
-                    $"Make sure to set {nameof(FacebookId)}, {nameof(FacebookAppName)} and {nameof(GoogleRequestIdToken)}");
-            }
-        }
-
         public bool IsAnalyticsEnabled { get; }
         public bool IsAuthEnabled { get; }
         public bool IsCloudMessagingEnabled { get; }

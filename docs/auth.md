@@ -64,6 +64,11 @@ You can use [Firebase Authentication](https://firebase.google.com/docs/auth) to 
     </intent-filter>
   </activity>
 ```
+- Add ```facebook_app_id``` and ```fb_login_protocol_scheme``` to ```strings.xml```:
+```xml
+  <string name="facebook_app_id">12345678</string>
+  <string name="fb_login_protocol_scheme">fb12345678</string>
+```
 - For more specific instructions take a look at the official [Firebase documentation](https://firebase.google.com/docs/auth/android/start?hl=en)
 
 ## Usage

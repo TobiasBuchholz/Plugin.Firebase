@@ -18,8 +18,6 @@ namespace Plugin.Firebase.iOS
             Options firebaseOptions = null,
             string name = null)
         {
-            settings.ThrowWhenConfiguredWrong();
-            
             if(firebaseOptions == null) {
                 App.Configure();
             } else if(name == null) {

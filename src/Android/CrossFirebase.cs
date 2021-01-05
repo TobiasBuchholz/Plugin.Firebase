@@ -16,8 +16,6 @@ namespace Plugin.Firebase.Android
             FirebaseOptions firebaseOptions = null,
             string name = null)
         {
-            settings.ThrowWhenConfiguredWrong();
-            
             if(firebaseOptions == null) {
                 FirebaseApp.InitializeApp(activity);
             } else if(name == null) {
@@ -27,7 +25,7 @@ namespace Plugin.Firebase.Android
             }
 
             if(settings?.IsAuthEnabled ?? false) {
-                FirebaseAuthImplementation.Initialize(activity, savedInstanceState, settings.GoogleRequestIdToken);
+                FirebaseAuthImplementation.Initialize(activity, savedInstanceState, settings.GoogleRequestIdToken ?? "123-abc");
             }
             
             Console.WriteLine($"Plugin.Firebase initialized with the following settings:\n{settings}");

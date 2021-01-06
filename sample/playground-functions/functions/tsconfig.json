@@ -7,7 +7,10 @@
     "sourceMap": true,
     "strict": true,
     "target": "es2017",
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "lib": [
+      "esnext.asynciterable"
+    ]
   },
   "compileOnSave": true,
   "include": [

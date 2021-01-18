@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Android.Runtime;
@@ -71,17 +72,20 @@ namespace Plugin.Firebase.IntegrationTests.Storage
         [Fact]
         public async Task gets_download_url()
         {
+            var path = $"files_to_keep/text_1.txt";
             var reference = CrossFirebaseStorage
                 .Current
-                .GetReferenceFromPath("files_to_keep/text_1.txt");
+                .GetReferenceFromPath(path);
 
             var downloadUrl = await reference.GetDownloadUrlAsync();
-            Assert.StartsWith(CreateDownloadUrl("files_to_keep/text_1.txt"), downloadUrl);
+            AssertDownloadUrl(path, downloadUrl);
         }
 
-        private static string CreateDownloadUrl(string pathToFile)
+        private static void AssertDownloadUrl(string pathToFile, string downloadUrl)
         {
-            return $"https://firebasestorage.googleapis.com/v0/b/pluginfirebase-integrationtest.appspot.com/o/{pathToFile}?alt=media&token=";
+            Assert.StartsWith(
+                $"https://firebasestorage.googleapis.com/v0/b/pluginfirebase-integrationtest.appspot.com/o/{pathToFile}?alt=media&token=",
+                WebUtility.UrlDecode(downloadUrl));
         }
 
         [Fact]
@@ -94,7 +98,7 @@ namespace Plugin.Firebase.IntegrationTests.Storage
 
             await reference.PutBytes(Encoding.UTF8.GetBytes("Some test text")).AwaitAsync();
             var downloadUrl = await reference.GetDownloadUrlAsync();
-            Assert.StartsWith(CreateDownloadUrl(path), downloadUrl);
+            AssertDownloadUrl(path, downloadUrl);
         }
 
         [Fact]
@@ -108,7 +112,7 @@ namespace Plugin.Firebase.IntegrationTests.Storage
             using(var stream = await CreateTextStreamAsync("Some text via stream")) {
                 await reference.PutStream(stream).AwaitAsync();
                 var downloadUrl = await reference.GetDownloadUrlAsync();
-                Assert.StartsWith(CreateDownloadUrl(path), downloadUrl);
+                AssertDownloadUrl(path, downloadUrl);
             }
         }
 

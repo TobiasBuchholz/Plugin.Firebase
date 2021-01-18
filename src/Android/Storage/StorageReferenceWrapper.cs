@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Net;
 using System.Threading.Tasks;
 using Android.Gms.Extensions;
 using Firebase.Storage;
@@ -60,7 +59,7 @@ namespace Plugin.Firebase.Android.Storage
         public async Task<string> GetDownloadUrlAsync()
         {
             var uri = await _wrapped.GetDownloadUrlAsync();
-            return WebUtility.UrlDecode(uri.ToString());
+            return uri.ToString();
         }
 
         public async Task<IStorageListResult> ListAsync(long maxResults)

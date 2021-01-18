@@ -60,7 +60,7 @@ namespace Plugin.Firebase.iOS.Storage
         public async Task<string> GetDownloadUrlAsync()
         {
             var uri = await _wrapped.GetDownloadUrlAsync();
-            return WebUtility.UrlDecode(uri.AbsoluteString);
+            return uri.AbsoluteString;
         }
 
         public Task<IStorageListResult> ListAsync(long maxResults)

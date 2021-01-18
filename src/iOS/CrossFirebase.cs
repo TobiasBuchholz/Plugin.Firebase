@@ -26,15 +26,15 @@ namespace Plugin.Firebase.iOS
                 App.Configure(name, firebaseOptions);
             }
 
-            if(settings?.IsAnalyticsEnabled ?? false) {
+            if(settings.IsAnalyticsEnabled) {
                 FirebaseAnalyticsImplementation.Initialize();
             }
             
-            if(settings?.IsAuthEnabled ?? false) {
+            if(settings.IsAuthEnabled) {
                 FirebaseAuthImplementation.Initialize(app, options, settings.FacebookId, settings.FacebookAppName);
             }
 
-            if(settings?.IsCloudMessagingEnabled ?? false) {
+            if(settings.IsCloudMessagingEnabled) {
                 FirebaseCloudMessagingImplementation.Initialize();
             }
             

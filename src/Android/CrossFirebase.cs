@@ -2,6 +2,7 @@ using System;
 using Android.App;
 using Android.OS;
 using Firebase;
+using Plugin.Firebase.Analytics;
 using Plugin.Firebase.Auth;
 using Plugin.Firebase.Shared;
 
@@ -24,7 +25,11 @@ namespace Plugin.Firebase.Android
                 FirebaseApp.InitializeApp(activity, firebaseOptions, name);
             }
 
-            if(settings?.IsAuthEnabled ?? false) {
+            if(settings.IsAnalyticsEnabled) {
+                FirebaseAnalyticsImplementation.Initialize(activity);
+            }
+
+            if(settings.IsAuthEnabled) {
                 FirebaseAuthImplementation.Initialize(activity, savedInstanceState, settings.GoogleRequestIdToken ?? "123-abc");
             }
             

@@ -21,12 +21,12 @@ namespace Plugin.Firebase.iOS.Extensions
 
         public static DateTimeOffset ToDateTimeOffset(this NSDate @this)
         {
-            return DateTime.SpecifyKind((DateTime) @this, DateTimeKind.Utc);
+            return @this == null ? default(DateTimeOffset) : DateTime.SpecifyKind((DateTime) @this, DateTimeKind.Utc);
         }
         
         public static DateTimeOffset ToDateTimeOffset(this Timestamp @this)
         {
-            return DateTime.SpecifyKind((DateTime) @this.DateValue, DateTimeKind.Utc);
+            return @this == null ? default(DateTimeOffset) : DateTime.SpecifyKind((DateTime) @this.DateValue, DateTimeKind.Utc);
         }
     }
 }

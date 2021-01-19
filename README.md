@@ -24,6 +24,7 @@ This is a wrapper library around the native Android and iOS Firebase Xamarin SDK
 ```xml
 <PackageReference Include="Xamarin.Google.Guava.ListenableFuture" Version="1.0.0.2" ExcludeAssets="build;buildTransitive" />
 ```
+- If you receive an error that states the `default Firebase App is not initialized`, adding one package explicitly seems to resolve this issue (it doesn't seem to matter which package gets added).
 
 ## Documentation and samples
 

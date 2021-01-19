@@ -19,6 +19,12 @@ This is a wrapper library around the native Android and iOS Firebase Xamarin SDK
   CrossFirebase.Initialize(..., new CrossFirebaseSettings(...));
 ```
 
+### Android specifics
+- Add the following `PackageReference` to the `.csproj file` of your android project to prevent a build error (see this [github comment](https://github.com/xamarin/GooglePlayServicesComponents/issues/379#issuecomment-733266753) for more information):
+```xml
+<PackageReference Include="Xamarin.Google.Guava.ListenableFuture" Version="1.0.0.2" ExcludeAssets="build;buildTransitive" />
+```
+
 ## Documentation and samples
 
 In the [docs folder](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/docs) you can find for every feature a designated readme file that describes the setup and usage of this feature or where to find more information.

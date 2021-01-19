@@ -1,10 +1,10 @@
 using Playground.Common.Base;
 using Playground.Resources;
+using Xamarin.CommunityToolkit.Markup;
 using Xamarin.Forms;
-using Xamarin.Forms.Markup;
 using Xamarin.Forms.Internals;
 using Vm = Playground.Features.Auth.AuthViewModel;
-using static Xamarin.Forms.Markup.GridRowsColumns;
+using static Xamarin.CommunityToolkit.Markup.GridRowsColumns;
 
 namespace Playground.Features.Auth
 {

@@ -1,7 +1,7 @@
 using Playground.Common.Base;
 using Playground.Resources;
 using Xamarin.Forms;
-using Xamarin.Forms.Markup;
+using Xamarin.CommunityToolkit.Markup;
 using Xamarin.Forms.Internals;
 using Color = System.Drawing.Color;
 using Vm = Playground.Features.RemoteConfig.RemoteConfigViewModel;

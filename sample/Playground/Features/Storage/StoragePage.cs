@@ -1,7 +1,7 @@
 using Playground.Common.Base;
 using Playground.Resources;
 using Xamarin.Forms;
-using Xamarin.Forms.Markup;
+using Xamarin.CommunityToolkit.Markup;
 using Xamarin.Forms.Internals;
 using Color = System.Drawing.Color;
 using Vm = Playground.Features.Storage.StorageViewModel;
@@ -23,7 +23,8 @@ namespace Playground.Features.Storage
                     new Entry {
                             Placeholder = Localization.EntryPlaceholderStorage,
                             PlaceholderColor = Color.DarkGray,
-                            TextColor = Color.Black
+                            TextColor = Color.Black,
+                            BackgroundColor = Color.White
                         }
                         .CenterVertical()
                         .FillHorizontal()

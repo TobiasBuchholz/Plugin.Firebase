@@ -1,7 +1,7 @@
 using Playground.Common.Base;
 using Playground.Resources;
+using Xamarin.CommunityToolkit.Markup;
 using Xamarin.Forms;
-using Xamarin.Forms.Markup;
 using Xamarin.Forms.Internals;
 using Vm = Playground.Features.Dashboard.DashboardViewModel;
 

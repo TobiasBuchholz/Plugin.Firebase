@@ -29,7 +29,6 @@ namespace Playground.Droid
 
             base.OnCreate(savedInstanceState);
 
-            Forms.SetFlags("Markup_Experimental");
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             Forms.Init(this, savedInstanceState);
             LogOutputService.Initialize();

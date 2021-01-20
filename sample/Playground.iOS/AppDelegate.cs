@@ -29,7 +29,6 @@ namespace Playground.iOS
         //
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
-            Forms.SetFlags("Markup_Experimental");
             Forms.Init();
             LogOutputService.Initialize();
             CrossFirebase.Initialize(app, options, CreateCrossFirebaseSettings());

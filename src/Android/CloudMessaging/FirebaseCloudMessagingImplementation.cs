@@ -59,7 +59,7 @@ using Plugin.Firebase.Common;
 
         private static void HandleShowLocalNotificationIfNeeded(FCMNotification fcmNotification)
         {
-            if(!string.IsNullOrEmpty(fcmNotification.Title)) {
+            if(!string.IsNullOrEmpty(fcmNotification.Title) || !string.IsNullOrEmpty(fcmNotification.Body)) {
                 HandleShowLocalNotification(fcmNotification);
             }
         }
@@ -94,7 +94,7 @@ using Plugin.Firebase.Common;
         
         public static void OnNewIntent(Intent intent)
         {
-            if(intent.Extras != null && intent.HasExtra(IntentKeyFCMNotification)) {
+            if(intent.IsNotificationTappedIntent(IntentKeyFCMNotification)) {
                 ((FirebaseCloudMessagingImplementation) CrossFirebaseCloudMessaging.Current).HandleNotificationFromIntent(intent);
             }
         }

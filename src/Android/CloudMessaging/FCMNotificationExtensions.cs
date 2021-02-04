@@ -39,12 +39,25 @@ namespace Plugin.Firebase.Android.CloudMessaging
         public static FCMNotification GetNotificationFromExtras(this Intent intent, string extraName)
         {
             if(intent.HasExtra(extraName)) {
-                return intent.GetBundleExtra(extraName).ToFCMNotification();
-            } else {
+                return intent
+                    .GetBundleExtra(extraName)
+                    .ToFCMNotification();
+            } else if(intent.Extras != null) {
                 return new FCMNotification(
                     intent.Extras.GetString(BundleKeyBody),
                     intent.Extras.GetString(BundleKeyTitle),
                     intent.Extras.ToDictionary());
+            } else {
+                throw new FCMException("Couldn't get notification from intent extras");
+            }
+        }
+
+        public static bool IsNotificationTappedIntent(this Intent intent, string extraName)
+        {
+            try {
+                return intent.GetNotificationFromExtras(extraName) != null;
+            } catch(Exception) {
+                return false;
             }
         }
     }

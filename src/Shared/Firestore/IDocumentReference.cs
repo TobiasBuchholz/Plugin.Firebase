@@ -63,8 +63,9 @@ namespace Plugin.Firebase.Firestore
         /// Reads the document referenced by this <c>IDocumentReference</c>. This method attempts to provide up-to-date data when possible by
         /// waiting for data from the server, but it may return cached data or fail if you are offline and the server cannot be reached.
         /// </summary>
+        /// <param name="source">A value to configure the get behavior.</param>
         /// <typeparam name="T">The type of the document item.</typeparam>
-        Task<IDocumentSnapshot<T>> GetDocumentSnapshotAsync<T>();
+        Task<IDocumentSnapshot<T>> GetDocumentSnapshotAsync<T>(Source source = Source.Default);
 
         /// <summary>
         /// Attaches a listener for <c>IDocumentSnapshot</c> events.

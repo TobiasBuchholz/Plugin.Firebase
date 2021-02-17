@@ -129,8 +129,9 @@ namespace Plugin.Firebase.Firestore
         /// Reads the documents matching this query. This method attempts to provide up-to-date data when possible by waiting for data from
         /// the server, but it may return cached data or fail if you are offline and the server cannot be reached. 
         /// </summary>
+        /// <param name="source">A value to configure the get behavior.</param>
         /// <typeparam name="T">The type of the document items.</typeparam>
-        Task<IQuerySnapshot<T>> GetDocumentsAsync<T>();
+        Task<IQuerySnapshot<T>> GetDocumentsAsync<T>(Source source = Source.Default);
         
         /// <summary>
         /// Attaches a listener for QuerySnapshot events.

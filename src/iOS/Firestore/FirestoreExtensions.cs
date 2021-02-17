@@ -12,6 +12,7 @@ using NativeFirestoreSettings = Firebase.CloudFirestore.FirestoreSettings;
 using NativeFieldValue = Firebase.CloudFirestore.FieldValue;
 using NativeDocumentChange = Firebase.CloudFirestore.DocumentChange;
 using NativeDocumentChangeType = Firebase.CloudFirestore.DocumentChangeType;
+using NativeSource = Firebase.CloudFirestore.FirestoreSource;
 
 namespace Plugin.Firebase.iOS.Firestore
 {
@@ -123,6 +124,18 @@ namespace Plugin.Firebase.iOS.Firestore
                 SslEnabled = @this.IsSslEnabled,
                 CacheSizeBytes = @this.CacheSizeBytes
             };
+        }
+
+        public static NativeSource ToNative(this Source @this)
+        {
+            switch(@this) {
+                case Source.Cache:
+                    return NativeSource.Cache;
+                case Source.Server:
+                    return NativeSource.Server;
+                default:
+                    return NativeSource.Default;
+            }
         }
     }
 }

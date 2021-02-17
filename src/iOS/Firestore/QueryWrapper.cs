@@ -95,10 +95,17 @@ namespace Plugin.Firebase.iOS.Firestore
             return _wrapped.LimitedToLast(limit).ToAbstract();
         }
 
-        public async Task<IQuerySnapshot<T>> GetDocumentsAsync<T>()
+        public Task<IQuerySnapshot<T>> GetDocumentsAsync<T>(Source source = Source.Default)
         {
-            var querySnapshot = await _wrapped.GetDocumentsAsync();
-            return new QuerySnapshotWrapper<T>(querySnapshot);
+            var tcs = new TaskCompletionSource<IQuerySnapshot<T>>();
+            _wrapped.GetDocuments(source.ToNative(), (snapshot, error) => {
+                if(error == null) {
+                    tcs.SetResult(new QuerySnapshotWrapper<T>(snapshot));
+                } else {
+                    tcs.SetException(new FirebaseException(error.LocalizedDescription));
+                }
+            });
+            return tcs.Task;
         }
 
         public IDisposable AddSnapshotListener<T>(Action<IQuerySnapshot<T>> onChanged, Action<Exception> onError = null, bool includeMetaDataChanges = false)

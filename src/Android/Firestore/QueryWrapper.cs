@@ -7,6 +7,7 @@ using Firebase.Firestore;
 using Plugin.Firebase.Common;
 using Plugin.Firebase.Firestore;
 using Plugin.Firebase.Android.Extensions;
+using Source = Plugin.Firebase.Firestore.Source;
 
 namespace Plugin.Firebase.Android.Firestore
 {
@@ -99,9 +100,9 @@ namespace Plugin.Firebase.Android.Firestore
             return _wrapped.LimitToLast(limit).ToAbstract();
         }
 
-        public async Task<IQuerySnapshot<T>> GetDocumentsAsync<T>()
+        public async Task<IQuerySnapshot<T>> GetDocumentsAsync<T>(Source source = Source.Default)
         {
-            var querySnapshot = (QuerySnapshot) await _wrapped.Get();
+            var querySnapshot = (QuerySnapshot) await _wrapped.Get(source.ToNative());
             return new QuerySnapshotWrapper<T>(querySnapshot);
         }
 

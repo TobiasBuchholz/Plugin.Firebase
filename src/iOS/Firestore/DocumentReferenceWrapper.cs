@@ -79,10 +79,17 @@ namespace Plugin.Firebase.iOS.Firestore
             return Wrapped.DeleteDocumentAsync();
         }
 
-        public async Task<IDocumentSnapshot<T>> GetDocumentSnapshotAsync<T>()
+        public Task<IDocumentSnapshot<T>> GetDocumentSnapshotAsync<T>(Source source = Source.Default)
         {
-            var snapshot = await Wrapped.GetDocumentAsync();
-            return snapshot.ToAbstract<T>();
+            var tcs = new TaskCompletionSource<IDocumentSnapshot<T>>();
+            Wrapped.GetDocument(source.ToNative(), (snapshot, error) => {
+                if(error == null) {
+                    tcs.SetResult(snapshot.ToAbstract<T>());
+                } else {
+                    tcs.SetException(new FirebaseException(error.LocalizedDescription));
+                }
+            });
+            return tcs.Task;
         }
 
         public IDisposable AddSnapshotListener<T>(

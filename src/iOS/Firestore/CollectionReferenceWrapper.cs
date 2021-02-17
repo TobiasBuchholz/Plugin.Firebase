@@ -126,15 +126,23 @@ namespace Plugin.Firebase.iOS.Firestore
                 if(error == null) {
                     tcs.SetResult(new DocumentReferenceWrapper(documentReference));
                 } else {
-                    tcs.SetException(new FirebaseException(error?.LocalizedDescription));
+                    tcs.SetException(new FirebaseException(error.LocalizedDescription));
                 }
             });
             return tcs.Task;
         }
 
-        public async Task<IQuerySnapshot<T>> GetDocumentsAsync<T>()
+        public Task<IQuerySnapshot<T>> GetDocumentsAsync<T>(Source source = Source.Default)
         {
-            return new QuerySnapshotWrapper<T>(await _wrapped.GetDocumentsAsync());
+            var tcs = new TaskCompletionSource<IQuerySnapshot<T>>();
+            _wrapped.GetDocuments(source.ToNative(), (snapshot, error) => {
+                if(error == null) {
+                    tcs.SetResult(new QuerySnapshotWrapper<T>(snapshot));
+                } else {
+                    tcs.SetException(new FirebaseException(error.LocalizedDescription));
+                }
+            });
+            return tcs.Task;
         }
     }
 }

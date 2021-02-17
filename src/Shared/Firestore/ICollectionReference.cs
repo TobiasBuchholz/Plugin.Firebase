@@ -157,7 +157,8 @@ namespace Plugin.Firebase.Firestore
         /// <summary>
         /// Returns an <c>IQuerySnapshot</c> object containing an enumerable of documents and some meta data.
         /// </summary>
+        /// <param name="source">A value to configure the get behavior.</param>
         /// <typeparam name="T">The type of the document items.</typeparam>
-        Task<IQuerySnapshot<T>> GetDocumentsAsync<T>();
+        Task<IQuerySnapshot<T>> GetDocumentsAsync<T>(Source source = Source.Default);
     }
 }

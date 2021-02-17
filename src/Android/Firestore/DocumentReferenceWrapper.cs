@@ -10,6 +10,7 @@ using Plugin.Firebase.Firestore;
 using Plugin.Firebase.Android.Common;
 using Exception = System.Exception;
 using SetOptions = Plugin.Firebase.Firestore.SetOptions;
+using Source = Plugin.Firebase.Firestore.Source;
 using Task = System.Threading.Tasks.Task;
 
 namespace Plugin.Firebase.Android.Firestore
@@ -68,11 +69,11 @@ namespace Plugin.Firebase.Android.Firestore
             await Wrapped.Delete();
         }
 
-        public Task<IDocumentSnapshot<T>> GetDocumentSnapshotAsync<T>()
+        public Task<IDocumentSnapshot<T>> GetDocumentSnapshotAsync<T>(Source source = Source.Default)
         {
             var tcs = new TaskCompletionSource<IDocumentSnapshot<T>>();
             Wrapped
-                .Get()
+                .Get(source.ToNative())
                 .AddOnCompleteListener(new OnCompleteListener(task => {
                     if(task.IsSuccessful) {
                         var snapshot = task.GetResult(Class.FromType(typeof(DocumentSnapshot))).JavaCast<DocumentSnapshot>();

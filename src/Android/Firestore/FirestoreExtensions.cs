@@ -10,6 +10,8 @@ using NativeSetOptions = Firebase.Firestore.SetOptions;
 using SetOptions = Plugin.Firebase.Firestore.SetOptions;
 using NativeDocumentChange = Firebase.Firestore.DocumentChange;
 using DocumentChange = Plugin.Firebase.Firestore.DocumentChange;
+using Source = Plugin.Firebase.Firestore.Source;
+using NativeSource = Firebase.Firestore.Source;
 
 namespace Plugin.Firebase.Android.Firestore
 {
@@ -135,6 +137,18 @@ namespace Plugin.Firebase.Android.Firestore
                 .SetSslEnabled(@this.IsSslEnabled)
                 .SetCacheSizeBytes(@this.CacheSizeBytes)
                 .Build();
+        }
+
+        public static NativeSource ToNative(this Source @this)
+        {
+            switch(@this) {
+                case Source.Cache:
+                    return NativeSource.Cache;
+                case Source.Server:
+                    return NativeSource.Server;
+                default:
+                    return NativeSource.Default;
+            }
         }
     }
 }

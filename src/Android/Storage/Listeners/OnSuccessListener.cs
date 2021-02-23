@@ -8,9 +8,9 @@ namespace Plugin.Firebase.Android.Storage.Listeners
 {
     public sealed class OnSuccessListener : Object, IOnSuccessListener
     {
-        private readonly Action<UploadTask.TaskSnapshot> _action;
+        private readonly Action<StorageTask.SnapshotBase> _action;
 
-        public OnSuccessListener(Action<UploadTask.TaskSnapshot> action)
+        public OnSuccessListener(Action<StorageTask.SnapshotBase> action)
         {
             _action = action;
         }
@@ -18,7 +18,7 @@ namespace Plugin.Firebase.Android.Storage.Listeners
         public void OnSuccess(Object snapshot)
         {
             if(snapshot != null) {
-                _action.Invoke(snapshot.JavaCast<UploadTask.TaskSnapshot>());
+                _action.Invoke(snapshot.JavaCast<StorageTask.SnapshotBase>());
             }
         }
     }

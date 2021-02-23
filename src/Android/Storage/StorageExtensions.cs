@@ -21,7 +21,7 @@ namespace Plugin.Firebase.Android.Storage
             return new StorageTransferTaskWrapper(@this);
         }
         
-        public static IStorageTaskSnapshot ToAbstract(this UploadTask.TaskSnapshot @this)
+        public static IStorageTaskSnapshot ToAbstract(this StorageTask.SnapshotBase @this)
         {
             return StorageTaskTaskSnapshotWrapper.FromSnapshot(@this);
         }

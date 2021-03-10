@@ -82,11 +82,11 @@
     <PackageReference Include="GoogleGson" Version="2.8.5" />
     <PackageReference Include="Plugin.CurrentActivity" Version="2.1.0.4" />
     <PackageReference Include="Xamarin.Facebook.Android" Version="7.1.0" />
-    <PackageReference Include="Xamarin.Firebase.Analytics" Version="118.0.0" />
-    <PackageReference Include="Xamarin.Firebase.Auth" Version="120.0.1" />
-    <PackageReference Include="Xamarin.Firebase.Config" Version="120.0.2" />
+    <PackageReference Include="Xamarin.Firebase.Analytics" Version="118.0.2" />
+    <PackageReference Include="Xamarin.Firebase.Auth" Version="120.0.2" />
+    <PackageReference Include="Xamarin.Firebase.Config" Version="120.0.3" />
     <PackageReference Include="Xamarin.Firebase.Dynamic.Links" Version="119.1.1" />
-    <PackageReference Include="Xamarin.Firebase.Firestore" Version="122.0.1" />
+    <PackageReference Include="Xamarin.Firebase.Firestore" Version="122.1.0" />
     <PackageReference Include="Xamarin.Firebase.Functions" Version="119.2.0" />
     <PackageReference Include="Xamarin.Firebase.Messaging" Version="121.0.1" />
     <PackageReference Include="Xamarin.Firebase.Storage" Version="119.2.1" />
@@ -105,13 +105,13 @@
     <PackageReference Include="Xamarin.Firebase.iOS.DynamicLinks" Version="4.3.1" />
     <PackageReference Include="Xamarin.Firebase.iOS.RemoteConfig" Version="4.9.1" />
     <PackageReference Include="Xamarin.Firebase.iOS.Storage" Version="3.9.1" />
+    <PackageReference Include="Xamarin.Facebook.iOS" Version="9.0.1.5" />
+    <PackageReference Include="Xamarin.Firebase.iOS.Analytics" Version="6.9.0" />
+    <PackageReference Include="Xamarin.Google.iOS.SignIn" Version="5.0.2.1" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Xamarin.Facebook.iOS" Version="7.1.1" />
-    <PackageReference Include="Xamarin.Firebase.iOS.Analytics" Version="6.9.0" />
-    <PackageReference Include="Xamarin.Google.iOS.SignIn" Version="5.0.2.1" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
   </ItemGroup>
 

@@ -20,6 +20,7 @@ using Plugin.Firebase.Common;
         private static Context _context;
         
         public static string ChannelId { get; set; }
+        public static int SmallIconRef { private get; set; } = global::Android.Resource.Drawable.SymDefAppIcon;
         public static Func<FCMNotification, NotificationCompat.Builder> NotificationBuilderProvider { private get; set; }
         
         private FCMNotification _missedTappedNotification;
@@ -78,7 +79,7 @@ using Plugin.Firebase.Common;
         private static NotificationCompat.Builder CreateDefaultNotificationBuilder(FCMNotification notification)
         {
             return new NotificationCompat.Builder(_context, ChannelId)
-                .SetSmallIcon(global::Android.Resource.Drawable.SymDefAppIcon)
+                .SetSmallIcon(SmallIconRef)
                 .TrySetBigPictureStyle(notification)
                 .SetContentTitle(notification.Title)
                 .SetContentText(notification.Body)

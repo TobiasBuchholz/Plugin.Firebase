@@ -33,6 +33,7 @@ namespace Playground.Droid
             Forms.Init(this, savedInstanceState);
             LogOutputService.Initialize();
             CrossFirebase.Initialize(this, savedInstanceState, CreateCrossFirebaseSettings());
+            FirebaseCloudMessagingImplementation.SmallIconRef = Resource.Drawable.ic_push_small;
 
             var compositionRoot = new CompositionRoot();
             ViewModelResolver.Initialize(compositionRoot);

@@ -20,7 +20,7 @@ using Plugin.Firebase.Common;
         private static Context _context;
         
         public static string ChannelId { get; set; }
-        public static Action<FCMNotification> ShowLocalNotificationAction { private get; set; }
+        public static Func<FCMNotification, NotificationCompat.Builder> NotificationBuilderProvider { private get; set; }
         
         private FCMNotification _missedTappedNotification;
 
@@ -66,30 +66,24 @@ using Plugin.Firebase.Common;
 
         private static void HandleShowLocalNotification(FCMNotification notification)
         {
-            if(ShowLocalNotificationAction == null) {
-                ShowLocalNotification(notification);
-            } else {
-                ShowLocalNotificationAction(notification);
-            }
-        }
-
-        private static void ShowLocalNotification(FCMNotification notification)
-        {
             var intent = _context.PackageManager.GetLaunchIntentForPackage(_context.PackageName);
             intent.PutExtra(IntentKeyFCMNotification, notification.ToBundle());
             intent.SetFlags(ActivityFlags.ClearTop | ActivityFlags.SingleTop);
             var pendingIntent = PendingIntent.GetActivity(_context, 0, intent, 0);
+            var builder = NotificationBuilderProvider?.Invoke(notification) ?? CreateDefaultNotificationBuilder(notification);
+            var notificationManager = (NotificationManager) _context.GetSystemService(Context.NotificationService);
+            notificationManager.Notify(1337, builder.SetContentIntent(pendingIntent).Build());
+        }
 
-            var builder = new NotificationCompat.Builder(_context, ChannelId)
+        private static NotificationCompat.Builder CreateDefaultNotificationBuilder(FCMNotification notification)
+        {
+            return new NotificationCompat.Builder(_context, ChannelId)
                 .SetSmallIcon(global::Android.Resource.Drawable.SymDefAppIcon)
+                .TrySetBigPictureStyle(notification)
                 .SetContentTitle(notification.Title)
                 .SetContentText(notification.Body)
                 .SetPriority(NotificationCompat.PriorityDefault)
-                .SetAutoCancel(true)
-                .SetContentIntent(pendingIntent);
-
-            var notificationManager = (NotificationManager) _context.GetSystemService(Context.NotificationService);
-            notificationManager.Notify(1337, builder.Build());
+                .SetAutoCancel(true);
         }
         
         public static void OnNewIntent(Intent intent)

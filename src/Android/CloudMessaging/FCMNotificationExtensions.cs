@@ -11,12 +11,17 @@ namespace Plugin.Firebase.Android.CloudMessaging
     {
         private const string BundleKeyTitle = "title";
         private const string BundleKeyBody = "body";
+        private const string BundleKeyImageUrl = "image_url";
         private const string BundleKeyData = "data";
         
         public static FCMNotification ToFCMNotification(this RemoteMessage message)
         {
             var notification = message.GetNotification();
-            return new FCMNotification(notification?.Body, notification?.Title, message.Data);
+            return new FCMNotification(
+                notification?.Body,
+                notification?.Title,
+                notification?.ImageUrl?.ToString(),
+                 message.Data);
         }
 
         public static FCMNotification ToFCMNotification(this Bundle bundle)
@@ -24,6 +29,7 @@ namespace Plugin.Firebase.Android.CloudMessaging
             return new FCMNotification(
                 bundle.GetString(BundleKeyBody),
                 bundle.GetString(BundleKeyTitle), 
+                bundle.GetString(BundleKeyImageUrl), 
                 bundle.GetBundle(BundleKeyData).ToDictionary());
         }
 
@@ -32,6 +38,7 @@ namespace Plugin.Firebase.Android.CloudMessaging
             var bundle = new Bundle();
             bundle.PutString(BundleKeyBody, notification.Body);
             bundle.PutString(BundleKeyTitle, notification.Title);
+            bundle.PutString(BundleKeyImageUrl, notification.ImageUrl);
             bundle.PutBundle(BundleKeyData, notification.Data?.ToBundle());
             return bundle;
         }
@@ -46,6 +53,7 @@ namespace Plugin.Firebase.Android.CloudMessaging
                 return new FCMNotification(
                     intent.Extras.GetString(BundleKeyBody),
                     intent.Extras.GetString(BundleKeyTitle),
+                    intent.Extras.GetString(BundleKeyImageUrl),
                     intent.Extras.ToDictionary());
             } else {
                 throw new FCMException("Couldn't get notification from intent extras");

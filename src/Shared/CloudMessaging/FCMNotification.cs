@@ -16,10 +16,12 @@ namespace Plugin.Firebase.CloudMessaging
         public FCMNotification(
             string body = null, 
             string title = null, 
+            string imageUrl = null,
             IDictionary<string, string> data = null)
         {
             _body = body;
             _title = title;
+            ImageUrl = imageUrl;
             Data = data;
         }
 
@@ -30,6 +32,7 @@ namespace Plugin.Firebase.CloudMessaging
 
         public string Body => _body ?? (Data != null && Data.ContainsKey("body") ? Data["body"] : "");
         public string Title => _title ?? (Data != null && Data.ContainsKey("title") ? Data["title"] : "");
+        public string ImageUrl { get; }
         public IDictionary<string, string> Data { get; }
     }
 }

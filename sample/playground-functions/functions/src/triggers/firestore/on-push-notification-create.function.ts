@@ -38,7 +38,8 @@ export class OnPushNotificationCreateFunction {
     return {
       notification: {
         title: notification.title,
-        body: notification.body
+        body: notification.body,
+        image: 'https://picsum.photos/200'
       },
       data: {
         title: notification.title,

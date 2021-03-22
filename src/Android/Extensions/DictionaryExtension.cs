@@ -59,6 +59,9 @@ namespace System.Collections.Generic
                 case IFirestoreObject x:
                     @this.Put(key.ToString(), x.ToJavaObject());
                     break;
+                case IDictionary x:
+                    @this.Put(key.ToString(), x.ToHashMap());
+                    break;
                 default:
                     if(value == null) {
                         @this.Put(key.ToString(), null);

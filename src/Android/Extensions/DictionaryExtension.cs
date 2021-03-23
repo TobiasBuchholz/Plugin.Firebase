@@ -60,7 +60,7 @@ namespace System.Collections.Generic
                     @this.Put(key.ToString(), x.ToJavaObject());
                     break;
                 case IDictionary x:
-                    @this.Put(key.ToString(), x.ToHashMap());
+                    @this.Put(key.ToString(), x.ToHashMapFromNonGenericDict());
                     break;
                 default:
                     if(value == null) {
@@ -98,6 +98,15 @@ namespace System.Collections.Generic
                     hashMap.Put(x.Key, x.Value);
                 }
             });
+            return hashMap;
+        }
+        
+        public static HashMap ToHashMapFromNonGenericDict(this IDictionary dictionary)
+        {
+            var hashMap = new HashMap();
+            foreach(DictionaryEntry entry in dictionary) {
+                hashMap.Put(entry.Key, entry.Value);
+            }
             return hashMap;
         }
         

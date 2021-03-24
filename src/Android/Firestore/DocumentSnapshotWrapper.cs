@@ -11,7 +11,7 @@ namespace Plugin.Firebase.Android.Firestore
         {
         }
 
-        public new T Data => Wrapped.Data == null ? default(T) : Wrapped.Data.Cast<T>();
+        public new T Data => Wrapped.Data == null ? default(T) : Wrapped.Data.Cast<T>(Wrapped.Id);
     }
     
     public class DocumentSnapshotWrapper : IDocumentSnapshot

@@ -12,4 +12,12 @@ namespace Plugin.Firebase.Firestore
         
         public string PropertyName { get; }
     }
+    
+    [AttributeUsage(AttributeTargets.Property)]
+    public class FirestoreDocumentIdAttribute : Attribute
+    {
+        public FirestoreDocumentIdAttribute()
+        {
+        }
+    }
 }

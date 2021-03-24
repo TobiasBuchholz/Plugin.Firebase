@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Android.Runtime;
+using Plugin.Firebase.Common;
 using Plugin.Firebase.Firestore;
 using Xamarin.Essentials;
 using Xunit;
@@ -351,6 +352,21 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             Assert.True(settings.IsPersistenceEnabled);
             Assert.True(settings.IsSslEnabled);
             Assert.Equal(104857600, settings.CacheSizeBytes);
+        }
+
+        [Fact]
+        public async Task copies_document_id_in_firestore_document_id_attributed_property()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var item = new SimpleItem(title:"test");
+            var path = $"testing/1337";
+            var document = sut.GetDocument(path);
+            
+            await document.SetDataAsync(item);
+
+            var snapshot = await document.GetDocumentSnapshotAsync<SimpleItem>();
+            Assert.Equal("1337", snapshot.Data.Id);
+            Assert.Equal("1337", snapshot.Reference.Id);
         }
 
         public async Task DisposeAsync()

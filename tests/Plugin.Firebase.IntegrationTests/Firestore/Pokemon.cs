@@ -61,7 +61,8 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             return $"[{nameof(Pokemon)}: {nameof(Id)}={Id}, {nameof(Name)}={Name}]";
         }
 
-        [FirestoreProperty("id")]
+        [FirestoreDocumentId]
+        [FirestoreProperty("id")] // this attribute is still needed for Pokemon items in Evolutions list
         public string Id { get; private set; }
 
         [FirestoreProperty("name")]

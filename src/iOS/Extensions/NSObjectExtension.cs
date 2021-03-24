@@ -14,16 +14,21 @@ namespace Plugin.Firebase.iOS.Extensions
 {
     public static class NSObjectExtension
     {
-        public static T Cast<T>(this NSDictionary @this)
+        public static T Cast<T>(this NSDictionary @this, string documentId = null)
         {
-            return (T) @this.Cast(typeof(T));
+            return (T) @this.Cast(typeof(T), documentId);
         }
         
-        private static object Cast(this NSDictionary @this, Type targetType)
+        private static object Cast(this NSDictionary @this, Type targetType, string documentId = null)
         {
             var instance = Activator.CreateInstance(targetType);
             var properties = targetType.GetProperties();
             foreach(var property in properties) {
+                if(documentId != null && property.GetCustomAttributes(typeof(FirestoreDocumentIdAttribute), true).Any()) {
+                    property.SetValue(instance, documentId);
+                    continue;
+                }
+                
                 var attributes = property.GetCustomAttributes(typeof(FirestorePropertyAttribute), true);
                 if(attributes.Any()) {
                     var attribute = (FirestorePropertyAttribute) attributes[0];

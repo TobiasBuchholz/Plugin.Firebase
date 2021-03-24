@@ -35,7 +35,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
 
         public override string ToString()
         {
-            return $"[{nameof(SightingLocation)}: {nameof(Latitude)}={Latitude}, {nameof(Longitude)}]";
+            return $"[{nameof(SightingLocation)}: {nameof(Latitude)}={Latitude}, {nameof(Longitude)}={Longitude}]";
         }
         
         [FirestoreProperty("latitude")]

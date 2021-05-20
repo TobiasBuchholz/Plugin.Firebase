@@ -164,6 +164,19 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         }
 
         [Fact]
+        public async Task gets_data_using_in_query()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            
+            var pokemons = await sut
+                .GetCollection("pokemons")
+                .WhereFieldIn(FieldPath.DocumentId(), new object[] { "1", "2", "3" })
+                .GetDocumentsAsync<Pokemon>();
+
+            Assert.Equal(new[] { "1", "2", "3" }, pokemons.Documents.Select(x => x.Data.Id));
+        }
+
+        [Fact]
         public async Task orders_and_limits_data()
         {
             var sut = CrossFirebaseFirestore.Current;

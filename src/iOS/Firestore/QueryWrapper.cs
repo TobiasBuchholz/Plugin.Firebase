@@ -20,9 +20,19 @@ namespace Plugin.Firebase.iOS.Firestore
             return _wrapped.WhereEqualsTo(field, value).ToAbstract();
         }
 
+        public IQuery WhereEqualsTo(FieldPath path, object value)
+        {
+            return _wrapped.WhereEqualsTo(path.ToNative(), value).ToAbstract();
+        }
+
         public IQuery WhereGreaterThan(string field, object value)
         {
             return _wrapped.WhereGreaterThan(field, value).ToAbstract();
+        }
+
+        public IQuery WhereGreaterThan(FieldPath path, object value)
+        {
+            return _wrapped.WhereGreaterThan(path.ToNative(), value).ToAbstract();
         }
 
         public IQuery WhereLessThan(string field, object value)
@@ -30,9 +40,19 @@ namespace Plugin.Firebase.iOS.Firestore
             return _wrapped.WhereLessThan(field, value).ToAbstract();
         }
 
+        public IQuery WhereLessThan(FieldPath path, object value)
+        {
+            return _wrapped.WhereLessThan(path.ToNative(), value).ToAbstract();
+        }
+
         public IQuery WhereGreaterThanOrEqualsTo(string field, object value)
         {
             return _wrapped.WhereGreaterThanOrEqualsTo(field, value).ToAbstract();
+        }
+
+        public IQuery WhereGreaterThanOrEqualsTo(FieldPath path, object value)
+        {
+            return _wrapped.WhereGreaterThanOrEqualsTo(path.ToNative(), value).ToAbstract();
         }
 
         public IQuery WhereLessThanOrEqualsTo(string field, object value)
@@ -40,24 +60,49 @@ namespace Plugin.Firebase.iOS.Firestore
             return _wrapped.WhereLessThanOrEqualsTo(field, value).ToAbstract();
         }
 
-        public IQuery WhereArrayContains(string path, object value)
+        public IQuery WhereLessThanOrEqualsTo(FieldPath path, object value)
         {
-            return _wrapped.WhereArrayContains(path, value).ToAbstract();
+            return _wrapped.WhereLessThanOrEqualsTo(path.ToNative(), value).ToAbstract();
         }
 
-        public IQuery WhereArrayContainsAny(string path, object[] values)
+        public IQuery WhereArrayContains(string field, object value)
         {
-            return _wrapped.WhereArrayContainsAny(path, values).ToAbstract();
+            return _wrapped.WhereArrayContains(field, value).ToAbstract();
         }
 
-        public IQuery WhereFieldIn(string path, object[] values)
+        public IQuery WhereArrayContains(FieldPath path, object value)
         {
-            return _wrapped.WhereFieldIn(path, values).ToAbstract();
+            return _wrapped.WhereArrayContains(path.ToNative(), value).ToAbstract();
+        }
+
+        public IQuery WhereArrayContainsAny(string field, object[] values)
+        {
+            return _wrapped.WhereArrayContainsAny(field, values).ToAbstract();
+        }
+
+        public IQuery WhereArrayContainsAny(FieldPath path, object[] values)
+        {
+            return _wrapped.WhereArrayContainsAny(path.ToNative(), values).ToAbstract();
+        }
+
+        public IQuery WhereFieldIn(string field, object[] values)
+        {
+            return _wrapped.WhereFieldIn(field, values).ToAbstract();
+        }
+
+        public IQuery WhereFieldIn(FieldPath path, object[] values)
+        {
+            return _wrapped.WhereFieldIn(path.ToNative(), values).ToAbstract();
         }
 
         public IQuery OrderBy(string field, bool descending = false)
         {
             return _wrapped.OrderedBy(field, descending).ToAbstract();
+        }
+
+        public IQuery OrderBy(FieldPath path, bool @descending = false)
+        {
+            return _wrapped.OrderedBy(path.ToNative(), descending).ToAbstract();
         }
 
         public IQuery StartingAt(params object[] fieldValues)

@@ -42,11 +42,27 @@ namespace Plugin.Firebase.Firestore
         
         /// <summary>
         /// Creates and returns a new <c>IQuery</c> object with the additional filter that documents must contain the specified field and the
+        /// value must be equal to the specified value.
+        /// </summary>
+        /// <param name="path">The path of the field to compare.</param>
+        /// <param name="value">The value the field must be equal to.</param>
+        IQuery WhereEqualsTo(FieldPath path, object value);
+        
+        /// <summary>
+        /// Creates and returns a new <c>IQuery</c> object with the additional filter that documents must contain the specified field and the
         /// value must greater than the specified value.
         /// </summary>
         /// <param name="field">The name of the field to compare.</param>
         /// <param name="value">The value the field must be greater than.</param>
         IQuery WhereGreaterThan(string field, object value);
+        
+        /// <summary>
+        /// Creates and returns a new <c>IQuery</c> object with the additional filter that documents must contain the specified field and the
+        /// value must greater than the specified value.
+        /// </summary>
+        /// <param name="path">The path of the field to compare.</param>
+        /// <param name="value">The value the field must be greater than.</param>
+        IQuery WhereGreaterThan(FieldPath path, object value);
         
         /// <summary>
         /// Creates and returns a new <c>IQuery</c> object with the additional filter that documents must contain the specified field and the
@@ -58,11 +74,27 @@ namespace Plugin.Firebase.Firestore
         
         /// <summary>
         /// Creates and returns a new <c>IQuery</c> object with the additional filter that documents must contain the specified field and the
+        /// value must be less than the specified value.
+        /// </summary>
+        /// <param name="path">The path of the field to compare.</param>
+        /// <param name="value">The value the field must be less than.</param>
+        IQuery WhereLessThan(FieldPath path, object value);
+        
+        /// <summary>
+        /// Creates and returns a new <c>IQuery</c> object with the additional filter that documents must contain the specified field and the
         /// value must be greater than or equal to the specified value.
         /// </summary>
         /// <param name="field">The name of the field to compare.</param>
         /// <param name="value">The value the field must be greater than.</param>
         IQuery WhereGreaterThanOrEqualsTo(string field, object value);
+        
+        /// <summary>
+        /// Creates and returns a new <c>IQuery</c> object with the additional filter that documents must contain the specified field and the
+        /// value must be greater than or equal to the specified value.
+        /// </summary>
+        /// <param name="path">The path of the field to compare.</param>
+        /// <param name="value">The value the field must be greater than.</param>
+        IQuery WhereGreaterThanOrEqualsTo(FieldPath path, object value);
         
         /// <summary>
         /// Creates and returns a new <c>IQuery</c> object with the additional filter that documents must contain the specified field and the
@@ -73,6 +105,24 @@ namespace Plugin.Firebase.Firestore
         IQuery WhereLessThanOrEqualsTo(string field, object value);
         
         /// <summary>
+        /// Creates and returns a new <c>IQuery</c> object with the additional filter that documents must contain the specified field and the
+        /// value must be less than or equal to the specified value.
+        /// </summary>
+        /// <param name="path">The path of the field to compare.</param>
+        /// <param name="value">The value the field must be less than or equal to.</param>
+        IQuery WhereLessThanOrEqualsTo(FieldPath path, object value);
+        
+        /// <summary>
+        /// Creates and returns a new <c>IQuery</c> with the additional filter that documents must contain the specified field, it must be an array,
+        /// and the array must contain the provided value.
+        ///
+        /// A query can have only one arrayContains filter.
+        /// </summary>
+        /// <param name="field">The name of the field containing an array to search</param>
+        /// <param name="value">The value that must be contained in the array</param>
+        IQuery WhereArrayContains(string field, object value);
+        
+        /// <summary>
         /// Creates and returns a new <c>IQuery</c> with the additional filter that documents must contain the specified field, it must be an array,
         /// and the array must contain the provided value.
         ///
@@ -80,7 +130,17 @@ namespace Plugin.Firebase.Firestore
         /// </summary>
         /// <param name="path">The path of the field containing an array to search</param>
         /// <param name="value">The value that must be contained in the array</param>
-        IQuery WhereArrayContains(string path, object value);
+        IQuery WhereArrayContains(FieldPath path, object value);
+        
+        /// <summary>
+        /// Creates and returns a new <c>IQuery</c> with the additional filter that documents must contain the specified field, the value must be an array,
+        /// and that array must contain at least one value from the provided array.
+        ///
+        /// A query can have only one ArrayContainsAny filter and it cannot be combined with ArrayContains or in filters.
+        /// </summary>
+        /// <param name="field">The name of the field containing an array to search.</param>
+        /// <param name="values">The array that contains the values to match.</param>
+        IQuery WhereArrayContainsAny(string field, object[] values);
         
         /// <summary>
         /// Creates and returns a new <c>IQuery</c> with the additional filter that documents must contain the specified field, the value must be an array,
@@ -90,7 +150,17 @@ namespace Plugin.Firebase.Firestore
         /// </summary>
         /// <param name="path">The path of the field containing an array to search.</param>
         /// <param name="values">The array that contains the values to match.</param>
-        IQuery WhereArrayContainsAny(string path, object[] values);
+        IQuery WhereArrayContainsAny(FieldPath path, object[] values);
+        
+        /// <summary>
+        /// Creates and returns a new <c>IQuery</c> with the additional filter that documents must contain the specified field and the value must equal
+        /// one of the values from the provided array.
+        ///
+        /// A query can have only one in filter, and it cannot be combined with an arrayContainsAny filter.
+        /// </summary>
+        /// <param name="field">The name of the field to search.</param>
+        /// <param name="values">The array that contains the values to match.</param>
+        IQuery WhereFieldIn(string field, object[] values);
         
         /// <summary>
         /// Creates and returns a new <c>IQuery</c> with the additional filter that documents must contain the specified field and the value must equal
@@ -100,7 +170,7 @@ namespace Plugin.Firebase.Firestore
         /// </summary>
         /// <param name="path">The name of the field to search.</param>
         /// <param name="values">The array that contains the values to match.</param>
-        IQuery WhereFieldIn(string path, object[] values);
+        IQuery WhereFieldIn(FieldPath path, object[] values);
         
         /// <summary>
         /// Creates and returns a new <c>IQuery</c> object that’s additionally sorted by the specified field.
@@ -108,6 +178,13 @@ namespace Plugin.Firebase.Firestore
         /// <param name="field">The field to sort by.</param>
         /// <param name="descending">Whether to sort descending.</param>
         IQuery OrderBy(string field, bool descending = false);
+        
+        /// <summary>
+        /// Creates and returns a new <c>IQuery</c> object that’s additionally sorted by the specified field.
+        /// </summary>
+        /// <param name="path">The path to sort by.</param>
+        /// <param name="descending">Whether to sort descending.</param>
+        IQuery OrderBy(FieldPath path, bool descending = false);
         
         /// <summary>
         /// Creates and returns a new <c>IQuery</c> object that starts at the provided fields relative to the order of the query. The order of

@@ -6,6 +6,7 @@ using Plugin.Firebase.Firestore;
 using Plugin.Firebase.iOS.Extensions;
 using DocumentChange = Plugin.Firebase.Firestore.DocumentChange;
 using DocumentChangeType = Plugin.Firebase.Firestore.DocumentChangeType;
+using FieldPath = Plugin.Firebase.Firestore.FieldPath;
 using FieldValue = Plugin.Firebase.Firestore.FieldValue;
 using FirestoreSettings = Plugin.Firebase.Firestore.FirestoreSettings;
 using NativeFirestoreSettings = Firebase.CloudFirestore.FirestoreSettings;
@@ -13,6 +14,7 @@ using NativeFieldValue = Firebase.CloudFirestore.FieldValue;
 using NativeDocumentChange = Firebase.CloudFirestore.DocumentChange;
 using NativeDocumentChangeType = Firebase.CloudFirestore.DocumentChangeType;
 using NativeSource = Firebase.CloudFirestore.FirestoreSource;
+using NativeFieldPath = Firebase.CloudFirestore.FieldPath;
 
 namespace Plugin.Firebase.iOS.Firestore
 {
@@ -136,6 +138,11 @@ namespace Plugin.Firebase.iOS.Firestore
                 default:
                     return NativeSource.Default;
             }
+        }
+
+        public static NativeFieldPath ToNative(this FieldPath @this)
+        {
+            return @this.IsDocumentId ? NativeFieldPath.GetDocumentId() : new NativeFieldPath(@this.Fields);
         }
     }
 }

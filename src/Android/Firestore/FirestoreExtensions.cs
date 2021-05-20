@@ -10,8 +10,10 @@ using NativeSetOptions = Firebase.Firestore.SetOptions;
 using SetOptions = Plugin.Firebase.Firestore.SetOptions;
 using NativeDocumentChange = Firebase.Firestore.DocumentChange;
 using DocumentChange = Plugin.Firebase.Firestore.DocumentChange;
+using FieldPath = Plugin.Firebase.Firestore.FieldPath;
 using Source = Plugin.Firebase.Firestore.Source;
 using NativeSource = Firebase.Firestore.Source;
+using NativeFieldPath = Firebase.Firestore.FieldPath;
 
 namespace Plugin.Firebase.Android.Firestore
 {
@@ -116,7 +118,7 @@ namespace Plugin.Firebase.Android.Firestore
                 case SetOptions.TypeMerge:
                     return NativeSetOptions.Merge();
                 case SetOptions.TypeMergeFieldPaths:
-                    return NativeSetOptions.MergeFieldPaths(options.FieldPaths.Select(x => FieldPath.Of(x.ToArray())).ToList());
+                    return NativeSetOptions.MergeFieldPaths(options.FieldPaths.Select(x => NativeFieldPath.Of(x.ToArray())).ToList());
                 case SetOptions.TypeMergeFields:
                     return NativeSetOptions.MergeFields(options.Fields);
                 default:
@@ -149,6 +151,11 @@ namespace Plugin.Firebase.Android.Firestore
                 default:
                     return NativeSource.Default;
             }
+        }
+
+        public static NativeFieldPath ToNative(this FieldPath @this)
+        {
+            return @this.IsDocumentId ? NativeFieldPath.DocumentId() : NativeFieldPath.Of(@this.Fields);
         }
     }
 }

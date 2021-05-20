@@ -8,6 +8,7 @@ using Firebase.Firestore;
 using Plugin.Firebase.Android.Extensions;
 using Plugin.Firebase.Firestore;
 using Plugin.Firebase.Common;
+using FieldPath = Plugin.Firebase.Firestore.FieldPath;
 using Source = Plugin.Firebase.Firestore.Source;
 
 namespace Plugin.Firebase.Android.Firestore
@@ -45,9 +46,19 @@ namespace Plugin.Firebase.Android.Firestore
             return _wrapped.WhereEqualTo(field, value.ToJavaObject()).ToAbstract();
         }
 
+        public IQuery WhereEqualsTo(FieldPath path, object value)
+        {
+            return _wrapped.WhereEqualTo(path.ToNative(), value.ToJavaObject()).ToAbstract();
+        }
+
         public IQuery WhereGreaterThan(string field, object value)
         {
             return _wrapped.WhereGreaterThan(field, value.ToJavaObject()).ToAbstract();
+        }
+
+        public IQuery WhereGreaterThan(FieldPath path, object value)
+        {
+            return _wrapped.WhereGreaterThan(path.ToNative(), value.ToJavaObject()).ToAbstract();
         }
 
         public IQuery WhereLessThan(string field, object value)
@@ -55,9 +66,19 @@ namespace Plugin.Firebase.Android.Firestore
             return _wrapped.WhereLessThan(field, value.ToJavaObject()).ToAbstract();
         }
 
+        public IQuery WhereLessThan(FieldPath path, object value)
+        {
+            return _wrapped.WhereLessThan(path.ToNative(), value.ToJavaObject()).ToAbstract();
+        }
+
         public IQuery WhereGreaterThanOrEqualsTo(string field, object value)
         {
             return _wrapped.WhereGreaterThanOrEqualTo(field, value.ToJavaObject()).ToAbstract();
+        }
+
+        public IQuery WhereGreaterThanOrEqualsTo(FieldPath path, object value)
+        {
+            return _wrapped.WhereGreaterThanOrEqualTo(path.ToNative(), value.ToJavaObject()).ToAbstract();
         }
 
         public IQuery WhereLessThanOrEqualsTo(string field, object value)
@@ -65,24 +86,49 @@ namespace Plugin.Firebase.Android.Firestore
             return _wrapped.WhereLessThanOrEqualTo(field, value.ToJavaObject()).ToAbstract();
         }
 
-        public IQuery WhereArrayContains(string path, object value)
+        public IQuery WhereLessThanOrEqualsTo(FieldPath path, object value)
         {
-            return _wrapped.WhereArrayContains(path, value.ToJavaObject()).ToAbstract();
+            return _wrapped.WhereLessThanOrEqualTo(path.ToNative(), value.ToJavaObject()).ToAbstract();
         }
 
-        public IQuery WhereArrayContainsAny(string path, object[] values)
+        public IQuery WhereArrayContains(string field, object value)
         {
-            return _wrapped.WhereArrayContainsAny(path, values.Select(x => x.ToJavaObject()).ToArray()).ToAbstract();
+            return _wrapped.WhereArrayContains(field, value.ToJavaObject()).ToAbstract();
         }
 
-        public IQuery WhereFieldIn(string path, object[] values)
+        public IQuery WhereArrayContains(FieldPath path, object value)
         {
-            return _wrapped.WhereIn(path, values.Select(x => x.ToJavaObject()).ToArray()).ToAbstract();
+            return _wrapped.WhereArrayContains(path.ToNative(), value.ToJavaObject()).ToAbstract();
+        }
+
+        public IQuery WhereArrayContainsAny(string field, object[] values)
+        {
+            return _wrapped.WhereArrayContainsAny(field, values.Select(x => x.ToJavaObject()).ToArray()).ToAbstract();
+        }
+
+        public IQuery WhereArrayContainsAny(FieldPath path, object[] values)
+        {
+            return _wrapped.WhereArrayContainsAny(path.ToNative(), values.Select(x => x.ToJavaObject()).ToArray()).ToAbstract();
+        }
+
+        public IQuery WhereFieldIn(string field, object[] values)
+        {
+            return _wrapped.WhereIn(field, values.Select(x => x.ToJavaObject()).ToArray()).ToAbstract();
+        }
+
+        public IQuery WhereFieldIn(FieldPath path, object[] values)
+        {
+            return _wrapped.WhereIn(path.ToNative(), values.Select(x => x.ToJavaObject()).ToArray()).ToAbstract();
         }
 
         public IQuery OrderBy(string field, bool descending = false)
         {
             return _wrapped.OrderBy(field, descending ? Query.Direction.Descending : Query.Direction.Ascending).ToAbstract();
+        }
+
+        public IQuery OrderBy(FieldPath path, bool @descending = false)
+        {
+            return _wrapped.OrderBy(path.ToNative(), descending ? Query.Direction.Descending : Query.Direction.Ascending).ToAbstract();
         }
 
         public IQuery StartingAt(params object[] fieldValues)

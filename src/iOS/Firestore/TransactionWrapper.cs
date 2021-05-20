@@ -5,6 +5,7 @@ using Firebase.CloudFirestore;
 using Plugin.Firebase.Common;
 using Plugin.Firebase.Firestore;
 using Plugin.Firebase.iOS.Extensions;
+using FieldPath = Firebase.CloudFirestore.FieldPath;
 
 namespace Plugin.Firebase.iOS.Firestore
 {

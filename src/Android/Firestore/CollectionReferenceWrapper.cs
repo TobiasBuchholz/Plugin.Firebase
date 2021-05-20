@@ -65,6 +65,21 @@ namespace Plugin.Firebase.Android.Firestore
             return _wrapped.WhereLessThanOrEqualTo(field, value.ToJavaObject()).ToAbstract();
         }
 
+        public IQuery WhereArrayContains(string path, object value)
+        {
+            return _wrapped.WhereArrayContains(path, value.ToJavaObject()).ToAbstract();
+        }
+
+        public IQuery WhereArrayContainsAny(string path, object[] values)
+        {
+            return _wrapped.WhereArrayContainsAny(path, values.Select(x => x.ToJavaObject()).ToArray()).ToAbstract();
+        }
+
+        public IQuery WhereFieldIn(string path, object[] values)
+        {
+            return _wrapped.WhereIn(path, values.Select(x => x.ToJavaObject()).ToArray()).ToAbstract();
+        }
+
         public IQuery OrderBy(string field, bool descending = false)
         {
             return _wrapped.OrderBy(field, descending ? Query.Direction.Descending : Query.Direction.Ascending).ToAbstract();

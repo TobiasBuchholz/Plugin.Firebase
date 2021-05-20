@@ -40,6 +40,21 @@ namespace Plugin.Firebase.iOS.Firestore
             return _wrapped.WhereLessThanOrEqualsTo(field, value).ToAbstract();
         }
 
+        public IQuery WhereArrayContains(string path, object value)
+        {
+            return _wrapped.WhereArrayContains(path, value).ToAbstract();
+        }
+
+        public IQuery WhereArrayContainsAny(string path, object[] values)
+        {
+            return _wrapped.WhereArrayContainsAny(path, values).ToAbstract();
+        }
+
+        public IQuery WhereFieldIn(string path, object[] values)
+        {
+            return _wrapped.WhereFieldIn(path, values).ToAbstract();
+        }
+
         public IQuery OrderBy(string field, bool descending = false)
         {
             return _wrapped.OrderedBy(field, descending).ToAbstract();

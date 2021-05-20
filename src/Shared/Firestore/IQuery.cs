@@ -48,6 +48,36 @@ namespace Plugin.Firebase.Firestore
         /// <param name="field">The name of the field to compare.</param>
         /// <param name="value">The value the field must be less than or equal to.</param>
         IQuery WhereLessThanOrEqualsTo(string field, object value);
+
+        /// <summary>
+        /// Creates and returns a new <c>IQuery</c> with the additional filter that documents must contain the specified field, it must be an array,
+        /// and the array must contain the provided value.
+        ///
+        /// A query can have only one arrayContains filter.
+        /// </summary>
+        /// <param name="path">The path of the field containing an array to search</param>
+        /// <param name="value">The value that must be contained in the array</param>
+        IQuery WhereArrayContains(string path, object value);
+        
+        /// <summary>
+        /// Creates and returns a new <c>IQuery</c> with the additional filter that documents must contain the specified field, the value must be an array,
+        /// and that array must contain at least one value from the provided array.
+        ///
+        /// A query can have only one ArrayContainsAny filter and it cannot be combined with ArrayContains or in filters.
+        /// </summary>
+        /// <param name="path">The path of the field containing an array to search.</param>
+        /// <param name="values">The array that contains the values to match.</param>
+        IQuery WhereArrayContainsAny(string path, object[] values);
+        
+        /// <summary>
+        /// Creates and returns a new <c>IQuery</c> with the additional filter that documents must contain the specified field and the value must equal
+        /// one of the values from the provided array.
+        ///
+        /// A query can have only one in filter, and it cannot be combined with an arrayContainsAny filter.
+        /// </summary>
+        /// <param name="path">The name of the field to search.</param>
+        /// <param name="values">The array that contains the values to match.</param>
+        IQuery WhereFieldIn(string path, object[] values);
         
         /// <summary>
         /// Creates and returns a new <c>IQuery</c> object that’s additionally sorted by the specified field.

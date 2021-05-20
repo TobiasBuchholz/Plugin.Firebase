@@ -145,6 +145,25 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         }
 
         [Fact]
+        public async Task gets_data_with_array_contains_queries()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            
+            var pokemonsByContains = await sut
+                .GetCollection("pokemons")
+                .WhereArrayContains("moves", "Razor-Wind")
+                .GetDocumentsAsync<Pokemon>();
+            
+            var pokemonsByContainsAny = await sut
+                .GetCollection("pokemons")
+                .WhereArrayContainsAny("moves", new object[] { "Razor-Wind", "Fire-Punch" })
+                .GetDocumentsAsync<Pokemon>();
+            
+            Assert.Equal(new[] { "1", "2", "3" }, pokemonsByContains.Documents.Select(x => x.Data.Id));
+            Assert.Equal(new[] { "1", "2", "3", "4", "5", "6" }, pokemonsByContainsAny.Documents.Select(x => x.Data.Id));
+        }
+
+        [Fact]
         public async Task orders_and_limits_data()
         {
             var sut = CrossFirebaseFirestore.Current;

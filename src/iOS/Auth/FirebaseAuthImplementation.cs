@@ -101,18 +101,23 @@ namespace Plugin.Firebase.Auth
             return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
         }
         
-        public async Task<IFirebaseUser> SignInWithEmailAndPasswordAsync(string email, string password)
+        public async Task<IFirebaseUser> SignInWithEmailAndPasswordAsync(string email, string password, bool createsUserAutomatically = true)
         {
             try {
                 var credential = await _emailAuth.GetCredentialAsync(email, password);
                 return await SignInWithCredentialAsync(credential);
             } catch(NSErrorException e) {
-                if(e.Code == (long) AuthErrorCode.UserNotFound) {
-                    await _emailAuth.CreateUserAsync(email, password);
+                if(e.Code == (long) AuthErrorCode.UserNotFound && createsUserAutomatically) {
+                    await CreateUserAsync(email, password);
                     return await SignInWithEmailAndPasswordAsync(email, password);
                 }
                 throw new FirebaseException(e.Error?.LocalizedDescription);
             }
+        }
+        
+        public Task CreateUserAsync(string email, string password)
+        {
+            return _emailAuth.CreateUserAsync(email, password);
         }
         
         public async Task<IFirebaseUser> SignInWithEmailLinkAsync(string email, string link)

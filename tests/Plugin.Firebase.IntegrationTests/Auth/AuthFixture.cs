@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Android.Runtime;
 using Plugin.Firebase.Auth;
+using Plugin.Firebase.Common;
 using Xunit;
 
 namespace Plugin.Firebase.IntegrationTests.Auth
@@ -16,12 +17,31 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         }
         
         [Fact]
+        public async Task creates_user_with_email_and_password()
+        {
+            var sut = CrossFirebaseAuth.Current;
+            await sut.CreateUserAsync("created-user@test.com", "123456");
+            
+            Assert.NotNull(sut.CurrentUser);
+            
+            await sut.CurrentUser.DeleteAsync();
+            Assert.Null(sut.CurrentUser);
+        }
+        
+        [Fact]
         public async Task signs_in_user_via_email_and_password()
         {
             var sut = CrossFirebaseAuth.Current;
             var user = await sut.SignInWithEmailAndPasswordAsync("sign-in-with-pw@test.com", "123456");
             Assert.Equal("sign-in-with-pw@test.com", user.Email);
             Assert.Equal("sign-in-with-pw@test.com", sut.CurrentUser.Email);
+        }
+        
+        [Fact]
+        public async Task throws_error_if_user_does_not_exist_and_should_not_be_created_automatically_due_sign_in_via_email_and_password()
+        {
+            var sut = CrossFirebaseAuth.Current;
+            await Assert.ThrowsAnyAsync<Exception>(() => sut.SignInWithEmailAndPasswordAsync("does-not-exist@test.com", "123456", createsUserAutomatically:false));
         }
 
         [Fact]

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Plugin.Firebase.Firestore
 {
@@ -16,7 +16,7 @@ namespace Plugin.Firebase.Firestore
 #pragma warning restore IDE0022 // Use expression body for methods
 #endif
         }
-        
+
         /// <summary>
         /// Gets if the plugin is supported on the current platform.
         /// </summary>
@@ -28,7 +28,7 @@ namespace Plugin.Firebase.Firestore
         public static IFirebaseFirestore Current {
             get {
                 var ret = _implementation.Value;
-                if (ret == null) {
+                if(ret == null) {
                     throw NotImplementedInReferenceAssembly();
                 }
                 return ret;

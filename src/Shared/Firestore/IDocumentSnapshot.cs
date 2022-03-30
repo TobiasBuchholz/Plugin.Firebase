@@ -12,12 +12,12 @@ namespace Plugin.Firebase.Firestore
         /// Retrieves all fields in the document as the given generic type. Returns null if the document doesn't exist.
         /// </summary>
         T Data { get; }
-        
+
         /// <summary>
         /// Metadata about this snapshot concerning its source and if it has local modifications.
         /// </summary>
         ISnapshotMetadata Metadata { get; }
-        
+
         /// <summary>
         /// A <c>IDocumentReference</c> object to the document location.
         /// </summary>

@@ -48,7 +48,7 @@ namespace Playground.Common.Services.Composition
             _pushNotificationService = new Lazy<IPushNotificationService>(CreatePushNotificationService);
             _schedulerService = new Lazy<ISchedulerService>(CreateSchedulerService);
             _userInteractionService = new Lazy<IUserInteractionService>(CreateUserInteractionService);
-            
+
             _firebaseAuth = new Lazy<IFirebaseAuth>(CreateFirebaseAuth);
             _firebaseCloudMessaging = new Lazy<IFirebaseCloudMessaging>(CreateFirebaseCloudMessaging);
             _firebaseFunctions = new Lazy<IFirebaseFunctions>(CreateFirebaseFunctions);
@@ -57,7 +57,7 @@ namespace Playground.Common.Services.Composition
 
             RegisterDynamicLinks();
         }
-        
+
         private IAuthService CreateAuthService() =>
             new AuthService(
                 _firebaseAuth.Value,
@@ -65,7 +65,7 @@ namespace Playground.Common.Services.Composition
 
         private INavigationService CreateNavigationService() =>
             new NavigationService(_schedulerService.Value.Main);
-        
+
         private static IPreferencesService CreatePreferencesService() =>
             new PreferencesService();
 
@@ -74,7 +74,7 @@ namespace Playground.Common.Services.Composition
                 _firebaseCloudMessaging.Value,
                 _firebaseFunctions.Value,
                 LoggerService.GetLogger(nameof(PushNotificationService)));
-        
+
         private static ISchedulerService CreateSchedulerService() =>
             new SchedulerService();
 
@@ -88,14 +88,14 @@ namespace Playground.Common.Services.Composition
 
         private static IFirebaseFunctions CreateFirebaseFunctions() =>
             CrossFirebaseFunctions.Current;
-        
+
         private static IFirebaseStorage CreateFirebaseStorage() =>
             CrossFirebaseStorage.Current;
-        
+
         private static IFirebaseRemoteConfig CreateFirebaseRemoteConfig() =>
             CrossFirebaseRemoteConfig.Current;
-        
-        public ViewModelBase ResolveViewModel(IViewFor viewFor, IEnumerable<object> parameters = null) 
+
+        public ViewModelBase ResolveViewModel(IViewFor viewFor, IEnumerable<object> parameters = null)
         {
             var paramList = parameters?.ToList();
             switch(viewFor) {

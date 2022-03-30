@@ -1,4 +1,4 @@
-﻿namespace Plugin.Firebase.CloudMessaging.EventArgs
+namespace Plugin.Firebase.CloudMessaging.EventArgs
 {
     public sealed class FCMErrorEventArgs : System.EventArgs
     {

@@ -66,8 +66,8 @@ namespace Plugin.Firebase.RemoteConfig
         public string GetString(string key) => _remoteConfig.GetConfigValue(key).StringValue;
         public long GetLong(string key) => (long) _remoteConfig.GetConfigValue(key).NumberValue;
         public double GetDouble(string key) => (double) _remoteConfig.GetConfigValue(key).NumberValue;
-        
-        public RemoteConfigInfo Info => 
+
+        public RemoteConfigInfo Info =>
             new RemoteConfigInfo(
                 _remoteConfig.ConfigSettings.ToAbstract(),
                 DateTimeOffset.FromUnixTimeSeconds((long) (_remoteConfig.LastFetchTime?.SecondsSince1970 ?? 0)),

@@ -15,9 +15,9 @@ namespace Plugin.Firebase.DynamicLinks
     {
         private static event EventHandler<DynamicLinkReceivedEventArgs> _dynamicLinkReceived;
         private static event EventHandler<DynamicLinkFailedEventArgs> _dynamicLinkFailed;
-        
+
         private static string _dynamicLink;
-        
+
         public static async Task HandleDynamicLinkAsync(Intent intent)
         {
             try {
@@ -29,7 +29,7 @@ namespace Plugin.Firebase.DynamicLinks
                 _dynamicLinkFailed?.Invoke(null, new DynamicLinkFailedEventArgs(e.Message));
             }
         }
-        
+
         public string GetDynamicLink()
         {
             return _dynamicLink;
@@ -43,12 +43,12 @@ namespace Plugin.Firebase.DynamicLinks
         public void Dispose()
         {
         }
-        
+
         public event EventHandler<DynamicLinkReceivedEventArgs> DynamicLinkReceived {
             add => _dynamicLinkReceived += value;
             remove => _dynamicLinkReceived -= value;
         }
-        
+
         public event EventHandler<DynamicLinkFailedEventArgs> DynamicLinkFailed {
             add => _dynamicLinkFailed += value;
             remove => _dynamicLinkFailed -= value;

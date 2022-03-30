@@ -21,7 +21,7 @@ namespace Playground.Common.Services.DynamicLink
         private readonly IPreferencesService _preferencesService;
         private readonly IUserInteractionService _userInteractionService;
         private readonly ISchedulerService _schedulerService;
-        
+
         public DynamicLinkService(
             IFirebaseDynamicLinks dynamicLinks,
             IAuthService authService,

@@ -8,14 +8,14 @@ namespace Plugin.Firebase.iOS.Storage
     {
         public static IStorageTaskSnapshot FromSnapshot(StorageTaskSnapshot snapshot)
         {
-            return new StorageTaskTaskSnapshotWrapper(snapshot:snapshot);
+            return new StorageTaskTaskSnapshotWrapper(snapshot: snapshot);
         }
 
         public static IStorageTaskSnapshot FromError(Exception error)
         {
-            return new StorageTaskTaskSnapshotWrapper(error:error);
+            return new StorageTaskTaskSnapshotWrapper(error: error);
         }
-        
+
         private StorageTaskTaskSnapshotWrapper(
             StorageTaskSnapshot snapshot = null,
             Exception error = null)

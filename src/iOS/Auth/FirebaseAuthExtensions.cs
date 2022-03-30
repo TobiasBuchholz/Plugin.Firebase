@@ -15,7 +15,7 @@ namespace Plugin.Firebase.iOS.Auth
         {
             return new FirebaseUserWrapper(@this);
         }
-        
+
         public static ProviderInfo ToAbstract(this IUserInfo @this, AdditionalUserInfo additionalUserInfo = null)
         {
             return new ProviderInfo
@@ -26,7 +26,7 @@ namespace Plugin.Firebase.iOS.Auth
                 @this.PhoneNumber,
                 @this.PhotoUrl?.AbsoluteString);
         }
-        
+
         private static string GetEmailFromAdditionalUserInfo(AdditionalUserInfo additionalUserInfo)
         {
             var profile = additionalUserInfo?.Profile;
@@ -35,7 +35,7 @@ namespace Plugin.Firebase.iOS.Auth
             }
             return null;
         }
-        
+
         public static NativeActionCodeSettings ToNative(this ActionCodeSettings @this)
         {
             var settings = new NativeActionCodeSettings();

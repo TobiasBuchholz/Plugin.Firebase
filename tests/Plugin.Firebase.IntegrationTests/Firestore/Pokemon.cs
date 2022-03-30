@@ -39,7 +39,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             Evolutions = evolutions;
             CreationDate = DateTimeOffset.Now;
         }
-        
+
         public override bool Equals(object obj)
         {
             if(obj is Pokemon other) {
@@ -67,31 +67,31 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
 
         [FirestoreProperty("name")]
         public string Name { get; private set; }
-        
+
         [FirestoreProperty("weight_in_kg")]
         public double WeightInKg { get; private set; }
-        
+
         [FirestoreProperty("height_in_cm")]
         public long HeightInCm { get; private set; }
-        
+
         [FirestoreProperty("sighting_count")]
         public long SightingCount { get; private set; }
-        
+
         [FirestoreProperty("is_from_first_generation")]
         public bool IsFromFirstGeneration { get; private set; }
-        
+
         [FirestoreProperty("poke_type")]
         public PokeType PokeType { get; private set; }
-        
+
         [FirestoreProperty("moves")]
         public IList<string> Moves { get; private set; }
-        
+
         [FirestoreProperty("first_sighting_location")]
         public SightingLocation FirstSightingLocation { get; private set; }
-        
+
         [FirestoreProperty("evolutions")]
         public IList<Pokemon> Evolutions { get; private set; }
-        
+
         [FirestoreProperty("creation_date")]
         public DateTimeOffset CreationDate { get; private set; }
     }

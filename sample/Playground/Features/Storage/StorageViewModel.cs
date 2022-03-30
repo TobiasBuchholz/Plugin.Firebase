@@ -19,14 +19,14 @@ namespace Playground.Features.Storage
     {
         private readonly IUserInteractionService _userInteractionService;
         private readonly IFirebaseStorage _firebaseStorage;
-        
+
         public StorageViewModel(
             IUserInteractionService userInteractionService,
             IFirebaseStorage firebaseStorage)
         {
             _userInteractionService = userInteractionService;
             _firebaseStorage = firebaseStorage;
-            
+
             InitCommands();
         }
 

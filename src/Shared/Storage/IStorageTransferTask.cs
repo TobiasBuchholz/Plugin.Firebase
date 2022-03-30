@@ -9,7 +9,7 @@ namespace Plugin.Firebase.Storage
     public interface IStorageTransferTask
     {
         Task AwaitAsync();
-        
+
         /// <summary>
         /// Observes changes in the upload status: Progress, Pause, Success, and Failure.
         /// </summary>
@@ -18,7 +18,7 @@ namespace Plugin.Firebase.Storage
         /// A callback that fires every time the status event occurs, returns a <c>IStorageTaskSnapshot</c> containing the state of the task.
         /// </param>
         void AddObserver(StorageTaskStatus status, Action<IStorageTaskSnapshot> observer);
-        
+
         /// <summary>
         /// Removes the single observer action.
         /// </summary>
@@ -29,12 +29,12 @@ namespace Plugin.Firebase.Storage
         /// Attempts to pause the task. 
         /// </summary>
         void Pause();
-        
+
         /// <summary>
         /// Attempts to resume a paused task. 
         /// </summary>
         void Resume();
-        
+
         /// <summary>
         /// Attempts to cancel the task. 
         /// </summary>

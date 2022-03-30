@@ -18,14 +18,14 @@ namespace Playground.Features.CloudMessaging
     {
         private readonly IPushNotificationService _pushNotificationService;
         private readonly IUserInteractionService _userInteractionService;
-        
+
         public CloudMessagingViewModel(
             IPushNotificationService pushNotificationService,
             IUserInteractionService userInteractionService)
         {
             _pushNotificationService = pushNotificationService;
             _userInteractionService = userInteractionService;
-            
+
             InitCommands();
             InitProperties();
         }
@@ -37,7 +37,7 @@ namespace Playground.Features.CloudMessaging
             UnsubscribeFromTopicCommand = ReactiveCommand.CreateFromTask(UnsubscribeFromTopicAsync);
             TriggerNotificationViaTokenCommand = ReactiveCommand.CreateFromTask(TriggerNotificationViaTokenAsync);
             TriggerNotificationViaTopicCommand = ReactiveCommand.CreateFromTask(TriggerNotificationViaTopicAsync);
-            
+
             Observable
                 .Merge(
                     CheckIfValidCommand.ThrownExceptions,
@@ -63,7 +63,7 @@ namespace Playground.Features.CloudMessaging
                 await _pushNotificationService.SubscribeToTopicAsync(topic);
             }
         }
-        
+
         private Task<string> AskForTopicAsync()
         {
             return _userInteractionService.ShowAsPromptAsync(new UserInfoBuilder()
@@ -105,7 +105,7 @@ namespace Playground.Features.CloudMessaging
                 .WithCancelButton(Localization.Cancel)
                 .Build());
         }
-        
+
         private async Task TriggerNotificationViaTopicAsync()
         {
             var topic = await AskForTopicAsync();
@@ -134,7 +134,7 @@ namespace Playground.Features.CloudMessaging
                 .ToPropertyEx(this, x => x.IsInProgress)
                 .DisposeWith(Disposables);
         }
-        
+
         public extern bool IsInProgress { [ObservableAsProperty] get; }
 
         public ReactiveCommand<Unit, Unit> CheckIfValidCommand { get; private set; }

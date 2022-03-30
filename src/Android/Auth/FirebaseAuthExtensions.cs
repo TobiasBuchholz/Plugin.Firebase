@@ -12,7 +12,7 @@ namespace Plugin.Firebase.Android.Auth
         {
             return new FirebaseUserWrapper(@this);
         }
-        
+
         public static ProviderInfo ToAbstract(this IUserInfo @this, IAdditionalUserInfo additionalUserInfo = null)
         {
             return new ProviderInfo(
@@ -23,7 +23,7 @@ namespace Plugin.Firebase.Android.Auth
                 @this.PhoneNumber,
                 @this.PhotoUrl?.ToString());
         }
-        
+
         private static string GetEmailFromAdditionalUserInfo(IAdditionalUserInfo additionalUserInfo)
         {
             var profile = additionalUserInfo?.Profile;
@@ -32,7 +32,7 @@ namespace Plugin.Firebase.Android.Auth
             }
             return null;
         }
-        
+
         public static NativeActionCodeSettings ToNative(this ActionCodeSettings @this)
         {
             return NativeActionCodeSettings

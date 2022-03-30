@@ -3,7 +3,7 @@ using Plugin.Firebase.Common;
 using Plugin.Firebase.Firestore;
 
 namespace Plugin.Firebase.IntegrationTests.Firestore
-{    
+{
     public sealed class SightingLocation : IFirestoreObject
     {
         [Preserve]
@@ -37,10 +37,10 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         {
             return $"[{nameof(SightingLocation)}: {nameof(Latitude)}={Latitude}, {nameof(Longitude)}={Longitude}]";
         }
-        
+
         [FirestoreProperty("latitude")]
         public double Latitude { get; private set; }
-        
+
         [FirestoreProperty("longitude")]
         public double Longitude { get; private set; }
     }

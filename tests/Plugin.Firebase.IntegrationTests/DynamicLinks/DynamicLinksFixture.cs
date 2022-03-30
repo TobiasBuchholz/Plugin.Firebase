@@ -14,30 +14,30 @@ namespace Plugin.Firebase.IntegrationTests.DynamicLinks
         public void builds_long_dynamic_link()
         {
             var sut = CrossFirebaseDynamicLinks.Current;
-            
+
             var iOSParameters = new iOSParameters(
-                bundleId:"com.example.ios",
-                appStoreId:"123456789",
-                minimumAppVersion:"1.2.3");
-            
+                bundleId: "com.example.ios",
+                appStoreId: "123456789",
+                minimumAppVersion: "1.2.3");
+
             var androidParameters = new AndroidParameters(
-                packageName:"com.example.android",
-                minimumVersion:123);
-            
+                packageName: "com.example.android",
+                minimumVersion: 123);
+
             var googleAnalyticsParameters = new GoogleAnalyticsParameters(
-                source:"orkut",
-                medium:"social",
-                campaign:"example-promo");
-            
+                source: "orkut",
+                medium: "social",
+                campaign: "example-promo");
+
             var itunesConnectAnalyticsParameters = new iTunesConnectAnalyticsParameters(
-                providerToken:"123456",
-                campaignToken:"example-promo");
-            
+                providerToken: "123456",
+                campaignToken: "example-promo");
+
             var socialMetaTagParameters = new SocialMetaTagParameters(
-                title:"Example of dynamic link",
-                descriptionText:"This link works whether the app is installed or not!",
-                imageUrl:"https://www.example.com/my-image.jpg");
-            
+                title: "Example of dynamic link",
+                descriptionText: "This link works whether the app is installed or not!",
+                imageUrl: "https://www.example.com/my-image.jpg");
+
             var dynamicLink = sut
                 .CreateDynamicLink()
                 .SetLink("https://www.example.com/my-page")
@@ -60,15 +60,15 @@ namespace Plugin.Firebase.IntegrationTests.DynamicLinks
         public async Task builds_short_dynamic_link()
         {
             var sut = CrossFirebaseDynamicLinks.Current;
-            
+
             var dynamicLink = await sut
                 .CreateDynamicLink()
                 .SetLink("https://pluginfirebase-integrationtest.web.app")
                 .SetDomainUriPrefix("https://integrationtests.page.link")
-                .SetiOSParameters(new iOSParameters(bundleId:"plugin.firebase.integrationtests"))
+                .SetiOSParameters(new iOSParameters(bundleId: "plugin.firebase.integrationtests"))
                 .SetAndroidParameters(new AndroidParameters("plugin.firebase.integrationtests"))
                 .BuildShortDynamicLinkAsync();
-            
+
             Assert.StartsWith("https://integrationtests.page.link/", dynamicLink.ShortLink.AbsoluteUri);
         }
     }

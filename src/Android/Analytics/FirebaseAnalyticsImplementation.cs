@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,16 +13,16 @@ namespace Plugin.Firebase.Analytics
     {
         public static void Initialize(Context context)
         {
-            _firebaseAnalytics = FirebaseAnalytics.GetInstance(context);     
+            _firebaseAnalytics = FirebaseAnalytics.GetInstance(context);
         }
-        
+
         private static FirebaseAnalytics _firebaseAnalytics;
 
         public async Task<string> GetAppInstanceIdAsync()
         {
             return (string) await _firebaseAnalytics.GetAppInstanceId().AsAsync<Java.Lang.String>();
         }
-        
+
         public void LogEvent(string eventName, IDictionary<string, object> parameters)
         {
             _firebaseAnalytics.LogEvent(eventName, parameters?.ToBundle());

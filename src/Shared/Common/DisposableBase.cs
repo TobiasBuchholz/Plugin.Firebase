@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Plugin.Firebase.Common
 {
@@ -19,13 +19,13 @@ namespace Plugin.Firebase.Common
 
         public virtual void Dispose(bool disposing)
         {
-            if (!disposed) {
-                if (disposing) {
+            if(!disposed) {
+                if(disposing) {
                     //dispose only
                 }
 
                 disposed = true;
             }
-        }  
+        }
     }
 }

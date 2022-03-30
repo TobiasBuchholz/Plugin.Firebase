@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
@@ -17,7 +17,7 @@ namespace Plugin.Firebase.Android.Auth.Google
 
         private readonly GoogleSignInClient _signInClient;
         private TaskCompletionSource<AuthCredential> _tcs;
-        
+
         public GoogleAuth(Activity activity, string requestToken)
         {
             _signInClient = GoogleSignIn.GetClient(activity, CreateGoogleSignInOptions(requestToken));
@@ -31,7 +31,7 @@ namespace Plugin.Firebase.Android.Auth.Google
                 .RequestEmail()
                 .Build();
         }
-        
+
         public Task<AuthCredential> GetCredentialAsync(FragmentActivity activity)
         {
             _tcs = new TaskCompletionSource<AuthCredential>();

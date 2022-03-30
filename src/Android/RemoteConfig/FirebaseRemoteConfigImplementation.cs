@@ -30,7 +30,7 @@ namespace Plugin.Firebase.RemoteConfig
         {
             return _remoteConfig.SetDefaultsAsync(defaults.ToJavaObjectDictionary()).AsAsync();
         }
-        
+
         public Task SetDefaultsAsync(params (string, object)[] defaults)
         {
             return _remoteConfig.SetDefaultsAsync(defaults.ToJavaObjectDictionary()).AsAsync();
@@ -40,7 +40,7 @@ namespace Plugin.Firebase.RemoteConfig
         {
             await _remoteConfig.FetchAndActivate();
         }
-        
+
         public Task FetchAsync(double expirationDuration = 3600)
         {
             return _remoteConfig.FetchAsync((long) expirationDuration);

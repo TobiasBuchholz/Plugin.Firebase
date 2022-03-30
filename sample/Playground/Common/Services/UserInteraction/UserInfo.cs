@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,7 +7,7 @@ namespace Playground.Common.Services.UserInteraction
     public sealed class UserInfo
     {
         internal UserInfo(
-            string title, 
+            string title,
             string message,
             string placeholder,
             string cancelButtonText,
@@ -25,15 +25,15 @@ namespace Playground.Common.Services.UserInteraction
             SnackbarDuration = snackbarDuration;
             AsType = type;
         }
-        
-	    public override int GetHashCode()
+
+        public override int GetHashCode()
         {
             return (Title, Message, Placeholder, CancelButtonText, DestroyButtonText, DefaultButtonTexts, SnackbarDuration, AsType).GetHashCode();
         }
 
         public override bool Equals(object obj)
         {
-            if (obj is UserInfo other) {
+            if(obj is UserInfo other) {
                 return Equals(other);
             }
             return false;
@@ -42,7 +42,7 @@ namespace Playground.Common.Services.UserInteraction
         private bool Equals(UserInfo other)
         {
             return (Title, Message, Placeholder, CancelButtonText, DestroyButtonText, SnackbarDuration, AsType)
-                .Equals((other.Title, other.Message, other.Placeholder, other.CancelButtonText, other.DestroyButtonText, other.SnackbarDuration, other.AsType)) && 
+                .Equals((other.Title, other.Message, other.Placeholder, other.CancelButtonText, other.DestroyButtonText, other.SnackbarDuration, other.AsType)) &&
                 DefaultButtonTexts.SequenceEqualSafe(other.DefaultButtonTexts);
         }
 

@@ -24,7 +24,7 @@ namespace Playground.Common.Services.Auth
 
         bool IsSignInWithEmailLink(string link);
         IFirebaseUser CurrentUser { get; }
-        
+
         IObservable<IFirebaseUser> CurrentUserTicks { get; }
         IObservable<bool> IsSignedInTicks { get; }
         IObservable<bool> IsSignInRunningTicks { get; }

@@ -21,9 +21,9 @@ namespace Plugin.Firebase.Android.Storage
 
         public static IStorageTaskSnapshot FromError(Exception error)
         {
-            return new StorageTaskTaskSnapshotWrapper(error:error);
+            return new StorageTaskTaskSnapshotWrapper(error: error);
         }
-        
+
         private StorageTaskTaskSnapshotWrapper(
             UploadTask.TaskSnapshot snapshot = null,
             Exception error = null)
@@ -37,7 +37,7 @@ namespace Plugin.Firebase.Android.Storage
 
             Metadata = snapshot?.Metadata?.ToAbstract();
         }
-        
+
         private StorageTaskTaskSnapshotWrapper(
             FileDownloadTask.TaskSnapshot snapshot = null,
             Exception error = null)

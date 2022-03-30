@@ -1,4 +1,4 @@
-﻿namespace Plugin.Firebase.Auth
+namespace Plugin.Firebase.Auth
 {
     public class ProviderInfo
     {

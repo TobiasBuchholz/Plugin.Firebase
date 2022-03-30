@@ -83,7 +83,7 @@ namespace Plugin.Firebase.Android.DynamicLinks
         {
             // instead of building the short link directly a workaround is needed to prevent an ApiException: 8
             // -> see https://stackoverflow.com/questions/52152116/short-dynamic-link-error-com-google-android-gms-common-api-apiexception-8
-            var link = _builder.BuildDynamicLink(); 
+            var link = _builder.BuildDynamicLink();
             var result = await _builder.SetLongLink(link.Uri).BuildShortDynamicLink();
             var shortLink = result.JavaCast<IShortDynamicLink>();
             return new ShortDynamicLink(new Uri(shortLink.ShortLink.ToString()), shortLink.Warnings.Select(x => $"{x.Code}: {x.Message}").ToArray());

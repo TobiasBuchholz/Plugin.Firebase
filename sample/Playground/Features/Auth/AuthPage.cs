@@ -16,10 +16,10 @@ namespace Playground.Features.Auth
         private void Build()
         {
             InitializeViewModel();
-            
+
             Content = new Grid {
-                    RowDefinitions = Rows.Define(Star, Star),
-                    Children = {
+                RowDefinitions = Rows.Define(Star, Star),
+                Children = {
                         new Label { TextColor = Color.Black, HorizontalTextAlignment = TextAlignment.Center }
                             .Row(0)
                             .Center()
@@ -45,7 +45,7 @@ namespace Playground.Features.Auth
                             .Bottom()
                             .Bind(IsVisibleProperty, nameof(Vm.ShowsSignOutButtons))
                     }
-                }
+            }
                 .Margin(24);
         }
 

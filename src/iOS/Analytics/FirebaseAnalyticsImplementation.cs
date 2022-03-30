@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,12 +19,12 @@ namespace Plugin.Firebase.Analytics
         {
             return Task.FromResult(FirebaseAnalytics.AppInstanceId);
         }
-        
+
         public void LogEvent(string eventName, IDictionary<string, object> parameters)
         {
             FirebaseAnalytics.LogEvent(eventName, parameters?.ToNSDictionary());
         }
-        
+
         public void LogEvent(string eventName, params (string parameterName, object parameterValue)[] parameters)
         {
             LogEvent(eventName, parameters?.ToDictionary(x => x.parameterName, x => x.parameterValue));

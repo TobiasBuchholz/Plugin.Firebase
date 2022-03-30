@@ -10,7 +10,7 @@ namespace Plugin.Firebase.iOS.Functions
     public sealed class HttpsCallableWrapper : IHttpsCallable
     {
         private readonly HttpsCallable _httpsCallable;
-        
+
         public HttpsCallableWrapper(HttpsCallable httpsCallable)
         {
             _httpsCallable = httpsCallable;
@@ -33,7 +33,7 @@ namespace Plugin.Firebase.iOS.Functions
                 return data;
             }
         }
-        
+
         public async Task<TResponse> CallAsync<TResponse>(string dataJson = null)
         {
             var result = await _httpsCallable.CallAsync(ConvertJsonToData(dataJson));

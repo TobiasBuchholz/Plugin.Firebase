@@ -18,7 +18,7 @@ namespace Plugin.Firebase.iOS.Extensions
         {
             return (T) @this.Cast(typeof(T), documentId);
         }
-        
+
         private static object Cast(this NSDictionary @this, Type targetType, string documentId = null)
         {
             var instance = Activator.CreateInstance(targetType);
@@ -28,7 +28,7 @@ namespace Plugin.Firebase.iOS.Extensions
                     property.SetValue(instance, documentId);
                     continue;
                 }
-                
+
                 var attributes = property.GetCustomAttributes(typeof(FirestorePropertyAttribute), true);
                 if(attributes.Any()) {
                     var attribute = (FirestorePropertyAttribute) attributes[0];
@@ -40,7 +40,7 @@ namespace Plugin.Firebase.iOS.Extensions
                     }
                 }
             }
-            return instance; 
+            return instance;
         }
 
         public static object ToObject(this NSObject @this, Type targetType = null)
@@ -59,7 +59,7 @@ namespace Plugin.Firebase.iOS.Extensions
                 case global::Firebase.CloudFirestore.GeoPoint x:
                     return new GeoPoint(x.Latitude, x.Longitude);
                 case Timestamp x:
-                    return x.ToDateTimeOffset(); 
+                    return x.ToDateTimeOffset();
                 case DocumentReference x:
                     return new DocumentReferenceWrapper(x);
                 case NSNull x:
@@ -93,7 +93,7 @@ namespace Plugin.Firebase.iOS.Extensions
             if(targetType == null) {
                 return @this.Int32Value;
             }
-            
+
             switch(Type.GetTypeCode(targetType)) {
                 case TypeCode.Boolean:
                     return @this.BoolValue;

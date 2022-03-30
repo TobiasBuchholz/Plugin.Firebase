@@ -19,7 +19,7 @@ namespace Playground.Features.RemoteConfig
             BackgroundColor = Color.White;
 
             Content = new Grid {
-                    Children = {
+                Children = {
                     new Label { TextColor = Color.Black }
                         .Center()
                         .Bind(nameof(Vm.SomeRemoteConfigValue)),

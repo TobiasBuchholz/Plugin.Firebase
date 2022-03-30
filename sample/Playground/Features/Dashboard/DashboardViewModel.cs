@@ -16,7 +16,7 @@ namespace Playground.Features.Dashboard
         private readonly INavigationService _navigationService;
         private readonly IPushNotificationService _pushNotificationService;
         private readonly IUserInteractionService _userInteractionService;
-        
+
         public DashboardViewModel(
             INavigationService navigationService,
             IPushNotificationService pushNotificationService,
@@ -25,7 +25,7 @@ namespace Playground.Features.Dashboard
             _navigationService = navigationService;
             _pushNotificationService = pushNotificationService;
             _userInteractionService = userInteractionService;
-            
+
             InitCommands();
             HandleTappedPushNotification();
         }

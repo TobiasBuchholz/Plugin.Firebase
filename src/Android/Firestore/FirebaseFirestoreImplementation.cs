@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Android.Gms.Extensions;
 using Firebase.Firestore;
@@ -11,7 +11,7 @@ namespace Plugin.Firebase.Firestore
     public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseFirestore
     {
         private readonly FirebaseFirestore _firestore;
-        
+
         public FirebaseFirestoreImplementation()
         {
             _firestore = FirebaseFirestore.Instance;
@@ -37,7 +37,7 @@ namespace Plugin.Firebase.Firestore
         {
             return _firestore.Batch().ToAbstract();
         }
-        
+
         public FirestoreSettings Settings {
             get => _firestore.FirestoreSettings.ToAbstract();
             set => _firestore.FirestoreSettings = value.ToNative();

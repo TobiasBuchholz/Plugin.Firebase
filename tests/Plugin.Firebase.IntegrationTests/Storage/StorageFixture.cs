@@ -19,49 +19,49 @@ namespace Plugin.Firebase.IntegrationTests.Storage
         public void gets_root_reference()
         {
             var reference = CrossFirebaseStorage.Current.GetRootReference();
-            
+
             Assert.NotNull(reference);
             Assert.Null(reference.Parent);
             Assert.Equal("/", reference.FullPath);
             Assert.Equal("", reference.Name);
             Assert.Equal("pluginfirebase-integrationtest.appspot.com", reference.Bucket);
         }
-        
+
         [Fact]
         public void gets_reference_from_url()
         {
             var reference = CrossFirebaseStorage
                 .Current
                 .GetReferenceFromUrl("gs://pluginfirebase-integrationtest.appspot.com/files_to_keep/text_1.txt");
-            
+
             Assert.NotNull(reference.Root);
             Assert.NotNull(reference.Parent);
             Assert.Equal("/files_to_keep/text_1.txt", reference.FullPath);
             Assert.Equal("text_1.txt", reference.Name);
             Assert.Equal("pluginfirebase-integrationtest.appspot.com", reference.Bucket);
         }
-        
+
         [Fact]
         public void gets_reference_from_path()
         {
             var reference = CrossFirebaseStorage
                 .Current
                 .GetReferenceFromPath("files_to_keep/text_1.txt");
-            
+
             Assert.NotNull(reference.Root);
             Assert.NotNull(reference.Parent);
             Assert.Equal("/files_to_keep/text_1.txt", reference.FullPath);
             Assert.Equal("text_1.txt", reference.Name);
             Assert.Equal("pluginfirebase-integrationtest.appspot.com", reference.Bucket);
         }
-        
+
         [Fact]
         public void gets_child_reference()
         {
             var reference = CrossFirebaseStorage
                 .Current
                 .GetRootReference().GetChild("files_to_keep/text_1.txt");
-            
+
             Assert.NotNull(reference.Root);
             Assert.NotNull(reference.Parent);
             Assert.Equal("/files_to_keep/text_1.txt", reference.FullPath);
@@ -129,21 +129,21 @@ namespace Plugin.Firebase.IntegrationTests.Storage
         public async Task uploads_stream_with_meta_data()
         {
             var path = $"texts/via_stream_with_metadata.txt";
-            var metadata = new StorageMetadata(contentType:"text/plain");
+            var metadata = new StorageMetadata(contentType: "text/plain");
             var reference = CrossFirebaseStorage
                 .Current
                 .GetReferenceFromPath(path);
 
             await reference.PutBytes(Encoding.UTF8.GetBytes("Some test text"), metadata).AwaitAsync();
             var uploadedMetadata = await reference.GetMetadataAsync();
-            
+
             Assert.Equal(path, uploadedMetadata.Path);
             Assert.Equal("text/plain", uploadedMetadata.ContentType);
             Assert.Equal(14, uploadedMetadata.Size);
 
             var customData = new Dictionary<string, string> { { "some_key", "some_value" } };
-            var updatedMetadata = await reference.UpdateMetadataAsync(new StorageMetadata(contentType:"text/html", customMetadata:customData));
-            
+            var updatedMetadata = await reference.UpdateMetadataAsync(new StorageMetadata(contentType: "text/html", customMetadata: customData));
+
             Assert.Equal(path, updatedMetadata.Path);
             Assert.Equal("text/html", updatedMetadata.ContentType);
             Assert.Equal(customData, updatedMetadata.CustomMetadata);
@@ -205,7 +205,7 @@ namespace Plugin.Firebase.IntegrationTests.Storage
             transferTask.Resume();
             transferTask.Cancel();
         }
-        
+
         [Fact]
         public void can_manage_files_download()
         {
@@ -225,7 +225,7 @@ namespace Plugin.Firebase.IntegrationTests.Storage
             var reference = CrossFirebaseStorage
                 .Current
                 .GetReferenceFromPath("files_to_delete");
-            
+
             Assert.Empty((await reference.ListAllAsync()).Items);
             await reference.GetChild("text.txt").PutBytes(Encoding.UTF8.GetBytes("This file should get deleted")).AwaitAsync();
             Assert.Single((await reference.ListAllAsync()).Items);

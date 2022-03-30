@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
@@ -13,7 +13,7 @@ namespace Playground.Common.Services.UserInteraction
     public abstract class UserInteractionServiceBase : IUserInteractionService
     {
         private readonly IScheduler _mainScheduler;
-        
+
         protected UserInteractionServiceBase(IScheduler mainScheduler)
         {
             _mainScheduler = mainScheduler;
@@ -46,7 +46,7 @@ namespace Playground.Common.Services.UserInteraction
         }
 
         protected abstract Task<int> ShowThreeButtonsDialogAsync(UserInfo userInfo);
-        
+
         public Task<int> ShowAsSnackbarAsync(UserInfo userInfo)
         {
             return Observable
@@ -74,7 +74,7 @@ namespace Playground.Common.Services.UserInteraction
                 userInfo.DefaultButtonTexts.ToArray());
             return userInfo.DefaultButtonTexts.IndexOf(result);
         }
-        
+
         public Task<string> ShowAsPromptAsync(UserInfo userInfo)
         {
             return Observable
@@ -91,9 +91,9 @@ namespace Playground.Common.Services.UserInteraction
                 userInfo.DefaultButtonTexts[0],
                 userInfo.CancelButtonText,
                 userInfo.Placeholder,
-                keyboard:Keyboard.Plain);
+                keyboard: Keyboard.Plain);
         }
-        
+
         public Task ShowDefaultDialogAsync(string title, string message)
         {
             return ShowDefaultAsync(title, message, UserInfoType.Dialog);
@@ -113,7 +113,7 @@ namespace Playground.Common.Services.UserInteraction
         {
             return ShowDefaultAsync(null, message, UserInfoType.Snackbar);
         }
-        
+
         public async Task ShowErrorSnackbarAsync(string message, Exception e = null)
         {
             await ShowAsSnackbarAsync(
@@ -123,18 +123,18 @@ namespace Playground.Common.Services.UserInteraction
                     .As(UserInfoType.Snackbar)
                     .Build());
         }
-        
+
         private Task<int> ShowAsync(UserInfo userInfo)
         {
             switch(userInfo.AsType) {
-               case UserInfoType.Dialog:
-                   return ShowAsDialogAsync(userInfo);
-               case UserInfoType.Snackbar:
-                   return ShowAsSnackbarAsync(userInfo);
-               case UserInfoType.ActionSheet:
-                   return ShowAsActionSheetAsync(userInfo);
-               default:
-                   throw new ArgumentException($"The given AsType {userInfo.AsType} is not yet supported");
+                case UserInfoType.Dialog:
+                    return ShowAsDialogAsync(userInfo);
+                case UserInfoType.Snackbar:
+                    return ShowAsSnackbarAsync(userInfo);
+                case UserInfoType.ActionSheet:
+                    return ShowAsActionSheetAsync(userInfo);
+                default:
+                    throw new ArgumentException($"The given AsType {userInfo.AsType} is not yet supported");
             }
         }
 
@@ -157,7 +157,7 @@ namespace Playground.Common.Services.UserInteraction
 
         private static Page CurrentPage => Application.Current.MainPage;
     }
-    
+
     public static class DialogButtonIndex
     {
         public const int Cancel = -1;

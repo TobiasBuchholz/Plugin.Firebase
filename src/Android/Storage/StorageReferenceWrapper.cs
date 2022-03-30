@@ -14,7 +14,7 @@ namespace Plugin.Firebase.Android.Storage
     public sealed class StorageReferenceWrapper : IStorageReference
     {
         private readonly StorageReference _wrapped;
-        
+
         public StorageReferenceWrapper(StorageReference reference)
         {
             _wrapped = reference;
@@ -27,14 +27,14 @@ namespace Plugin.Firebase.Android.Storage
 
         public IStorageTransferTask PutBytes(byte[] bytes, IStorageMetadata metadata = null)
         {
-            return metadata == null 
-                ? _wrapped.PutBytes(bytes).ToAbstract() 
+            return metadata == null
+                ? _wrapped.PutBytes(bytes).ToAbstract()
                 : _wrapped.PutBytes(bytes, metadata.ToNative()).ToAbstract();
         }
 
         public IStorageTransferTask PutFile(string filePath, IStorageMetadata metadata = null)
         {
-            return metadata == null 
+            return metadata == null
                 ? _wrapped.PutFile(AndroidUri.FromFile(new File(filePath))).ToAbstract()
                 : _wrapped.PutFile(AndroidUri.FromFile(new File(filePath)), metadata.ToNative()).ToAbstract();
         }

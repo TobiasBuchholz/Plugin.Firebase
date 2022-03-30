@@ -14,7 +14,7 @@ namespace Plugin.Firebase.iOS.Storage
     public sealed class StorageReferenceWrapper : IStorageReference
     {
         private readonly StorageReference _wrapped;
-        
+
         public StorageReferenceWrapper(StorageReference reference)
         {
             _wrapped = reference;
@@ -29,14 +29,14 @@ namespace Plugin.Firebase.iOS.Storage
         {
             return PutData(NSData.FromArray(bytes), metadata);
         }
-        
+
         private IStorageTransferTask PutData(NSData data, IStorageMetadata metadata = null)
         {
             var wrapper = new StorageTransferTaskWrapper<StorageUploadTask, NativeStorageMetadata>();
             wrapper.TransferTask = _wrapped.PutData(data, metadata?.ToNative(), (x, e) => wrapper.CompletionHandler(x, e));
             return wrapper;
         }
-        
+
         public IStorageTransferTask PutFile(string filePath, IStorageMetadata metadata = null)
         {
             return PutData(NSData.FromStream(File.Open(filePath, FileMode.Open)), metadata);

@@ -15,7 +15,7 @@ namespace Plugin.Firebase.Android.Firestore
         {
             _wrapped = writeBatch;
         }
-        
+
         public override string ToString()
         {
             return _wrapped?.ToString() ?? "null";
@@ -23,15 +23,15 @@ namespace Plugin.Firebase.Android.Firestore
 
         public IWriteBatch SetData(IDocumentReference document, object data, SetOptions options = null)
         {
-            return options == null 
-                ? _wrapped.Set(document.ToNative(), data.ToHashMap()).ToAbstract() 
+            return options == null
+                ? _wrapped.Set(document.ToNative(), data.ToHashMap()).ToAbstract()
                 : _wrapped.Set(document.ToNative(), data.ToHashMap(), options.ToNative()).ToAbstract();
         }
 
         public IWriteBatch SetData(IDocumentReference document, Dictionary<object, object> data, SetOptions options = null)
         {
-            return options == null 
-                ? _wrapped.Set(document.ToNative(), data.ToHashMap()).ToAbstract() 
+            return options == null
+                ? _wrapped.Set(document.ToNative(), data.ToHashMap()).ToAbstract()
                 : _wrapped.Set(document.ToNative(), data.ToHashMap(), options.ToNative()).ToAbstract();
         }
 
@@ -42,8 +42,8 @@ namespace Plugin.Firebase.Android.Firestore
 
         public IWriteBatch SetData(IDocumentReference document, SetOptions options, params (object, object)[] data)
         {
-            return options == null 
-                ? _wrapped.Set(document.ToNative(), data.ToHashMap()).ToAbstract() 
+            return options == null
+                ? _wrapped.Set(document.ToNative(), data.ToHashMap()).ToAbstract()
                 : _wrapped.Set(document.ToNative(), data.ToHashMap(), options.ToNative()).ToAbstract();
         }
 

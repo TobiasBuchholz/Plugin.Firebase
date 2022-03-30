@@ -10,7 +10,7 @@ namespace Playground.Common.Services.Navigation
         Task PopAsync();
         Task PopModalAsync();
         Task PopToRootAsync();
-        
+
         IObservable<ShellNavigatedEventArgs> NavigatedTicks { get; }
     }
 }

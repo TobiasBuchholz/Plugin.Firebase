@@ -20,7 +20,7 @@ namespace Playground.Features.RemoteConfig
 
         private readonly IUserInteractionService _userInteractionService;
         private readonly IFirebaseRemoteConfig _firebaseRemoteConfig;
-        
+
         public RemoteConfigViewModel(
             IUserInteractionService userInteractionService,
             IFirebaseRemoteConfig firebaseRemoteConfig)
@@ -51,7 +51,7 @@ namespace Playground.Features.RemoteConfig
 
         private async Task FetchAndActivateAsync()
         {
-            await _firebaseRemoteConfig.SetRemoteConfigSettingsAsync(new RemoteConfigSettings(minimumFetchInterval:TimeSpan.Zero));
+            await _firebaseRemoteConfig.SetRemoteConfigSettingsAsync(new RemoteConfigSettings(minimumFetchInterval: TimeSpan.Zero));
             await _firebaseRemoteConfig.FetchAndActivateAsync();
         }
 

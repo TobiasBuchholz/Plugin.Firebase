@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Android.App;
 using Firebase.Auth;
 using Java.Lang;
@@ -9,7 +9,7 @@ namespace Plugin.Firebase.Android.Auth.PhoneNumber
     public sealed class PhoneNumberAuth
     {
         private string _verificationId;
-        
+
         public Task VerifyPhoneNumberAsync(Activity activity, string phoneNumber)
         {
             var callbacks = new PhoneVerificationStateChangeCallbacks(onCodeSent: x => _verificationId = x.VerificationId);
@@ -20,7 +20,7 @@ namespace Plugin.Firebase.Android.Auth.PhoneNumber
                 .SetActivity(activity)
                 .SetCallbacks(callbacks)
                 .Build();
-            
+
             PhoneAuthProvider.VerifyPhoneNumber(options);
             return Task.CompletedTask;
         }

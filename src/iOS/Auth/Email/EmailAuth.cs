@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Firebase.Auth;
 using FirebaseAuth = Firebase.Auth.Auth;
 

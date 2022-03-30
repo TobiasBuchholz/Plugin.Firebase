@@ -3,7 +3,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
     public enum PokeType : long
     {
         Undefined,
-        Fire, 
+        Fire,
         Water,
         Plant,
         Electric

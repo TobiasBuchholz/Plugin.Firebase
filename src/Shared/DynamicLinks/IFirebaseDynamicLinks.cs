@@ -12,18 +12,18 @@ namespace Plugin.Firebase.DynamicLinks
         /// Returns the current Dynamic Link.
         /// </summary>
         string GetDynamicLink();
-        
+
         /// <summary>
         /// Returns an <c>IDynamicLinkBuilder</c> object to create a Dynamic Link.
         /// </summary>
         /// <returns></returns>
         IDynamicLinkBuilder CreateDynamicLink();
-        
+
         /// <summary>
         /// Gets invoked when the app was triggered by a Dynamic Link.
         /// </summary>
         event EventHandler<DynamicLinkReceivedEventArgs> DynamicLinkReceived;
-        
+
         /// <summary>
         /// Gets invoked when something went wrong during handling a Dynamic Link.
         /// </summary>

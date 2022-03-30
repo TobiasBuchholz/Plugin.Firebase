@@ -16,7 +16,7 @@ namespace Playground.Common.Services.Auth
         private readonly IPreferencesService _preferencesService;
         private readonly BehaviorSubject<IFirebaseUser> _currentUserSubject;
         private readonly ISubject<bool> _isSignInRunningSubject;
-        
+
         public AuthService(
             IFirebaseAuth firebaseAuth,
             IPreferencesService preferencesService)
@@ -25,13 +25,13 @@ namespace Playground.Common.Services.Auth
             _preferencesService = preferencesService;
             _currentUserSubject = new BehaviorSubject<IFirebaseUser>(null);
             _isSignInRunningSubject = new BehaviorSubject<bool>(false);
-            
+
             _currentUserSubject.OnNext(_firebaseAuth.CurrentUser);
         }
 
         public IObservable<Unit> SignAnonymously()
         {
-            return RunAuthTask(_firebaseAuth.SignInAnonymouslyAsync(), signOutWhenFailed:true);
+            return RunAuthTask(_firebaseAuth.SignInAnonymouslyAsync(), signOutWhenFailed: true);
         }
 
         private IObservable<Unit> RunAuthTask(Task<IFirebaseUser> task, bool signOutWhenFailed = false)
@@ -48,29 +48,29 @@ namespace Playground.Common.Services.Auth
         public IObservable<Unit> SignInWithEmailAndPassword(string email, string password)
         {
             return RunAuthTask(
-                _firebaseAuth.SignInWithEmailAndPasswordAsync(email, password), 
-                signOutWhenFailed:true);
+                _firebaseAuth.SignInWithEmailAndPasswordAsync(email, password),
+                signOutWhenFailed: true);
         }
 
         public IObservable<Unit> SignInWithEmailLink(string email, string link)
         {
             return RunAuthTask(
                 _firebaseAuth.SignInWithEmailLinkAsync(email, link),
-                signOutWhenFailed:true);
+                signOutWhenFailed: true);
         }
 
         public IObservable<Unit> SignInWithGoogle()
         {
             return RunAuthTask(
                 _firebaseAuth.SignInWithGoogleAsync(),
-                signOutWhenFailed:true);
+                signOutWhenFailed: true);
         }
 
         public IObservable<Unit> SignInWithFacebook()
         {
             return RunAuthTask(
                 _firebaseAuth.SignInWithFacebookAsync(),
-                signOutWhenFailed:true);
+                signOutWhenFailed: true);
         }
 
         public IObservable<Unit> VerifyPhoneNumber(string phoneNumber)
@@ -82,7 +82,7 @@ namespace Playground.Common.Services.Auth
         {
             return RunAuthTask(
                 _firebaseAuth.SignInWithPhoneNumberVerificationCodeAsync(verificationCode),
-                signOutWhenFailed:true);
+                signOutWhenFailed: true);
         }
 
         public IObservable<Unit> LinkWithEmailAndPassword(string email, string password)
@@ -131,7 +131,7 @@ namespace Playground.Common.Services.Auth
             settings.SetAndroidPackageName("com.tobishiba.playground", true, "21");
             return settings;
         }
-        
+
         public IObservable<Unit> SignOut()
         {
             return _firebaseAuth
@@ -155,7 +155,7 @@ namespace Playground.Common.Services.Auth
         {
             return _firebaseAuth.IsSignInWithEmailLink(link);
         }
-        
+
         public IFirebaseUser CurrentUser => _currentUserSubject.Value;
         public IObservable<IFirebaseUser> CurrentUserTicks => _currentUserSubject.AsObservable();
         public IObservable<bool> IsSignedInTicks => CurrentUserTicks.Select(x => x != null);

@@ -20,7 +20,7 @@ namespace Plugin.Firebase.Android.Firestore
         {
             _wrapped = query;
         }
-        
+
         public IQuery WhereEqualsTo(string field, object value)
         {
             return _wrapped.WhereEqualTo(field, value.ToJavaObject()).ToAbstract();
@@ -171,7 +171,7 @@ namespace Plugin.Firebase.Android.Firestore
         {
             var registration = _wrapped
                 .AddSnapshotListener(includeMetaDataChanges ? MetadataChanges.Include : MetadataChanges.Exclude, new EventListener(
-                    x => onChanged(new QuerySnapshotWrapper<T>(x.JavaCast<QuerySnapshot>())), 
+                    x => onChanged(new QuerySnapshotWrapper<T>(x.JavaCast<QuerySnapshot>())),
                     e => onError?.Invoke(new FirebaseException(e.LocalizedMessage))));
             return new DisposableWithAction(registration.Remove);
         }

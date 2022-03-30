@@ -6,12 +6,12 @@ namespace Playground.Common.Services.Navigation
         public const string PageCloudMessaging = "cloud_messaging";
         public const string PageRemoteConfig = "remote_config";
         public const string PageStorage = "storage";
-        
+
         public static string ToAuthPage()
         {
             return PageAuth;
         }
-        
+
         public static string ToCloudMessagingPage()
         {
             return PageCloudMessaging;

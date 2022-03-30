@@ -20,7 +20,7 @@ namespace Plugin.Firebase.Android.Extensions
         {
             return (T) ((IDictionary) @this).Cast(typeof(T), documentId);
         }
-        
+
         private static object Cast(this IDictionary @this, Type targetType, string documentId = null)
         {
             var instance = Activator.CreateInstance(targetType);
@@ -30,7 +30,7 @@ namespace Plugin.Firebase.Android.Extensions
                     property.SetValue(instance, documentId);
                     continue;
                 }
-                
+
                 var attributes = property.GetCustomAttributes(typeof(FirestorePropertyAttribute), true);
                 if(attributes.Any()) {
                     var attribute = (FirestorePropertyAttribute) attributes[0];
@@ -44,7 +44,7 @@ namespace Plugin.Firebase.Android.Extensions
                     }
                 }
             }
-            return instance; 
+            return instance;
         }
 
         public static object ToObject(this Java.Lang.Object @this, Type targetType = null)

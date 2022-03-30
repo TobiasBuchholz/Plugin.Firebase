@@ -29,7 +29,7 @@ namespace Plugin.Firebase.iOS
             if(settings.IsAnalyticsEnabled) {
                 FirebaseAnalyticsImplementation.Initialize();
             }
-            
+
             if(settings.IsAuthEnabled) {
                 FirebaseAuthImplementation.Initialize(app, options, settings.FacebookId, settings.FacebookAppName);
             }
@@ -37,7 +37,7 @@ namespace Plugin.Firebase.iOS
             if(settings.IsCloudMessagingEnabled) {
                 FirebaseCloudMessagingImplementation.Initialize();
             }
-            
+
             Console.WriteLine($"Plugin.Firebase initialized with the following settings:\n{settings}");
         }
     }

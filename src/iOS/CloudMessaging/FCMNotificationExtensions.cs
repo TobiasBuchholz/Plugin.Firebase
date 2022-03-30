@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Foundation;
 using Plugin.Firebase.CloudMessaging;
@@ -12,12 +12,12 @@ namespace Plugin.Firebase.iOS.CloudMessaging
         {
             return notification.Request.ToFCMNotification();
         }
-        
+
         public static FCMNotification ToFCMNotification(this UNNotificationRequest request)
         {
             return request.Content.UserInfo.ToFCMNotification();
         }
-        
+
         public static FCMNotification ToFCMNotification(this NSDictionary userInfo)
         {
             if(userInfo["aps"] is NSDictionary apsDict) {
@@ -26,7 +26,7 @@ namespace Plugin.Firebase.iOS.CloudMessaging
                     return new FCMNotification(GetBody(dict), GetTitle(dict), GetImageUrl(userInfo), userInfo.ToDictionary());
                 } else if(alert != null) {
                     return new FCMNotification(alert.ToString(), "", "", userInfo.ToDictionary());
-                } 
+                }
             } else {
                 var notification = userInfo["notification"];
                 if(notification is NSDictionary dict) {

@@ -7,7 +7,7 @@ namespace Plugin.Firebase.Functions
     public sealed class FirebaseFunctionsImplementation : DisposableBase, IFirebaseFunctions
     {
         private readonly CloudFunctions _functions;
-        
+
         public FirebaseFunctionsImplementation()
         {
             _functions = CloudFunctions.DefaultInstance;

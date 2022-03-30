@@ -12,11 +12,11 @@ namespace Playground.Common.Services.Composition
                 Instance = new ViewModelResolver(compositionRootBase);
             }
         }
-        
+
         public static ViewModelResolver Instance { get; private set; }
 
         private readonly CompositionRootBase _compositionRoot;
-        
+
         private ViewModelResolver(CompositionRootBase compositionRoot)
         {
             _compositionRoot = compositionRoot;

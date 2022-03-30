@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 
 namespace Plugin.Firebase.Auth
@@ -20,15 +20,15 @@ namespace Plugin.Firebase.Auth
         /// <param name="email">The user’s email address.</param>
         /// <param name="password">The user’s password.</param>
         Task CreateUserAsync(string email, string password);
-        
+
         /// <summary>
         /// Asynchronously signs in to Firebase with the given Auth token.
         /// </summary>
         /// <param name="token">A self-signed custom auth token.</param>
         /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
         Task<IFirebaseUser> SignInWithCustomTokenAsync(string token);
-        
-        
+
+
         /// <summary>
         /// Signs in using the verification code that was send to the given phone number after calling <c>VerifyPhoneNumberAsync(phoneNumber)</c>.
         /// </summary>
@@ -44,7 +44,7 @@ namespace Plugin.Firebase.Auth
         /// <param name="createsUserAutomatically">If the user doesn't exist, it will be created automatically and signed in afterwards if the value is true.</param>
         /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
         Task<IFirebaseUser> SignInWithEmailAndPasswordAsync(string email, string password, bool createsUserAutomatically = true);
-        
+
         /// <summary>
         /// Signs in using an email address and email sign-in link.
         /// </summary>
@@ -52,33 +52,33 @@ namespace Plugin.Firebase.Auth
         /// <param name="link">The email sign-in link.</param>
         /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
         Task<IFirebaseUser> SignInWithEmailLinkAsync(string email, string link);
-        
+
         /// <summary>
         /// Signs in using a google account.
         /// </summary>
         /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
         Task<IFirebaseUser> SignInWithGoogleAsync();
-        
+
         /// <summary>
         /// Signs in using a facebook account.
         /// </summary>
         /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
         Task<IFirebaseUser> SignInWithFacebookAsync();
-        
+
         /// <summary>
         /// Asynchronously creates and becomes an anonymous user. If there is already an anonymous user signed in, that user will
         /// be returned instead. If there is any other existing user signed in, that user will be signed out.
         /// </summary>
         /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
         Task<IFirebaseUser> SignInAnonymouslyAsync();
-        
+
         /// <summary>
         /// Link the signed in user with a phone number.
         /// </summary>
         /// <param name="verificationCode">The code that was send to the given phone number after calling <c>VerifyPhoneNumberAsync(phoneNumber)</c>.</param>
         /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
         Task<IFirebaseUser> LinkWithPhoneNumberVerificationCodeAsync(string verificationCode);
-        
+
         /// <summary>
         /// Link the signed in user with the given email address and password.
         /// </summary>
@@ -86,13 +86,13 @@ namespace Plugin.Firebase.Auth
         /// <param name="password">The user’s password.</param>
         /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
         Task<IFirebaseUser> LinkWithEmailAndPasswordAsync(string email, string password);
-        
+
         /// <summary>
         /// Link the signed in user with a google account.
         /// </summary>
         /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
         Task<IFirebaseUser> LinkWithGoogleAsync();
-        
+
         /// <summary>
         /// Link the signed in user with a facebook account.
         /// </summary>
@@ -104,25 +104,25 @@ namespace Plugin.Firebase.Auth
         /// </summary>
         /// <param name="email">The email address for which to obtain a list of sign-in methods.</param>
         Task<string[]> FetchSignInMethodsAsync(string email);
-        
+
         /// <summary>
         /// Sends a sign in with email link to provided email address.
         /// </summary>
         /// <param name="toEmail">The email address of the user.</param>
         /// <param name="actionCodeSettings">An <c>ActionCodeSettings</c> object containing settings related to handling action codes.</param>
         Task SendSignInLink(string toEmail, ActionCodeSettings actionCodeSettings);
-        
+
         /// <summary>
         /// Signs out the current user.
         /// </summary>
         Task SignOutAsync();
-        
+
         /// <summary>
         /// Checks if link is an email sign-in link.
         /// </summary>
         /// <param name="link">The email sign-in link.</param>
         bool IsSignInWithEmailLink(string link);
-        
+
         /// <summary>
         /// The currently signed in <c>IFirebaseUser</c> object or <c>null</c> if the user is signed out.
         /// </summary>

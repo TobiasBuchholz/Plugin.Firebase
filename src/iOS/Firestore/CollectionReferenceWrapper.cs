@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Firebase.CloudFirestore;
 using Plugin.Firebase.Common;
@@ -11,7 +11,7 @@ namespace Plugin.Firebase.iOS.Firestore
     public sealed class CollectionReferenceWrapper : ICollectionReference
     {
         private readonly CollectionReference _wrapped;
-        
+
         public CollectionReferenceWrapper(CollectionReference reference)
         {
             _wrapped = reference;
@@ -21,14 +21,14 @@ namespace Plugin.Firebase.iOS.Firestore
         {
             var registration = _wrapped.AddSnapshotListener(includeMetaDataChanges, (snapshot, error) => {
                 if(error == null) {
-                    onChanged(new QuerySnapshotWrapper<T>(snapshot));                    
+                    onChanged(new QuerySnapshotWrapper<T>(snapshot));
                 } else {
                     onError?.Invoke(new FirebaseException(error.LocalizedDescription));
                 }
             });
             return new DisposableWithAction(registration.Remove);
         }
-        
+
         public IDocumentReference GetDocument(string documentPath)
         {
             return new DocumentReferenceWrapper(_wrapped.GetDocument(documentPath));
@@ -153,7 +153,7 @@ namespace Plugin.Firebase.iOS.Firestore
         {
             return _wrapped.EndingAt(fieldValues).ToAbstract();
         }
-        
+
         public IQuery EndingAt(IDocumentSnapshot snapshot)
         {
             return _wrapped.EndingAt(snapshot.ToNative()).ToAbstract();
@@ -178,7 +178,7 @@ namespace Plugin.Firebase.iOS.Firestore
         {
             return _wrapped.LimitedToLast(limit).ToAbstract();
         }
-        
+
         public Task<IDocumentReference> AddDocumentAsync(object data)
         {
             var tcs = new TaskCompletionSource<IDocumentReference>();

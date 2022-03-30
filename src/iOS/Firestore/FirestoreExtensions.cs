@@ -24,12 +24,12 @@ namespace Plugin.Firebase.iOS.Firestore
         {
             return new DocumentSnapshotWrapper(@this);
         }
-        
+
         public static IDocumentSnapshot<T> ToAbstract<T>(this DocumentSnapshot @this)
         {
             return new DocumentSnapshotWrapper<T>(@this);
         }
-        
+
         public static DocumentReference ToNative(this IDocumentReference @this)
         {
             if(@this is DocumentReferenceWrapper wrapper) {
@@ -42,7 +42,7 @@ namespace Plugin.Firebase.iOS.Firestore
         {
             return new DocumentReferenceWrapper(@this);
         }
-        
+
         public static DocumentSnapshot ToNative(this IDocumentSnapshot @this)
         {
             if(@this is DocumentSnapshotWrapper wrapper) {
@@ -55,7 +55,7 @@ namespace Plugin.Firebase.iOS.Firestore
         {
             return new DocumentChange(
                 @this.Document.ToAbstract(),
-                @this.Type.ToAbstract(), 
+                @this.Type.ToAbstract(),
                 (int) @this.NewIndex,
                 (int) @this.OldIndex);
         }
@@ -83,7 +83,7 @@ namespace Plugin.Firebase.iOS.Firestore
         {
             return new SnapshotMetadataWrapper(@this);
         }
-        
+
         public static ITransaction ToAbstract(this Transaction @this)
         {
             return new TransactionWrapper(@this);

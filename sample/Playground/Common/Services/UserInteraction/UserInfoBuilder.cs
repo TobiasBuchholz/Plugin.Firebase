@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Utility.Builders;
 
@@ -26,16 +26,16 @@ namespace Playground.Common.Services.UserInteraction
 
         public UserInfoBuilder WithMessage(string message) =>
             this.With(ref _message, message);
-        
+
         public UserInfoBuilder WithPlaceholder(string placeholder) =>
             this.With(ref _placeholder, placeholder);
 
         public UserInfoBuilder WithCancelButton(string text) =>
             this.With(ref _cancelButtonText, text);
-        
+
         public UserInfoBuilder WithDestroyButtonText(string text) =>
             this.With(ref _destroyButtonText, text);
-        
+
         public UserInfoBuilder WithDefaultButton(string text)
         {
             _defaultButtonTexts.Add(text);

@@ -9,10 +9,10 @@ namespace Plugin.Firebase.Firestore
         {
             PropertyName = propertyName;
         }
-        
+
         public string PropertyName { get; }
     }
-    
+
     [AttributeUsage(AttributeTargets.Property)]
     public class FirestoreDocumentIdAttribute : Attribute
     {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Android.Gms.Extensions;
@@ -92,7 +92,7 @@ namespace Plugin.Firebase.Android.Firestore
         {
             var registration = Wrapped
                 .AddSnapshotListener(includeMetaDataChanges ? MetadataChanges.Include : MetadataChanges.Exclude, new EventListener(
-                    x => onChanged(x.JavaCast<DocumentSnapshot>().ToAbstract<T>()), 
+                    x => onChanged(x.JavaCast<DocumentSnapshot>().ToAbstract<T>()),
                     e => onError?.Invoke(new FirebaseException(e.LocalizedMessage))));
             return new DisposableWithAction(registration.Remove);
         }

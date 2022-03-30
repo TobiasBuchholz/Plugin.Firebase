@@ -60,7 +60,7 @@ namespace Plugin.Firebase.Android.Auth
         {
             return _wrapped.DeleteAsync();
         }
-        
+
         public string Uid => _wrapped.Uid;
         public string DisplayName => _wrapped.DisplayName;
         public string Email => _wrapped.Email;

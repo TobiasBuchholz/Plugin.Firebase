@@ -1,4 +1,4 @@
-﻿namespace Plugin.Firebase.CloudMessaging.EventArgs
+namespace Plugin.Firebase.CloudMessaging.EventArgs
 {
     public sealed class FCMNotificationReceivedEventArgs : System.EventArgs
     {
@@ -6,7 +6,7 @@
         {
             Notification = notification;
         }
-        
+
         public FCMNotification Notification { get; }
     }
 }

@@ -14,18 +14,18 @@ namespace Plugin.Firebase.IntegrationTests.Analytics
         public void does_not_throw_any_exception_when_logging_events()
         {
             var sut = CrossFirebaseAnalytics.Current;
-            
+
             sut.LogEvent("test_without_parameters");
             sut.LogEvent("test_with_single_tuple_parameter", ("some_parameter", "some_value"));
-            
-            sut.LogEvent("test_with_multiple_tuple_parameters", 
-                ("some_string", "some_value"), 
+
+            sut.LogEvent("test_with_multiple_tuple_parameters",
+                ("some_string", "some_value"),
                 ("some_int", 1337),
                 ("some_long", 1337L),
                 ("some_double", 13.37),
                 ("some_float", 133.7f),
                 ("some_bool", true));
-            
+
             sut.LogEvent("test_with_dictionary", new Dictionary<string, object> {
                 { "some_string", "some_value" },
                 { "some_int", 1337 },

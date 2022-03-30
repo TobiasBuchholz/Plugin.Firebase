@@ -23,7 +23,7 @@ namespace Plugin.Firebase.Android.Functions
         {
             return _httpsCallable.Call(ConvertJsonToData(dataJson)).AsAsync();
         }
-        
+
         private static Object ConvertJsonToData(string dataJson = null)
         {
             return new Gson().FromJson(dataJson, TypeToken.GetParameterized(

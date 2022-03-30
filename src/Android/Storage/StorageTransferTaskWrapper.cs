@@ -51,21 +51,21 @@ namespace Plugin.Firebase.Android.Storage
             _observerDict[observer] = listener;
             _transferTask.AddOnPausedListener(listener);
         }
-        
+
         private void ObserveStatusProgress(Action<IStorageTaskSnapshot> observer)
         {
             var listener = new OnProgressListener(x => observer.Invoke(x.ToAbstract()));
             _observerDict[observer] = listener;
             _transferTask.AddOnProgressListener(listener);
         }
-        
+
         private void ObserveStatusSuccess(Action<IStorageTaskSnapshot> observer)
         {
             var listener = new OnSuccessListener(x => observer.Invoke(x.ToAbstract()));
             _observerDict[observer] = listener;
             _transferTask.AddOnSuccessListener(listener);
         }
-        
+
         private void ObserveStatusFailure(Action<IStorageTaskSnapshot> observer)
         {
             var listener = new OnFailureListener(x => observer.Invoke(StorageTaskTaskSnapshotWrapper.FromError(x)));

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Firebase;
 using Firebase.Auth;
 
@@ -13,8 +13,8 @@ namespace Plugin.Firebase.Android.Auth.PhoneNumber
 
         public PhoneVerificationStateChangeCallbacks(
             Action<(string VerificationId, PhoneAuthProvider.ForceResendingToken forceResendingToken)> onCodeSent = null,
-            Action<PhoneAuthCredential> onVerificationCompleted = null, 
-            Action<FirebaseException> onVerificationFailed = null, 
+            Action<PhoneAuthCredential> onVerificationCompleted = null,
+            Action<FirebaseException> onVerificationFailed = null,
             Action<string> onCodeAutoRetrievalTimeOut = null)
         {
             _onCodeSent = onCodeSent;

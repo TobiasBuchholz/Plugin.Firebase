@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -18,7 +18,7 @@ namespace Plugin.Firebase.Firestore
         /// <param name="data">The data to write to the document.</param>
         /// <param name="options">An object to configure the set behavior.</param>
         Task SetDataAsync(object data, SetOptions options = null);
-        
+
         /// <summary>
         /// Writes to the document referred to by this <c>IDocumentReference</c>. If the document does not yet exist, it will be created. If you
         /// pass <c>SetOptions</c>, the provided data can be merged into an existing document.
@@ -26,14 +26,14 @@ namespace Plugin.Firebase.Firestore
         /// <param name="data">The data to write to the document.</param>
         /// <param name="options">An object to configure the set behavior.</param>
         Task SetDataAsync(Dictionary<object, object> data, SetOptions options = null);
-        
+
         /// <summary>
         /// Writes to the document referred to by this <c>IDocumentReference</c>. If the document does not yet exist, it will be created. If you
         /// pass <c>SetOptions</c>, the provided data can be merged into an existing document.
         /// </summary>
         /// <param name="data">The data to write to the document.</param>
         Task SetDataAsync(params (object, object)[] data);
-        
+
         /// <summary>
         /// Writes to the document referred to by this <c>IDocumentReference</c>. If the document does not yet exist, it will be created. If you
         /// pass <c>SetOptions</c>, the provided data can be merged into an existing document.
@@ -41,24 +41,24 @@ namespace Plugin.Firebase.Firestore
         /// <param name="options">An object to configure the set behavior.</param>
         /// <param name="data">The data to write to the document.</param>
         Task SetDataAsync(SetOptions options, params (object, object)[] data);
-        
+
         /// <summary>
         /// Updates fields in the document referred to by this <c>IDocumentReference</c> object. If the document does not exist, the update fails.
         /// </summary>
         /// <param name="data">The data to write to the document.</param>
         Task UpdateDataAsync(Dictionary<object, object> data);
-        
+
         /// <summary>
         /// Updates fields in the document referred to by this <c>IDocumentReference</c> object. If the document does not exist, the update fails.
         /// </summary>
         /// <param name="data">The data to write to the document.</param>
         Task UpdateDataAsync(params (string, object)[] data);
-        
+
         /// <summary>
         /// Deletes the document referred to by this <c>IDocumentReference</c>.
         /// </summary>
         Task DeleteDocumentAsync();
-        
+
         /// <summary>
         /// Reads the document referenced by this <c>IDocumentReference</c>. This method attempts to provide up-to-date data when possible by
         /// waiting for data from the server, but it may return cached data or fail if you are offline and the server cannot be reached.
@@ -77,17 +77,17 @@ namespace Plugin.Firebase.Firestore
         /// </param>
         /// <typeparam name="T">The type of the document item.</typeparam>
         IDisposable AddSnapshotListener<T>(Action<IDocumentSnapshot<T>> onChanged, Action<Exception> onError = null, bool includeMetaDataChanges = false);
-        
+
         /// <summary>
         /// The ID of the document referred to.
         /// </summary>
         string Id { get; }
-        
+
         /// <summary>
         /// A string representing the path of the referenced document (relative to the root of the database).
         /// </summary>
         string Path { get; }
-        
+
         /// <summary>
         /// A reference to the collection to which this <c>IDocumentReference</c> belongs.
         /// </summary>

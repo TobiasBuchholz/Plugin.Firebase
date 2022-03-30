@@ -19,7 +19,7 @@ namespace Plugin.Firebase.iOS.Storage
         {
             _tcs = new TaskCompletionSource<CompletionResult>();
             _observerDict = new Dictionary<Action<IStorageTaskSnapshot>, string>();
-            
+
             CompletionHandler = (result, error) => {
                 if(error == null) {
                     _tcs.SetResult(result);
@@ -66,7 +66,7 @@ namespace Plugin.Firebase.iOS.Storage
         {
             TransferTask.Cancel();
         }
-        
+
         public delegate void StorageTransferCompletionHandler(CompletionResult result, NSError error);
         public StorageTransferCompletionHandler CompletionHandler { get; }
         public StorageTransferTask TransferTask { private get; set; }

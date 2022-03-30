@@ -15,7 +15,7 @@ namespace Plugin.Firebase.IntegrationTests.Functions
             var sut = CrossFirebaseFunctions.Current;
             await sut.GetHttpsCallable("convertToLeet").CallAsync();
         }
-        
+
         [Fact]
         public async Task executes_callable_function_with_json_body()
         {
@@ -23,14 +23,14 @@ namespace Plugin.Firebase.IntegrationTests.Functions
             var json = new SimpleRequestData(123).ToJson();
             await sut.GetHttpsCallable("convertToLeet").CallAsync(json);
         }
-        
+
         [Fact]
         public async Task executes_callable_function_with_json_body_and_response()
         {
             var sut = CrossFirebaseFunctions.Current;
             var json = new SimpleRequestData(123).ToJson();
             var response = await sut.GetHttpsCallable("convertToLeet").CallAsync<SimpleResponseData>(json);
-            
+
             Assert.Equal(123, response.InputValue);
             Assert.Equal(1337, response.OutputValue);
         }

@@ -12,12 +12,12 @@ namespace Plugin.Firebase.Firestore
         {
             return new FieldPath(fields);
         }
-        
+
         public static FieldPath DocumentId()
         {
-            return new FieldPath(isDocumentId:true);
+            return new FieldPath(isDocumentId: true);
         }
-        
+
         public string[] Fields { get; }
         public bool IsDocumentId { get; }
     }

@@ -13,7 +13,7 @@ namespace Plugin.Firebase.iOS.RemoteConfig
                 FetchTimeout = @this.FetchTimeout.TotalSeconds
             };
         }
-        
+
         public static RemoteConfigSettings ToAbstract(this NativeRemoteConfigSettings @this)
         {
             return new RemoteConfigSettings(

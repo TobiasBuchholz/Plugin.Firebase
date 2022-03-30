@@ -19,7 +19,7 @@ namespace Plugin.Firebase.Shared.Common.Extensions
                 return @this.SequenceEqual(other, comparer);
             }
         }
-        
+
         public static bool SequenceEqual<T>(this IEnumerable<T> source, IEnumerable<T> other, Func<T, T, bool> comparer)
         {
             return comparer == null ? source.SequenceEqual(other) : source.SequenceEqual(other, new FuncEqualityComparer<T>(comparer));

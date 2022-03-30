@@ -11,13 +11,13 @@ namespace Plugin.Firebase.Firestore
             var snapshot = await @this.GetCollection(collectionPath).LimitedTo(batchSize).GetDocumentsAsync<T>();
             if(snapshot.Documents.Any()) {
                 var batch = @this.CreateBatch();
-                
+
                 foreach(var document in snapshot.Documents) {
                     batch.DeleteDocument(document.Reference);
                 }
                 await batch.CommitAsync();
                 await @this.DeleteCollectionAsync<T>(collectionPath, batchSize);
-            } 
+            }
         }
     }
 }

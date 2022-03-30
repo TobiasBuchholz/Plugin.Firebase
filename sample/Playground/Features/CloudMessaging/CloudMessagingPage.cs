@@ -17,7 +17,7 @@ namespace Playground.Features.CloudMessaging
             InitializeViewModel();
 
             Content = new Grid {
-                    Children = {
+                Children = {
                         new Button { Text = Localization.ButtonCheckFcmValidity, TextColor = Color.Black }
                             .Row(0)
                             .Bind(IsVisibleProperty, nameof(Vm.IsInProgress), convert:Negate)
@@ -44,7 +44,7 @@ namespace Playground.Features.CloudMessaging
                             .Center()
                             .Bind(ActivityIndicator.IsRunningProperty, nameof(Vm.IsInProgress)),
                     }
-                }
+            }
                 .FillHorizontal()
                 .CenterVertical()
                 .Margin(24);

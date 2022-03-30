@@ -23,8 +23,8 @@ namespace Plugin.Firebase.Android.CloudMessaging
         private static Bitmap DecodeBitmap(string url)
         {
             var connection = (URLConnection) new URL(url).OpenConnection();
-            return connection == null 
-                ? throw new FirebaseException($"Couldn't open connection to url: {url}") 
+            return connection == null
+                ? throw new FirebaseException($"Couldn't open connection to url: {url}")
                 : DecodeBitmap(connection);
         }
 

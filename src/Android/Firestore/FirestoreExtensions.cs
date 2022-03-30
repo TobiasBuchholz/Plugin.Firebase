@@ -23,12 +23,12 @@ namespace Plugin.Firebase.Android.Firestore
         {
             return new DocumentSnapshotWrapper(@this);
         }
-        
+
         public static IDocumentSnapshot<T> ToAbstract<T>(this DocumentSnapshot @this)
         {
             return new DocumentSnapshotWrapper<T>(@this);
         }
-        
+
         public static DocumentReference ToNative(this IDocumentReference @this)
         {
             if(@this is DocumentReferenceWrapper wrapper) {
@@ -49,7 +49,7 @@ namespace Plugin.Firebase.Android.Firestore
             }
             throw new FirebaseException($"This implementation of {nameof(IDocumentSnapshot)} is not supported for this method");
         }
-        
+
         public static DocumentChange ToAbstract(this NativeDocumentChange @this)
         {
             return new DocumentChange(
@@ -72,17 +72,17 @@ namespace Plugin.Firebase.Android.Firestore
                     throw new FirebaseException($"Couldn't convert {@this} to abstract {nameof(DocumentChangeType)}");
             }
         }
-        
+
         public static ITransaction ToAbstract(this Transaction @this)
         {
             return new TransactionWrapper(@this);
         }
-        
+
         public static IWriteBatch ToAbstract(this WriteBatch @this)
         {
             return new WriteBatchWrapper(@this);
         }
-        
+
         public static NativeFieldValue ToNative(this FieldValue @this)
         {
             switch(@this.Type) {
@@ -111,7 +111,7 @@ namespace Plugin.Firebase.Android.Firestore
         {
             return new SnapshotMetadataWrapper(@this);
         }
-        
+
         public static NativeSetOptions ToNative(this SetOptions options)
         {
             switch(options.Type) {
@@ -125,7 +125,7 @@ namespace Plugin.Firebase.Android.Firestore
                     throw new ArgumentException($"SetOptions type {options.Type} is not supported.");
             }
         }
-        
+
         public static FirestoreSettings ToAbstract(this FirebaseFirestoreSettings @this)
         {
             return new FirestoreSettings(@this.Host, @this.IsPersistenceEnabled, @this.IsSslEnabled, @this.CacheSizeBytes);

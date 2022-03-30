@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Playground.Common.Services.Navigation;
 using Playground.Features.Auth;
 using Playground.Features.CloudMessaging;
@@ -15,7 +15,7 @@ namespace Playground
             InitializeComponent();
             RegisterRoutes();
         }
-        
+
         private static void RegisterRoutes()
         {
             Routing.RegisterRoute(NavigationPaths.PageAuth, typeof(AuthPage));

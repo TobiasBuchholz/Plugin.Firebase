@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Android.OS;
 using Android.Runtime;
@@ -87,7 +87,7 @@ namespace System.Collections.Generic
             @this.ToList().ForEach(x => map.Put(x.Item1, x.Item2));
             return map;
         }
-        
+
         public static HashMap ToHashMap(this IDictionary<string, object> dictionary)
         {
             var hashMap = new HashMap();
@@ -100,7 +100,7 @@ namespace System.Collections.Generic
             });
             return hashMap;
         }
-        
+
         public static HashMap ToHashMapFromNonGenericDict(this IDictionary dictionary)
         {
             var hashMap = new HashMap();
@@ -109,7 +109,7 @@ namespace System.Collections.Generic
             }
             return hashMap;
         }
-        
+
         public static HashMap ToHashMap(this object @this)
         {
             var map = new HashMap();
@@ -123,14 +123,14 @@ namespace System.Collections.Generic
             }
             return map;
         }
-        
+
         public static Bundle ToBundle(this IDictionary<string, object> dictionary)
         {
             var bundle = new Bundle();
             dictionary.ToList().ForEach(x => bundle.Put(x.Key, x.Value));
             return bundle;
         }
-        
+
         private static void Put(this Bundle @this, string key, object value)
         {
             switch(value) {
@@ -174,14 +174,14 @@ namespace System.Collections.Generic
             dictionary.ToList().ForEach(x => bundle.Put(x.Key, x.Value));
             return bundle;
         }
-        
+
         public static IDictionary<string, Java.Lang.Object> ToJavaObjectDictionary(this IDictionary<string, object> dictionary)
         {
             var result = new Dictionary<string, Java.Lang.Object>();
             dictionary.ToList().ForEach(x => PutIntoJavaObjectDictionary(x, ref result));
             return result;
         }
-        
+
         private static void PutIntoJavaObjectDictionary(KeyValuePair<string, object> pair, ref Dictionary<string, Java.Lang.Object> dictionary)
         {
             switch(pair.Value) {
@@ -221,14 +221,14 @@ namespace System.Collections.Generic
                     }
             }
         }
-        
+
         public static IDictionary<string, Java.Lang.Object> ToJavaObjectDictionary(this IEnumerable<(string, object)> tuples)
         {
             var dict = new Dictionary<string, object>();
             tuples.ToList().ForEach(x => dict.Add(x.Item1, x.Item2));
             return dict.ToJavaObjectDictionary();
         }
-        
+
         public static IDictionary<string, Java.Lang.Object> ToJavaObjectDictionary(this IDictionary<object, object> @this)
         {
             var dict = new Dictionary<string, object>();
@@ -250,166 +250,166 @@ namespace System.Collections.Generic
             if(obj != null) {
                 return obj;
             }
-            
+
             obj = bundle.GetStringArray(key);
             if(obj != null) {
                 return obj;
             }
-            
+
             obj = bundle.GetStringArrayList(key);
             if(obj != null) {
                 return obj;
             }
-            
+
             obj = bundle.GetInt(key, int.MaxValue);
             if(obj != int.MaxValue) {
                 return obj;
             }
-            
+
             obj = bundle.GetIntArray(key);
             if(obj != null) {
                 return obj;
             }
-            
+
             obj = bundle.GetIntegerArrayList(key);
             if(obj != null) {
                 return obj;
             }
-        
+
             obj = bundle.GetLong(key, long.MaxValue);
             if(obj != long.MaxValue) {
                 return obj;
             }
-        
+
             obj = bundle.GetLongArray(key);
             if(obj != null) {
                 return obj;
             }
-            
+
             obj = bundle.GetFloat(key, float.MaxValue);
             if(obj < float.MaxValue) {
                 return obj;
             }
-            
+
             obj = bundle.GetFloatArray(key);
             if(obj != null) {
                 return obj;
             }
-            
+
             obj = bundle.GetDouble(key, double.MaxValue);
             if(obj < double.MaxValue) {
                 return obj;
             }
-            
+
             obj = bundle.GetDoubleArray(key);
             if(obj != null) {
                 return obj;
             }
-            
+
             obj = bundle.GetShort(key, short.MaxValue);
             if(obj < short.MaxValue) {
                 return obj;
             }
-            
+
             obj = bundle.GetShortArray(key);
             if(obj != null) {
                 return obj;
             }
-            
+
             obj = bundle.GetChar(key, char.MaxValue);
             if(obj < char.MaxValue) {
                 return obj;
             }
-            
+
             obj = bundle.GetCharArray(key);
             if(obj != null) {
                 return obj;
             }
-            
+
             obj = bundle.GetCharSequence(key);
             if(obj != null) {
                 return obj;
             }
-            
+
             obj = bundle.GetCharSequenceArray(key);
             if(obj != null) {
                 return obj;
             }
-            
+
             obj = bundle.GetCharSequenceFormatted(key);
             if(obj != null) {
                 return obj;
             }
-            
+
             obj = bundle.GetCharSequenceArrayFormatted(key);
             if(obj != null) {
                 return obj;
             }
-            
+
             obj = bundle.GetCharSequenceArrayList(key);
             if(obj != null) {
                 return obj;
             }
-            
+
             obj = bundle.GetSize(key);
             if(obj != null) {
                 return obj;
             }
-            
+
             obj = bundle.GetSizeF(key);
             if(obj != null) {
                 return obj;
             }
-            
+
             // TODO: crashes like this
             // obj = bundle.GetByte(key, sbyte.MaxValue);
             // if(obj != sbyte.MaxValue) {
             //     return obj;
             // }
-            
+
             obj = bundle.GetByteArray(key);
             if(obj != null) {
                 return obj;
             }
-            
+
             obj = bundle.GetBooleanArray(key);
             if(obj != null) {
                 return obj;
             }
-        
+
             obj = bundle.GetBundle(key);
             if(obj != null) {
                 return obj;
             }
-            
+
             obj = bundle.GetParcelable(key);
             if(obj != null) {
                 return obj;
             }
-            
+
             obj = bundle.GetParcelableArray(key);
             if(obj != null) {
                 return obj;
             }
-            
+
             obj = bundle.GetParcelableArrayList(key);
             if(obj != null) {
                 return obj;
             }
-            
+
             obj = bundle.GetSparseParcelableArray(key);
             if(obj != null) {
                 return obj;
             }
-            
+
             obj = bundle.GetSerializable(key);
             if(obj != null) {
                 return obj;
             }
-            
+
             return bundle.GetBoolean(key);
         }
-        
+
         public static IDictionary ToDictionary(this IDictionary @this, Type keyType, Type valueType)
         {
             var dict = (IDictionary) Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(keyType, valueType));

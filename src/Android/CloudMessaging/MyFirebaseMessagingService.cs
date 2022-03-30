@@ -1,13 +1,13 @@
-﻿using System;
+using System;
 using Android.App;
 using Android.Runtime;
 using Firebase.Messaging;
 using Plugin.Firebase.CloudMessaging;
 
 namespace Plugin.Firebase.Android.CloudMessaging
-{    
+{
     [Service]
-    [IntentFilter(new [] { "com.google.firebase.MESSAGING_EVENT" })]
+    [IntentFilter(new[] { "com.google.firebase.MESSAGING_EVENT" })]
     [Preserve(AllMembers = true)]
     public class MyFirebaseMessagingService : FirebaseMessagingService
     {

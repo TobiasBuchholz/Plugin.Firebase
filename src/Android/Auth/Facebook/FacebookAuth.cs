@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
@@ -11,13 +11,13 @@ namespace Plugin.Firebase.Android.Auth.Facebook
     public sealed class FacebookAuth
     {
         private readonly ICallbackManager _callbackManager;
-        
+
         public FacebookAuth()
         {
             FacebookSdk.FullyInitialize();
             _callbackManager = CallbackManagerFactory.Create();
         }
-        
+
         public Task<AuthCredential> GetCredentialAsync(Activity activity)
         {
             var tcs = new TaskCompletionSource<AuthCredential>();
@@ -25,7 +25,7 @@ namespace Plugin.Firebase.Android.Auth.Facebook
                 onSuccess: x => tcs.SetResult(FacebookAuthProvider.GetCredential(x.AccessToken.Token)),
                 onCancel: tcs.SetCanceled,
                 onError: tcs.SetException);
-            
+
             LoginManager.Instance.RegisterCallback(_callbackManager, callback);
             LoginManager.Instance.LogInWithReadPermissions(activity, new List<string> { "public_profile", "email" });
             return tcs.Task;
@@ -33,7 +33,7 @@ namespace Plugin.Firebase.Android.Auth.Facebook
 
         public void HandleActivityResult(int requestCode, Result resultCode, Intent data)
         {
-            _callbackManager.OnActivityResult(requestCode, (int)resultCode, data);
+            _callbackManager.OnActivityResult(requestCode, (int) resultCode, data);
         }
 
         public void SignOut()

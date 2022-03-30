@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -100,7 +100,7 @@ namespace Plugin.Firebase.iOS.Firestore
         {
             var registration = Wrapped.AddSnapshotListener(includeMetaDataChanges, (snapshot, error) => {
                 if(error == null) {
-                    onChanged(snapshot.ToAbstract<T>());                    
+                    onChanged(snapshot.ToAbstract<T>());
                 } else {
                     onError?.Invoke(new FirebaseException(error.LocalizedDescription));
                 }

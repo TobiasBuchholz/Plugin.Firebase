@@ -127,7 +127,7 @@ namespace Plugin.Firebase.iOS.Firestore
 
         public IQuery EndingAt(params object[] fieldValues)
         {
-            return _wrapped.EndingAt(fieldValues).ToAbstract();;
+            return _wrapped.EndingAt(fieldValues).ToAbstract(); ;
         }
 
         public IQuery EndingAt(IDocumentSnapshot snapshot)
@@ -147,7 +147,7 @@ namespace Plugin.Firebase.iOS.Firestore
 
         public IQuery LimitedTo(int limit)
         {
-            return _wrapped.LimitedTo(limit).ToAbstract();;
+            return _wrapped.LimitedTo(limit).ToAbstract(); ;
         }
 
         public IQuery LimitedToLast(int limit)
@@ -172,7 +172,7 @@ namespace Plugin.Firebase.iOS.Firestore
         {
             var registration = _wrapped.AddSnapshotListener(includeMetaDataChanges, (snapshot, error) => {
                 if(error == null) {
-                    onChanged(new QuerySnapshotWrapper<T>(snapshot));                    
+                    onChanged(new QuerySnapshotWrapper<T>(snapshot));
                 } else {
                     onError?.Invoke(new FirebaseException(error.LocalizedDescription));
                 }

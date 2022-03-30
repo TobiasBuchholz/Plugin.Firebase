@@ -12,12 +12,12 @@ namespace Plugin.Firebase.Storage
         {
             _instance = FirebaseStorage.Instance;
         }
-        
+
         public IStorageReference GetRootReference()
         {
             return _instance.Reference.ToAbstract();
         }
-        
+
         public IStorageReference GetReferenceFromUrl(string url)
         {
             return _instance.GetReferenceFromUrl(url).ToAbstract();

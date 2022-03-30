@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Android.Content;
 using Android.OS;
@@ -13,7 +13,7 @@ namespace Plugin.Firebase.Android.CloudMessaging
         private const string BundleKeyBody = "body";
         private const string BundleKeyImageUrl = "image_url";
         private const string BundleKeyData = "data";
-        
+
         public static FCMNotification ToFCMNotification(this RemoteMessage message)
         {
             var notification = message.GetNotification();
@@ -28,8 +28,8 @@ namespace Plugin.Firebase.Android.CloudMessaging
         {
             return new FCMNotification(
                 bundle.GetString(BundleKeyBody),
-                bundle.GetString(BundleKeyTitle), 
-                bundle.GetString(BundleKeyImageUrl), 
+                bundle.GetString(BundleKeyTitle),
+                bundle.GetString(BundleKeyImageUrl),
                 bundle.GetBundle(BundleKeyData).ToDictionary());
         }
 

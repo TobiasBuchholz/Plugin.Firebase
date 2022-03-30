@@ -19,8 +19,8 @@ namespace Playground.Features.Dashboard
             BackgroundColor = Color.White;
 
             Content = new StackLayout {
-                    Visual = VisualMarker.Material,
-                    Children = {
+                Visual = VisualMarker.Material,
+                Children = {
                         new Button { Text = Localization.ButtonAuth, TextColor = Color.Black }
                             .Bind(nameof(Vm.NavigateToAuthPageCommand)),
                         new Button { Text = Localization.ButtonCloudMessaging, TextColor = Color.Black }
@@ -30,7 +30,7 @@ namespace Playground.Features.Dashboard
                         new Button { Text = Localization.ButtonStorage, TextColor = Color.Black }
                             .Bind(nameof(Vm.NavigateToStoragePageCommand))
                     }
-                }
+            }
                 .FillHorizontal()
                 .CenterVertical()
                 .Margin(24);

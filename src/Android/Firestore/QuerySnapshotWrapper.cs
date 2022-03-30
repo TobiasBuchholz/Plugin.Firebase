@@ -9,7 +9,7 @@ namespace Plugin.Firebase.Android.Firestore
     public sealed class QuerySnapshotWrapper<T> : IQuerySnapshot<T>
     {
         private readonly QuerySnapshot _wrapped;
-        
+
         public QuerySnapshotWrapper(QuerySnapshot querySnapshot)
         {
             _wrapped = querySnapshot;

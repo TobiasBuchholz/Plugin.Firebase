@@ -22,7 +22,7 @@ namespace Plugin.Firebase.iOS.Firestore
         {
             return _wrapped.ToString();
         }
-        
+
         public IWriteBatch SetData(IDocumentReference document, object data, SetOptions options = null)
         {
             return SetData(document, data.ToDictionary(), options);

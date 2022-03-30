@@ -11,7 +11,7 @@ namespace Plugin.Firebase.Extensions
         {
             return @this.AddOnSuccessListener(new OnSuccessListener(action));
         }
-        
+
         public static GmsTask AddOnFailureListener(this GmsTask @this, Action<Exception> action)
         {
             return @this.AddOnFailureListener(new OnFailureListener(action));

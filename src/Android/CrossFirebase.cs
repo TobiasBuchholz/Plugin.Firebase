@@ -32,7 +32,7 @@ namespace Plugin.Firebase.Android
             if(settings.IsAuthEnabled) {
                 FirebaseAuthImplementation.Initialize(activity, savedInstanceState, settings.GoogleRequestIdToken ?? "123-abc");
             }
-            
+
             Console.WriteLine($"Plugin.Firebase initialized with the following settings:\n{settings}");
         }
     }

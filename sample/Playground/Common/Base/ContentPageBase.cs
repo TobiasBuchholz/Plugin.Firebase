@@ -8,17 +8,17 @@ using Xamarin.Forms.PlatformConfiguration.iOSSpecific;
 
 namespace Playground.Common.Base
 {
-    public abstract class ContentPageBase<TViewModel> : ReactiveContentPage<TViewModel> 
+    public abstract class ContentPageBase<TViewModel> : ReactiveContentPage<TViewModel>
         where TViewModel : class
     {
         protected static Func<bool, bool> Negate => x => !x;
-        
+
         private readonly IList<object> _queryParameters;
-        
+
         protected ContentPageBase()
         {
             _queryParameters = new List<object>();
-            
+
             Visual = VisualMarker.Material;
             On<iOS>().SetUseSafeArea(true);
         }

@@ -1,4 +1,4 @@
-﻿namespace Playground.Common.Services.Preferences
+namespace Playground.Common.Services.Preferences
 {
     public static class PreferenceKeys
     {

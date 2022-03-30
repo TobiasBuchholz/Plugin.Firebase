@@ -14,7 +14,7 @@ namespace Plugin.Firebase.Android.Storage.Listeners
         {
             _action = action;
         }
-        
+
         public void OnSuccess(Object snapshot)
         {
             if(snapshot != null) {

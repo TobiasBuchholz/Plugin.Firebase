@@ -24,7 +24,7 @@ namespace Playground.Features.Auth
         private readonly IAuthService _authService;
         private readonly IUserInteractionService _userInteractionService;
         private readonly ISchedulerService _schedulerService;
-        
+
         public AuthViewModel(
             IAuthService authService,
             IUserInteractionService userInteractionService,
@@ -42,7 +42,7 @@ namespace Playground.Features.Auth
         {
             var canSignIn = this.WhenAnyValue(x => x.User).Select(x => x == null).ObserveOn(_schedulerService.Main);
             var canSignOut = this.WhenAnyValue(x => x.User).Select(x => x != null).ObserveOn(_schedulerService.Main);
-            
+
             SignInAnonymouslyCommand = ReactiveCommand.CreateFromObservable(SignInAnonymously, canSignIn);
             SignInWithEmailCommand = ReactiveCommand.CreateFromTask(SignInWithEmailAsync, canSignIn);
             SignInWithEmailLinkCommand = ReactiveCommand.CreateFromTask(SignInWithEmailLinkAsync, canSignIn);
@@ -55,7 +55,7 @@ namespace Playground.Features.Auth
             LinkWithPhoneNumberCommand = ReactiveCommand.CreateFromObservable(LinkWithPhoneNumber);
             UnlinkProviderCommand = ReactiveCommand.CreateFromObservable(UnlinkProvider);
             SignOutCommand = ReactiveCommand.CreateFromObservable(SignOut, canSignOut);
-           
+
             Observable
                 .Merge(
                     SignInAnonymouslyCommand.ThrownExceptions,
@@ -96,7 +96,7 @@ namespace Playground.Features.Auth
                 .WithCancelButton(Localization.Cancel)
                 .Build());
         }
-        
+
         private async Task SignInWithEmailAsync(string email)
         {
             var password = await AskForPasswordAsync();
@@ -104,7 +104,7 @@ namespace Playground.Features.Auth
                 await _authService.SignInWithEmailAndPassword(email, password).ToTask();
             }
         }
-        
+
         private Task<string> AskForPasswordAsync()
         {
             return _userInteractionService.ShowAsPromptAsync(new UserInfoBuilder()
@@ -121,7 +121,7 @@ namespace Playground.Features.Auth
                 await SignInWithEmailLinkAsync(email);
             }
         }
-        
+
         private async Task SignInWithEmailLinkAsync(string email)
         {
             await _authService.SendSignInLink(email);
@@ -192,7 +192,7 @@ namespace Playground.Features.Auth
         {
             return _authService.LinkWithGoogle();
         }
-        
+
         private IObservable<Unit> LinkWithFacebook()
         {
             return _authService.LinkWithFacebook();
@@ -227,7 +227,7 @@ namespace Playground.Features.Auth
             var builder = new UserInfoBuilder().WithTitle(Localization.DialogTitleUnlinkProvider).WithMessage(Localization.DialogMessageUnlinkProvider);
             var providerIds = _authService.CurrentUser.ProviderInfos.Select(x => x.ProviderId).ToList();
             providerIds.ForEach(x => builder.WithDefaultButton(x));
-            
+
             var index = await _userInteractionService.ShowAsActionSheetAsync(builder.Build());
             return index >= 0 ? providerIds[index] : throw new ArgumentException("No provider selected");
         }
@@ -318,7 +318,7 @@ namespace Playground.Features.Auth
         public extern bool ShowsLinkingButtons { [ObservableAsProperty] get; }
         public extern bool ShowsSignOutButtons { [ObservableAsProperty] get; }
         public extern bool IsInProgress { [ObservableAsProperty] get; }
-        
+
         public ReactiveCommand<Unit, Unit> SignInAnonymouslyCommand { get; set; }
         public ReactiveCommand<Unit, Unit> SignInWithEmailCommand { get; set; }
         public ReactiveCommand<Unit, Unit> SignInWithEmailLinkCommand { get; set; }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using ReactiveUI;
 
 namespace Playground.Common.Base
@@ -20,13 +20,13 @@ namespace Playground.Common.Base
 
         public virtual void Dispose(bool disposing)
         {
-            if (!disposed) {
-                if (disposing) {
+            if(!disposed) {
+                if(disposing) {
                     //dispose only
                 }
 
                 disposed = true;
             }
-        }  
+        }
     }
 }

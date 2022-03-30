@@ -17,7 +17,7 @@ namespace Playground.Common.Services.PushNotification
         private readonly IFirebaseCloudMessaging _firebaseCloudMessaging;
         private readonly IFirebaseFunctions _firebaseFunctions;
         private readonly ILogger _logger;
-        
+
         public PushNotificationService(
             IFirebaseCloudMessaging firebaseCloudMessaging,
             IFirebaseFunctions firebaseFunctions,

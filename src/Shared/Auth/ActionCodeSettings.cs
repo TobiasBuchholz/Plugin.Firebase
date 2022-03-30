@@ -8,7 +8,7 @@ namespace Plugin.Firebase.Auth
             AndroidInstallIfNotAvailable = installIfNotAvailable;
             AndroidMinimumVersion = minimumVersion;
         }
-        
+
         public string Url { get; set; }
         public string IOSBundleId { get; set; }
         public string AndroidPackageName { get; private set; }

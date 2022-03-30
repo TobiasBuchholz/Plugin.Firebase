@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Android.App;
@@ -25,20 +25,20 @@ namespace Plugin.Firebase.Auth
             _googleRequestIdToken = googleRequestIdToken;
             CrossCurrentActivity.Current.Init(activity, savedInstanceState);
         }
-        
+
         public static Task HandleActivityResultAsync(int requestCode, Result resultCode, Intent data)
         {
             _facebookAuth.HandleActivityResult(requestCode, resultCode, data);
             return _googleAuth.HandleActivityResultAsync(requestCode, resultCode, data);
         }
-        
+
         private readonly FirebaseAuth _firebaseAuth;
         private readonly EmailAuth _emailAuth;
         private static GoogleAuth _googleAuth;
         private static FacebookAuth _facebookAuth;
         private readonly PhoneNumberAuth _phoneNumberAuth;
-        private static string _googleRequestIdToken; 
-        
+        private static string _googleRequestIdToken;
+
         public FirebaseAuthImplementation()
         {
             _firebaseAuth = FirebaseAuth.Instance;
@@ -64,13 +64,13 @@ namespace Plugin.Firebase.Auth
             var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
             return await SignInWithCredentialAsync(credential);
         }
-        
+
         private async Task<IFirebaseUser> SignInWithCredentialAsync(AuthCredential credential)
         {
             var authResult = await _firebaseAuth.SignInWithCredentialAsync(credential);
             return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
         }
-        
+
         public async Task<IFirebaseUser> SignInWithEmailAndPasswordAsync(string email, string password, bool createsUserAutomatically = true)
         {
             try {
@@ -89,7 +89,7 @@ namespace Plugin.Firebase.Auth
         {
             return _emailAuth.CreateUserAsync(email, password);
         }
-        
+
         public async Task<IFirebaseUser> SignInWithEmailLinkAsync(string email, string link)
         {
             await _firebaseAuth.SignInWithEmailLink(email, link);
@@ -119,7 +119,7 @@ namespace Plugin.Firebase.Auth
             var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
             return await LinkWithCredentialAsync(credential);
         }
-        
+
         private async Task<IFirebaseUser> LinkWithCredentialAsync(AuthCredential credential)
         {
             var authResult = await _firebaseAuth.CurrentUser.LinkWithCredentialAsync(credential);
@@ -162,7 +162,7 @@ namespace Plugin.Firebase.Auth
 
         public async Task SendSignInLink(string toEmail, CrossActionCodeSettings actionCodeSettings)
         {
-             await _firebaseAuth.SendSignInLinkToEmail(toEmail, actionCodeSettings.ToNative());
+            await _firebaseAuth.SendSignInLinkToEmail(toEmail, actionCodeSettings.ToNative());
         }
 
         public Task SignOutAsync()
@@ -178,7 +178,7 @@ namespace Plugin.Firebase.Auth
 
         private static FragmentActivity FragmentActivity =>
             Activity as FragmentActivity ?? throw new NullReferenceException($"Current Activity is either null or not of type {nameof(FragmentActivity)}, which is mandatory for sign in with Google");
-        
+
         private static Activity Activity =>
             CrossCurrentActivity.Current.Activity ?? throw new NullReferenceException("Current Activity is null, ensure that the MainApplication.cs file is setting the CurrentActivity in your source code so Firebase Analytics can use it.");
 

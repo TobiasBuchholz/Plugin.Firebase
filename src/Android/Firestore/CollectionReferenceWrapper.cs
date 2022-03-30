@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,17 +16,17 @@ namespace Plugin.Firebase.Android.Firestore
     public sealed class CollectionReferenceWrapper : ICollectionReference
     {
         private readonly CollectionReference _wrapped;
-        
+
         public CollectionReferenceWrapper(CollectionReference reference)
         {
             _wrapped = reference;
         }
-        
+
         public IDisposable AddSnapshotListener<T>(Action<IQuerySnapshot<T>> onChanged, Action<Exception> onError = null, bool includeMetaDataChanges = false)
         {
             var registration = _wrapped
                 .AddSnapshotListener(includeMetaDataChanges ? MetadataChanges.Include : MetadataChanges.Exclude, new EventListener(
-                    x => onChanged(new QuerySnapshotWrapper<T>(x.JavaCast<QuerySnapshot>())), 
+                    x => onChanged(new QuerySnapshotWrapper<T>(x.JavaCast<QuerySnapshot>())),
                     e => onError?.Invoke(new FirebaseException(e.LocalizedMessage))));
             return new DisposableWithAction(registration.Remove);
         }
@@ -140,7 +140,7 @@ namespace Plugin.Firebase.Android.Firestore
         {
             return _wrapped.StartAt(snapshot.ToNative()).ToAbstract();
         }
-        
+
         public IQuery StartingAfter(params object[] fieldValues)
         {
             return _wrapped.StartAfter(fieldValues.Select(x => x.ToJavaObject()).ToArray()).ToAbstract();

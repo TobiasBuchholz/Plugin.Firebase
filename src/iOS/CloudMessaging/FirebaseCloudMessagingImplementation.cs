@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Firebase.CloudMessaging;
 using Firebase.InstanceID;
@@ -15,7 +15,7 @@ namespace Plugin.Firebase.CloudMessaging
     public sealed class FirebaseCloudMessagingImplementation : NSObject, IFirebaseCloudMessaging, IUNUserNotificationCenterDelegate, IMessagingDelegate
     {
         private FCMNotification _missedTappedNotification;
-        
+
         public static void Initialize()
         {
             var instance = (FirebaseCloudMessagingImplementation) CrossFirebaseCloudMessaging.Current;
@@ -23,7 +23,7 @@ namespace Plugin.Firebase.CloudMessaging
             InstanceId.Notifications.ObserveTokenRefresh((sender, e) => instance.OnTokenRefreshAsync());
             instance.OnTokenRefreshAsync();
         }
-        
+
         private void RegisterForRemoteNotifications()
         {
             if(UIDevice.CurrentDevice.CheckSystemVersion(10, 0)) {
@@ -42,7 +42,7 @@ namespace Plugin.Firebase.CloudMessaging
             TokenChanged?.Invoke(this, new FCMTokenChangedEventArgs(Messaging.SharedInstance.FcmToken));
             return Task.CompletedTask;
         }
-        
+
         public Task CheckIfValidAsync()
         {
             if(UIDevice.CurrentDevice.CheckSystemVersion(10, 0)) {
@@ -61,14 +61,14 @@ namespace Plugin.Firebase.CloudMessaging
                     }
                 });
         }
-        
+
         [Export("userNotificationCenter:willPresentNotification:withCompletionHandler:")]
         public void WillPresentNotification(UNUserNotificationCenter center, UNNotification notification, Action<UNNotificationPresentationOptions> completionHandler)
         {
             OnNotificationReceived(notification.ToFCMNotification());
             completionHandler(UNNotificationPresentationOptions.Alert);
         }
-        
+
         public void OnNotificationReceived(FCMNotification message)
         {
             NotificationReceived?.Invoke(this, new FCMNotificationReceivedEventArgs(message));
@@ -95,7 +95,7 @@ namespace Plugin.Firebase.CloudMessaging
             var token = Messaging.SharedInstance.FcmToken;
             return string.IsNullOrEmpty(token) ? throw new FirebaseException("Couldn't retrieve FCM token") : Task.FromResult(token);
         }
-        
+
         public Task SubscribeToTopicAsync(string topic)
         {
             return Messaging.SharedInstance.SubscribeAsync(topic);

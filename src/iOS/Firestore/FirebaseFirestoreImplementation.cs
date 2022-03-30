@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Firebase.CloudFirestore;
 using Foundation;
@@ -12,7 +12,7 @@ namespace Plugin.Firebase.Firestore
     public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseFirestore
     {
         private readonly FBFirestore _firestore;
-        
+
         public FirebaseFirestoreImplementation()
         {
             _firestore = FBFirestore.SharedInstance;
@@ -22,7 +22,7 @@ namespace Plugin.Firebase.Firestore
         {
             return new CollectionReferenceWrapper(_firestore.GetCollection(collectionPath));
         }
-        
+
         public IDocumentReference GetDocument(string documentPath)
         {
             return new DocumentReferenceWrapper(_firestore.GetDocument(documentPath));

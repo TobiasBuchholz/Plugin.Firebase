@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Android.Runtime;
 using Xamarin.Facebook;
 
@@ -9,9 +9,9 @@ namespace Plugin.Firebase.Android.Auth.Facebook
         private readonly Action _onCancel;
         private readonly Action<FacebookException> _onError;
         private readonly Action<TResult> _onSuccess;
-        
+
         public FacebookCallback(
-            Action onCancel = null, 
+            Action onCancel = null,
             Action<FacebookException> onError = null,
             Action<TResult> onSuccess = null)
         {

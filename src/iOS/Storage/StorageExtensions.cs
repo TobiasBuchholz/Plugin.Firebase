@@ -29,15 +29,15 @@ namespace Plugin.Firebase.iOS.Storage
         public static NativeStorageTaskStatus ToNative(this StorageTaskStatus @this)
         {
             switch(@this) {
-                case StorageTaskStatus.Unknown: 
+                case StorageTaskStatus.Unknown:
                     return NativeStorageTaskStatus.Unknown;
-                case StorageTaskStatus.Progress: 
+                case StorageTaskStatus.Progress:
                     return NativeStorageTaskStatus.Progress;
-                case StorageTaskStatus.Pause: 
+                case StorageTaskStatus.Pause:
                     return NativeStorageTaskStatus.Pause;
-                case StorageTaskStatus.Success: 
+                case StorageTaskStatus.Success:
                     return NativeStorageTaskStatus.Success;
-                case StorageTaskStatus.Failure: 
+                case StorageTaskStatus.Failure:
                     return NativeStorageTaskStatus.Failure;
                 default:
                     throw new ArgumentException($"Couldn't convert {nameof(StorageTaskStatus)} {@this} to native status");
@@ -47,22 +47,22 @@ namespace Plugin.Firebase.iOS.Storage
         public static IStorageMetadata ToAbstract(this NativeStorageMetadata @this)
         {
             return new StorageMetadata(
-                bucket:@this.Bucket,
-                generation:@this.Generation,
-                metaGeneration:@this.Metageneration,
-                name:@this.Name,
-                path:@this.Path,
-                size:@this.Size,
-                cacheControl:@this.CacheControl,
-                contentDisposition:@this.ContentDisposition,
-                contentEncoding:@this.ContentEncoding,
-                contentLanguage:@this.ContentLanguage,
-                contentType:@this.ContentType,
-                customMetadata:@this.CustomMetadata?.ToDictionary(),
-                md5Hash:@this.Md5Hash,
-                storageReference:@this.StorageReference?.ToAbstract(),
-                creationTime:@this.TimeCreated.ToDateTimeOffset(),
-                updatedTime:@this.Updated.ToDateTimeOffset());
+                bucket: @this.Bucket,
+                generation: @this.Generation,
+                metaGeneration: @this.Metageneration,
+                name: @this.Name,
+                path: @this.Path,
+                size: @this.Size,
+                cacheControl: @this.CacheControl,
+                contentDisposition: @this.ContentDisposition,
+                contentEncoding: @this.ContentEncoding,
+                contentLanguage: @this.ContentLanguage,
+                contentType: @this.ContentType,
+                customMetadata: @this.CustomMetadata?.ToDictionary(),
+                md5Hash: @this.Md5Hash,
+                storageReference: @this.StorageReference?.ToAbstract(),
+                creationTime: @this.TimeCreated.ToDateTimeOffset(),
+                updatedTime: @this.Updated.ToDateTimeOffset());
         }
 
         public static NativeStorageMetadata ToNative(this IStorageMetadata @this)

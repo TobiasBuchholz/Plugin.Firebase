@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Firebase.Auth;
 
 namespace Plugin.Firebase.Android.Auth.Email

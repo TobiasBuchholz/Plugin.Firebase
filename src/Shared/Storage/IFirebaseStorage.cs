@@ -13,7 +13,7 @@ namespace Plugin.Firebase.Storage
         /// </summary>
         /// <returns></returns>
         IStorageReference GetRootReference();
-        
+
         /// <summary>
         /// Creates a <c>IStorageReference</c> given a gs:// or // URL pointing to a Firebase Storage location.
         /// </summary>
@@ -22,7 +22,7 @@ namespace Plugin.Firebase.Storage
         /// GetDownloadUrlAsync(). An error is thrown if the url is not associated with the FirebaseApp used to initialize this FirebaseStorage.
         /// </param>
         IStorageReference GetReferenceFromUrl(string url);
-        
+
         /// <summary>
         /// Creates a new <c>IStorageReference</c> initialized with a child Firebase Storage location.
         /// </summary>

@@ -8,7 +8,7 @@ namespace Plugin.Firebase.RemoteConfig
     public sealed class RemoteConfigSettings
     {
         public RemoteConfigSettings(
-            TimeSpan? minimumFetchInterval = null, 
+            TimeSpan? minimumFetchInterval = null,
             TimeSpan? fetchTimeout = null)
         {
             MinimumFetchInterval = minimumFetchInterval ?? TimeSpan.FromSeconds(3600);
@@ -38,7 +38,7 @@ namespace Plugin.Firebase.RemoteConfig
         /// Returns the minimum interval between successive fetches calls in seconds.
         /// </summary>
         public TimeSpan MinimumFetchInterval { get; }
-        
+
         /// <summary>
         /// Returns the fetch timeout in seconds. 
         /// </summary>

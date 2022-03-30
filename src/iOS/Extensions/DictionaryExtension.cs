@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +13,7 @@ namespace Plugin.Firebase.iOS.Extensions
         {
             if(dictionary.Count > 0) {
                 var nsDictionary = new NSMutableDictionary<NSString, NSObject>();
-        
+
                 foreach(DictionaryEntry entry in dictionary) {
                     PutIntoNSDictionary(new KeyValuePair<string, object>(entry.Key.ToString(), entry.Value), ref nsDictionary);
                 }
@@ -25,9 +25,9 @@ namespace Plugin.Firebase.iOS.Extensions
                 return new NSDictionary<NSString, NSObject>();
             }
         }
-        
+
         private static void PutIntoNSDictionary(KeyValuePair<string, object> pair, ref NSMutableDictionary<NSString, NSObject> nsDictionary)
-        {            
+        {
             switch(pair.Value) {
                 case bool x:
                     nsDictionary.Add((NSString) pair.Key, new NSNumber(x));
@@ -70,21 +70,21 @@ namespace Plugin.Firebase.iOS.Extensions
         {
             return ((IDictionary) dictionary).ToNSDictionaryFromNonGeneric();
         }
-        
+
         public static NSDictionary<NSString, NSString> ToNSDictionary(this IDictionary<string, string> @this)
         {
             return NSDictionary<NSString, NSString>.FromObjectsAndKeys(@this.Values.ToArray(), @this.Keys.ToArray());
         }
-        
+
         public static NSDictionary<NSString, NSObject> ToNSDictionary(this IEnumerable<(string, object)> tuples)
         {
             var dict = new Dictionary<string, object>();
             tuples.ToList().ForEach(x => dict.Add(x.Item1, x.Item2));
             return dict.ToNSDictionary();
-        } 
-        
+        }
+
         public static Dictionary<object, object> ToDictionary(this object @this)
-        {       
+        {
             var dict = new Dictionary<object, object>();
             var properties = @this.GetType().GetProperties();
             foreach(var property in properties) {
@@ -110,7 +110,7 @@ namespace Plugin.Firebase.iOS.Extensions
             }
             return dict;
         }
-        
+
         public static IDictionary<string, string> ToDictionary(this NSDictionary<NSString, NSString> @this)
         {
             var dict = new Dictionary<string, string>();
@@ -119,7 +119,7 @@ namespace Plugin.Firebase.iOS.Extensions
             }
             return dict;
         }
-        
+
         public static Dictionary<object, object> ToDictionary(this IEnumerable<(string, object)> @this)
         {
             var dict = new Dictionary<object, object>();
@@ -127,6 +127,6 @@ namespace Plugin.Firebase.iOS.Extensions
                 dict.Add(key, value);
             }
             return dict;
-        } 
+        }
     }
 }

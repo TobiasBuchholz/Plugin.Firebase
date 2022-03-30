@@ -21,17 +21,17 @@ namespace Plugin.Firebase.Firestore
         /// Returns the host of the Cloud Firestore backend.
         /// </summary>
         public string Host { get; }
-        
+
         /// <summary>
         /// Returns whether or not to use local persistent storage.
         /// </summary>
         public bool IsPersistenceEnabled { get; }
-        
+
         /// <summary>
         /// Returns whether or not to use SSL for communication.
         /// </summary>
         public bool IsSslEnabled { get; }
-        
+
         /// <summary>
         /// Returns the threshold for the cache size above which the SDK will attempt to collect the least recently used documents.
         /// </summary>

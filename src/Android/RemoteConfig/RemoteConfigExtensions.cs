@@ -34,13 +34,13 @@ namespace Plugin.Firebase.Android.RemoteConfig
         private static RemoteConfigFetchStatus ConvertToRemoteConfigFetchStatus(int status)
         {
             switch(status) {
-                case -1: 
+                case -1:
                     return RemoteConfigFetchStatus.Success;
-                case 0: 
+                case 0:
                     return RemoteConfigFetchStatus.NoFetchYet;
-                case 1: 
+                case 1:
                     return RemoteConfigFetchStatus.Failure;
-                case 2: 
+                case 2:
                     return RemoteConfigFetchStatus.Throttled;
                 default:
                     throw new FirebaseException($"Couldn't convert int {status} to {nameof(RemoteConfigFetchStatus)}");

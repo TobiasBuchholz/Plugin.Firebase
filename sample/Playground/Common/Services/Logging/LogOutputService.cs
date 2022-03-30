@@ -12,14 +12,14 @@ namespace Playground.Common.Services.Logging
     {
         private static readonly string _logOutputFolderPath = $"{FileSystem.CacheDirectory}/logs";
         private static readonly long _currentSessionId = DateTime.Now.Ticks;
-        
+
         public static void Initialize()
         {
             ConfigureAmbientLoggerService();
             DirectLoggingOutputToConsole();
         }
-        
-        private static void ConfigureAmbientLoggerService() 
+
+        private static void ConfigureAmbientLoggerService()
         {
             LoggerService.Current = new DefaultLoggerService();
         }
@@ -39,11 +39,11 @@ namespace Playground.Common.Services.Logging
 
         private static bool ShouldLogEntry(LogEntry arg)
         {
-            #if DEBUG
+#if DEBUG
             return true;
-            #else
+#else
             return arg.Level == LogLevel.Info || arg.Level == LogLevel.Warn || arg.Level == LogLevel.Error;
-            #endif
+#endif
         }
 
         private static string CreateLogMessage(LogEntry entry)
@@ -71,7 +71,7 @@ namespace Playground.Common.Services.Logging
         {
             var filePath = $"{_logOutputFolderPath}/log_{_currentSessionId}.txt";
             Directory.CreateDirectory(_logOutputFolderPath);
-            
+
             var streamWriter = File.AppendText(filePath);
             streamWriter.WriteLine(message);
             streamWriter.Close();

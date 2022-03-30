@@ -7,7 +7,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
     {
         [FirestoreProperty("pokemon_id")]
         public string PokemonId { get; private set; }
-        
+
         [FirestoreProperty("name")]
         public string Name { get; private set; }
     }

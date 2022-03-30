@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 
 namespace Plugin.Firebase.Common
 {
     public class FirebaseException : Exception
     {
-        public FirebaseException(string message) 
+        public FirebaseException(string message)
             : base(message)
         {
         }

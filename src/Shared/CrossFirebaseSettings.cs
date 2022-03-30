@@ -51,7 +51,7 @@ namespace Plugin.Firebase.Shared
         public bool IsFunctionsEnabled { get; }
         public bool IsRemoteConfigEnabled { get; }
         public bool IsStorageEnabled { get; }
-        
+
         public string FacebookId { get; }
         public string FacebookAppName { get; }
         public string GoogleRequestIdToken { get; }

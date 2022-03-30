@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
@@ -11,18 +11,18 @@ using Plugin.Firebase.Android.CloudMessaging;
 using Plugin.Firebase.CloudMessaging.EventArgs;
 using Plugin.Firebase.Common;
 
- namespace Plugin.Firebase.CloudMessaging
+namespace Plugin.Firebase.CloudMessaging
 {
     [Preserve(AllMembers = true)]
     public sealed class FirebaseCloudMessagingImplementation : DisposableBase, IFirebaseCloudMessaging
     {
         private const string IntentKeyFCMNotification = "intent_key_fcm_notification";
         private static Context _context;
-        
+
         public static string ChannelId { get; set; }
         public static int SmallIconRef { private get; set; } = global::Android.Resource.Drawable.SymDefAppIcon;
         public static Func<FCMNotification, NotificationCompat.Builder> NotificationBuilderProvider { private get; set; }
-        
+
         private FCMNotification _missedTappedNotification;
 
         public FirebaseCloudMessagingImplementation()
@@ -33,7 +33,7 @@ using Plugin.Firebase.Common;
         public async Task CheckIfValidAsync()
         {
             var resultCode = GoogleApiAvailability.Instance.IsGooglePlayServicesAvailable(_context);
-            if (resultCode == ConnectionResult.Success) {
+            if(resultCode == ConnectionResult.Success) {
                 await OnTokenRefreshAsync();
             } else {
                 Error?.Invoke(this, new FCMErrorEventArgs(GetErrorMessage(resultCode)));
@@ -86,7 +86,7 @@ using Plugin.Firebase.Common;
                 .SetPriority(NotificationCompat.PriorityDefault)
                 .SetAutoCancel(true);
         }
-        
+
         public static void OnNewIntent(Intent intent)
         {
             if(intent.IsNotificationTappedIntent(IntentKeyFCMNotification)) {

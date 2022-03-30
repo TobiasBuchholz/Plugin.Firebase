@@ -16,7 +16,7 @@ namespace Plugin.Firebase.CloudMessaging
 #pragma warning restore IDE0022 // Use expression body for methods
 #endif
         }
-        
+
         /// <summary>
         /// Gets if the plugin is supported on the current platform.
         /// </summary>
@@ -28,7 +28,7 @@ namespace Plugin.Firebase.CloudMessaging
         public static IFirebaseCloudMessaging Current {
             get {
                 var ret = _implementation.Value;
-                if (ret == null) {
+                if(ret == null) {
                     throw NotImplementedInReferenceAssembly();
                 }
                 return ret;

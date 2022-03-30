@@ -14,7 +14,7 @@ namespace Playground.Common.Extensions
             } else {
                 var result = @this;
                 for(var i = 0; i < parameters.Count(); i++) {
-                    result = result.Replace($"%{i+1}$s", parameters[i]?.ToString());
+                    result = result.Replace($"%{i + 1}$s", parameters[i]?.ToString());
                 }
                 return result;
             }

@@ -7,6 +7,6 @@ namespace Plugin.Firebase.DynamicLinks.Parameters
             ForcedRedirectEnabled = forcedRedirectEnabled;
         }
 
-        public bool ForcedRedirectEnabled { get;}
+        public bool ForcedRedirectEnabled { get; }
     }
 }

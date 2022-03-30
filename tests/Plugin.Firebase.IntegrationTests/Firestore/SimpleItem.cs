@@ -11,7 +11,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         {
             // needed for firestore
         }
-        
+
         public SimpleItem(string title)
         {
             Title = title;
@@ -19,7 +19,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
 
         [FirestoreDocumentId]
         public string Id { get; private set; }
-        
+
         [FirestoreProperty("title")]
         public string Title { get; private set; }
     }

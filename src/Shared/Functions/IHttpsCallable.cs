@@ -14,7 +14,7 @@ namespace Plugin.Firebase.Functions
         /// </summary>
         /// <param name="dataJson">Optional data in json format that gets attached to the request.</param>
         Task CallAsync(string dataJson = null);
-        
+
         /// <summary>
         /// Executes this Callable HTTPS trigger asynchronously without any parameters. The request to the Cloud Functions
         /// backend made by this method automatically includes a Firebase Instance ID token to identify the app instance.

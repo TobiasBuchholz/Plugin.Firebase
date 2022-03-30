@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -13,7 +13,7 @@ namespace Plugin.Firebase.Analytics
         /// Returns the unique ID for this instance of the application or null if ConsentType.analyticsStorage has been set to ConsentStatus.denied.
         /// </summary>
         Task<string> GetAppInstanceIdAsync();
-        
+
         /// <summary>
         /// Logs an app event. The event can have up to 25 parameters. Events with the same name must have the same parameters.
         /// Up to 500 event names are supported. Using predefined events and/or parameters is recommended for optimal reporting.
@@ -33,7 +33,7 @@ namespace Plugin.Firebase.Analytics
         /// be used for parameter names.
         /// </param>
         void LogEvent(string eventName, IDictionary<string, object> parameters);
-        
+
         /// <summary>
         /// Logs an app event. The event can have up to 25 parameters. Events with the same name must have the same parameters.
         /// Up to 500 event names are supported. Using predefined events and/or parameters is recommended for optimal reporting.
@@ -62,7 +62,7 @@ namespace Plugin.Firebase.Analytics
         /// Setting userID to null removes the user ID.
         /// </param>
         void SetUserId(string id);
-        
+
         /// <summary>
         /// Sets a user property to a given value. Up to 25 user property names are supported. Once set, user property values persist
         /// throughout the app lifecycle and across sessions.
@@ -75,19 +75,19 @@ namespace Plugin.Firebase.Analytics
         /// The value of the user property. Values can be up to 36 characters long. Setting the value to null removes the user property.
         /// </param>
         void SetUserProperty(string name, string value);
-        
+
         /// <summary>
         /// Sets the interval of inactivity in seconds that terminates the current session. The default value is 1800 seconds (30 minutes).
         /// </summary>
         /// <param name="duration">The custom time of inactivity in seconds before the current session terminates.</param>
         void SetSessionTimoutDuration(TimeSpan duration);
-        
+
         /// <summary>
         /// Clears all analytics data for this instance from the device and resets the app instance ID. FIRAnalyticsConfiguration values
         /// will be reset to the default values.
         /// </summary>
         void ResetAnalyticsData();
-        
+
         /// <summary>
         /// Sets whether analytics collection is enabled for this app on this device. This setting is persisted across app sessions.
         /// By default it is enabled.

@@ -28,16 +28,16 @@ namespace Plugin.Firebase.Storage
         public static IFirebaseStorage Current {
             get {
                 var ret = _implementation.Value;
-                if (ret == null) {
+                if(ret == null) {
                     throw NotImplementedInReferenceAssembly();
                 }
                 return ret;
             }
         }
-        
+
         private static Exception NotImplementedInReferenceAssembly() =>
             new NotImplementedException("This functionality is not implemented in the portable version of this assembly. You should reference the NuGet package from your main application project in order to reference the platform-specific implementation.");
-        
+
         /// <summary>
         /// Dispose of everything 
         /// </summary>

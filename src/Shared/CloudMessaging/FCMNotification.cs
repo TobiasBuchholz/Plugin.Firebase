@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Plugin.Firebase.CloudMessaging
@@ -12,10 +12,10 @@ namespace Plugin.Firebase.CloudMessaging
 
         private readonly string _body;
         private readonly string _title;
-        
+
         public FCMNotification(
-            string body = null, 
-            string title = null, 
+            string body = null,
+            string title = null,
             string imageUrl = null,
             IDictionary<string, string> data = null)
         {

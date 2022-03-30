@@ -12,7 +12,7 @@ namespace Plugin.Firebase.IntegrationTests.Functions
 
         [JsonProperty("input_value")]
         public long InputValue { get; private set; }
-        
+
         [JsonProperty("output_value")]
         public long OutputValue { get; private set; }
     }

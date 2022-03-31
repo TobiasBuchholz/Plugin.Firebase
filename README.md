@@ -36,6 +36,10 @@ In the [tests folder](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/mas
 
 In case you would like to run the sample or test project by yourself, you need to add the ```GoogleService-Info.plist``` and ```google-services.json``` files of your own firebase project and adapt the other config files like ```Info.plist, Entitlements.plist, AndroidManifest.xml```.
 
+## Contributions
+
+You are welcome to contribute to this project by creating a [Pull Request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests). The project contains an .editorconfig file that handles the code formatting, so please apply the formatting rules by running `dotnet format src/Plugin.Firebase.sln` in the console before creating a Pull Request (see [dotnet-format docs](https://github.com/dotnet/format) or [this video](https://www.youtube.com/watch?v=lGvP9SZ98vM&t) for more information).
+
 ## License
 
 ```Plugin.Firebase``` is released under the MIT license. See the [LICENSE](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/LICENSE) file for details.

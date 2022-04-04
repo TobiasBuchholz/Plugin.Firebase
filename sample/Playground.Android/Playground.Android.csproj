@@ -63,8 +63,7 @@
         <PackageReference Include="Xamarin.AndroidX.Browser" Version="1.3.0.4"/>
         <PackageReference Include="Xamarin.Google.Android.Material" Version="1.2.1.1"/>
         <PackageReference Include="Xamarin.AndroidX.Legacy.Support.V4" Version="1.0.0.6"/>
-        <PackageReference Include="Xamarin.Firebase.Dynamic.Links" Version="119.1.1"/>
-        <PackageReference Include="Xamarin.Google.Guava.ListenableFuture" Version="1.0.0.2" ExcludeAssets="build;buildTransitive"/>
+        <PackageReference Include="Xamarin.Firebase.Dynamic.Links" Version="120.1.1.3"/>
     </ItemGroup>
     <ItemGroup>
         <Compile Include="MainActivity.cs"/>

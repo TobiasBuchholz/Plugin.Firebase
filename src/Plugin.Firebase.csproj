@@ -1,122 +1,122 @@
 <Project Sdk="MSBuild.Sdk.Extras/2.0.54">
 
-  <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;MonoAndroid90;Xamarin.iOS10;</TargetFrameworks>
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;MonoAndroid90;Xamarin.iOS10;</TargetFrameworks>
 
-    <!--Assembly and Namespace info -->
-    <AssemblyName>Plugin.Firebase</AssemblyName>
-    <RootNamespace>Plugin.Firebase</RootNamespace>
+        <!--Assembly and Namespace info -->
+        <AssemblyName>Plugin.Firebase</AssemblyName>
+        <RootNamespace>Plugin.Firebase</RootNamespace>
 
-    <Product>$(AssemblyName) ($(TargetFramework))</Product>
-    <AssemblyVersion>1.0.8</AssemblyVersion>
-    <AssemblyFileVersion>1.0.8</AssemblyFileVersion>
-    <Version>1.0.8</Version>
-    <NeutralLanguage>en</NeutralLanguage>
+        <Product>$(AssemblyName) ($(TargetFramework))</Product>
+        <AssemblyVersion>1.0.8</AssemblyVersion>
+        <AssemblyFileVersion>1.0.8</AssemblyFileVersion>
+        <Version>1.0.8</Version>
+        <NeutralLanguage>en</NeutralLanguage>
 
-    <!--Don't auto add files for me, I will tell you -->
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+        <!--Don't auto add files for me, I will tell you -->
+        <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
 
-    <!-- Helper to add defines-->
-    <DefineConstants>$(DefineConstants);</DefineConstants>
+        <!-- Helper to add defines-->
+        <DefineConstants>$(DefineConstants);</DefineConstants>
 
-    <!--Assembly and Namespace info -->
-    <PackageId>Plugin.Firebase</PackageId>
-    <PackageVersion>1.0.8</PackageVersion>
+        <!--Assembly and Namespace info -->
+        <PackageId>Plugin.Firebase</PackageId>
+        <PackageVersion>1.0.8</PackageVersion>
 
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/TobiasBuchholz/Plugin.Firebase</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/TobiasBuchholz/Plugin.Firebase</RepositoryUrl>
-    <PackageIcon>icon.png</PackageIcon>
-    <PackageTags>xamarin, ios, android</PackageTags>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/TobiasBuchholz/Plugin.Firebase</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/TobiasBuchholz/Plugin.Firebase</RepositoryUrl>
+        <PackageIcon>icon.png</PackageIcon>
+        <PackageTags>xamarin, ios, android</PackageTags>
 
-    <Title>Plugin.Firebase</Title>
-    <Summary>Xamarin wrapper around the native Android and iOS Firebase SDKs.</Summary>
-    <Description>The plugin includes cross-platform APIs for Firebase Analytics, Auth, Cloud Messaging, Dynamic Links, Firestore, Cloud Functions, Remote Config and Storage.</Description>
+        <Title>Plugin.Firebase</Title>
+        <Summary>Xamarin wrapper around the native Android and iOS Firebase SDKs.</Summary>
+        <Description>The plugin includes cross-platform APIs for Firebase Analytics, Auth, Cloud Messaging, Dynamic Links, Firestore, Cloud Functions, Remote Config and Storage.</Description>
 
-    <Owners>Tobias Buchholz</Owners>
-    <Authors>Tobias Buchholz</Authors>
-    <Copyright>Copyright 2021</Copyright>
+        <Owners>Tobias Buchholz</Owners>
+        <Authors>Tobias Buchholz</Authors>
+        <Copyright>Copyright 2021</Copyright>
 
-    <!--Version of C# to use -->
-    <LangVersion>default</LangVersion>
-  </PropertyGroup>
+        <!--Version of C# to use -->
+        <LangVersion>default</LangVersion>
+    </PropertyGroup>
 
-  <!-- Define what happens on build and release -->
-  <PropertyGroup Condition=" '$(Configuration)'=='Debug' ">
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <GenerateDocumentationFile>false</GenerateDocumentationFile>
-  </PropertyGroup>
+    <!-- Define what happens on build and release -->
+    <PropertyGroup Condition=" '$(Configuration)'=='Debug' ">
+        <DebugType>full</DebugType>
+        <DebugSymbols>true</DebugSymbols>
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)'=='Release' ">
-    <DebugType>pdbonly</DebugType>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-  </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)'=='Release' ">
+        <DebugType>pdbonly</DebugType>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <!-- This None is here so the conditionally included files show up in the Solution Explorer -->
-    <None Include="**\*.cs;**\*.xml;**\*.axml;**\*.png" Exclude="obj\**\*.*;bin\**\*.*;bin;obj" />
-    <None Remove=".vs\**" />
-    <None Remove=".idea\**" />
-    <None Include="..\art\icon.png" Pack="true" PackagePath="" />
+    <ItemGroup>
+        <!-- This None is here so the conditionally included files show up in the Solution Explorer -->
+        <None Include="**\*.cs;**\*.xml;**\*.axml;**\*.png" Exclude="obj\**\*.*;bin\**\*.*;bin;obj"/>
+        <None Remove=".vs\**"/>
+        <None Remove=".idea\**"/>
+        <None Include="..\art\icon.png" Pack="true" PackagePath=""/>
 
-    <Compile Include="Shared\**\*.cs" />
-    <Compile Include="Extensions\**\*.cs" />
-  </ItemGroup>
+        <Compile Include="Shared\**\*.cs"/>
+        <Compile Include="Extensions\**\*.cs"/>
+    </ItemGroup>
 
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
-    <Compile Include="Android\**\*.cs" />
-    <!-- if you have resources add this
-    <AndroidResource Include="Resources\**\*.axml" />
-    <AndroidResource Include="Resources\**\*.xml" />
-    <AndroidResource Include="Resources\**\*.png" />
-    -->
-  </ItemGroup>
+    <ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">
+        <Compile Include="Android\**\*.cs"/>
+        <!-- if you have resources add this
+        <AndroidResource Include="Resources\**\*.axml" />
+        <AndroidResource Include="Resources\**\*.xml" />
+        <AndroidResource Include="Resources\**\*.png" />
+        -->
+    </ItemGroup>
 
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('Xamarin.iOS')) ">
-    <Compile Include="iOS\**\*.cs" />
-  </ItemGroup>
+    <ItemGroup Condition=" $(TargetFramework.StartsWith('Xamarin.iOS')) ">
+        <Compile Include="iOS\**\*.cs"/>
+    </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'MonoAndroid90'">
-    <PackageReference Include="GoogleGson" Version="2.8.5" />
-    <PackageReference Include="Plugin.CurrentActivity" Version="2.1.0.4" />
-    <PackageReference Include="Xamarin.Facebook.Android" Version="7.1.0" />
-    <PackageReference Include="Xamarin.Firebase.Analytics" Version="118.0.2" />
-    <PackageReference Include="Xamarin.Firebase.Auth" Version="120.0.2" />
-    <PackageReference Include="Xamarin.Firebase.Config" Version="120.0.3" />
-    <PackageReference Include="Xamarin.Firebase.Dynamic.Links" Version="119.1.1" />
-    <PackageReference Include="Xamarin.Firebase.Firestore" Version="122.1.0" />
-    <PackageReference Include="Xamarin.Firebase.Functions" Version="119.2.0" />
-    <PackageReference Include="Xamarin.Firebase.Messaging" Version="121.0.1" />
-    <PackageReference Include="Xamarin.Firebase.Storage" Version="119.2.1" />
-    <PackageReference Include="Xamarin.Firebase.Storage.Common" Version="117.0.0" />
-    <PackageReference Include="Xamarin.Google.Android.DataTransport.TransportBackendCct" Version="2.3.3" />
-    <PackageReference Include="Xamarin.Google.Android.DataTransport.TransportRuntime" Version="2.2.5" />
-    <PackageReference Include="Xamarin.GooglePlayServices.Auth" Version="119.0.0" />
-    <PackageReference Include="Xamarin.Google.Dagger" Version="2.27.0" />
-  </ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'MonoAndroid90'">
+        <PackageReference Include="GoogleGson" Version="2.8.5"/>
+        <PackageReference Include="Plugin.CurrentActivity" Version="2.1.0.4"/>
+        <PackageReference Include="Xamarin.Facebook.Android" Version="7.1.0"/>
+        <PackageReference Include="Xamarin.Firebase.Analytics" Version="118.0.2"/>
+        <PackageReference Include="Xamarin.Firebase.Auth" Version="120.0.2"/>
+        <PackageReference Include="Xamarin.Firebase.Config" Version="120.0.3"/>
+        <PackageReference Include="Xamarin.Firebase.Dynamic.Links" Version="119.1.1"/>
+        <PackageReference Include="Xamarin.Firebase.Firestore" Version="122.1.0"/>
+        <PackageReference Include="Xamarin.Firebase.Functions" Version="119.2.0"/>
+        <PackageReference Include="Xamarin.Firebase.Messaging" Version="121.0.1"/>
+        <PackageReference Include="Xamarin.Firebase.Storage" Version="119.2.1"/>
+        <PackageReference Include="Xamarin.Firebase.Storage.Common" Version="117.0.0"/>
+        <PackageReference Include="Xamarin.Google.Android.DataTransport.TransportBackendCct" Version="2.3.3"/>
+        <PackageReference Include="Xamarin.Google.Android.DataTransport.TransportRuntime" Version="2.2.5"/>
+        <PackageReference Include="Xamarin.GooglePlayServices.Auth" Version="119.0.0"/>
+        <PackageReference Include="Xamarin.Google.Dagger" Version="2.27.0"/>
+    </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'Xamarin.iOS10'">
-    <PackageReference Include="Xamarin.Firebase.iOS.Auth" Version="6.9.2" />
-    <PackageReference Include="Xamarin.Firebase.iOS.CloudFirestore" Version="1.19.0" />
-    <PackageReference Include="Xamarin.Firebase.iOS.CloudFunctions" Version="2.9.0" />
-    <PackageReference Include="Xamarin.Firebase.iOS.CloudMessaging" Version="4.7.1" />
-    <PackageReference Include="Xamarin.Firebase.iOS.DynamicLinks" Version="4.3.1" />
-    <PackageReference Include="Xamarin.Firebase.iOS.RemoteConfig" Version="4.9.1" />
-    <PackageReference Include="Xamarin.Firebase.iOS.Storage" Version="3.9.1" />
-    <PackageReference Include="Xamarin.Facebook.iOS" Version="9.0.1.5" />
-    <PackageReference Include="Xamarin.Firebase.iOS.Analytics" Version="6.9.0" />
-    <PackageReference Include="Xamarin.Google.iOS.SignIn" Version="5.0.2.1" />
-  </ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'Xamarin.iOS10'">
+        <PackageReference Include="Xamarin.Firebase.iOS.Auth" Version="6.9.2"/>
+        <PackageReference Include="Xamarin.Firebase.iOS.CloudFirestore" Version="1.19.0"/>
+        <PackageReference Include="Xamarin.Firebase.iOS.CloudFunctions" Version="2.9.0"/>
+        <PackageReference Include="Xamarin.Firebase.iOS.CloudMessaging" Version="4.7.1"/>
+        <PackageReference Include="Xamarin.Firebase.iOS.DynamicLinks" Version="4.3.1"/>
+        <PackageReference Include="Xamarin.Firebase.iOS.RemoteConfig" Version="4.9.1"/>
+        <PackageReference Include="Xamarin.Firebase.iOS.Storage" Version="3.9.1"/>
+        <PackageReference Include="Xamarin.Facebook.iOS" Version="9.0.1.5"/>
+        <PackageReference Include="Xamarin.Firebase.iOS.Analytics" Version="6.9.0"/>
+        <PackageReference Include="Xamarin.Google.iOS.SignIn" Version="5.0.2.1"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json" Version="12.0.3"/>
+        <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
+    </ItemGroup>
 
-  <PropertyGroup Label="Android DesignTimeBuild error workaround">
-    <DesignTimeBuild>false</DesignTimeBuild>
-  </PropertyGroup>
+    <PropertyGroup Label="Android DesignTimeBuild error workaround">
+        <DesignTimeBuild>false</DesignTimeBuild>
+    </PropertyGroup>
 
 </Project>

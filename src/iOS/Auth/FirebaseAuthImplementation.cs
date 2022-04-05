@@ -33,7 +33,7 @@ namespace Plugin.Firebase.Auth
 
         public static void OnActivated(UIApplication application)
         {
-            AppEvents.ActivateApp();
+            AppEvents.Shared.ActivateApp();
         }
 
         public static bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options)

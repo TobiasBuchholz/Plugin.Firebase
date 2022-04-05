@@ -96,16 +96,16 @@
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'Xamarin.iOS10'">
-        <PackageReference Include="Xamarin.Firebase.iOS.Auth" Version="6.9.2"/>
-        <PackageReference Include="Xamarin.Firebase.iOS.CloudFirestore" Version="1.19.0"/>
-        <PackageReference Include="Xamarin.Firebase.iOS.CloudFunctions" Version="2.9.0"/>
-        <PackageReference Include="Xamarin.Firebase.iOS.CloudMessaging" Version="4.7.1"/>
-        <PackageReference Include="Xamarin.Firebase.iOS.DynamicLinks" Version="4.3.1"/>
-        <PackageReference Include="Xamarin.Firebase.iOS.RemoteConfig" Version="4.9.1"/>
-        <PackageReference Include="Xamarin.Firebase.iOS.Storage" Version="3.9.1"/>
-        <PackageReference Include="Xamarin.Facebook.iOS" Version="9.0.1.5"/>
-        <PackageReference Include="Xamarin.Firebase.iOS.Analytics" Version="6.9.0"/>
-        <PackageReference Include="Xamarin.Google.iOS.SignIn" Version="5.0.2.1"/>
+        <PackageReference Include="Xamarin.Firebase.iOS.Auth" Version="8.10.0"/>
+        <PackageReference Include="Xamarin.Firebase.iOS.CloudFirestore" Version="8.10.0"/>
+        <PackageReference Include="Xamarin.Firebase.iOS.CloudFunctions" Version="8.10.0"/>
+        <PackageReference Include="Xamarin.Firebase.iOS.CloudMessaging" Version="8.10.0"/>
+        <PackageReference Include="Xamarin.Firebase.iOS.DynamicLinks" Version="8.10.0"/>
+        <PackageReference Include="Xamarin.Firebase.iOS.RemoteConfig" Version="8.10.0"/>
+        <PackageReference Include="Xamarin.Firebase.iOS.Storage" Version="8.10.0"/>
+        <PackageReference Include="Xamarin.Facebook.iOS" Version="12.2.0"/>
+        <PackageReference Include="Xamarin.Firebase.iOS.Analytics" Version="8.10.0"/>
+        <PackageReference Include="Xamarin.Google.iOS.SignIn" Version="5.0.2.2"/>
     </ItemGroup>
 
     <ItemGroup>

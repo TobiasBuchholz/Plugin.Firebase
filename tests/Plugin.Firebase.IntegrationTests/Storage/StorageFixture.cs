@@ -83,8 +83,10 @@ namespace Plugin.Firebase.IntegrationTests.Storage
 
         private static void AssertDownloadUrl(string pathToFile, string downloadUrl)
         {
+            var port = DeviceInfo.Platform == DevicePlatform.iOS ? ":443" : "";
+            
             Assert.StartsWith(
-                $"https://firebasestorage.googleapis.com/v0/b/pluginfirebase-integrationtest.appspot.com/o/{pathToFile}?alt=media&token=",
+                $"https://firebasestorage.googleapis.com{port}/v0/b/pluginfirebase-integrationtest.appspot.com/o/{pathToFile}?alt=media&token=",
                 WebUtility.UrlDecode(downloadUrl));
         }
 

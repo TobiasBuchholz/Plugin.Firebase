@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using Firebase.CloudMessaging;
-using Firebase.InstanceID;
 using Foundation;
 using Plugin.Firebase.CloudMessaging.EventArgs;
 using Plugin.Firebase.Common;
@@ -20,7 +19,6 @@ namespace Plugin.Firebase.CloudMessaging
         {
             var instance = (FirebaseCloudMessagingImplementation) CrossFirebaseCloudMessaging.Current;
             instance.RegisterForRemoteNotifications();
-            InstanceId.Notifications.ObserveTokenRefresh((sender, e) => instance.OnTokenRefreshAsync());
             instance.OnTokenRefreshAsync();
         }
 
@@ -82,12 +80,6 @@ namespace Plugin.Firebase.CloudMessaging
             } else {
                 _notificationTapped.Invoke(this, new FCMNotificationTappedEventArgs(response.Notification.ToFCMNotification()));
             }
-        }
-
-        // from the docs but never called actually
-        public void ApplicationReceivedRemoteMessage(RemoteMessage remoteMessage)
-        {
-            OnNotificationReceived(remoteMessage.AppData.ToFCMNotification());
         }
 
         public Task<string> GetTokenAsync()

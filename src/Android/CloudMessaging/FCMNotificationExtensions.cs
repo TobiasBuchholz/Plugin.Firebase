@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Android.Content;
 using Android.OS;
+using Android.Util;
 using Firebase.Messaging;
 using Plugin.Firebase.CloudMessaging;
 
@@ -49,7 +50,7 @@ namespace Plugin.Firebase.Android.CloudMessaging
                 return intent
                     .GetBundleExtra(extraName)
                     .ToFCMNotification();
-            } else if(intent.Extras != null) {
+            } else if(intent.HasExtra("google.message_id")) {
                 return new FCMNotification(
                     intent.Extras.GetString(BundleKeyBody),
                     intent.Extras.GetString(BundleKeyTitle),

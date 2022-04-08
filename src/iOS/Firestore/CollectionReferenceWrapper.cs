@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Firebase.CloudFirestore;
 using Plugin.Firebase.Common;
@@ -41,82 +42,82 @@ namespace Plugin.Firebase.iOS.Firestore
 
         public IQuery WhereEqualsTo(string field, object value)
         {
-            return _wrapped.WhereEqualsTo(field, value).ToAbstract();
+            return _wrapped.WhereEqualsTo(field, value.ToNSObject()).ToAbstract();
         }
 
         public IQuery WhereEqualsTo(FieldPath path, object value)
         {
-            return _wrapped.WhereEqualsTo(path.ToNative(), value).ToAbstract();
+            return _wrapped.WhereEqualsTo(path.ToNative(), value.ToNSObject()).ToAbstract();
         }
 
         public IQuery WhereGreaterThan(string field, object value)
         {
-            return _wrapped.WhereGreaterThan(field, value).ToAbstract();
+            return _wrapped.WhereGreaterThan(field, value.ToNSObject()).ToAbstract();
         }
 
         public IQuery WhereGreaterThan(FieldPath path, object value)
         {
-            return _wrapped.WhereGreaterThan(path.ToNative(), value).ToAbstract();
+            return _wrapped.WhereGreaterThan(path.ToNative(), value.ToNSObject()).ToAbstract();
         }
 
         public IQuery WhereLessThan(string field, object value)
         {
-            return _wrapped.WhereLessThan(field, value).ToAbstract();
+            return _wrapped.WhereLessThan(field, value.ToNSObject()).ToAbstract();
         }
 
         public IQuery WhereLessThan(FieldPath path, object value)
         {
-            return _wrapped.WhereLessThan(path.ToNative(), value).ToAbstract();
+            return _wrapped.WhereLessThan(path.ToNative(), value.ToNSObject()).ToAbstract();
         }
 
         public IQuery WhereGreaterThanOrEqualsTo(string field, object value)
         {
-            return _wrapped.WhereGreaterThanOrEqualsTo(field, value).ToAbstract();
+            return _wrapped.WhereGreaterThanOrEqualsTo(field, value.ToNSObject()).ToAbstract();
         }
 
         public IQuery WhereGreaterThanOrEqualsTo(FieldPath path, object value)
         {
-            return _wrapped.WhereGreaterThanOrEqualsTo(path.ToNative(), value).ToAbstract();
+            return _wrapped.WhereGreaterThanOrEqualsTo(path.ToNative(), value.ToNSObject()).ToAbstract();
         }
 
         public IQuery WhereLessThanOrEqualsTo(string field, object value)
         {
-            return _wrapped.WhereLessThanOrEqualsTo(field, value).ToAbstract();
+            return _wrapped.WhereLessThanOrEqualsTo(field, value.ToNSObject()).ToAbstract();
         }
 
         public IQuery WhereLessThanOrEqualsTo(FieldPath path, object value)
         {
-            return _wrapped.WhereLessThanOrEqualsTo(path.ToNative(), value).ToAbstract();
+            return _wrapped.WhereLessThanOrEqualsTo(path.ToNative(), value.ToNSObject()).ToAbstract();
         }
 
         public IQuery WhereArrayContains(string field, object value)
         {
-            return _wrapped.WhereArrayContains(field, value).ToAbstract();
+            return _wrapped.WhereArrayContains(field, value.ToNSObject()).ToAbstract();
         }
 
         public IQuery WhereArrayContains(FieldPath path, object value)
         {
-            return _wrapped.WhereArrayContains(path.ToNative(), value).ToAbstract();
+            return _wrapped.WhereArrayContains(path.ToNative(), value.ToNSObject()).ToAbstract();
         }
 
         public IQuery WhereArrayContainsAny(string field, object[] values)
         {
-            return _wrapped.WhereArrayContainsAny(field, values).ToAbstract();
+            return _wrapped.WhereArrayContainsAny(field, values.Select(x => x.ToNSObject()).ToArray()).ToAbstract();
         }
 
         public IQuery WhereArrayContainsAny(FieldPath path, object[] values)
         {
-            return _wrapped.WhereArrayContainsAny(path.ToNative(), values).ToAbstract();
+            return _wrapped.WhereArrayContainsAny(path.ToNative(), values.Select(x => x.ToNSObject()).ToArray()).ToAbstract();
         }
 
         public IQuery WhereFieldIn(string field, object[] values)
         {
-            return _wrapped.WhereFieldIn(field, values).ToAbstract();
+            return _wrapped.WhereFieldIn(field, values.Select(x => x.ToNSObject()).ToArray()).ToAbstract();
         }
 
         public IQuery WhereFieldIn(FieldPath path, object[] values)
         {
-            return _wrapped.WhereFieldIn(path.ToNative(), values).ToAbstract();
+            return _wrapped.WhereFieldIn(path.ToNative(), values.Select(x => x.ToNSObject()).ToArray()).ToAbstract();
         }
 
         public IQuery OrderBy(string field, bool descending = false)
@@ -124,14 +125,14 @@ namespace Plugin.Firebase.iOS.Firestore
             return _wrapped.OrderedBy(field, descending).ToAbstract();
         }
 
-        public IQuery OrderBy(FieldPath path, bool @descending = false)
+        public IQuery OrderBy(FieldPath path, bool descending = false)
         {
             return _wrapped.OrderedBy(path.ToNative(), descending).ToAbstract();
         }
 
         public IQuery StartingAt(params object[] fieldValues)
         {
-            return _wrapped.StartingAt(fieldValues).ToAbstract();
+            return _wrapped.StartingAt(fieldValues.Select(x => x.ToNSObject()).ToArray()).ToAbstract();
         }
 
         public IQuery StartingAt(IDocumentSnapshot snapshot)
@@ -141,7 +142,7 @@ namespace Plugin.Firebase.iOS.Firestore
 
         public IQuery StartingAfter(params object[] fieldValues)
         {
-            return _wrapped.StartingAfter(fieldValues).ToAbstract();
+            return _wrapped.StartingAfter(fieldValues.Select(x => x.ToNSObject()).ToArray()).ToAbstract();
         }
 
         public IQuery StartingAfter(IDocumentSnapshot snapshot)
@@ -151,7 +152,7 @@ namespace Plugin.Firebase.iOS.Firestore
 
         public IQuery EndingAt(params object[] fieldValues)
         {
-            return _wrapped.EndingAt(fieldValues).ToAbstract();
+            return _wrapped.EndingAt(fieldValues.Select(x => x.ToNSObject()).ToArray()).ToAbstract();
         }
 
         public IQuery EndingAt(IDocumentSnapshot snapshot)
@@ -161,7 +162,7 @@ namespace Plugin.Firebase.iOS.Firestore
 
         public IQuery EndingBefore(params object[] fieldValues)
         {
-            return _wrapped.EndingBefore(fieldValues).ToAbstract();
+            return _wrapped.EndingBefore(fieldValues.Select(x => x.ToNSObject()).ToArray()).ToAbstract();
         }
 
         public IQuery EndingBefore(IDocumentSnapshot snapshot)

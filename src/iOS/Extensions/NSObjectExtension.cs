@@ -151,8 +151,29 @@ namespace Plugin.Firebase.iOS.Extensions
                     return x.ToNSDictionaryFromNonGeneric();
                 case IFirestoreObject x:
                     return x.ToNSObject();
+                default:
+                    if(@this is Enum) {
+                        var enumType = Enum.GetUnderlyingType(@this.GetType());
+                        if(enumType == typeof(int)) {
+                            return new NSNumber(Convert.ToInt32(@this));
+                        } else if(enumType == typeof(uint)) {
+                            return new NSNumber(Convert.ToUInt32(@this));
+                        } else if(enumType == typeof(long)) {
+                            return new NSNumber(Convert.ToInt64(@this));
+                        } else if(enumType == typeof(ulong)) {
+                            return new NSNumber(Convert.ToUInt64(@this));
+                        } else if(enumType == typeof(sbyte)) {
+                            return new NSNumber(Convert.ToSByte(@this));
+                        } else if(enumType == typeof(byte)) {
+                            return new NSNumber(Convert.ToByte(@this));
+                        } else if(enumType == typeof(short)) {
+                            return new NSNumber(Convert.ToInt16(@this));
+                        } else if(enumType == typeof(ushort)) {
+                            return new NSNumber(Convert.ToUInt16(@this));
+                        }
+                    }
+                    throw new ArgumentException($"Could not convert object of type {@this.GetType()} to NSObject. Does it extend {nameof(IFirestoreObject)}?");
             }
-            throw new ArgumentException($"Could not convert object of type {@this.GetType()} to NSObject. Does it extend {nameof(IFirestoreObject)}?");
         }
 
         public static NSArray ToNSArray(this IList @this)

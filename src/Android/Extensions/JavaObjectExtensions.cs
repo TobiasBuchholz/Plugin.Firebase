@@ -117,11 +117,27 @@ namespace Plugin.Firebase.Android.Extensions
                 case IFirestoreObject x:
                     return x.ToJavaObject();
                 default:
-                    if(@this is Enum @enum) {
-                        return Convert.ToInt64(@enum);
-                    } else {
-                        throw new ArgumentException($"Could not convert object of type {@this.GetType()} to Java.Lang.Object. Does it extend {nameof(IFirestoreObject)}?");
+                    if(@this is Enum) {
+                        var enumType = Enum.GetUnderlyingType(@this.GetType());
+                        if(enumType == typeof(int)) {
+                            return Convert.ToInt32(@this);
+                        } else if(enumType == typeof(uint)) {
+                            return (int) Convert.ToUInt32(@this);
+                        } else if(enumType == typeof(long)) {
+                            return Convert.ToInt64(@this);
+                        } else if(enumType == typeof(ulong)) {
+                            return (long) Convert.ToUInt64(@this);
+                        } else if(enumType == typeof(sbyte)) {
+                            return Convert.ToSByte(@this);
+                        } else if(enumType == typeof(byte)) {
+                            return (sbyte) Convert.ToByte(@this);
+                        } else if(enumType == typeof(short)) {
+                            return Convert.ToInt16(@this);
+                        } else if(enumType == typeof(ushort)) {
+                            return (short) Convert.ToUInt16(@this);
+                        }
                     }
+                    throw new ArgumentException($"Could not convert object of type {@this.GetType()} to Java.Lang.Object. Does it extend {nameof(IFirestoreObject)}?");
             }
         }
 

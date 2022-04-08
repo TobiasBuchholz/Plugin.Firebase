@@ -30,14 +30,20 @@ namespace Plugin.Firebase.Firestore
 
         public async Task<TResult> RunTransactionAsync<TResult>(Func<ITransaction, TResult> updateFunc)
         {
+            FirebaseException exception = null;
             var result = await _firestore.RunTransactionAsync((Transaction transaction, ref NSError error) => {
-                if(error == null) {
-                    return updateFunc(transaction.ToAbstract()).ToNSObject();
-                } else {
-                    throw new FirebaseException(error.LocalizedDescription);
+                try {
+                    if(error == null) {
+                        return updateFunc(transaction.ToAbstract())?.ToNSObject();
+                    } else {
+                        exception = new FirebaseException(error.LocalizedDescription);
+                    }
+                } catch(Exception e) {
+                    exception = new FirebaseException(e.Message);
                 }
+                return null;
             });
-            return (TResult) result?.ToObject(typeof(TResult));
+            return exception is null ? (TResult) result?.ToObject(typeof(TResult)) : throw exception;
         }
 
         public IWriteBatch CreateBatch()

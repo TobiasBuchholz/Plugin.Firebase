@@ -122,6 +122,14 @@ namespace Plugin.Firebase.Auth
         /// </summary>
         /// <param name="link">The email sign-in link.</param>
         bool IsSignInWithEmailLink(string link);
+        
+        /// <summary>
+        /// Modify this FirebaseAuth instance to communicate with the Firebase Authentication emulator.
+        /// Note: this must be called before this instance has been used to do any operations.
+        /// </summary>
+        /// <param name="host">The emulator host (for example, 10.0.2.2 on android and localhost on iOS)</param>
+        /// <param name="port">The emulator port (for example, 9099)</param>
+        void UseEmulator(string host, int port);
 
         /// <summary>
         /// The currently signed in <c>IFirebaseUser</c> object or <c>null</c> if the user is signed out.

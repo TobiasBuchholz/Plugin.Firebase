@@ -4,6 +4,7 @@ using Android.OS;
 using Firebase;
 using Plugin.Firebase.Analytics;
 using Plugin.Firebase.Auth;
+using Plugin.Firebase.Firestore;
 using Plugin.Firebase.IntegrationTests;
 using Xamarin.Essentials;
 using Xunit.Runners.UI;
@@ -31,15 +32,9 @@ namespace Plugin.Firebase.TestHarness.Android
             // or in any assembly that you load (since JIT is available)
             AddTestAssembly(typeof(MustPassFixture).Assembly);
 
-#if false
-			// you can use the default or set your own custom writer (e.g. save to web site and tweet it ;-)
-			Writer = new TcpTextWriter ("10.0.1.2", 16384);
-			// start running the test suites as soon as the application is loaded
-			AutoStart = true;
-			// crash the application (to ensure it's ended) and return to springboard
-			TerminateAfterExecution = true;
-#endif
-            // you cannot add more assemblies once calling base
+            // Uncomment this line in if you are running the Firebase Emulator Suite
+            // CrossFirebaseFirestore.Current.UseEmulator("10.0.2.2", 8080);
+            
             base.OnCreate(savedInstanceState);
         }
     }

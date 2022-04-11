@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Android.Runtime;
-using Plugin.Firebase.Common;
 using Plugin.Firebase.Firestore;
 using Xamarin.Essentials;
 using Xunit;
@@ -374,16 +373,6 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             Assert.Null(snapshot.Data.FirstSightingLocation);
             Assert.Null(snapshot.Data.Evolutions);
             Assert.Equal(PokeType.Undefined, snapshot.Data.PokeType);
-        }
-
-        [Fact]
-        public void gets_firestore_settings()
-        {
-            var settings = CrossFirebaseFirestore.Current.Settings;
-            Assert.Equal("firestore.googleapis.com", settings.Host);
-            Assert.True(settings.IsPersistenceEnabled);
-            Assert.True(settings.IsSslEnabled);
-            Assert.Equal(104857600, settings.CacheSizeBytes);
         }
 
         [Fact]

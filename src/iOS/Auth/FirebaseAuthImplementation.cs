@@ -227,6 +227,11 @@ namespace Plugin.Firebase.Auth
             return _firebaseAuth.IsSignIn(link);
         }
 
+        public void UseEmulator(string host, int port)
+        {
+            _firebaseAuth.UseEmulatorWithHost(host, port);
+        }
+
         private static UIViewController ViewController {
             get {
                 var rootViewController = UIApplication.SharedApplication.KeyWindow.RootViewController;

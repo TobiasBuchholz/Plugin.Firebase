@@ -17,5 +17,10 @@ namespace Plugin.Firebase.Functions
         {
             return new HttpsCallableWrapper(_functions.HttpsCallable(name));
         }
+
+        public void UseEmulator(string host, int port)
+        {
+            _functions.UseEmulatorOriginWithHost(host, (uint) port);
+        }
     }
 }

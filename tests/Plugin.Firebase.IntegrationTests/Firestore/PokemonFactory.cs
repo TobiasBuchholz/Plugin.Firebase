@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Plugin.Firebase.Firestore;
 
 namespace Plugin.Firebase.IntegrationTests.Firestore
 {
@@ -129,6 +131,33 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 moves: new List<string> { "Tackel", "Body-Slam", "Water-Gun" },
                 firstSightingLocation: new SightingLocation(52.5042112, 13.5290173),
                 evolutions: new List<Pokemon> { new Pokemon("7", "Sqirtle"), new Pokemon("8", "Wartortle"), new Pokemon("9", "Blastoise") });
+        }
+
+        /// <summary>
+        /// Use this method to create mock data on your firestore project.
+        /// </summary>
+        public static async Task CreateBasePokemonsAtFirestoreAsync()
+        {
+            var firestore = CrossFirebaseFirestore.Current;
+            var pokemons = CreateBasePokemons();
+            foreach(var pokemon in pokemons) {
+                var path = $"pokemons/{pokemon.Id}";
+                var document = firestore.GetDocument(path);
+                await document.SetDataAsync(pokemon);
+            }
+        }
+
+        private static IEnumerable<Pokemon> CreateBasePokemons()
+        {
+            yield return CreateBulbasur();
+            yield return CreateIvysaur();
+            yield return CreateVenusaur();
+            yield return CreateCharmander();
+            yield return CreateCharmeleon();
+            yield return CreateCharizard();
+            yield return CreateSquirtle();
+            yield return CreateWartortle();
+            yield return CreateBlastoise();
         }
     }
 }

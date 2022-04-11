@@ -2,6 +2,7 @@
 using System.Reflection;
 using Foundation;
 using Plugin.Firebase.Analytics;
+using Plugin.Firebase.Firestore;
 using UIKit;
 using Plugin.Firebase.IntegrationTests;
 using Xunit.Runner;
@@ -37,14 +38,9 @@ namespace Plugin.Firebase.TestHarness.iOS
             // become part of the app bundle
             AddTestAssembly(typeof(MustPassFixture).Assembly);
 
-#if false
-			// you can use the default or set your own custom writer (e.g. save to web site and tweet it ;-)
-			Writer = new TcpTextWriter ("10.0.1.2", 16384);
-			// start running the test suites as soon as the application is loaded
-			AutoStart = true;
-			// crash the application (to ensure it's ended) and return to springboard
-			TerminateAfterExecution = true;
-#endif
+            // Uncomment this line in if you are running the Firebase Emulator Suite
+            // CrossFirebaseFirestore.Current.UseEmulator("localhost", 8080);
+            
             return base.FinishedLaunching(app, options);
 		}
     }

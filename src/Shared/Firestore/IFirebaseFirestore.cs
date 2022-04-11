@@ -37,6 +37,14 @@ namespace Plugin.Firebase.Firestore
         IWriteBatch CreateBatch();
 
         /// <summary>
+        /// Modifies this FirebaseDatabase instance to communicate with the Cloud Firestore emulator.
+        /// Note: Call this method before using the instance to do any database operations.
+        /// </summary>
+        /// <param name="host">The emulator host (for example, 10.0.2.2 on android and localhost on iOS)</param>
+        /// <param name="port">The emulator port (for example, 8080)</param>
+        void UseEmulator(string host, int port);
+
+        /// <summary>
         /// Custom settings used to configure this <c>IFirebaseFirestore</c> object.
         /// </summary>
         FirestoreSettings Settings { get; set; }

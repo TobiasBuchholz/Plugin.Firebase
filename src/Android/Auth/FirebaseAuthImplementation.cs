@@ -176,6 +176,11 @@ namespace Plugin.Firebase.Auth
             return _firebaseAuth.IsSignInWithEmailLink(link);
         }
 
+        public void UseEmulator(string host, int port)
+        {
+            _firebaseAuth.UseEmulator(host, port);
+        }
+
         private static FragmentActivity FragmentActivity =>
             Activity as FragmentActivity ?? throw new NullReferenceException($"Current Activity is either null or not of type {nameof(FragmentActivity)}, which is mandatory for sign in with Google");
 

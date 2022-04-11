@@ -51,6 +51,12 @@ namespace Plugin.Firebase.Firestore
             return _firestore.CreateBatch().ToAbstract();
         }
 
+        public void UseEmulator(string host, int port)
+        {
+            _firestore.UseEmulatorWithHost(host, (uint) port);
+            Settings = new FirestoreSettings(Settings.Host, false, false, Settings.CacheSizeBytes);
+        }
+
         public FirestoreSettings Settings {
             get => _firestore.Settings.ToAbstract();
             set => _firestore.Settings = value.ToNative();

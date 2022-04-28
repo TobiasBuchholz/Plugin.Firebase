@@ -8,9 +8,9 @@
         <RootNamespace>Plugin.Firebase</RootNamespace>
 
         <Product>$(AssemblyName) ($(TargetFramework))</Product>
-        <AssemblyVersion>1.0.8</AssemblyVersion>
-        <AssemblyFileVersion>1.0.8</AssemblyFileVersion>
-        <Version>1.0.8</Version>
+        <AssemblyVersion>1.0.9</AssemblyVersion>
+        <AssemblyFileVersion>1.0.9</AssemblyFileVersion>
+        <Version>1.0.9</Version>
         <NeutralLanguage>en</NeutralLanguage>
 
         <!--Don't auto add files for me, I will tell you -->
@@ -21,7 +21,7 @@
 
         <!--Assembly and Namespace info -->
         <PackageId>Plugin.Firebase</PackageId>
-        <PackageVersion>1.0.8</PackageVersion>
+        <PackageVersion>1.0.9</PackageVersion>
 
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/TobiasBuchholz/Plugin.Firebase</PackageProjectUrl>

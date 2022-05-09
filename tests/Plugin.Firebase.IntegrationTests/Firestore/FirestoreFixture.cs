@@ -390,6 +390,24 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             Assert.Equal("1337", snapshot.Reference.Id);
         }
 
+        [Fact]
+        public async Task clone_pokemon()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var pokemon = PokemonFactory.CreateBulbasur();
+
+            var copy = pokemon.Clone();
+            var path = $"testing/{copy.Id}";
+            var document = sut.GetDocument(path);
+            await document.SetDataAsync(copy);
+
+            var snapshot = await document.GetDocumentSnapshotAsync<Pokemon>();
+            Assert.False(snapshot.Metadata.HasPendingWrites);
+            Assert.Equal("copy-of-" + pokemon.Id, snapshot.Reference.Id);
+            Assert.Equal(path, snapshot.Reference.Path);
+            Assert.Equal(copy, snapshot.Data);
+        }
+
         public async Task DisposeAsync()
         {
             await CrossFirebaseFirestore.Current.DeleteCollectionAsync<Pokemon>("testing", batchSize: 10);

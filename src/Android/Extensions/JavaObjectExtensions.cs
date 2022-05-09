@@ -114,6 +114,8 @@ namespace Plugin.Firebase.Android.Extensions
                     return x;
                 case IDictionary<string, object> x:
                     return x.ToHashMap();
+                case DocumentReferenceWrapper x:
+                    return x.Wrapped;
                 case IFirestoreObject x:
                     return x.ToJavaObject();
                 default:

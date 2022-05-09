@@ -149,6 +149,8 @@ namespace Plugin.Firebase.iOS.Extensions
                     return x.ToNSArray();
                 case IDictionary x:
                     return x.ToNSDictionaryFromNonGeneric();
+                case DocumentReferenceWrapper x:
+                    return x.Wrapped;
                 case IFirestoreObject x:
                     return x.ToNSObject();
                 default:

@@ -12,7 +12,7 @@ namespace Plugin.Firebase.Functions
         /// </summary>
         /// <param name="name">The name of the Callable HTTPS trigger.</param>
         IHttpsCallable GetHttpsCallable(string name);
-        
+
         /// <summary>
         /// Modifies this FirebaseFunctions instance to communicate with the Cloud Functions emulator.
         /// Note: Call this method before using the instance to do any functions operations.

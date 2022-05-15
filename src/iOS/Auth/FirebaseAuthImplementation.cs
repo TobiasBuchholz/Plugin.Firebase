@@ -146,6 +146,16 @@ namespace Plugin.Firebase.Auth
             }
         }
 
+        public async Task<IFirebaseUser> SignInWithAppleAsync(string idToken)
+        {
+            try {
+                var credential = OAuthProvider.GetCredential("apple.com", idToken, null);
+                return await SignInWithCredentialAsync(credential);
+            } catch(NSErrorException e) {
+                throw new FirebaseException(e.Error?.LocalizedDescription);
+            }
+        }
+
         public async Task<IFirebaseUser> SignInAnonymouslyAsync()
         {
             try {

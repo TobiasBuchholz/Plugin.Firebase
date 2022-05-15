@@ -66,6 +66,13 @@ namespace Plugin.Firebase.Auth
         Task<IFirebaseUser> SignInWithFacebookAsync();
 
         /// <summary>
+        /// Signs in using a Apple account.
+        /// </summary>
+        /// <param name="idToken">the ID token returned after a successful authentication via native Apple Sign In API</param>
+        /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
+        Task<IFirebaseUser> SignInWithAppleAsync(string idToken);
+
+        /// <summary>
         /// Asynchronously creates and becomes an anonymous user. If there is already an anonymous user signed in, that user will
         /// be returned instead. If there is any other existing user signed in, that user will be signed out.
         /// </summary>

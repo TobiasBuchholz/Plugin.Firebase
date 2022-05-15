@@ -55,6 +55,7 @@ namespace Playground.Features.Auth
             LinkWithPhoneNumberCommand = ReactiveCommand.CreateFromObservable(LinkWithPhoneNumber);
             UnlinkProviderCommand = ReactiveCommand.CreateFromObservable(UnlinkProvider);
             SignOutCommand = ReactiveCommand.CreateFromObservable(SignOut, canSignOut);
+            ResetPasswordByEmailCommand = ReactiveCommand.CreateFromObservable(ResetPasswordByEmail);
 
             Observable
                 .Merge(
@@ -69,7 +70,8 @@ namespace Playground.Features.Auth
                     LinkWithFacebookCommand.ThrownExceptions,
                     LinkWithPhoneNumberCommand.ThrownExceptions,
                     UnlinkProviderCommand.ThrownExceptions,
-                    SignOutCommand.ThrownExceptions)
+                    SignOutCommand.ThrownExceptions,
+                    ResetPasswordByEmailCommand.ThrownExceptions)
                 .LogThrownException()
                 .Subscribe(e => _userInteractionService.ShowErrorDialogAsync(Localization.DialogTitleUnexpectedError, e))
                 .DisposeWith(Disposables);
@@ -237,6 +239,11 @@ namespace Playground.Features.Auth
             return _authService.SignOut();
         }
 
+        private IObservable<Unit> ResetPasswordByEmail()
+        {
+            return _authService.SendPasswordResetEmail();
+        }
+
         private void InitProperties()
         {
             InitUserProperty();
@@ -331,5 +338,6 @@ namespace Playground.Features.Auth
         public ReactiveCommand<Unit, Unit> LinkWithPhoneNumberCommand { get; set; }
         public ReactiveCommand<Unit, Unit> UnlinkProviderCommand { get; set; }
         public ReactiveCommand<Unit, Unit> SignOutCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> ResetPasswordByEmailCommand { get; set; }
     }
 }

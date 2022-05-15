@@ -145,6 +145,11 @@ namespace Playground.Common.Services.Auth
             return _firebaseAuth.FetchSignInMethodsAsync(email).ToObservable();
         }
 
+        public IObservable<Unit> SendPasswordResetEmail()
+        {
+            return _firebaseAuth.SendPasswordResetEmailAsync().ToObservable();
+        }
+
         private void HandleUserSignedOut()
         {
             _currentUserSubject.OnNext(null);

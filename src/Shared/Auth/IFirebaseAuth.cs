@@ -122,7 +122,12 @@ namespace Plugin.Firebase.Auth
         /// </summary>
         /// <param name="link">The email sign-in link.</param>
         bool IsSignInWithEmailLink(string link);
-        
+
+        /// <summary>
+        /// Sends user an email with a link to reset his password.
+        /// </summary>
+        Task SendPasswordResetEmailAsync();
+
         /// <summary>
         /// Modify this FirebaseAuth instance to communicate with the Firebase Authentication emulator.
         /// Note: this must be called before this instance has been used to do any operations.

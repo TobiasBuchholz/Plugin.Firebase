@@ -46,6 +46,9 @@ namespace Plugin.Firebase.Auth
             _googleAuth = new GoogleAuth(Activity, _googleRequestIdToken);
             _facebookAuth = new FacebookAuth();
             _phoneNumberAuth = new PhoneNumberAuth();
+
+            // NOTE : apply the default app language for sending emails
+            _firebaseAuth.UseAppLanguage();
         }
 
         public Task VerifyPhoneNumberAsync(string phoneNumber)
@@ -174,6 +177,11 @@ namespace Plugin.Firebase.Auth
         public bool IsSignInWithEmailLink(string link)
         {
             return _firebaseAuth.IsSignInWithEmailLink(link);
+        }
+
+        public Task SendPasswordResetEmailAsync()
+        {
+            return _firebaseAuth.SendPasswordResetEmailAsync(_firebaseAuth.CurrentUser.Email);
         }
 
         public void UseEmulator(string host, int port)

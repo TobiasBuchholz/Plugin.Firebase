@@ -108,7 +108,7 @@ namespace Plugin.Firebase.Auth
             return await SignInWithCredentialAsync(credential);
         }
 
-        public Task<IFirebaseUser> SignInWithAppleAsync(string idToken)
+        public Task<IFirebaseUser> SignInWithAppleAsync()
         {
             throw new PlatformNotSupportedException();
         }

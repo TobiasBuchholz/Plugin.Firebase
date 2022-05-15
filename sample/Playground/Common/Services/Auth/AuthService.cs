@@ -73,6 +73,13 @@ namespace Playground.Common.Services.Auth
                 signOutWhenFailed: true);
         }
 
+        public IObservable<Unit> SignInWithApple()
+        {
+            return RunAuthTask(
+                _firebaseAuth.SignInWithAppleAsync(),
+                signOutWhenFailed: true);
+        }
+
         public IObservable<Unit> VerifyPhoneNumber(string phoneNumber)
         {
             return _firebaseAuth.VerifyPhoneNumberAsync(phoneNumber).ToObservable();

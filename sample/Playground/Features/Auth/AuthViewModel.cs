@@ -48,6 +48,7 @@ namespace Playground.Features.Auth
             SignInWithEmailLinkCommand = ReactiveCommand.CreateFromTask(SignInWithEmailLinkAsync, canSignIn);
             SignInWithGoogleCommand = ReactiveCommand.CreateFromObservable(SignInWithGoogle, canSignIn);
             SignInWithFacebookCommand = ReactiveCommand.CreateFromObservable(SignInWithFacebook, canSignIn);
+            SignInWithAppleCommand = ReactiveCommand.CreateFromObservable(SignInWithApple, canSignIn);
             SignInWithPhoneNumberCommand = ReactiveCommand.CreateFromObservable(SignInWithPhoneNumber, canSignIn);
             LinkWithEmailCommand = ReactiveCommand.CreateFromTask(LinkWithEmailAsync);
             LinkWithGoogleCommand = ReactiveCommand.CreateFromObservable(LinkWithGoogle);
@@ -63,6 +64,7 @@ namespace Playground.Features.Auth
                     SignInWithEmailLinkCommand.ThrownExceptions,
                     SignInWithGoogleCommand.ThrownExceptions,
                     SignInWithFacebookCommand.ThrownExceptions,
+                    SignInWithAppleCommand.ThrownExceptions,
                     SignInWithPhoneNumberCommand.ThrownExceptions,
                     LinkWithEmailCommand.ThrownExceptions,
                     LinkWithGoogleCommand.ThrownExceptions,
@@ -136,6 +138,11 @@ namespace Playground.Features.Auth
         private IObservable<Unit> SignInWithFacebook()
         {
             return _authService.SignInWithFacebook();
+        }
+
+        private IObservable<Unit> SignInWithApple()
+        {
+            return _authService.SignInWithApple();
         }
 
         private IObservable<Unit> SignInWithPhoneNumber()
@@ -324,6 +331,7 @@ namespace Playground.Features.Auth
         public ReactiveCommand<Unit, Unit> SignInWithEmailLinkCommand { get; set; }
         public ReactiveCommand<Unit, Unit> SignInWithGoogleCommand { get; set; }
         public ReactiveCommand<Unit, Unit> SignInWithFacebookCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> SignInWithAppleCommand { get; set; }
         public ReactiveCommand<Unit, Unit> SignInWithPhoneNumberCommand { get; set; }
         public ReactiveCommand<Unit, Unit> LinkWithEmailCommand { get; set; }
         public ReactiveCommand<Unit, Unit> LinkWithGoogleCommand { get; set; }

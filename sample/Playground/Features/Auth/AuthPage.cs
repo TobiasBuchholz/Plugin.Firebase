@@ -69,6 +69,9 @@ namespace Playground.Features.Auth
                     new Button { Text = Localization.ButtonSignInWithFacebook, TextColor = Color.Black }
                         .FillHorizontal()
                         .Bind(nameof(Vm.SignInWithFacebookCommand)),
+                    new Button { Text = Localization.ButtonSignInWithApple, TextColor = Color.Black }
+                        .FillHorizontal()
+                        .Bind(nameof(Vm.SignInWithAppleCommand)),
                     new Button { Text = Localization.ButtonSignInWithPhoneNumber, TextColor = Color.Black }
                         .FillHorizontal()
                         .Bind(nameof(Vm.SignInWithPhoneNumberCommand)),

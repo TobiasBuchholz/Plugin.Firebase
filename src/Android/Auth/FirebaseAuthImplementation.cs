@@ -15,6 +15,7 @@ using Plugin.Firebase.Android.Auth.Google;
 using Plugin.Firebase.Android.Auth.PhoneNumber;
 using Plugin.Firebase.Common;
 using CrossActionCodeSettings = Plugin.Firebase.Auth.ActionCodeSettings;
+using FirebaseAuthException = Firebase.Auth.FirebaseAuthException;
 
 namespace Plugin.Firebase.Auth
 {
@@ -50,19 +51,31 @@ namespace Plugin.Firebase.Auth
 
         public Task VerifyPhoneNumberAsync(string phoneNumber)
         {
-            return _phoneNumberAuth.VerifyPhoneNumberAsync(Activity, phoneNumber);
+            try {
+                return _phoneNumberAuth.VerifyPhoneNumberAsync(Activity, phoneNumber);
+            } catch(Exception e) {
+                throw GetFirebaseAuthException(e);
+            }
         }
 
         public async Task<IFirebaseUser> SignInWithCustomTokenAsync(string token)
         {
-            var authResult = await _firebaseAuth.SignInWithCustomTokenAsync(token);
-            return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
+            try {
+                var authResult = await _firebaseAuth.SignInWithCustomTokenAsync(token);
+                return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
+            } catch(Exception e) {
+                throw GetFirebaseAuthException(e);
+            }
         }
 
         public async Task<IFirebaseUser> SignInWithPhoneNumberVerificationCodeAsync(string verificationCode)
         {
-            var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
-            return await SignInWithCredentialAsync(credential);
+            try {
+                var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
+                return await SignInWithCredentialAsync(credential);
+            } catch(Exception e) {
+                throw GetFirebaseAuthException(e);
+            }
         }
 
         private async Task<IFirebaseUser> SignInWithCredentialAsync(AuthCredential credential)
@@ -76,48 +89,73 @@ namespace Plugin.Firebase.Auth
             try {
                 var credential = await _emailAuth.GetCredentialAsync(email, password);
                 return await SignInWithCredentialAsync(credential);
-            } catch(FirebaseAuthInvalidUserException e) {
-                if(createsUserAutomatically) {
+            } catch(Exception e) {
+                if(e is FirebaseAuthInvalidUserException && createsUserAutomatically) {
                     await CreateUserAsync(email, password);
-                    return await SignInWithEmailAndPasswordAsync(email, password);
+                    return await SignInWithEmailAndPasswordAsync(email, password, false);
+                } else {
+                    throw GetFirebaseAuthException(e);
                 }
-                throw new FirebaseException(e.Message);
             }
         }
 
         public Task CreateUserAsync(string email, string password)
         {
-            return _emailAuth.CreateUserAsync(email, password);
+            try {
+                return _emailAuth.CreateUserAsync(email, password);
+            } catch(Exception e) {
+                throw GetFirebaseAuthException(e);
+            }
         }
 
         public async Task<IFirebaseUser> SignInWithEmailLinkAsync(string email, string link)
         {
-            await _firebaseAuth.SignInWithEmailLink(email, link);
-            return _firebaseAuth.CurrentUser.ToAbstract();
+            try {
+                await _firebaseAuth.SignInWithEmailLink(email, link);
+                return _firebaseAuth.CurrentUser.ToAbstract();
+            } catch(Exception e) {
+                throw GetFirebaseAuthException(e);
+            }
         }
 
         public async Task<IFirebaseUser> SignInWithGoogleAsync()
         {
-            var credential = await _googleAuth.GetCredentialAsync(FragmentActivity);
-            return await SignInWithCredentialAsync(credential);
+            try {
+                var credential = await _googleAuth.GetCredentialAsync(FragmentActivity);
+                return await SignInWithCredentialAsync(credential);
+            } catch(Exception e) {
+                throw GetFirebaseAuthException(e);
+            }
         }
 
         public async Task<IFirebaseUser> SignInWithFacebookAsync()
         {
-            var credential = await _facebookAuth.GetCredentialAsync(Activity);
-            return await SignInWithCredentialAsync(credential);
+            try {
+                var credential = await _facebookAuth.GetCredentialAsync(Activity);
+                return await SignInWithCredentialAsync(credential);
+            } catch(Exception e) {
+                throw GetFirebaseAuthException(e);
+            }
         }
 
         public async Task<IFirebaseUser> SignInAnonymouslyAsync()
         {
-            var authResult = await _firebaseAuth.SignInAnonymouslyAsync();
-            return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
+            try {
+                var authResult = await _firebaseAuth.SignInAnonymouslyAsync();
+                return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
+            } catch(Exception e) {
+                throw GetFirebaseAuthException(e);
+            }
         }
 
         public async Task<IFirebaseUser> LinkWithPhoneNumberVerificationCodeAsync(string verificationCode)
         {
-            var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
-            return await LinkWithCredentialAsync(credential);
+            try {
+                var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
+                return await LinkWithCredentialAsync(credential);
+            } catch(Exception e) {
+                throw GetFirebaseAuthException(e);
+            }
         }
 
         private async Task<IFirebaseUser> LinkWithCredentialAsync(AuthCredential credential)
@@ -128,8 +166,12 @@ namespace Plugin.Firebase.Auth
 
         public async Task<IFirebaseUser> LinkWithEmailAndPasswordAsync(string email, string password)
         {
-            var credential = await _emailAuth.GetCredentialAsync(email, password);
-            return await LinkWithCredentialAsync(credential);
+            try {
+                var credential = await _emailAuth.GetCredentialAsync(email, password);
+                return await LinkWithCredentialAsync(credential);
+            } catch(Exception e) {
+                throw GetFirebaseAuthException(e);
+            }
         }
 
         public async Task<IFirebaseUser> LinkWithGoogleAsync()
@@ -137,9 +179,9 @@ namespace Plugin.Firebase.Auth
             try {
                 var credential = await _googleAuth.GetCredentialAsync(FragmentActivity);
                 return await LinkWithCredentialAsync(credential);
-            } catch(Exception) {
+            } catch(Exception e) {
                 await _googleAuth.SignOutAsync();
-                throw;
+                throw GetFirebaseAuthException(e);
             }
         }
 
@@ -148,32 +190,48 @@ namespace Plugin.Firebase.Auth
             try {
                 var credential = await _facebookAuth.GetCredentialAsync(Activity);
                 return await LinkWithCredentialAsync(credential);
-            } catch(Exception) {
+            } catch(Exception e) {
                 _facebookAuth.SignOut();
-                throw;
+                throw GetFirebaseAuthException(e);
             }
         }
 
         public async Task<string[]> FetchSignInMethodsAsync(string email)
         {
-            var result = await _firebaseAuth.FetchSignInMethodsForEmail(email).AsAsync<ISignInMethodQueryResult>();
-            return result?.SignInMethods?.ToArray();
+            try {
+                var result = await _firebaseAuth.FetchSignInMethodsForEmail(email).AsAsync<ISignInMethodQueryResult>();
+                return result?.SignInMethods?.ToArray();
+            } catch(Exception e) {
+                throw GetFirebaseAuthException(e);
+            }
         }
 
         public async Task SendSignInLink(string toEmail, CrossActionCodeSettings actionCodeSettings)
         {
-            await _firebaseAuth.SendSignInLinkToEmail(toEmail, actionCodeSettings.ToNative());
+            try {
+                await _firebaseAuth.SendSignInLinkToEmail(toEmail, actionCodeSettings.ToNative());
+            } catch(Exception e) {
+                throw GetFirebaseAuthException(e);
+            }
         }
 
         public Task SignOutAsync()
         {
-            _firebaseAuth.SignOut();
-            return _googleAuth.SignOutAsync();
+            try {
+                _firebaseAuth.SignOut();
+                return _googleAuth.SignOutAsync();
+            } catch(Exception e) {
+                throw GetFirebaseAuthException(e);
+            }
         }
 
         public bool IsSignInWithEmailLink(string link)
         {
-            return _firebaseAuth.IsSignInWithEmailLink(link);
+            try {
+                return _firebaseAuth.IsSignInWithEmailLink(link);
+            } catch(Exception e) {
+                throw GetFirebaseAuthException(e);
+            }
         }
 
         public void UseEmulator(string host, int port)
@@ -191,5 +249,23 @@ namespace Plugin.Firebase.Auth
             CrossCurrentActivity.Current.AppContext ?? throw new NullReferenceException("AppContext is null, ensure that the MainApplication.cs file is setting the CurrentActivity in your source code so the Firebase Analytics can use it.");
 
         public IFirebaseUser CurrentUser => _firebaseAuth.CurrentUser?.ToAbstract();
+
+        private static Common.FirebaseAuthException GetFirebaseAuthException(Exception ex)
+        {
+            switch(ex) {
+                case FirebaseAuthEmailException:
+                    return new Common.FirebaseAuthException(FIRAuthError.InvalidEmail, ex.Message);
+                case FirebaseAuthInvalidUserException:
+                    return new Common.FirebaseAuthException(FIRAuthError.UserNotFound, ex.Message);
+                case FirebaseAuthWeakPasswordException:
+                    return new Common.FirebaseAuthException(FIRAuthError.WeakPassword, ex.Message);
+                case FirebaseAuthInvalidCredentialsException:
+                    return new Common.FirebaseAuthException(FIRAuthError.InvalidCredential, ex.Message);
+                case FirebaseAuthUserCollisionException:
+                    return new Common.FirebaseAuthException(FIRAuthError.EmailAlreadyInUse, ex.Message);
+                default:
+                    return new Common.FirebaseAuthException(FIRAuthError.Undefined, ex.Message);
+            }
+        }
     }
 }

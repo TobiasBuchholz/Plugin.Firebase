@@ -116,10 +116,10 @@ namespace Plugin.Firebase.Auth
             }
         }
 
-        public Task CreateUserAsync(string email, string password)
+        public async Task CreateUserAsync(string email, string password)
         {
             try {
-                return _emailAuth.CreateUserAsync(email, password);
+                await _emailAuth.CreateUserAsync(email, password);
             } catch(NSErrorException e) {
                 throw GetFirebaseAuthException(e);
             }
@@ -213,19 +213,19 @@ namespace Plugin.Firebase.Auth
             }
         }
 
-        public Task<string[]> FetchSignInMethodsAsync(string email)
+        public async Task<string[]> FetchSignInMethodsAsync(string email)
         {
             try {
-                return _firebaseAuth.FetchSignInMethodsAsync(email);
+                await _firebaseAuth.FetchSignInMethodsAsync(email);
             } catch(NSErrorException e) {
                 throw GetFirebaseAuthException(e);
             }
         }
 
-        public Task SendSignInLink(string toEmail, CrossActionCodeSettings actionCodeSettings)
+        public async Task SendSignInLink(string toEmail, CrossActionCodeSettings actionCodeSettings)
         {
             try {
-                return _firebaseAuth.SendSignInLinkAsync(toEmail, actionCodeSettings.ToNative());
+                await _firebaseAuth.SendSignInLinkAsync(toEmail, actionCodeSettings.ToNative());
             } catch(NSErrorException e) {
                 throw GetFirebaseAuthException(e);
             }

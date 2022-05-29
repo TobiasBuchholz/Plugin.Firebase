@@ -49,10 +49,10 @@ namespace Plugin.Firebase.Auth
             _phoneNumberAuth = new PhoneNumberAuth();
         }
 
-        public Task VerifyPhoneNumberAsync(string phoneNumber)
+        public async Task VerifyPhoneNumberAsync(string phoneNumber)
         {
             try {
-                return _phoneNumberAuth.VerifyPhoneNumberAsync(Activity, phoneNumber);
+                await _phoneNumberAuth.VerifyPhoneNumberAsync(Activity, phoneNumber);
             } catch(Exception e) {
                 throw GetFirebaseAuthException(e);
             }
@@ -99,10 +99,10 @@ namespace Plugin.Firebase.Auth
             }
         }
 
-        public Task CreateUserAsync(string email, string password)
+        public async Task CreateUserAsync(string email, string password)
         {
             try {
-                return _emailAuth.CreateUserAsync(email, password);
+                await _emailAuth.CreateUserAsync(email, password);
             } catch(Exception e) {
                 throw GetFirebaseAuthException(e);
             }
@@ -215,11 +215,11 @@ namespace Plugin.Firebase.Auth
             }
         }
 
-        public Task SignOutAsync()
+        public async Task SignOutAsync()
         {
             try {
                 _firebaseAuth.SignOut();
-                return _googleAuth.SignOutAsync();
+                await _googleAuth.SignOutAsync();
             } catch(Exception e) {
                 throw GetFirebaseAuthException(e);
             }

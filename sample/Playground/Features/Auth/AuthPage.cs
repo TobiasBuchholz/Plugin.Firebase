@@ -49,32 +49,34 @@ namespace Playground.Features.Auth
                 .Margin(24);
         }
 
-        private static StackLayout CreateSignInButtonsLayout()
+        private static ScrollView CreateSignInButtonsLayout()
         {
-            return new StackLayout {
-                Orientation = StackOrientation.Vertical,
-                Children = {
-                    new Button { Text = Localization.ButtonSignInAnonymously, TextColor = Color.Black }
-                        .FillHorizontal()
-                        .Bind(nameof(Vm.SignInAnonymouslyCommand)),
-                    new Button { Text = Localization.ButtonSignInWithEmail, TextColor = Color.Black }
-                        .FillHorizontal()
-                        .Bind(nameof(Vm.SignInWithEmailCommand)),
-                    new Button { Text = Localization.ButtonSignInWithEmailLink, TextColor = Color.Black }
-                        .FillHorizontal()
-                        .Bind(nameof(Vm.SignInWithEmailLinkCommand)),
-                    new Button { Text = Localization.ButtonSignInWithGoogle, TextColor = Color.Black }
-                        .FillHorizontal()
-                        .Bind(nameof(Vm.SignInWithGoogleCommand)),
-                    new Button { Text = Localization.ButtonSignInWithFacebook, TextColor = Color.Black }
-                        .FillHorizontal()
-                        .Bind(nameof(Vm.SignInWithFacebookCommand)),
-                    new Button { Text = Localization.ButtonSignInWithApple, TextColor = Color.Black }
-                        .FillHorizontal()
-                        .Bind(nameof(Vm.SignInWithAppleCommand)),
-                    new Button { Text = Localization.ButtonSignInWithPhoneNumber, TextColor = Color.Black }
-                        .FillHorizontal()
-                        .Bind(nameof(Vm.SignInWithPhoneNumberCommand)),
+            return new ScrollView {
+                Content = new StackLayout {
+                    Orientation = StackOrientation.Vertical,
+                    Children = {
+                      new Button { Text = Localization.ButtonSignInAnonymously, TextColor = Color.Black }
+                          .FillHorizontal()
+                          .Bind(nameof(Vm.SignInAnonymouslyCommand)),
+                      new Button { Text = Localization.ButtonSignInWithEmail, TextColor = Color.Black }
+                          .FillHorizontal()
+                          .Bind(nameof(Vm.SignInWithEmailCommand)),
+                      new Button { Text = Localization.ButtonSignInWithEmailLink, TextColor = Color.Black }
+                          .FillHorizontal()
+                          .Bind(nameof(Vm.SignInWithEmailLinkCommand)),
+                      new Button { Text = Localization.ButtonSignInWithGoogle, TextColor = Color.Black }
+                          .FillHorizontal()
+                          .Bind(nameof(Vm.SignInWithGoogleCommand)),
+                      new Button { Text = Localization.ButtonSignInWithFacebook, TextColor = Color.Black }
+                          .FillHorizontal()
+                          .Bind(nameof(Vm.SignInWithFacebookCommand)),
+                      new Button { Text = Localization.ButtonSignInWithApple, TextColor = Color.Black }
+                          .FillHorizontal()
+                          .Bind(nameof(Vm.SignInWithAppleCommand)),
+                      new Button { Text = Localization.ButtonSignInWithPhoneNumber, TextColor = Color.Black }
+                          .FillHorizontal()
+                          .Bind(nameof(Vm.SignInWithPhoneNumberCommand)),
+                    }
                 }
             };
         }

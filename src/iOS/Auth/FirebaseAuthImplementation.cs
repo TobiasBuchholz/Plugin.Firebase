@@ -153,18 +153,14 @@ namespace Plugin.Firebase.Auth
                 WebAuthenticatorResult appleAuthResult = null;
                 OAuthCredential credential = null;
 
-                if(DeviceInfo.Platform == DevicePlatform.iOS
-                    && DeviceInfo.Version.Major >= 13) {
+                if(DeviceInfo.Platform == DevicePlatform.iOS && DeviceInfo.Version.Major >= 13) {
                     var options = new AppleSignInAuthenticator.Options { IncludeEmailScope = true };
-
-                    // Use Native Apple Sign In API's
                     appleAuthResult = await AppleSignInAuthenticator.AuthenticateAsync(options);
                 } else {
                     throw new PlatformNotSupportedException();
                 }
 
-                if(appleAuthResult != null
-                    && !String.IsNullOrEmpty(appleAuthResult.IdToken)) {
+                if(appleAuthResult != null && !String.IsNullOrEmpty(appleAuthResult.IdToken)) {
                     credential = OAuthProvider.GetCredential("apple.com", appleAuthResult.IdToken, null);
                 } else {
                     throw new ApplicationException("Cannot authenticate user with Native Apple Sign In API");

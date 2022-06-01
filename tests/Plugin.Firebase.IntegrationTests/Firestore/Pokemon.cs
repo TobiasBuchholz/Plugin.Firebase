@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Android.Runtime;
 using Plugin.Firebase.Common;
 using Plugin.Firebase.Firestore;
@@ -38,6 +39,31 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             FirstSightingLocation = firstSightingLocation;
             Evolutions = evolutions;
             CreationDate = DateTimeOffset.Now;
+        }
+
+        /// <summary>
+        /// Get a clone from the current pokemon
+        /// </summary>
+        /// <returns>A copy of the current pokemon</returns>
+        public Pokemon Clone()
+        {
+            var copy = new Pokemon(
+                id: "copy-of-" + this.Id,
+                name: this.Name,
+                weightInKg: this.WeightInKg,
+                heightInCm: this.HeightInCm,
+                isFromFirstGeneration: this.IsFromFirstGeneration,
+                pokeType: this.PokeType,
+                moves: this.Moves.ToList(),
+                firstSightingLocation: this.FirstSightingLocation,
+                evolutions: this.Evolutions.ToList()
+                );
+
+            copy.OriginalReference = CrossFirebaseFirestore.Current
+                    .GetCollection("pokemons")
+                    .GetDocument(this.Id);
+
+            return copy;
         }
 
         public override bool Equals(object obj)
@@ -94,5 +120,8 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
 
         [FirestoreProperty("creation_date")]
         public DateTimeOffset CreationDate { get; private set; }
+
+        [FirestoreProperty(nameof(OriginalReference))]
+        public IDocumentReference OriginalReference { get; set; }
     }
 }

@@ -391,21 +391,21 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         }
 
         [Fact]
-        public async Task clone_pokemon()
+        public async Task clones_pokemon_with_original_reference()
         {
             var sut = CrossFirebaseFirestore.Current;
-            var pokemon = PokemonFactory.CreateBulbasur();
+            var bulbasurReference = sut.GetDocument($"pokemons/1");
+            var bulbasur = (await bulbasurReference.GetDocumentSnapshotAsync<Pokemon>()).Data;
+            var copy = bulbasur.Clone(bulbasurReference);
+            var copyPath = $"testing/{copy.Id}";
+            var copyDocument = sut.GetDocument(copyPath);
+            await copyDocument.SetDataAsync(copy);
 
-            var copy = pokemon.Clone();
-            var path = $"testing/{copy.Id}";
-            var document = sut.GetDocument(path);
-            await document.SetDataAsync(copy);
-
-            var snapshot = await document.GetDocumentSnapshotAsync<Pokemon>();
-            Assert.False(snapshot.Metadata.HasPendingWrites);
-            Assert.Equal("copy-of-" + pokemon.Id, snapshot.Reference.Id);
-            Assert.Equal(path, snapshot.Reference.Path);
-            Assert.Equal(copy, snapshot.Data);
+            var copySnapshot = await copyDocument.GetDocumentSnapshotAsync<Pokemon>();
+            Assert.False(copySnapshot.Metadata.HasPendingWrites);
+            Assert.Equal($"{bulbasur.Id}_copied", copySnapshot.Reference.Id);
+            Assert.Equal(copyPath, copySnapshot.Reference.Path);
+            Assert.Equal(copy, copySnapshot.Data);
         }
 
         public async Task DisposeAsync()

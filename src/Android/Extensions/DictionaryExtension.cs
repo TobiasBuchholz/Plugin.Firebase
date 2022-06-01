@@ -62,6 +62,9 @@ namespace System.Collections.Generic
                 case IDictionary x:
                     @this.Put(key.ToString(), x.ToHashMapFromNonGenericDict());
                     break;
+                case IDocumentReference x:
+                    @this.Put(key.ToString(), x.ToJavaObject());
+                    break;
                 default:
                     if(value == null) {
                         @this.Put(key.ToString(), null);

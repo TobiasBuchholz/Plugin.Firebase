@@ -26,7 +26,8 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             PokeType pokeType = default(PokeType),
             IList<string> moves = null,
             SightingLocation firstSightingLocation = null,
-            IList<Pokemon> evolutions = null)
+            IList<Pokemon> evolutions = null,
+            IDocumentReference originalReference = null)
         {
             Id = id;
             Name = name;
@@ -39,16 +40,18 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             FirstSightingLocation = firstSightingLocation;
             Evolutions = evolutions;
             CreationDate = DateTimeOffset.Now;
+            OriginalReference = originalReference;
         }
 
         /// <summary>
         /// Get a clone from the current pokemon
         /// </summary>
+        /// <param name="originalReference">Reference to the original document that shall be cloned</param>
         /// <returns>A copy of the current pokemon</returns>
-        public Pokemon Clone()
+        public Pokemon Clone(IDocumentReference originalReference)
         {
-            var copy = new Pokemon(
-                id: "copy-of-" + this.Id,
+            return new Pokemon(
+                id: $"{this.Id}_copied",
                 name: this.Name,
                 weightInKg: this.WeightInKg,
                 heightInCm: this.HeightInCm,
@@ -56,14 +59,8 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 pokeType: this.PokeType,
                 moves: this.Moves.ToList(),
                 firstSightingLocation: this.FirstSightingLocation,
-                evolutions: this.Evolutions.ToList()
-                );
-
-            copy.OriginalReference = CrossFirebaseFirestore.Current
-                    .GetCollection("pokemons")
-                    .GetDocument(this.Id);
-
-            return copy;
+                evolutions: this.Evolutions.ToList(),
+                originalReference: originalReference);
         }
 
         public override bool Equals(object obj)
@@ -121,7 +118,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         [FirestoreProperty("creation_date")]
         public DateTimeOffset CreationDate { get; private set; }
 
-        [FirestoreProperty(nameof(OriginalReference))]
-        public IDocumentReference OriginalReference { get; set; }
+        [FirestoreProperty("original_reference")]
+        public IDocumentReference OriginalReference { get; private set; }
     }
 }

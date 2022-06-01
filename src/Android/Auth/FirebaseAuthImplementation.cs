@@ -108,6 +108,11 @@ namespace Plugin.Firebase.Auth
             return await SignInWithCredentialAsync(credential);
         }
 
+        public Task<IFirebaseUser> SignInWithAppleAsync()
+        {
+            throw new PlatformNotSupportedException();
+        }
+
         public async Task<IFirebaseUser> SignInAnonymouslyAsync()
         {
             var authResult = await _firebaseAuth.SignInAnonymouslyAsync();

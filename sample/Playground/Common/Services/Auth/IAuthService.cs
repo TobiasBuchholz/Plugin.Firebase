@@ -12,6 +12,7 @@ namespace Playground.Common.Services.Auth
         IObservable<Unit> SignInWithEmailLink(string email, string link);
         IObservable<Unit> SignInWithGoogle();
         IObservable<Unit> SignInWithFacebook();
+        IObservable<Unit> SignInWithApple();
         IObservable<Unit> VerifyPhoneNumber(string phoneNumber);
         IObservable<Unit> SignInWithPhoneNumberVerificationCode(string verificationCode);
         IObservable<Unit> LinkWithEmailAndPassword(string email, string password);

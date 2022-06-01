@@ -9,18 +9,18 @@
         <DefineConstants>TRACE;DEBUG;NETSTANDARD;NETSTANDARD2_0;LOGGING;</DefineConstants>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Genesis.Observables" Version="3.0.0"/>
-        <PackageReference Include="ReactiveUI" Version="12.1.5"/>
-        <PackageReference Include="ReactiveUI.Fody" Version="12.1.5"/>
-        <PackageReference Include="ReactiveUI.XamForms" Version="12.1.5"/>
-        <PackageReference Include="Xamarin.CommunityToolkit" Version="1.0.1"/>
-        <PackageReference Include="Xamarin.CommunityToolkit.Markup" Version="1.0.1"/>
-        <PackageReference Include="Xamarin.Forms" Version="5.0.0.1874"/>
-        <PackageReference Include="Xamarin.Essentials" Version="1.6.0"/>
+        <PackageReference Include="Genesis.Observables" Version="3.0.0" />
+        <PackageReference Include="ReactiveUI" Version="12.1.5" />
+        <PackageReference Include="ReactiveUI.Fody" Version="12.1.5" />
+        <PackageReference Include="ReactiveUI.XamForms" Version="12.1.5" />
+        <PackageReference Include="Xamarin.CommunityToolkit" Version="1.0.1" />
+        <PackageReference Include="Xamarin.CommunityToolkit.Markup" Version="1.0.1" />
+        <PackageReference Include="Xamarin.Forms" Version="5.0.0.1874" />
+        <PackageReference Include="Xamarin.Essentials" Version="1.7.3" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Plugin.Firebase.csproj"/>
-        <ProjectReference Include="..\Playground.Utility\Playground.Utility.csproj"/>
+        <ProjectReference Include="..\..\src\Plugin.Firebase.csproj" />
+        <ProjectReference Include="..\Playground.Utility\Playground.Utility.csproj" />
     </ItemGroup>
     <ItemGroup>
         <EmbeddedResource Update="Resources\Localization.resx">

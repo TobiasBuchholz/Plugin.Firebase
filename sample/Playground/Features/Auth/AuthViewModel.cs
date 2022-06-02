@@ -56,7 +56,7 @@ namespace Playground.Features.Auth
             LinkWithPhoneNumberCommand = ReactiveCommand.CreateFromObservable(LinkWithPhoneNumber);
             UnlinkProviderCommand = ReactiveCommand.CreateFromObservable(UnlinkProvider);
             SignOutCommand = ReactiveCommand.CreateFromObservable(SignOut, canSignOut);
-            ResetPasswordByEmailCommand = ReactiveCommand.CreateFromObservable(ResetPasswordByEmail);
+            SendPasswordResetEmailCommand = ReactiveCommand.CreateFromObservable(SendPasswordResetEmail);
 
             Observable
                 .Merge(
@@ -73,7 +73,7 @@ namespace Playground.Features.Auth
                     LinkWithPhoneNumberCommand.ThrownExceptions,
                     UnlinkProviderCommand.ThrownExceptions,
                     SignOutCommand.ThrownExceptions,
-                    ResetPasswordByEmailCommand.ThrownExceptions)
+                    SendPasswordResetEmailCommand.ThrownExceptions)
                 .LogThrownException()
                 .Subscribe(e => _userInteractionService.ShowErrorDialogAsync(Localization.DialogTitleUnexpectedError, e))
                 .DisposeWith(Disposables);
@@ -246,9 +246,20 @@ namespace Playground.Features.Auth
             return _authService.SignOut();
         }
 
-        private IObservable<Unit> ResetPasswordByEmail()
+        private IObservable<Unit> SendPasswordResetEmail()
         {
-            return _authService.SendPasswordResetEmail();
+            return _authService
+                .SendPasswordResetEmail()
+                .SelectMany(_ => ShowPasswordResetSuccessfulDialog().ToObservable());
+        }
+
+        private Task ShowPasswordResetSuccessfulDialog()
+        {
+            return _userInteractionService.ShowAsDialogAsync(new UserInfoBuilder()
+                .WithTitle(Localization.DialogTitlePasswordResetSuccessful)
+                .WithMessage(Localization.DialogMessagePasswordResetSuccessful)
+                .WithDefaultButton(Localization.Ok)
+                .Build());
         }
 
         private void InitProperties()
@@ -346,6 +357,6 @@ namespace Playground.Features.Auth
         public ReactiveCommand<Unit, Unit> LinkWithPhoneNumberCommand { get; set; }
         public ReactiveCommand<Unit, Unit> UnlinkProviderCommand { get; set; }
         public ReactiveCommand<Unit, Unit> SignOutCommand { get; set; }
-        public ReactiveCommand<Unit, Unit> ResetPasswordByEmailCommand { get; set; }
+        public ReactiveCommand<Unit, Unit> SendPasswordResetEmailCommand { get; set; }
     }
 }

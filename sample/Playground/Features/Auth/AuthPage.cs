@@ -75,10 +75,7 @@ namespace Playground.Features.Auth
                           .Bind(nameof(Vm.SignInWithAppleCommand)),
                       new Button { Text = Localization.ButtonSignInWithPhoneNumber, TextColor = Color.Black }
                           .FillHorizontal()
-                          .Bind(nameof(Vm.SignInWithPhoneNumberCommand)),
-                      new Button { Text = Localization.ButtonSendEmailToResetPassword, TextColor = Color.Black }
-                          .FillHorizontal()
-                          .Bind(nameof(Vm.ResetPasswordByEmailCommand))
+                          .Bind(nameof(Vm.SignInWithPhoneNumberCommand))
                     }
                 }
             };
@@ -113,6 +110,9 @@ namespace Playground.Features.Auth
                     new Button { Text = Localization.ButtonUnlinkProvider, TextColor = Color.Black }
                         .FillHorizontal()
                         .Bind(nameof(Vm.UnlinkProviderCommand)),
+                    new Button { Text = Localization.ButtonSendEmailToResetPassword, TextColor = Color.Black }
+                        .FillHorizontal()
+                        .Bind(nameof(Vm.SendPasswordResetEmailCommand)),
                     new Button { Text = Localization.ButtonSignOut, TextColor = Color.Black }
                         .FillHorizontal()
                         .Bind(nameof(Vm.SignOutCommand))

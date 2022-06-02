@@ -61,7 +61,7 @@ namespace Plugin.Firebase.Auth
             _facebookAuth = new FacebookAuth();
             _phoneNumberAuth = new PhoneNumberAuth();
 
-            // NOTE : apply the default app language for sending emails
+            // apply the default app language for sending emails
             _firebaseAuth.UseAppLanguage();
         }
 
@@ -258,7 +258,11 @@ namespace Plugin.Firebase.Auth
 
         public Task SendPasswordResetEmailAsync()
         {
-            return _firebaseAuth.SendPasswordResetAsync(_firebaseAuth.CurrentUser.Email);
+            if(_firebaseAuth.CurrentUser == null) {
+                throw new FirebaseException("CurrentUser is null. You need to be logged in to use this feature.");
+            } else {
+                return _firebaseAuth.SendPasswordResetAsync(_firebaseAuth.CurrentUser.Email);
+            }
         }
 
         public void UseEmulator(string host, int port)

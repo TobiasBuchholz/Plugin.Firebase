@@ -163,6 +163,12 @@
 	<data name="DialogMessageEnterCloudMessageBody">
 		<value>Enter some message you want to receive</value>
 	</data>
+    <data name="DialogTitlePasswordResetSuccessful">
+        <value>Password reset</value>
+    </data>
+    <data name="DialogMessagePasswordResetSuccessful">
+        <value>You should've received an email with a link to reset your password, check out your email inbox.</value>
+    </data>
 	<!-- common -->
 	<data name="Ok">
 		<value>OK</value>

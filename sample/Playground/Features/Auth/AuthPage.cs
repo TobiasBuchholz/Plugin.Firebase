@@ -76,6 +76,9 @@ namespace Playground.Features.Auth
                       new Button { Text = Localization.ButtonSignInWithPhoneNumber, TextColor = Color.Black }
                           .FillHorizontal()
                           .Bind(nameof(Vm.SignInWithPhoneNumberCommand)),
+                      new Button { Text = Localization.ButtonSendEmailToResetPassword, TextColor = Color.Black }
+                          .FillHorizontal()
+                          .Bind(nameof(Vm.ResetPasswordByEmailCommand))
                     }
                 }
             };

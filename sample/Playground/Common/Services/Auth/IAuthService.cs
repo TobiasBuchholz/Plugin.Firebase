@@ -22,6 +22,7 @@ namespace Playground.Common.Services.Auth
         IObservable<Unit> UnlinkProvider(string providerId);
         IObservable<Unit> SignOut();
         IObservable<string[]> FetchSignInMethods(string email);
+        IObservable<Unit> SendPasswordResetEmail();
 
         bool IsSignInWithEmailLink(string link);
         IFirebaseUser CurrentUser { get; }

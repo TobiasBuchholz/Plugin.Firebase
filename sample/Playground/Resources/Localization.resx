@@ -104,6 +104,9 @@
 	<data name="ButtonTriggerNotification">
 		<value>Trigger notification</value>
 	</data>
+    <data name="ButtonSendEmailToResetPassword">
+        <value>Reset password by email</value>
+    </data>
 	<!-- labels -->
 	<data name="LabelUserIsSignedIn">
 		<value>You are signed in:

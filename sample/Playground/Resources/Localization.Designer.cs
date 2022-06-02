@@ -148,6 +148,15 @@ namespace Playground.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Reset password by email.
+        /// </summary>
+        internal static string ButtonSendEmailToResetPassword {
+            get {
+                return ResourceManager.GetString("ButtonSendEmailToResetPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Send verification code.
         /// </summary>
         internal static string ButtonSendVerificationCode {

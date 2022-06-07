@@ -298,6 +298,11 @@ namespace Plugin.Firebase.Auth
             }
         }
 
+        public Task SendPasswordResetEmailAsync(string email)
+        {
+            return _firebaseAuth.SendPasswordResetAsync(email);
+        }
+
         public void UseEmulator(string host, int port)
         {
             _firebaseAuth.UseEmulatorWithHost(host, port);

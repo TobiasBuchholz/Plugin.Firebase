@@ -29,17 +29,6 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         }
 
         [Fact]
-        public async Task throws_error_if_user_already_exists_and_should_not_be_created_with_email_and_password()
-        {
-            var sut = CrossFirebaseAuth.Current;
-            await sut.CreateUserAsync("created-user@test.com", "123456");
-
-            Assert.NotNull(sut.CurrentUser);
-
-            await Assert.ThrowsAnyAsync<FirebaseAuthException>(() => sut.CreateUserAsync("created-user@test.com", "123456"));
-        }
-
-        [Fact]
         public async Task signs_in_user_via_email_and_password()
         {
             var sut = CrossFirebaseAuth.Current;
@@ -52,11 +41,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         public async Task throws_error_if_credentials_are_invalid_when_signing_in_user_via_email_and_password()
         {
             var sut = CrossFirebaseAuth.Current;
-            await sut.CreateUserAsync("sign-in-with-pw@test.com", "123456");
-
-            Assert.NotNull(sut.CurrentUser);
-
-            await Assert.ThrowsAnyAsync<FirebaseAuthException>(() => sut.SignInWithEmailAndPasswordAsync("sign-in-with-pw@test.com", "000000"));
+            await Assert.ThrowsAnyAsync<FirebaseAuthException>(() => sut.SignInWithEmailAndPasswordAsync("sign-in-with-pw@test.com", "000000", createsUserAutomatically: false));
         }
 
         [Fact]

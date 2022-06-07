@@ -15,7 +15,7 @@ using Plugin.Firebase.Android.Auth.Google;
 using Plugin.Firebase.Android.Auth.PhoneNumber;
 using Plugin.Firebase.Common;
 using CrossActionCodeSettings = Plugin.Firebase.Auth.ActionCodeSettings;
-using FirebaseAuthException = Firebase.Auth.FirebaseAuthException;
+using CrossFirebaseAuthException = Plugin.Firebase.Common.FirebaseAuthException;
 
 namespace Plugin.Firebase.Auth
 {
@@ -61,6 +61,18 @@ namespace Plugin.Firebase.Auth
             }
         }
 
+        private static CrossFirebaseAuthException GetFirebaseAuthException(Exception ex)
+        {
+            return ex switch {
+                FirebaseAuthEmailException => new CrossFirebaseAuthException(FIRAuthError.InvalidEmail, ex.Message),
+                FirebaseAuthInvalidUserException => new CrossFirebaseAuthException(FIRAuthError.UserNotFound, ex.Message),
+                FirebaseAuthWeakPasswordException => new CrossFirebaseAuthException(FIRAuthError.WeakPassword, ex.Message),
+                FirebaseAuthInvalidCredentialsException => new CrossFirebaseAuthException(FIRAuthError.InvalidCredential, ex.Message),
+                FirebaseAuthUserCollisionException => new CrossFirebaseAuthException(FIRAuthError.EmailAlreadyInUse, ex.Message),
+                _ => new CrossFirebaseAuthException(FIRAuthError.Undefined, ex.Message)
+            };
+        }
+
         public async Task<IFirebaseUser> SignInWithCustomTokenAsync(string token)
         {
             try {
@@ -96,9 +108,8 @@ namespace Plugin.Firebase.Auth
                 if(e is FirebaseAuthInvalidUserException && createsUserAutomatically) {
                     await CreateUserAsync(email, password);
                     return await SignInWithEmailAndPasswordAsync(email, password, false);
-                } else {
-                    throw GetFirebaseAuthException(e);
                 }
+                throw GetFirebaseAuthException(e);
             }
         }
 
@@ -266,23 +277,5 @@ namespace Plugin.Firebase.Auth
             CrossCurrentActivity.Current.AppContext ?? throw new NullReferenceException("AppContext is null, ensure that the MainApplication.cs file is setting the CurrentActivity in your source code so the Firebase Analytics can use it.");
 
         public IFirebaseUser CurrentUser => _firebaseAuth.CurrentUser?.ToAbstract();
-
-        private static Common.FirebaseAuthException GetFirebaseAuthException(Exception ex)
-        {
-            switch(ex) {
-                case FirebaseAuthEmailException:
-                    return new Common.FirebaseAuthException(FIRAuthError.InvalidEmail, ex.Message);
-                case FirebaseAuthInvalidUserException:
-                    return new Common.FirebaseAuthException(FIRAuthError.UserNotFound, ex.Message);
-                case FirebaseAuthWeakPasswordException:
-                    return new Common.FirebaseAuthException(FIRAuthError.WeakPassword, ex.Message);
-                case FirebaseAuthInvalidCredentialsException:
-                    return new Common.FirebaseAuthException(FIRAuthError.InvalidCredential, ex.Message);
-                case FirebaseAuthUserCollisionException:
-                    return new Common.FirebaseAuthException(FIRAuthError.EmailAlreadyInUse, ex.Message);
-                default:
-                    return new Common.FirebaseAuthException(FIRAuthError.Undefined, ex.Message);
-            }
-        }
     }
 }

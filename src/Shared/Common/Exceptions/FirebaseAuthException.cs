@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Plugin.Firebase.Common
 {
@@ -45,7 +45,7 @@ namespace Plugin.Firebase.Common
 
     public class FirebaseAuthException : FirebaseException
     {
-        public FIRAuthError Reason { get; set; }
+        public FIRAuthError Reason { get; }
 
         public FirebaseAuthException(FIRAuthError reason)
         {

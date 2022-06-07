@@ -74,6 +74,19 @@ namespace Plugin.Firebase.Auth
             }
         }
 
+        private static FirebaseAuthException GetFirebaseAuthException(NSErrorException ex)
+        {
+            AuthErrorCode errorCode;
+            if(IntPtr.Size == 8) { // 64 bits devices
+                errorCode = (AuthErrorCode) (long) ex.Error.Code;
+            } else { // 32 bits devices
+                errorCode = (AuthErrorCode) (int) ex.Error.Code;
+            }
+
+            Enum.TryParse(errorCode.ToString(), out FIRAuthError authError);
+            return new FirebaseAuthException(authError, ex.Error.LocalizedDescription);
+        }
+
         public async Task<IFirebaseUser> SignInWithCustomTokenAsync(string token)
         {
             try {
@@ -114,9 +127,8 @@ namespace Plugin.Firebase.Auth
                 if(e.Code == (long) AuthErrorCode.UserNotFound && createsUserAutomatically) {
                     await CreateUserAsync(email, password);
                     return await SignInWithEmailAndPasswordAsync(email, password, false);
-                } else {
-                    throw GetFirebaseAuthException(e);
                 }
+                throw GetFirebaseAuthException(e);
             }
         }
 
@@ -302,19 +314,5 @@ namespace Plugin.Firebase.Auth
         }
 
         public IFirebaseUser CurrentUser => _firebaseAuth.CurrentUser?.ToAbstract();
-
-        private static FirebaseAuthException GetFirebaseAuthException(NSErrorException ex)
-        {
-            AuthErrorCode errorCode;
-            if(IntPtr.Size == 8) // 64 bits devices
-                errorCode = (AuthErrorCode) ((long) ex.Error.Code);
-            else // 32 bits devices
-                errorCode = (AuthErrorCode) ((int) ex.Error.Code);
-
-            FIRAuthError authError;
-            Enum.TryParse(errorCode.ToString(), out authError);
-
-            return new FirebaseAuthException(authError, ex.Error.LocalizedDescription);
-        }
     }
 }

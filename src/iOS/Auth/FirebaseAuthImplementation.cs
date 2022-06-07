@@ -70,7 +70,7 @@ namespace Plugin.Firebase.Auth
             try {
                 await _phoneNumberAuth.VerifyPhoneNumberAsync(ViewController, phoneNumber);
             } catch(NSErrorException e) {
-                throw new FirebaseException(e.Error?.LocalizedDescription);
+                throw GetFirebaseAuthException(e);
             }
         }
 
@@ -80,7 +80,7 @@ namespace Plugin.Firebase.Auth
                 var user = await _firebaseAuth.SignInWithCustomTokenAsync(token);
                 return user.User.ToAbstract();
             } catch(NSErrorException e) {
-                throw new FirebaseException(e.Error?.LocalizedDescription);
+                throw GetFirebaseAuthException(e);
             }
         }
 
@@ -95,7 +95,7 @@ namespace Plugin.Firebase.Auth
                 var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
                 return await SignInWithCredentialAsync(credential);
             } catch(NSErrorException e) {
-                throw new FirebaseException(e.Error?.LocalizedDescription);
+                throw GetFirebaseAuthException(e);
             }
         }
 
@@ -113,21 +113,30 @@ namespace Plugin.Firebase.Auth
             } catch(NSErrorException e) {
                 if(e.Code == (long) AuthErrorCode.UserNotFound && createsUserAutomatically) {
                     await CreateUserAsync(email, password);
-                    return await SignInWithEmailAndPasswordAsync(email, password);
+                    return await SignInWithEmailAndPasswordAsync(email, password, false);
+                } else {
+                    throw GetFirebaseAuthException(e);
                 }
-                throw new FirebaseException(e.Error?.LocalizedDescription);
             }
         }
 
-        public Task CreateUserAsync(string email, string password)
+        public async Task CreateUserAsync(string email, string password)
         {
-            return _emailAuth.CreateUserAsync(email, password);
+            try {
+                await _emailAuth.CreateUserAsync(email, password);
+            } catch(NSErrorException e) {
+                throw GetFirebaseAuthException(e);
+            }
         }
 
         public async Task<IFirebaseUser> SignInWithEmailLinkAsync(string email, string link)
         {
-            var authResult = await _firebaseAuth.SignInWithLinkAsync(email, link);
-            return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
+            try {
+                var authResult = await _firebaseAuth.SignInWithLinkAsync(email, link);
+                return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
+            } catch(NSErrorException e) {
+                throw GetFirebaseAuthException(e);
+            }
         }
 
         public async Task<IFirebaseUser> SignInWithGoogleAsync()
@@ -136,7 +145,7 @@ namespace Plugin.Firebase.Auth
                 var credential = await _googleAuth.GetCredentialAsync(ViewController);
                 return await SignInWithCredentialAsync(credential);
             } catch(NSErrorException e) {
-                throw new FirebaseException(e.Error?.LocalizedDescription);
+                throw GetFirebaseAuthException(e);
             }
         }
 
@@ -146,7 +155,7 @@ namespace Plugin.Firebase.Auth
                 var credential = await _facebookAuth.GetCredentialAsync(ViewController);
                 return await SignInWithCredentialAsync(credential);
             } catch(NSErrorException e) {
-                throw new FirebaseException(e.Error?.LocalizedDescription);
+                throw GetFirebaseAuthException(e);
             }
         }
 
@@ -181,7 +190,7 @@ namespace Plugin.Firebase.Auth
                 var authResult = await _firebaseAuth.SignInAnonymouslyAsync();
                 return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
             } catch(NSErrorException e) {
-                throw new FirebaseException(e.Error?.LocalizedDescription);
+                throw GetFirebaseAuthException(e);
             }
         }
 
@@ -191,7 +200,7 @@ namespace Plugin.Firebase.Auth
                 var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
                 return await LinkWithCredentialAsync(credential);
             } catch(NSErrorException e) {
-                throw new FirebaseException(e.Error?.LocalizedDescription);
+                throw GetFirebaseAuthException(e);
             }
         }
 
@@ -207,7 +216,7 @@ namespace Plugin.Firebase.Auth
                 var credential = await _emailAuth.GetCredentialAsync(email, password);
                 return await LinkWithCredentialAsync(credential);
             } catch(NSErrorException e) {
-                throw new FirebaseException(e.Error?.LocalizedDescription);
+                throw GetFirebaseAuthException(e);
             }
         }
 
@@ -218,7 +227,7 @@ namespace Plugin.Firebase.Auth
                 return await LinkWithCredentialAsync(credential);
             } catch(NSErrorException e) {
                 _googleAuth.SignOut();
-                throw new FirebaseException(e.Error?.LocalizedDescription);
+                throw GetFirebaseAuthException(e);
             }
         }
 
@@ -229,18 +238,26 @@ namespace Plugin.Firebase.Auth
                 return await LinkWithCredentialAsync(credential);
             } catch(NSErrorException e) {
                 _facebookAuth.SignOut();
-                throw new FirebaseException(e.Error?.LocalizedDescription);
+                throw GetFirebaseAuthException(e);
             }
         }
 
-        public Task<string[]> FetchSignInMethodsAsync(string email)
+        public async Task<string[]> FetchSignInMethodsAsync(string email)
         {
-            return _firebaseAuth.FetchSignInMethodsAsync(email);
+            try {
+                return await _firebaseAuth.FetchSignInMethodsAsync(email);
+            } catch(NSErrorException e) {
+                throw GetFirebaseAuthException(e);
+            }
         }
 
-        public Task SendSignInLink(string toEmail, CrossActionCodeSettings actionCodeSettings)
+        public async Task SendSignInLink(string toEmail, CrossActionCodeSettings actionCodeSettings)
         {
-            return _firebaseAuth.SendSignInLinkAsync(toEmail, actionCodeSettings.ToNative());
+            try {
+                await _firebaseAuth.SendSignInLinkAsync(toEmail, actionCodeSettings.ToNative());
+            } catch(NSErrorException e) {
+                throw GetFirebaseAuthException(e);
+            }
         }
 
         public Task SignOutAsync()
@@ -253,7 +270,11 @@ namespace Plugin.Firebase.Auth
 
         public bool IsSignInWithEmailLink(string link)
         {
-            return _firebaseAuth.IsSignIn(link);
+            try {
+                return _firebaseAuth.IsSignIn(link);
+            } catch(NSErrorException e) {
+                throw GetFirebaseAuthException(e);
+            }
         }
 
         public Task SendPasswordResetEmailAsync()
@@ -281,5 +302,19 @@ namespace Plugin.Firebase.Auth
         }
 
         public IFirebaseUser CurrentUser => _firebaseAuth.CurrentUser?.ToAbstract();
+
+        private static FirebaseAuthException GetFirebaseAuthException(NSErrorException ex)
+        {
+            AuthErrorCode errorCode;
+            if(IntPtr.Size == 8) // 64 bits devices
+                errorCode = (AuthErrorCode) ((long) ex.Error.Code);
+            else // 32 bits devices
+                errorCode = (AuthErrorCode) ((int) ex.Error.Code);
+
+            FIRAuthError authError;
+            Enum.TryParse(errorCode.ToString(), out authError);
+
+            return new FirebaseAuthException(authError, ex.Error.LocalizedDescription);
+        }
     }
 }

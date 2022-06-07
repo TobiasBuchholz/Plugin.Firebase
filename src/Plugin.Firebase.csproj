@@ -63,7 +63,6 @@
 
         <Compile Include="Shared\**\*.cs" />
         <Compile Include="Extensions\**\*.cs" />
-        <None Remove="Xamarin.Essentials" />
     </ItemGroup>
 
     <ItemGroup Condition=" $(TargetFramework.StartsWith('MonoAndroid')) ">

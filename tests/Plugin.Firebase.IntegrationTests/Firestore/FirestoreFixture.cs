@@ -408,6 +408,28 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             Assert.Equal(copy, copySnapshot.Data);
         }
 
+        [Fact]
+        public async Task retrieves_subs_collection()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var pokemon = PokemonFactory.CreateBulbasur();
+            var path = $"testing/{pokemon.Id}";
+            var subCollectionName = "sub_items";
+            var subCollectionPath = $"{path}/{subCollectionName}";
+            var document = sut.GetDocument(path);
+            var subDocument = sut.GetDocument($"{subCollectionPath}/123");
+
+            await document.SetDataAsync(pokemon);
+            await subDocument.SetDataAsync(new Dictionary<object, object>() {{"foo", "bar"}});
+
+            var subCollectionRef1 = sut.GetCollection(subCollectionPath);
+            var subCollectionRef2 = document.GetCollection(subCollectionName);
+            var snapshot1 = await subCollectionRef1.GetDocumentsAsync<object>();
+            var snapshot2 = await subCollectionRef2.GetDocumentsAsync<object>();
+            Assert.Single(snapshot1.Documents);
+            Assert.Single(snapshot2.Documents);
+        }
+
         public async Task DisposeAsync()
         {
             await CrossFirebaseFirestore.Current.DeleteCollectionAsync<Pokemon>("testing", batchSize: 10);

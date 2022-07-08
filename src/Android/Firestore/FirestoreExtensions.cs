@@ -157,5 +157,10 @@ namespace Plugin.Firebase.Android.Firestore
         {
             return @this.IsDocumentId ? NativeFieldPath.DocumentId() : NativeFieldPath.Of(@this.Fields);
         }
+        
+        public static ICollectionReference ToAbstract(this CollectionReference @this)
+        {
+            return new CollectionReferenceWrapper(@this);
+        }
     }
 }

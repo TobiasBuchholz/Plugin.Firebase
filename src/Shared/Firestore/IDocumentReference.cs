@@ -77,6 +77,13 @@ namespace Plugin.Firebase.Firestore
         /// </param>
         /// <typeparam name="T">The type of the document item.</typeparam>
         IDisposable AddSnapshotListener<T>(Action<IDocumentSnapshot<T>> onChanged, Action<Exception> onError = null, bool includeMetaDataChanges = false);
+        
+        /// <summary>
+        /// Gets a <c>ICollectionReference</c> object referring to the collection at the specified path within this <c>IDocumentReference</c>.
+        /// </summary>
+        /// <param name="collectionPath">The slash-separated path of the collection for which to get a <c>ICollectionReference</c>.</param>
+        /// <returns></returns>
+        ICollectionReference GetCollection(string collectionPath);
 
         /// <summary>
         /// The ID of the document referred to.

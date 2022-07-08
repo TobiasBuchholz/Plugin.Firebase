@@ -97,6 +97,11 @@ namespace Plugin.Firebase.Android.Firestore
             return new DisposableWithAction(registration.Remove);
         }
 
+        public ICollectionReference GetCollection(string collectionPath)
+        {
+            return Wrapped.Collection(collectionPath).ToAbstract();
+        }
+
         public string Id => Wrapped.Id;
         public string Path => Wrapped.Path;
         public ICollectionReference Parent => new CollectionReferenceWrapper(Wrapped.Parent);

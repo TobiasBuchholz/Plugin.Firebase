@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="com.tobishiba.playground">
-	<uses-sdk android:minSdkVersion="21" android:targetSdkVersion="29" />
+	<uses-sdk android:minSdkVersion="21" android:targetSdkVersion="31" />
 	<application android:label="Playground.Android" android:theme="@style/MainTheme">
 		<!-- firebase auth -->
 		<meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id" />
@@ -14,6 +14,7 @@
 			</intent-filter>
 		</activity>
 		<!-- firebase cloud message -->
+        <meta-data android:name="com.google.firebase.messaging.default_notification_icon" android:resource="@drawable/ic_push_small" />
 		<receiver android:name="com.google.firebase.iid.FirebaseInstanceIdInternalReceiver" android:exported="false" />
 		<receiver android:name="com.google.firebase.iid.FirebaseInstanceIdReceiver" android:exported="true" android:permission="com.google.android.c2dm.permission.SEND">
 			<intent-filter>
@@ -23,7 +24,7 @@
 			</intent-filter>
 		</receiver>
 		<!-- firebase dynamic links -->
-		<activity android:name="playground.droid.MainActivity" android:label="@string/app_name" android:icon="@mipmap/icon" android:theme="@style/MainTheme" android:configChanges="screenSize|orientation|uiMode|screenLayout|smallestScreenSize" android:launchMode="singleTask">
+		<activity android:name="playground.droid.MainActivity" android:label="@string/app_name" android:icon="@mipmap/icon" android:theme="@style/MainTheme" android:configChanges="screenSize|orientation|uiMode|screenLayout|smallestScreenSize" android:launchMode="singleTask" android:exported="true">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />

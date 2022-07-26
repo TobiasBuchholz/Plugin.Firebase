@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Java.Util;
 using Android.Runtime;
+using AndroidX.Collection;
 using Firebase.Firestore;
 using Plugin.Firebase.Firestore;
 using Plugin.Firebase.Android.Firestore;
@@ -74,6 +75,8 @@ namespace Plugin.Firebase.Android.Extensions
                     return new GeoPoint(x.Latitude, x.Longitude);
                 case DocumentReference x:
                     return new DocumentReferenceWrapper(x);
+                case ArrayMap x:
+                    return x.ToDictionary();
                 default:
                     throw new ArgumentException($"Could not convert Java.Lang.Object of type {@this.GetType()} to object");
             }

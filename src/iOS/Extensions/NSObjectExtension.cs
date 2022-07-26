@@ -80,7 +80,9 @@ namespace Plugin.Firebase.iOS.Extensions
 
         private static object ToDictionaryObject(this NSDictionary @this, Type targetType)
         {
-            if(targetType != null && targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) {
+            if(targetType == null) {
+                return @this.ToDictionary();
+            } else if(targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) {
                 var types = targetType.GenericTypeArguments;
                 return @this.ToDictionary(types[0], types[1]);
             } else {

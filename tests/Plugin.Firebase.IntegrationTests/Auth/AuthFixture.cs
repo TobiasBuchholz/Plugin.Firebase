@@ -138,6 +138,17 @@ namespace Plugin.Firebase.IntegrationTests.Auth
             await user.DeleteAsync();
             Assert.Null(sut.CurrentUser);
         }
+        
+        [Fact]
+        public async Task retrieves_custom_claims()
+        {
+            var sut = CrossFirebaseAuth.Current;
+            var user = await sut.SignInWithEmailAndPasswordAsync("custom-claims@test.com", "123456");
+            var idTokenResult = await user.GetIdTokenResultAsync();
+            await sut.SignOutAsync(); // sign out so the user won't get deleted
+
+            Assert.True(idTokenResult.GetClaim<bool>("is_awesome"));
+        }
 
         public async Task DisposeAsync()
         {

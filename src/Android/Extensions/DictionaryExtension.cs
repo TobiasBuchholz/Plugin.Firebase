@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Android.OS;
 using Android.Runtime;
+using AndroidX.Collection;
 using Java.Util;
 using Newtonsoft.Json.Linq;
 using Plugin.Firebase.Android.Extensions;
@@ -420,6 +421,25 @@ namespace System.Collections.Generic
                 var key = pair.Key.ToJavaObject().ToObject(keyType);
                 var value = pair.Value.ToJavaObject().ToObject(valueType);
                 dict[key] = value;
+            }
+            return dict;
+        }
+        
+        public static IDictionary<string, object> ToDictionary(this IDictionary<string, Java.Lang.Object> @this)
+        {
+            var dict = new Dictionary<string, object>();
+            foreach(var (key, value) in @this) {
+                dict[key] = value.ToObject();
+            }
+            return dict;
+        }
+
+        public static IDictionary<string, object> ToDictionary(this ArrayMap @this)
+        {
+            var dict = new Dictionary<string, object>();
+            var keys = @this.KeySet()!;
+            foreach(var key in keys) {
+                dict[key.ToString()] = @this.Get(key.ToString()).ToObject();
             }
             return dict;
         }

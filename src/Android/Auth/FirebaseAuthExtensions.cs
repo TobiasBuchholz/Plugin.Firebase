@@ -50,5 +50,10 @@ namespace Plugin.Firebase.Android.Auth
                 DateTimeOffset.FromUnixTimeMilliseconds(@this.CreationTimestamp),
                 DateTimeOffset.FromUnixTimeMilliseconds(@this.LastSignInTimestamp));
         }
+
+        public static IAuthTokenResult ToAbstract(this GetTokenResult @this)
+        {
+            return new AuthTokenResultWrapper(@this);
+        }
     }
 }

@@ -52,5 +52,10 @@ namespace Plugin.Firebase.iOS.Auth
                 @this.CreationDate.ToDateTimeOffset(),
                 @this.LastSignInDate.ToDateTimeOffset());
         }
+
+        public static IAuthTokenResult ToAbstract(this AuthTokenResult @this)
+        {
+            return new AuthTokenResultWrapper(@this);
+        }
     }
 }

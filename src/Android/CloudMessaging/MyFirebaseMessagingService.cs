@@ -6,7 +6,7 @@ using Plugin.Firebase.CloudMessaging;
 
 namespace Plugin.Firebase.Android.CloudMessaging
 {
-    [Service]
+    [Service(Exported = true)]
     [IntentFilter(new[] { "com.google.firebase.MESSAGING_EVENT" })]
     [Preserve(AllMembers = true)]
     public class MyFirebaseMessagingService : FirebaseMessagingService

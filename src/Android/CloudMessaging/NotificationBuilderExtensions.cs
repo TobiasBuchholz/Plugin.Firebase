@@ -15,7 +15,7 @@ namespace Plugin.Firebase.Android.CloudMessaging
                 var bitmap = DecodeBitmap(notification.ImageUrl);
                 return @this.SetLargeIcon(bitmap).SetStyle(new NotificationCompat.BigPictureStyle().BigPicture(bitmap).BigLargeIcon(null));
             } catch(Exception e) {
-                Console.WriteLine($"Couldn't attach image to push notification: {e.Message}");
+                Console.WriteLine($"[Plugin.Firebase]: Couldn't attach image to push notification: {e.Message}");
                 return @this;
             }
         }

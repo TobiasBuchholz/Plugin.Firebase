@@ -57,6 +57,13 @@ namespace Plugin.Firebase.Auth
         Task DeleteAsync();
 
         /// <summary>
+        /// Fetches a Firebase Auth ID Token for the user, which also contains custom claim information; useful when authenticating against your own backend.
+        /// </summary>
+        /// <param name="forceRefresh">Force refreshes the token. Should only be set to true if the token is invalidated out of band.</param>
+        /// <returns></returns>
+        Task<IAuthTokenResult> GetIdTokenResultAsync(bool forceRefresh = false);
+
+        /// <summary>
         /// Returns a string used to uniquely identify your user in your Firebase project's user database. 
         /// </summary>
         string Uid { get; }

@@ -65,6 +65,12 @@ namespace Plugin.Firebase.iOS.Auth
             return _wrapped.DeleteAsync();
         }
 
+        public async Task<IAuthTokenResult> GetIdTokenResultAsync(bool forceRefresh = false)
+        {
+            var result = await _wrapped.GetIdTokenResultAsync(forceRefresh);
+            return result.ToAbstract();
+        }
+
         public string Uid => _wrapped.Uid;
         public string DisplayName => _wrapped.DisplayName;
         public string Email => _wrapped.Email;

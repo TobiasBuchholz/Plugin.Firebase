@@ -98,6 +98,12 @@ namespace Plugin.Firebase.iOS.Extensions
                         dict[attribute.PropertyName] = value.ToNSObject();
                     }
                 }
+
+                var timestampAttributes = property.GetCustomAttributes(typeof(FirestoreServerTimestampAttribute), true);
+                if(timestampAttributes.Any()) {
+                    var attribute = (FirestoreServerTimestampAttribute) timestampAttributes[0];
+                    dict[attribute.PropertyName] = FieldValue.ServerTimestamp();
+                }
             }
             return dict;
         }

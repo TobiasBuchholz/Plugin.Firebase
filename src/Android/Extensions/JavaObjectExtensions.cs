@@ -43,6 +43,20 @@ namespace Plugin.Firebase.Android.Extensions
                         property.SetValue(instance, value);
                     }
                 }
+
+                var timestampAttributes = property.GetCustomAttributes(typeof(FirestoreServerTimestampAttribute), true);
+                if(timestampAttributes.Any()) {
+                    var attribute = (FirestoreServerTimestampAttribute) timestampAttributes[0];
+                    var value = @this[attribute.PropertyName];
+
+                    if(value == null) {
+                        Console.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because it's not contained in the dictionary.");
+                    } else if(value is Java.Lang.Object javaValue) {
+                        property.SetValue(instance, javaValue.ToObject(property.PropertyType));
+                    } else {
+                        property.SetValue(instance, value);
+                    }
+                }
             }
             return instance;
         }

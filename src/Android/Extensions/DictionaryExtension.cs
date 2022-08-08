@@ -123,6 +123,12 @@ namespace System.Collections.Generic
                     var attribute = (FirestorePropertyAttribute) attributes[0];
                     map.Put(attribute.PropertyName, property.GetValue(@this));
                 }
+
+                var timestampAttributes = property.GetCustomAttributes(typeof(FirestoreServerTimestampAttribute), true);
+                if(timestampAttributes.Any()) {
+                    var attribute = (FirestoreServerTimestampAttribute) timestampAttributes[0];
+                    map.Put(attribute.PropertyName, Firebase.Firestore.FieldValue.ServerTimestamp());
+                }
             }
             return map;
         }

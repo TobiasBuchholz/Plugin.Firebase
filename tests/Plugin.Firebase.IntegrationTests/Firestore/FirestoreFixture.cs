@@ -420,7 +420,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             var subDocument = sut.GetDocument($"{subCollectionPath}/123");
 
             await document.SetDataAsync(pokemon);
-            await subDocument.SetDataAsync(new Dictionary<object, object>() {{"foo", "bar"}});
+            await subDocument.SetDataAsync(new Dictionary<object, object>() { { "foo", "bar" } });
 
             var subCollectionRef1 = sut.GetCollection(subCollectionPath);
             var subCollectionRef2 = document.GetCollection(subCollectionName);

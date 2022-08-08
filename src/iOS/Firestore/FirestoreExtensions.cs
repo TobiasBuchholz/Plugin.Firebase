@@ -144,7 +144,7 @@ namespace Plugin.Firebase.iOS.Firestore
         {
             return @this.IsDocumentId ? NativeFieldPath.GetDocumentId() : new NativeFieldPath(@this.Fields);
         }
-        
+
         public static ICollectionReference ToAbstract(this CollectionReference @this)
         {
             return new CollectionReferenceWrapper(@this);

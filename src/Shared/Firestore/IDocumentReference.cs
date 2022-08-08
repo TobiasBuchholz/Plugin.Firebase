@@ -77,7 +77,7 @@ namespace Plugin.Firebase.Firestore
         /// </param>
         /// <typeparam name="T">The type of the document item.</typeparam>
         IDisposable AddSnapshotListener<T>(Action<IDocumentSnapshot<T>> onChanged, Action<Exception> onError = null, bool includeMetaDataChanges = false);
-        
+
         /// <summary>
         /// Gets a <c>ICollectionReference</c> object referring to the collection at the specified path within this <c>IDocumentReference</c>.
         /// </summary>

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Foundation;
 using Plugin.Firebase.Firestore;
+using Plugin.Firebase.iOS.Firestore;
 
 namespace Plugin.Firebase.iOS.Extensions
 {
@@ -102,7 +103,7 @@ namespace Plugin.Firebase.iOS.Extensions
                 var timestampAttributes = property.GetCustomAttributes(typeof(FirestoreServerTimestampAttribute), true);
                 if(timestampAttributes.Any()) {
                     var attribute = (FirestoreServerTimestampAttribute) timestampAttributes[0];
-                    dict[attribute.PropertyName] = FieldValue.ServerTimestamp();
+                    dict[attribute.PropertyName] = FieldValue.ServerTimestamp().ToNative();
                 }
             }
             return dict;

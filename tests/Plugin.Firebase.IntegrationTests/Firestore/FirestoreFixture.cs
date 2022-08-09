@@ -36,6 +36,23 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         }
 
         [Fact]
+        public async Task records_upload_servertime_to_a_property()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var pokemon = PokemonFactory.CreateBulbasur();
+            var path = $"testing/{pokemon.Id}";
+
+            var sampleDate = pokemon.CreationDate.Subtract(new TimeSpan(1, 0, 0, 0));
+            pokemon.UploadDate = sampleDate;
+
+            var document = sut.GetDocument(path);
+            await document.SetDataAsync(pokemon);
+
+            var ServerPokemon = (await sut.GetDocument(path).GetDocumentSnapshotAsync<Pokemon>(Source.Server)).Data;
+            Assert.NotEqual(ServerPokemon.UploadDate, sampleDate); 
+        }
+
+        [Fact]
         public async Task updates_existing_document()
         {
             var sut = CrossFirebaseFirestore.Current;

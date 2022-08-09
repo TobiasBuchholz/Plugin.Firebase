@@ -118,6 +118,9 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         [FirestoreProperty("creation_date")]
         public DateTimeOffset CreationDate { get; private set; }
 
+        [FirestoreServerTimestamp("UploadedDate")]
+        public DateTimeOffset UploadDate { get; set; }
+
         [FirestoreProperty("original_reference")]
         public IDocumentReference OriginalReference { get; private set; }
     }

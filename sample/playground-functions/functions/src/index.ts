@@ -13,7 +13,7 @@ admin.initializeApp();
 
 const https = require("./https/https.functions");
 exports.echo = https.echo;
-exports.convertToLeet = https.convertToLeet;
+exports.addCustomClaimToUser = https.addCustomClaimToUser;
 
 
 /*
@@ -25,6 +25,7 @@ exports.convertToLeet = https.convertToLeet;
  */
 
 const callables = require("./callables/callables.functions");
+exports.convertToLeet = callables.convertToLeet;
 exports.triggerNotification = callables.triggerNotification;
 
 

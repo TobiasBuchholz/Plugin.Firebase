@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Android.Gms.Extensions;
 using Android.Net;
+using Android.Runtime;
 using Firebase.Auth;
 using Plugin.Firebase.Auth;
 using ActionCodeSettings = Plugin.Firebase.Auth.ActionCodeSettings;
@@ -59,6 +61,12 @@ namespace Plugin.Firebase.Android.Auth
         public Task DeleteAsync()
         {
             return _wrapped.DeleteAsync();
+        }
+
+        public async Task<IAuthTokenResult> GetIdTokenResultAsync(bool forceRefresh = false)
+        {
+            var result = (await _wrapped.GetIdToken(forceRefresh)).JavaCast<GetTokenResult>();
+            return result.ToAbstract();
         }
 
         public string Uid => _wrapped.Uid;

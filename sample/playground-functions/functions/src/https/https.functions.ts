@@ -1,11 +1,17 @@
+import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
 
-export const echo = functions.https.onRequest((request, response) => {
+export const echo = functions.https.onRequest(async (request, response) => {
   functions.logger.log("[+] echo");
   response.send(request.body);
 });
 
-export const convertToLeet = functions.https.onCall(async (data, context) =>  {
-  functions.logger.log('[+] convertToLeet:', data);
-  return `{ "input_value": ${data?.input_value}, "output_value": 1337 }`;
+export const addCustomClaimToUser = functions.https.onRequest(async (request, response) => {
+    functions.logger.log(`[+] addCustomClaimToUser: uid = ${request.query.uid}`);
+    if(request.query.uid) {
+        await admin
+            .auth()
+            .setCustomUserClaims(request.query.uid.toString(), { is_awesome: true });
+    }
+    response.send();
 });

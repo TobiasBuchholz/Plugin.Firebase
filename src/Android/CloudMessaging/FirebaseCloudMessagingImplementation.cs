@@ -55,7 +55,16 @@ namespace Plugin.Firebase.CloudMessaging
         public void OnNotificationReceived(FCMNotification fcmNotification)
         {
             NotificationReceived?.Invoke(this, new FCMNotificationReceivedEventArgs(fcmNotification));
-            HandleShowLocalNotificationIfNeeded(fcmNotification);
+            TryHandleShowLocalNotificationIfNeeded(fcmNotification);
+        }
+        
+        private static void TryHandleShowLocalNotificationIfNeeded(FCMNotification fcmNotification)
+        {
+            try {
+                HandleShowLocalNotificationIfNeeded(fcmNotification);
+            } catch(Exception e) {
+                Console.WriteLine($"[Plugin.Firebase]: Couldn't show local push notification: {e.Message}");
+            }
         }
 
         private static void HandleShowLocalNotificationIfNeeded(FCMNotification fcmNotification)
@@ -70,7 +79,7 @@ namespace Plugin.Firebase.CloudMessaging
             var intent = _context.PackageManager.GetLaunchIntentForPackage(_context.PackageName);
             intent.PutExtra(IntentKeyFCMNotification, notification.ToBundle());
             intent.SetFlags(ActivityFlags.ClearTop | ActivityFlags.SingleTop);
-            var pendingIntent = PendingIntent.GetActivity(_context, 0, intent, 0);
+            var pendingIntent = PendingIntent.GetActivity(_context, 0, intent, PendingIntentFlags.Immutable);
             var builder = NotificationBuilderProvider?.Invoke(notification) ?? CreateDefaultNotificationBuilder(notification);
             var notificationManager = (NotificationManager) _context.GetSystemService(Context.NotificationService);
             notificationManager.Notify(1337, builder.SetContentIntent(pendingIntent).Build());

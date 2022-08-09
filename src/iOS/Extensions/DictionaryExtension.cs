@@ -103,7 +103,7 @@ namespace Plugin.Firebase.iOS.Extensions
                 var timestampAttributes = property.GetCustomAttributes(typeof(FirestoreServerTimestampAttribute), true);
                 if(timestampAttributes.Any()) {
                     var attribute = (FirestoreServerTimestampAttribute) timestampAttributes[0];
-                    dict[attribute.PropertyName] = FieldValue.ServerTimestamp().ToNative();
+                    dict[attribute.PropertyName] = FieldValue.ServerTimestamp().ToNSObject();
                 }
             }
             return dict;

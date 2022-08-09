@@ -118,7 +118,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         [FirestoreProperty("creation_date")]
         public DateTimeOffset CreationDate { get; private set; }
 
-        [FirestoreServerTimestamp("UploadedDate")]
+        [FirestoreServerTimestamp("uploadDate")]
         public DateTimeOffset UploadDate { get; set; }
 
         [FirestoreProperty("original_reference")]

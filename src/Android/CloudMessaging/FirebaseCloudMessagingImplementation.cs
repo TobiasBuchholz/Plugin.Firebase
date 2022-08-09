@@ -57,7 +57,7 @@ namespace Plugin.Firebase.CloudMessaging
             NotificationReceived?.Invoke(this, new FCMNotificationReceivedEventArgs(fcmNotification));
             TryHandleShowLocalNotificationIfNeeded(fcmNotification);
         }
-        
+
         private static void TryHandleShowLocalNotificationIfNeeded(FCMNotification fcmNotification)
         {
             try {

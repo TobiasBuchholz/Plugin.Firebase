@@ -138,7 +138,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
             await user.DeleteAsync();
             Assert.Null(sut.CurrentUser);
         }
-        
+
         [Fact]
         public async Task retrieves_custom_claims()
         {

@@ -126,7 +126,7 @@ namespace Plugin.Firebase.iOS.Extensions
             }
             return dict;
         }
-        
+
         public static IDictionary<string, object> ToDictionary(this NSDictionary<NSString, NSObject> @this)
         {
             var dict = new Dictionary<string, object>();

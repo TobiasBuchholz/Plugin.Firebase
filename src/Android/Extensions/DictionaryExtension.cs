@@ -430,7 +430,7 @@ namespace System.Collections.Generic
             }
             return dict;
         }
-        
+
         public static IDictionary<string, object> ToDictionary(this IDictionary<string, Java.Lang.Object> @this)
         {
             var dict = new Dictionary<string, object>();

@@ -49,7 +49,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             await document.SetDataAsync(pokemon);
 
             var ServerPokemon = (await sut.GetDocument(path).GetDocumentSnapshotAsync<Pokemon>(Source.Server)).Data;
-            Assert.NotEqual(ServerPokemon.UploadDate, sampleDate); 
+            Assert.NotEqual(ServerPokemon.UploadDate, sampleDate);
         }
 
         [Fact]

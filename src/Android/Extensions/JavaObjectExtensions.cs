@@ -49,7 +49,6 @@ namespace Plugin.Firebase.Android.Extensions
                 if(timestampAttributes.Any()) {
                     var attribute = (FirestoreServerTimestampAttribute) timestampAttributes[0];
                     var value = @this[attribute.PropertyName];
-
                     if(value == null) {
                         Console.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because it's not contained in the dictionary.");
                     } else if(value is Java.Lang.Object javaValue) {

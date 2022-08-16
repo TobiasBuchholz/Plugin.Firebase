@@ -17,6 +17,19 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             Title = title;
         }
 
+        public override bool Equals(object obj)
+        {
+            if(obj is SimpleItem other) {
+                return (Id, Title).Equals((Id, Title));
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return (Id, Title).GetHashCode();
+        }
+
         [FirestoreDocumentId]
         public string Id { get; private set; }
 

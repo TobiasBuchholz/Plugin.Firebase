@@ -36,20 +36,18 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         }
 
         [Fact]
-        public async Task records_upload_servertime_to_a_property()
+        public async Task sets_server_timestamp_via_property_attribute()
         {
             var sut = CrossFirebaseFirestore.Current;
             var pokemon = PokemonFactory.CreateBulbasur();
             var path = $"testing/{pokemon.Id}";
 
-            var sampleDate = pokemon.CreationDate.Subtract(new TimeSpan(1, 0, 0, 0));
-            pokemon.UploadDate = sampleDate;
-
             var document = sut.GetDocument(path);
             await document.SetDataAsync(pokemon);
 
-            var ServerPokemon = (await sut.GetDocument(path).GetDocumentSnapshotAsync<Pokemon>(Source.Server)).Data;
-            Assert.NotEqual(ServerPokemon.UploadDate, sampleDate);
+            var snapshot = await sut.GetDocument(path).GetDocumentSnapshotAsync<Pokemon>(Source.Server);
+            Assert.NotEqual(snapshot.Data.ServerTimestamp, DateTimeOffset.MinValue);
+            Assert.NotEqual(snapshot.Data.ServerTimestamp, DateTimeOffset.Now);
         }
 
         [Fact]
@@ -332,15 +330,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             await collection.GetDocument("5").DeleteDocumentAsync();
             await Task.Delay(TimeSpan.FromMilliseconds(500));
 
-            var expectedChangesOnAndroid = new[] {
-                DocumentChangeType.Added,
-                DocumentChangeType.Added,
-                DocumentChangeType.Added,
-                DocumentChangeType.Modified,
-                DocumentChangeType.Removed
-            };
-
-            var expectedChangesOniOS = new[] {
+            var expectedChanges = new[] {
                 DocumentChangeType.Added,
                 DocumentChangeType.Modified,
                 DocumentChangeType.Added,
@@ -351,7 +341,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 DocumentChangeType.Removed
             };
 
-            Assert.Equal(DeviceInfo.Platform == DevicePlatform.Android ? expectedChangesOnAndroid : expectedChangesOniOS, changes.SelectMany(x => x));
+            Assert.Equal(expectedChanges, changes.SelectMany(x => x));
             disposable.Dispose();
         }
 
@@ -381,14 +371,14 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
 
             await document.UpdateDataAsync(
                 ("moves", FieldValue.Delete()),
-                ("evolutions", FieldValue.Delete()),
+                ("items", FieldValue.Delete()),
                 ("first_sighting_location", FieldValue.Delete()),
                 ("poke_type", FieldValue.Delete()));
 
             var snapshot = await document.GetDocumentSnapshotAsync<Pokemon>();
             Assert.Null(snapshot.Data.Moves);
             Assert.Null(snapshot.Data.FirstSightingLocation);
-            Assert.Null(snapshot.Data.Evolutions);
+            Assert.Null(snapshot.Data.Items);
             Assert.Equal(PokeType.Undefined, snapshot.Data.PokeType);
         }
 

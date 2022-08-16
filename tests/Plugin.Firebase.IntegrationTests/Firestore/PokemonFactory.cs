@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Plugin.Firebase.Firestore;
 
@@ -18,7 +19,12 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 pokeType: PokeType.Plant,
                 moves: new List<string> { "Razor-Wind", "Swords-Dance", "Cut" },
                 firstSightingLocation: new SightingLocation(52.5042112, 13.5290173),
-                evolutions: new List<Pokemon> { new Pokemon("1", "Bulbasur"), new Pokemon("2", "Ivysaur"), new Pokemon("3", "Venusaur") });
+                items: CreateSimpleItems("Wonder Berry", "Air Balloon"));
+        }
+
+        private static IList<SimpleItem> CreateSimpleItems(params string[] titles)
+        {
+            return titles.Select(title => new SimpleItem(title)).ToList();
         }
 
         public static Pokemon CreateIvysaur()
@@ -32,7 +38,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 pokeType: PokeType.Plant,
                 moves: new List<string> { "Razor-Wind", "Swords-Dance", "Cut" },
                 firstSightingLocation: new SightingLocation(52.5042112, 13.5290173),
-                evolutions: new List<Pokemon> { new Pokemon("1", "Bulbasur"), new Pokemon("2", "Ivysaur"), new Pokemon("3", "Venusaur") });
+                items: CreateSimpleItems("Wonder Berry", "Air Balloon"));
         }
 
         public static Pokemon CreateVenusaur()
@@ -46,7 +52,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 pokeType: PokeType.Plant,
                 moves: new List<string> { "Razor-Wind", "Swords-Dance", "Cut" },
                 firstSightingLocation: new SightingLocation(52.5042112, 13.5290173),
-                evolutions: new List<Pokemon> { new Pokemon("1", "Bulbasur"), new Pokemon("2", "Ivysaur"), new Pokemon("3", "Venusaur") });
+                items: CreateSimpleItems("Apicot Berry", "Antidote"));
         }
 
         public static Pokemon CreateCharmander()
@@ -60,7 +66,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 pokeType: PokeType.Fire,
                 moves: new List<string> { "Scratch", "Body-Slam", "Fire-Punch" },
                 firstSightingLocation: new SightingLocation(52.5042112, 13.5290173),
-                evolutions: new List<Pokemon> { new Pokemon("4", "Charmander"), new Pokemon("5", "Charmeleon"), new Pokemon("6", "Charizard") });
+                items: CreateSimpleItems("Antidote", "Air Balloon"));
         }
 
         public static Pokemon CreateCharmeleon()
@@ -74,7 +80,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 pokeType: PokeType.Fire,
                 moves: new List<string> { "Scratch", "Body-Slam", "Fire-Punch" },
                 firstSightingLocation: new SightingLocation(52.5042112, 13.5290173),
-                evolutions: new List<Pokemon> { new Pokemon("4", "Charmander"), new Pokemon("5", "Charmeleon"), new Pokemon("6", "Charizard") });
+                items: CreateSimpleItems("Antidote"));
         }
 
         public static Pokemon CreateCharizard()
@@ -88,7 +94,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 pokeType: PokeType.Fire,
                 moves: new List<string> { "Scratch", "Body-Slam", "Fire-Punch" },
                 firstSightingLocation: new SightingLocation(52.5042112, 13.5290173),
-                evolutions: new List<Pokemon> { new Pokemon("4", "Charmander"), new Pokemon("5", "Charmeleon"), new Pokemon("6", "Charizard") });
+                items: CreateSimpleItems("Wonder Berry"));
         }
 
         public static Pokemon CreateSquirtle()
@@ -102,7 +108,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 pokeType: PokeType.Water,
                 moves: new List<string> { "Tackel", "Body-Slam", "Water-Gun" },
                 firstSightingLocation: new SightingLocation(52.5042112, 13.5290173),
-                evolutions: new List<Pokemon> { new Pokemon("7", "Sqirtle"), new Pokemon("8", "Wartortle"), new Pokemon("9", "Blastoise") });
+                items: CreateSimpleItems("Wonder Berry", "Antidote"));
         }
 
         public static Pokemon CreateWartortle()
@@ -116,7 +122,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 pokeType: PokeType.Water,
                 moves: new List<string> { "Tackel", "Body-Slam", "Water-Gun" },
                 firstSightingLocation: new SightingLocation(52.5042112, 13.5290173),
-                evolutions: new List<Pokemon> { new Pokemon("7", "Sqirtle"), new Pokemon("8", "Wartortle"), new Pokemon("9", "Blastoise") });
+                items: CreateSimpleItems("Air Balloon", "Antidote"));
         }
 
         public static Pokemon CreateBlastoise()
@@ -130,7 +136,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 pokeType: PokeType.Water,
                 moves: new List<string> { "Tackel", "Body-Slam", "Water-Gun" },
                 firstSightingLocation: new SightingLocation(52.5042112, 13.5290173),
-                evolutions: new List<Pokemon> { new Pokemon("7", "Sqirtle"), new Pokemon("8", "Wartortle"), new Pokemon("9", "Blastoise") });
+                items: CreateSimpleItems("Wonder Berry", "Apicot Berry"));
         }
 
         /// <summary>

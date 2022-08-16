@@ -26,7 +26,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             PokeType pokeType = default(PokeType),
             IList<string> moves = null,
             SightingLocation firstSightingLocation = null,
-            IList<Pokemon> evolutions = null,
+            IList<SimpleItem> items = null,
             IDocumentReference originalReference = null)
         {
             Id = id;
@@ -38,7 +38,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             PokeType = pokeType;
             Moves = moves;
             FirstSightingLocation = firstSightingLocation;
-            Evolutions = evolutions;
+            Items = items;
             CreationDate = DateTimeOffset.Now;
             OriginalReference = originalReference;
         }
@@ -59,7 +59,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 pokeType: this.PokeType,
                 moves: this.Moves.ToList(),
                 firstSightingLocation: this.FirstSightingLocation,
-                evolutions: this.Evolutions.ToList(),
+                items: this.Items.ToList(),
                 originalReference: originalReference);
         }
 
@@ -69,14 +69,14 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 return (Id, Name, WeightInKg, HeightInCm, SightingCount, IsFromFirstGeneration, PokeType, FirstSightingLocation)
                     .Equals((other.Id, other.Name, other.WeightInKg, other.HeightInCm, other.SightingCount, other.IsFromFirstGeneration, other.PokeType, other.FirstSightingLocation)) &&
                     Moves.SequenceEqualSafe(other.Moves) &&
-                    Evolutions.SequenceEqualSafe(other.Evolutions);
+                    Items.SequenceEqualSafe(other.Items);
             }
             return false;
         }
 
         public override int GetHashCode()
         {
-            return (Id, Name, WeightInKg, HeightInCm, SightingCount, IsFromFirstGeneration, PokeType, Moves, FirstSightingLocation, Evolutions, CreationDate).GetHashCode();
+            return (Id, Name, WeightInKg, HeightInCm, SightingCount, IsFromFirstGeneration, PokeType, Moves, FirstSightingLocation, Items, CreationDate).GetHashCode();
         }
 
         public override string ToString()
@@ -85,7 +85,6 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         }
 
         [FirestoreDocumentId]
-        [FirestoreProperty("id")] // this attribute is still needed for Pokemon items in Evolutions list
         public string Id { get; private set; }
 
         [FirestoreProperty("name")]
@@ -112,14 +111,14 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         [FirestoreProperty("first_sighting_location")]
         public SightingLocation FirstSightingLocation { get; private set; }
 
-        [FirestoreProperty("evolutions")]
-        public IList<Pokemon> Evolutions { get; private set; }
+        [FirestoreProperty("items")]
+        public IList<SimpleItem> Items { get; private set; }
 
-        [FirestoreProperty("creation_date")]
+        [FirestoreServerTimestamp("creation_date")]
         public DateTimeOffset CreationDate { get; private set; }
 
-        [FirestoreServerTimestamp("uploadDate")]
-        public DateTimeOffset UploadDate { get; set; }
+        [FirestoreServerTimestamp("server_timestamp")]
+        public DateTimeOffset ServerTimestamp { get; private set; }
 
         [FirestoreProperty("original_reference")]
         public IDocumentReference OriginalReference { get; private set; }

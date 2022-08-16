@@ -9,6 +9,7 @@ using Plugin.Firebase.Android.Extensions;
 using Plugin.Firebase.Common;
 using Plugin.Firebase.Firestore;
 using Plugin.Firebase.Android.Firestore;
+using NativeFieldValue = Firebase.Firestore.FieldValue;
 
 namespace System.Collections.Generic
 {
@@ -128,7 +129,7 @@ namespace System.Collections.Generic
                 var timestampAttributes = property.GetCustomAttributes(typeof(FirestoreServerTimestampAttribute), true);
                 if(timestampAttributes.Any()) {
                     var attribute = (FirestoreServerTimestampAttribute) timestampAttributes[0];
-                    map.Put(attribute.PropertyName, Firebase.Firestore.FieldValue.ServerTimestamp());
+                    map.Put(attribute.PropertyName, NativeFieldValue.ServerTimestamp());
                 }
             }
             return map;

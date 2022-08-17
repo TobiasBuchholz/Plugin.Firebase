@@ -35,7 +35,7 @@ namespace Plugin.Firebase.Auth
         /// </summary>
         /// <param name="displayName">The user’s display name.</param>
         /// <param name="photoUrl">The user’s photo URL.</param>
-        Task UpdateProfileAsync(string displayName = null, string photoUrl = null);
+        Task UpdateProfileAsync(string displayName = "", string photoUrl = "");
 
         /// <summary>
         /// Initiates email verification for the user.

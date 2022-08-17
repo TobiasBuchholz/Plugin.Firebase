@@ -38,12 +38,14 @@ namespace Plugin.Firebase.iOS.Auth
             return _wrapped.UpdatePhoneNumberCredentialAsync(PhoneAuthProvider.DefaultInstance.GetCredential(verificationId, smsCode));
         }
 
-        public Task UpdateProfileAsync(string displayName = null, string photoUrl = null)
+        public Task UpdateProfileAsync(string displayName = "", string photoUrl = "")
         {
             var request = _wrapped.ProfileChangeRequest();
-            request.DisplayName = displayName;
-            if(photoUrl != null) {
-                request.PhotoUrl = new NSUrl(photoUrl);
+            if(displayName != "") {
+                request.DisplayName = displayName;
+            }
+            if(photoUrl != "") {
+                request.PhotoUrl = photoUrl == null ? null : new NSUrl(photoUrl);
             }
             return request.CommitChangesAsync();
         }

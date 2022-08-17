@@ -39,13 +39,16 @@ namespace Plugin.Firebase.Android.Auth
             return _wrapped.UpdatePhoneNumberAsync(PhoneAuthProvider.GetCredential(verificationId, smsCode));
         }
 
-        public Task UpdateProfileAsync(string displayName = null, string photoUrl = null)
+        public Task UpdateProfileAsync(string displayName = "", string photoUrl = "")
         {
-            return _wrapped
-                .UpdateProfileAsync(new UserProfileChangeRequest.Builder()
-                    .SetDisplayName(displayName)
-                    .SetPhotoUri(Uri.Parse(photoUrl))
-                    .Build());
+            var builder = new UserProfileChangeRequest.Builder();
+            if(displayName != "") {
+                builder.SetDisplayName(displayName);
+            }
+            if(photoUrl != "") {
+                builder.SetPhotoUri(photoUrl == null ? null : Uri.Parse(photoUrl));
+            }
+            return _wrapped.UpdateProfileAsync(builder.Build());
         }
 
         public Task SendEmailVerificationAsync(ActionCodeSettings actionCodeSettings = null)

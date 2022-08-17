@@ -77,7 +77,7 @@ namespace System.Collections.Generic
             }
         }
 
-        public static JavaList ToJavaList(this IList @this)
+        public static JavaList ToJavaList(this IEnumerable @this)
         {
             var list = new JavaList();
             foreach(var item in @this) {
@@ -189,48 +189,8 @@ namespace System.Collections.Generic
         public static IDictionary<string, Java.Lang.Object> ToJavaObjectDictionary(this IDictionary<string, object> dictionary)
         {
             var result = new Dictionary<string, Java.Lang.Object>();
-            dictionary.ToList().ForEach(x => PutIntoJavaObjectDictionary(x, ref result));
+            dictionary.ToList().ForEach(x => result.Add(x.Key, x.Value.ToJavaObject()));
             return result;
-        }
-
-        private static void PutIntoJavaObjectDictionary(KeyValuePair<string, object> pair, ref Dictionary<string, Java.Lang.Object> dictionary)
-        {
-            switch(pair.Value) {
-                case bool x:
-                    dictionary.Add(pair.Key, x);
-                    break;
-                case char x:
-                    dictionary.Add(pair.Key, x);
-                    break;
-                case double x:
-                    dictionary.Add(pair.Key, x);
-                    break;
-                case float x:
-                    dictionary.Add(pair.Key, x);
-                    break;
-                case long x:
-                    dictionary.Add(pair.Key, x);
-                    break;
-                case int x:
-                    dictionary.Add(pair.Key, x);
-                    break;
-                case short x:
-                    dictionary.Add(pair.Key, x);
-                    break;
-                case string x:
-                    dictionary.Add(pair.Key, x);
-                    break;
-                case FieldValue x:
-                    dictionary.Add(pair.Key, x.ToNative());
-                    break;
-                default:
-                    if(pair.Value == null) {
-                        dictionary.Add(pair.Key, null);
-                        break;
-                    } else {
-                        throw new ArgumentException($"Couldn't put object of type {pair.Value.GetType()} into Java.Lang.Object dictionary");
-                    }
-            }
         }
 
         public static IDictionary<string, Java.Lang.Object> ToJavaObjectDictionary(this IEnumerable<(string, object)> tuples)

@@ -73,7 +73,7 @@ namespace Plugin.Firebase.iOS.Firestore
 
         public ITransaction UpdateData(IDocumentReference document, params (string, object)[] data)
         {
-            return _wrapped.UpdateData(data.ToDictionary(), document.ToNative()).ToAbstract();
+            return _wrapped.UpdateData(data.ToNSObjectDictionary(), document.ToNative()).ToAbstract();
         }
 
         public ITransaction DeleteDocument(IDocumentReference document)

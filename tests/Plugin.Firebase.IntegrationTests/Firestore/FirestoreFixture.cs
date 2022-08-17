@@ -84,6 +84,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             var documentBulbasur = sut.GetDocument("testing/1");
             var documentCharmander = sut.GetDocument("testing/4");
             var documentSquirtle = sut.GetDocument("testing/7");
+            var otherMoves = new[] { "other_move", "another_move" };
             await documentBulbasur.SetDataAsync(bulbasur);
             await documentCharmander.SetDataAsync(charmander);
 
@@ -92,12 +93,17 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 var newSightingCount = snapshotCharmander.Data.SightingCount + 1;
                 transaction.SetData(documentSquirtle, squirtle);
                 transaction.UpdateData(documentCharmander, ("sighting_count", newSightingCount));
+                transaction.UpdateData(documentCharmander, ("moves", otherMoves));
+                transaction.UpdateData(documentCharmander, ("items", FieldValue.Delete()));
                 transaction.DeleteDocument(documentBulbasur);
                 return newSightingCount;
             });
 
+            var charmanderSnapshot = await documentCharmander.GetDocumentSnapshotAsync<Pokemon>();
             Assert.Equal(squirtle, (await documentSquirtle.GetDocumentSnapshotAsync<Pokemon>()).Data);
             Assert.Equal(charmander.SightingCount + 1, charmanderSightingCount);
+            Assert.Equal(otherMoves, charmanderSnapshot.Data.Moves);
+            Assert.Null(charmanderSnapshot.Data.Items);
             Assert.Null((await documentBulbasur.GetDocumentSnapshotAsync<Pokemon>()).Data);
         }
 

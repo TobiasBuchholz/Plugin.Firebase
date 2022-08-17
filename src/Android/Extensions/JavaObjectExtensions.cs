@@ -11,6 +11,7 @@ using Plugin.Firebase.Android.Firestore;
 using Plugin.Firebase.Common;
 using GeoPoint = Plugin.Firebase.Firestore.GeoPoint;
 using FieldValue = Plugin.Firebase.Firestore.FieldValue;
+using IList = System.Collections.IList;
 using NativeFirebase = Firebase;
 
 namespace Plugin.Firebase.Android.Extensions
@@ -128,6 +129,8 @@ namespace Plugin.Firebase.Android.Extensions
                     return x;
                 case HashMap x:
                     return x;
+                case IList x:
+                    return x.ToJavaList();
                 case IDictionary<string, object> x:
                     return x.ToHashMap();
                 case DocumentReferenceWrapper x:

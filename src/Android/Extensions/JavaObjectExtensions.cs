@@ -53,11 +53,11 @@ namespace Plugin.Firebase.Android.Extensions
                     var attribute = (FirestoreServerTimestampAttribute) timestampAttributes[0];
                     var value = @this[attribute.PropertyName];
                     if(value == null) {
-                        Console.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because it's not contained in the dictionary.");
-                    } else if(value is Java.Lang.Object javaValue) {
-                        property.SetValue(instance, javaValue.ToObject(property.PropertyType));
+                        Console.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because value is null");
+                    } else if(property.PropertyType == typeof(DateTimeOffset) && value is NativeFirebase.Timestamp timestamp) {
+                        property.SetValue(instance, timestamp.ToDate().ToDateTimeOffset());
                     } else {
-                        property.SetValue(instance, value);
+                        Console.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because properties that use the {nameof(FirestoreServerTimestampAttribute)} need to be of type {nameof(DateTimeOffset)} and value of type {nameof(NativeFirebase.Timestamp)}");
                     }
                 }
             }

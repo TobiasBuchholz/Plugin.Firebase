@@ -44,11 +44,12 @@ namespace Plugin.Firebase.iOS.Extensions
                 if(timestampAttributes.Any()) {
                     var attribute = (FirestoreServerTimestampAttribute) timestampAttributes[0];
                     var value = @this[attribute.PropertyName];
-
                     if(value == null) {
-                        Console.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because it's not contained in the NSDictionary.");
+                        Console.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because value is null");
+                    } else if(property.PropertyType == typeof(DateTimeOffset) && value is Timestamp timestamp) {
+                        property.SetValue(instance, timestamp.ToDateTimeOffset());
                     } else {
-                        property.SetValue(instance, value.ToObject(property.PropertyType));
+                        Console.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because properties that use the {nameof(FirestoreServerTimestampAttribute)} need to be of type {nameof(DateTimeOffset)} and value of type {nameof(Timestamp)}");
                     }
                 }
             }

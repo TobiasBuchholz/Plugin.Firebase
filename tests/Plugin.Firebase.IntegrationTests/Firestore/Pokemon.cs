@@ -114,7 +114,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         [FirestoreProperty("items")]
         public IList<SimpleItem> Items { get; private set; }
 
-        [FirestoreServerTimestamp("creation_date")]
+        [FirestoreProperty("creation_date")]
         public DateTimeOffset CreationDate { get; private set; }
 
         [FirestoreServerTimestamp("server_timestamp")]

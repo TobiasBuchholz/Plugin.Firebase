@@ -91,7 +91,7 @@
         <PackageReference Include="Xamarin.Firebase.Messaging" Version="121.1.0" />
         <PackageReference Include="Xamarin.Firebase.Storage" Version="119.2.1" />
         <PackageReference Include="Xamarin.Firebase.Storage.Common" Version="117.0.0" />
-        <PackageReference Include="Xamarin.GooglePlayServices.Auth" Version="119.2.0.3" />
+        <PackageReference Include="Xamarin.GooglePlayServices.Auth" Version="119.0.0" />
         <PackageReference Include="Xamarin.Google.Dagger" Version="2.27.0" />
     </ItemGroup>
 

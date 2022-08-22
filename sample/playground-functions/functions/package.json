@@ -15,7 +15,7 @@
   "main": "lib/index.js",
   "dependencies": {
     "class-transformer": "^0.3.1",
-    "firebase-admin": "^9.4.2",
+    "firebase-admin": "^11.0.1",
     "firebase-functions": "^3.6.1",
     "reflect-metadata": "^0.1.13"
   },

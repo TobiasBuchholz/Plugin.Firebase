@@ -131,7 +131,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 id: "9",
                 name: "Blastoise",
                 weightInKg: 85.5,
-                heightInCm: 160,
+                heightInCm: 160.5f,
                 isFromFirstGeneration: true,
                 pokeType: PokeType.Water,
                 moves: new List<string> { "Tackel", "Body-Slam", "Water-Gun" },

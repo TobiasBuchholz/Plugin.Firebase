@@ -41,6 +41,8 @@ namespace Plugin.Firebase.Android.Extensions
                         Console.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because it's not contained in the dictionary.");
                     } else if(value is Java.Lang.Object javaValue) {
                         property.SetValue(instance, javaValue.ToObject(property.PropertyType));
+                    } else if(property.PropertyType == typeof(float)) {
+                        property.SetValue(instance, Convert.ToSingle(value));
                     } else {
                         property.SetValue(instance, value);
                     }

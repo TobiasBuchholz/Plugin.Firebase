@@ -20,7 +20,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             string id = null,
             string name = null,
             double weightInKg = 0,
-            long heightInCm = 0,
+            float heightInCm = 0,
             long sightingCount = 0,
             bool isFromFirstGeneration = false,
             PokeType pokeType = default(PokeType),
@@ -94,7 +94,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         public double WeightInKg { get; private set; }
 
         [FirestoreProperty("height_in_cm")]
-        public long HeightInCm { get; private set; }
+        public float HeightInCm { get; private set; }
 
         [FirestoreProperty("sighting_count")]
         public long SightingCount { get; private set; }

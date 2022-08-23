@@ -16,6 +16,7 @@ using Plugin.Firebase.Android.Auth.PhoneNumber;
 using Plugin.Firebase.Common;
 using CrossActionCodeSettings = Plugin.Firebase.Auth.ActionCodeSettings;
 using CrossFirebaseAuthException = Plugin.Firebase.Common.FirebaseAuthException;
+using FirebaseAuthException = Firebase.Auth.FirebaseAuthException;
 
 namespace Plugin.Firebase.Auth
 {
@@ -68,7 +69,12 @@ namespace Plugin.Firebase.Auth
                 FirebaseAuthInvalidUserException => new CrossFirebaseAuthException(FIRAuthError.UserNotFound, ex.Message),
                 FirebaseAuthWeakPasswordException => new CrossFirebaseAuthException(FIRAuthError.WeakPassword, ex.Message),
                 FirebaseAuthInvalidCredentialsException => new CrossFirebaseAuthException(FIRAuthError.InvalidCredential, ex.Message),
-                FirebaseAuthUserCollisionException => new CrossFirebaseAuthException(FIRAuthError.EmailAlreadyInUse, ex.Message),
+                FirebaseAuthUserCollisionException
+                    when (ex as FirebaseAuthException).ErrorCode.Equals("ERROR_EMAIL_ALREADY_IN_USE")
+                    => new CrossFirebaseAuthException(FIRAuthError.EmailAlreadyInUse, ex.Message),
+                FirebaseAuthUserCollisionException
+                    when(ex as FirebaseAuthException).ErrorCode.Equals("ERROR_ACCOUNT_EXISTS_WITH_DIFFERENT_CREDENTIAL")
+                    => new CrossFirebaseAuthException(FIRAuthError.AccountExistsWithDifferentCredential, ex.Message),
                 _ => new CrossFirebaseAuthException(FIRAuthError.Undefined, ex.Message)
             };
         }

@@ -40,7 +40,12 @@ namespace Plugin.Firebase.Common
         /// <summary>
         /// Indicates the user's account is disabled.
         /// </summary>
-        UserDisabled
+        UserDisabled,
+        /// <summary>
+        /// Indicates the user already signed in once with a trusted provider and hence, cannot sign in with untrusted provider anymore.
+        /// List of trusted and untrusted providers: https://firebase.google.com/docs/auth/users#verified_email_addresses
+        /// </summary>
+        AccountExistsWithDifferentCredential
     }
 
     public class FirebaseAuthException : FirebaseException

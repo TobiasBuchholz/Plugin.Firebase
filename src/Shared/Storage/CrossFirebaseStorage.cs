@@ -8,11 +8,11 @@ namespace Plugin.Firebase.Storage
 
         private static IFirebaseStorage CreateInstance()
         {
-#if NETSTANDARD1_0 || NETSTANDARD2_0
-            return null;
+#if IOS || ANDROID
+            return new FirebaseStorageImplementation();
 #else
 #pragma warning disable IDE0022 // Use expression body for methods
-            return new FirebaseStorageImplementation();
+            return null;
 #pragma warning restore IDE0022 // Use expression body for methods
 #endif
         }

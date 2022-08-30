@@ -6,6 +6,8 @@ using Facebook.CoreKit;
 using Firebase.Auth;
 using Foundation;
 using Google.SignIn;
+using Microsoft.Maui.Authentication;
+using Microsoft.Maui.Devices;
 using Plugin.Firebase.Auth.PhoneNumber;
 using Plugin.Firebase.Common;
 using Plugin.Firebase.iOS.Auth;
@@ -16,7 +18,6 @@ using UIKit;
 using FirebaseAuth = Firebase.Auth.Auth;
 using Task = System.Threading.Tasks.Task;
 using CrossActionCodeSettings = Plugin.Firebase.Auth.ActionCodeSettings;
-using Xamarin.Essentials;
 
 namespace Plugin.Firebase.Auth
 {

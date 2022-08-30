@@ -8,11 +8,11 @@ namespace Plugin.Firebase.Firestore
 
         private static IFirebaseFirestore CreateInstance()
         {
-#if NETSTANDARD1_0 || NETSTANDARD2_0
-            return null;
+#if IOS || ANDROID
+            return new FirebaseFirestoreImplementation();
 #else
 #pragma warning disable IDE0022 // Use expression body for methods
-            return new FirebaseFirestoreImplementation();
+            return null;
 #pragma warning restore IDE0022 // Use expression body for methods
 #endif
         }

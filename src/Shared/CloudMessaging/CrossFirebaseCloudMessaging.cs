@@ -8,11 +8,11 @@ namespace Plugin.Firebase.CloudMessaging
 
         private static IFirebaseCloudMessaging CreateInstance()
         {
-#if NETSTANDARD1_0 || NETSTANDARD2_0
-            return null;
+#if IOS || ANDROID
+            return new FirebaseCloudMessagingImplementation();
 #else
 #pragma warning disable IDE0022 // Use expression body for methods
-            return new FirebaseCloudMessagingImplementation();
+            return null;
 #pragma warning restore IDE0022 // Use expression body for methods
 #endif
         }

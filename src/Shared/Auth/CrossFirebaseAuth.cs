@@ -8,11 +8,11 @@ namespace Plugin.Firebase.Auth
 
         private static IFirebaseAuth CreateInstance()
         {
-#if NETSTANDARD1_0 || NETSTANDARD2_0
-            return null;
+#if IOS || ANDROID
+            return new FirebaseAuthImplementation();
 #else
 #pragma warning disable IDE0022 // Use expression body for methods
-            return new FirebaseAuthImplementation();
+            return null;
 #pragma warning restore IDE0022 // Use expression body for methods
 #endif
         }

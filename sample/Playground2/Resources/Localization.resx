@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+		<xsd:element name="root" msdata:IsDataSet="true">
+		</xsd:element>
+	</xsd:schema>
+	<resheader name="resmimetype">
+		<value>text/microsoft-resx</value>
+	</resheader>
+	<resheader name="version">
+		<value>1.3</value>
+	</resheader>
+	<resheader name="reader">
+		<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<resheader name="writer">
+		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<!-- buttons -->
+	<data name="ButtonAuth">
+		<value>Auth</value>
+	</data>
+	<data name="ButtonCloudMessaging">
+		<value>Cloud Messaging</value>
+	</data>
+	<data name="ButtonRemoteConfig">
+		<value>Remote config</value>
+	</data>
+	<data name="ButtonStorage">
+		<value>Storage</value>
+	</data>
+	<data name="ButtonFetchRemoteConfig">
+		<value>Fetch and activate</value>
+	</data>
+	<data name="ButtonUploadText">
+		<value>Upload text as file</value>
+	</data>
+	<data name="ButtonSignInAnonymously">
+		<value>Sign in anonymously</value>
+	</data>
+	<data name="ButtonSignInWithEmail">
+		<value>Sign in with email</value>
+	</data>
+	<data name="ButtonSignInWithEmailLink">
+		<value>Sign in with email link</value>
+	</data>
+	<data name="ButtonSignInWithGoogle">
+		<value>Sign in with google</value>
+	</data>
+	<data name="ButtonSignInWithFacebook">
+		<value>Sign in with facebook</value>
+	</data>
+	<data name="ButtonSignInWithApple">
+		<value>Sign in with apple</value>
+	</data>
+	<data name="ButtonSignInWithPhoneNumber">
+		<value>Sign in with phone number</value>
+	</data>
+	<data name="ButtonSendVerificationCode">
+		<value>Send verification code</value>
+	</data>
+	<data name="ButtonLinkWithEmail">
+		<value>Link with email</value>
+	</data>
+	<data name="ButtonLinkWithGoogle">
+		<value>Link with google</value>
+	</data>
+	<data name="ButtonLinkWithFacebook">
+		<value>Link with facebook</value>
+	</data>
+	<data name="ButtonLinkWithPhoneNumber">
+		<value>Link with phone number</value>
+	</data>
+	<data name="ButtonUnlinkProvider">
+		<value>Unlink provider</value>
+	</data>
+	<data name="ButtonSignIn">
+		<value>Sign in</value>
+	</data>
+	<data name="ButtonSignOut">
+		<value>Sign out</value>
+	</data>
+	<data name="ButtonCheckFcmValidity">
+		<value>Check validity</value>
+	</data>
+	<data name="ButtonRegisterFcmToken">
+		<value>Register FCM token</value>
+	</data>
+	<data name="ButtonUnregisterFcmToken">
+		<value>Unregister FCM token</value>
+	</data>
+	<data name="ButtonSubscribeToTopic">
+		<value>Subscribe to topic</value>
+	</data>
+	<data name="ButtonUnsubscribeFromTopic">
+		<value>Unsubscribe from topic</value>
+	</data>
+	<data name="ButtonTriggerNotificationViaToken">
+		<value>Trigger notification via token</value>
+	</data>
+	<data name="ButtonTriggerNotificationViaTopic">
+		<value>Trigger notification via topic</value>
+	</data>
+	<data name="ButtonTriggerNotification">
+		<value>Trigger notification</value>
+	</data>
+    <data name="ButtonSendEmailToResetPassword">
+        <value>Reset password by email</value>
+    </data>
+	<!-- labels -->
+	<data name="LabelUserIsSignedIn">
+		<value>You are signed in:
+        Email: %1$s
+        Method: %2$s</value>
+	</data>
+	<data name="LabelUserIsSignedInWithoutEmail">
+		<value>You are signed in without using an email address</value>
+	</data>
+	<data name="LabelUserIsSignedOut">
+		<value>You are signed out</value>
+	</data>
+	<!-- entry placeholders -->
+	<data name="EntryPlaceholderStorage">
+		<value>Enter text for upload</value>
+	</data>
+	<!-- alerts -->
+	<data name="DialogTitleUnexpectedError">
+		<value>Unexpected Error</value>
+	</data>
+	<data name="DialogMessageEnterEmail">
+		<value>Enter your email address</value>
+	</data>
+	<data name="DialogMessageEnterPassword">
+		<value>Enter your password</value>
+	</data>
+	<data name="DialogMessageEnterPhoneNumber">
+		<value>Enter your phone number so Firebase can send a verification code</value>
+	</data>
+	<data name="DialogMessageEnterVerificationCode">
+		<value>Enter the verification code</value>
+	</data>
+	<data name="DialogTitleSignInLinkSent">
+		<value>Login link sent</value>
+	</data>
+	<data name="DialogMessageSignInLinkSent">
+		<value>Please check your inbox, we've sent a login link to your email address. Tap on the link to get signed in automatically.</value>
+	</data>
+	<data name="DialogTitleUnlinkProvider">
+		<value>Unlink provider</value>
+	</data>
+	<data name="DialogMessageUnlinkProvider">
+		<value>Please select the provider you want to unlink</value>
+	</data>
+	<data name="DialogTitleCloudMessaging">
+		<value>Cloud messaging</value>
+	</data>
+	<data name="DialogMessageFcmValid">
+		<value>The validity check was successful</value>
+	</data>
+	<data name="DialogMessageEnterTopic">
+		<value>Enter the name of the topic</value>
+	</data>
+	<data name="DialogMessageEnterCloudMessageBody">
+		<value>Enter some message you want to receive</value>
+	</data>
+    <data name="DialogTitlePasswordResetSuccessful">
+        <value>Password reset</value>
+    </data>
+    <data name="DialogMessagePasswordResetSuccessful">
+        <value>You should've received an email with a link to reset your password, check out your email inbox.</value>
+    </data>
+	<!-- common -->
+	<data name="Ok">
+		<value>OK</value>
+	</data>
+	<data name="Continue">
+		<value>Continue</value>
+	</data>
+	<data name="Cancel">
+		<value>Cancel</value>
+	</data>
+</root>

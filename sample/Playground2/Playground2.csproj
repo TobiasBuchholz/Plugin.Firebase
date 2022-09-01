@@ -24,50 +24,14 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
-
-		<!-- Splash Screen -->
 		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
-
-		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
 		<MauiFont Include="Resources\Fonts\*" />
-
-		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\..\src\Plugin.Firebase.csproj" />
-	</ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="CommunityToolkit.Maui" Version="1.2.0" />
-        <PackageReference Include="CommunityToolkit.Maui.Markup" Version="1.0.1" />
-        <PackageReference Include="Genesis.Observables" Version="3.0.0" />
-        <PackageReference Include="Genesis.Logging" Version="3.0.0" />
-        <PackageReference Include="ReactiveUI" Version="18.3.1" />
-        <PackageReference Include="ReactiveUI.Fody" Version="18.3.1" />
-        <PackageReference Include="ReactiveUI.Maui" Version="18.3.1" />
-    </ItemGroup>
-    
-    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
-        <PackageReference Include="Xamarin.Kotlin.StdLib.Jdk7" Version="1.7.10" ExcludeAssets="build;buildTransitive" />
-        <PackageReference Include="Xamarin.Kotlin.StdLib.Jdk8" Version="1.7.10" ExcludeAssets="build;buildTransitive" />
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
-        <GoogleServicesJson Include="google-services.json" />
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
-        <BundleResource Include="GoogleService-Info.plist" />
-    </ItemGroup>
-
+    <!-- localization -->
     <ItemGroup>
       <EmbeddedResource Update="Resources\Localization.resx">
         <Generator>ResXFileCodeGenerator</Generator>
@@ -81,5 +45,43 @@
         <AutoGen>True</AutoGen>
         <DependentUpon>Localization.resx</DependentUpon>
       </Compile>
+    </ItemGroup>
+
+    <!-- ios entitlements -->
+    <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
+        <CodesignEntitlements>Platforms\iOS\Entitlements.plist</CodesignEntitlements>
+    </PropertyGroup>
+
+    <!-- project references -->
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\Plugin.Firebase.csproj" />
+    </ItemGroup>
+
+    <!-- nuget packages -->
+    <ItemGroup>
+        <PackageReference Include="CommunityToolkit.Maui" Version="1.2.0" />
+        <PackageReference Include="CommunityToolkit.Maui.Markup" Version="1.0.1" />
+        <PackageReference Include="Genesis.Observables" Version="3.0.0" />
+        <PackageReference Include="Genesis.Logging" Version="3.0.0" />
+        <PackageReference Include="ReactiveUI" Version="18.3.1" />
+        <PackageReference Include="ReactiveUI.Fody" Version="18.3.1" />
+        <PackageReference Include="ReactiveUI.Maui" Version="18.3.1" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
+        <PackageReference Include="Xamarin.Kotlin.StdLib.Jdk7" Version="1.7.10" ExcludeAssets="build;buildTransitive" />
+        <PackageReference Include="Xamarin.Kotlin.StdLib.Jdk8" Version="1.7.10" ExcludeAssets="build;buildTransitive" />
+    </ItemGroup>
+
+    <!-- platform assets -->
+    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
+        <GoogleServicesJson Include="google-services.json" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
+        <BundleResource Include="GoogleService-Info.plist" />
     </ItemGroup>
 </Project>

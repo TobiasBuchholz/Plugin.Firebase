@@ -31,7 +31,7 @@ namespace Playground.Features.Dashboard
                         new Button { Text = Localization.ButtonStorage, TextColor = Colors.Black }
                             .Bind(nameof(Vm.NavigateToStoragePageCommand))
                     }
-            }
+                }
                 .FillHorizontal()
                 .CenterVertical()
                 .Margin(24);

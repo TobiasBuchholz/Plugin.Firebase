@@ -2,6 +2,7 @@ using Microsoft.Maui.Controls.Internals;
 using System.Reactive;
 using System.Reactive.Disposables;
 using Playground.Common.Base;
+using Playground.Common.Services.DynamicLink;
 using Playground.Common.Services.Navigation;
 using Playground.Common.Services.PushNotification;
 using Playground.Common.Services.UserInteraction;
@@ -17,6 +18,7 @@ namespace Playground.Features.Dashboard
         private readonly IUserInteractionService _userInteractionService;
 
         public DashboardViewModel(
+            IDynamicLinkService dynamicLinkService,
             INavigationService navigationService,
             IPushNotificationService pushNotificationService,
             IUserInteractionService userInteractionService)
@@ -27,6 +29,7 @@ namespace Playground.Features.Dashboard
 
             InitCommands();
             HandleTappedPushNotification();
+            dynamicLinkService.Register();
         }
 
         private void InitCommands()

@@ -1,18 +1,14 @@
-using System.Reactive.Concurrency;
-using ReactiveUI;
+namespace Playground.Common.Services.Scheduler;
 
-namespace Playground.Common.Services.Scheduler
+public sealed class SchedulerService : ISchedulerService
 {
-    public sealed class SchedulerService : ISchedulerService
+    public SchedulerService()
     {
-        public SchedulerService()
-        {
-            Main = RxApp.MainThreadScheduler.LogExceptions();
-            TaskPool = RxApp.TaskpoolScheduler.LogExceptions();
+        Main = RxApp.MainThreadScheduler.LogExceptions();
+        TaskPool = RxApp.TaskpoolScheduler.LogExceptions();
 
-        }
-
-        public IScheduler Main { get; }
-        public IScheduler TaskPool { get; }
     }
+
+    public IScheduler Main { get; }
+    public IScheduler TaskPool { get; }
 }

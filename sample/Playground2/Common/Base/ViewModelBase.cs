@@ -1,20 +1,17 @@
-using System.Reactive.Disposables;
+namespace Playground.Common.Base;
 
-namespace Playground.Common.Base
+public class ViewModelBase : DisposableReactiveObject
 {
-    public class ViewModelBase : DisposableReactiveObject
+    protected ViewModelBase()
     {
-        protected ViewModelBase()
-        {
-            Disposables = new CompositeDisposable();
-        }
-
-        public override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-            Disposables.Dispose();
-        }
-
-        protected CompositeDisposable Disposables { get; }
+        Disposables = new CompositeDisposable();
     }
+
+    public override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        Disposables.Dispose();
+    }
+
+    protected CompositeDisposable Disposables { get; }
 }

@@ -1,8 +1,3 @@
-using System.Reactive.Concurrency;
-using System.Reactive.Linq;
-using System.Reactive.Threading.Tasks;
-using Playground.Common.Services.Scheduler;
-
 namespace Playground.Common.Services.Navigation;
 
 public sealed class NavigationService : INavigationService

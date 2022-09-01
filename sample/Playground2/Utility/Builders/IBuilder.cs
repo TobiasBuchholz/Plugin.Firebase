@@ -1,6 +1,5 @@
-namespace Utility.Builders
+namespace Utility.Builders;
+
+public interface IBuilder
 {
-    public interface IBuilder
-    {
-    }
 }

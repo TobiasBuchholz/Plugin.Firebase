@@ -1,7 +1,5 @@
 using System.Globalization;
-using System.Reactive.Linq;
 using Genesis.Logging;
-using ReactiveUI;
 
 namespace Playground.Common.Services.Logging;
 

@@ -1,10 +1,7 @@
-using System.Reactive.Concurrency;
+namespace Playground.Common.Services.Scheduler;
 
-namespace Playground.Common.Services.Scheduler
+public interface ISchedulerService
 {
-    public interface ISchedulerService
-    {
-        IScheduler Main { get; }
-        IScheduler TaskPool { get; }
-    }
+    IScheduler Main { get; }
+    IScheduler TaskPool { get; }
 }

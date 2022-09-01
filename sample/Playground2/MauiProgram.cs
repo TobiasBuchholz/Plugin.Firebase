@@ -1,15 +1,10 @@
 using CommunityToolkit.Maui;
-using CommunityToolkit.Maui.Markup;
 using Genesis.Logging;
 using Microsoft.Maui.LifecycleEvents;
 using Playground.Common.Services.Auth;
 using Playground.Common.Services.DynamicLink;
 using Playground.Common.Services.Logging;
-using Playground.Common.Services.Navigation;
-using Playground.Common.Services.Preferences;
 using Playground.Common.Services.PushNotification;
-using Playground.Common.Services.Scheduler;
-using Playground.Common.Services.UserInteraction;
 using Playground.Features.Auth;
 using Playground.Features.CloudMessaging;
 using Playground.Features.Dashboard;
@@ -126,4 +121,3 @@ public static class MauiProgram
             googleRequestIdToken: "537235599720-723cgj10dtm47b4ilvuodtp206g0q0fg.apps.googleusercontent.com");
     }
 }
-

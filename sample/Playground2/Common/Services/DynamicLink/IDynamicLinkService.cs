@@ -1,9 +1,6 @@
-using System;
+namespace Playground.Common.Services.DynamicLink;
 
-namespace Playground.Common.Services.DynamicLink
+public interface IDynamicLinkService
 {
-    public interface IDynamicLinkService
-    {
-        IDisposable Register();
-    }
+    IDisposable Register();
 }

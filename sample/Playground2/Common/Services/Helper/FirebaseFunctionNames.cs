@@ -1,7 +1,6 @@
-namespace Playground.Common.Services.Helper
+namespace Playground.Common.Services.Helper;
+
+public static class FirebaseFunctionNames
 {
-    public static class FirebaseFunctionNames
-    {
-        public const string TriggerNotification = "triggerNotification";
-    }
+    public const string TriggerNotification = "triggerNotification";
 }

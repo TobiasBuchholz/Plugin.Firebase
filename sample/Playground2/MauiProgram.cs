@@ -23,7 +23,6 @@ using Playground.Platforms.iOS.Services.UserInteraction;
 #else
 using Plugin.Firebase.Android;
 using Playground.Platforms.Android.Services.UserInteraction;
-using Plugin.CurrentActivity;
 #endif
 using Plugin.Firebase.Shared;
 using Plugin.Firebase.Storage;
@@ -59,11 +58,7 @@ public static class MauiProgram
 		builder.Services.AddSingleton<IPushNotificationService, PushNotificationService>();
 		builder.Services.AddSingleton<ISchedulerService, SchedulerService>();
 		builder.Services.AddSingleton<IUserInteractionService, UserInteractionService>();
-
         builder.Services.AddSingleton(LoggerService.GetLogger(typeof(MauiProgram)));
-#if ANDROID
-        builder.Services.AddSingleton(_ => CrossCurrentActivity.Current);
-#endif
         return builder;
     }
 

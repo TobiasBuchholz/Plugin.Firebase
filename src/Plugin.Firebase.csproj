@@ -82,7 +82,6 @@
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
         <PackageReference Include="GoogleGson" Version="2.9.1" />
-        <PackageReference Include="Plugin.CurrentActivity" Version="2.1.0.4" />
         <PackageReference Include="Xamarin.Facebook.Android" Version="11.2.0.1" />
         <PackageReference Include="Xamarin.Firebase.Analytics" Version="120.1.2" />
         <PackageReference Include="Xamarin.Firebase.Auth" Version="121.0.7" />

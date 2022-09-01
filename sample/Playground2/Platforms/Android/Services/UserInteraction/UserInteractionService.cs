@@ -1,6 +1,5 @@
 ﻿using Playground.Common.Services.Scheduler;
 using Playground.Common.Services.UserInteraction;
-using Plugin.CurrentActivity;
 using AlertDialog = AndroidX.AppCompat.App.AlertDialog;
 using NativeSnackbar = Google.Android.Material.Snackbar.Snackbar;
 using NativeView = Android.Views.View;
@@ -9,21 +8,17 @@ namespace Playground.Platforms.Android.Services.UserInteraction
 {
     public sealed class UserInteractionService : UserInteractionServiceBase
     {
-        private readonly ICurrentActivity _current;
-
         public UserInteractionService(
-            ICurrentActivity current,
             ISchedulerService schedulerService)
             : base(schedulerService)
         {
-            _current = current;
         }
 
         protected override Task<int> ShowThreeButtonsDialogAsync(UserInfo userInfo)
         {
             var tcs = new TaskCompletionSource<int>();
             new AlertDialog
-                .Builder(_current.Activity)
+                .Builder(Platform.CurrentActivity)
                 .SetTitle(userInfo.Title)
                 .SetMessage(userInfo.Message)
                 .SetPositiveButton(userInfo.DefaultButtonTexts[0], (_,__) => tcs.SetResult(0))

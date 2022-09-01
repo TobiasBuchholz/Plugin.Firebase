@@ -7,7 +7,7 @@ using Android.Gms.Extensions;
 using Android.OS;
 using AndroidX.Fragment.App;
 using Firebase.Auth;
-using Plugin.CurrentActivity;
+using Microsoft.Maui.ApplicationModel;
 using Plugin.Firebase.Android.Auth;
 using Plugin.Firebase.Android.Auth.Email;
 using Plugin.Firebase.Android.Auth.Facebook;
@@ -24,7 +24,6 @@ namespace Plugin.Firebase.Auth
         public static void Initialize(Activity activity, Bundle savedInstanceState, string googleRequestIdToken)
         {
             _googleRequestIdToken = googleRequestIdToken;
-            CrossCurrentActivity.Current.Init(activity, savedInstanceState);
         }
 
         public static Task HandleActivityResultAsync(int requestCode, Result resultCode, Intent data)
@@ -277,10 +276,10 @@ namespace Plugin.Firebase.Auth
             Activity as FragmentActivity ?? throw new NullReferenceException($"Current Activity is either null or not of type {nameof(FragmentActivity)}, which is mandatory for sign in with Google");
 
         private static Activity Activity =>
-            CrossCurrentActivity.Current.Activity ?? throw new NullReferenceException("Current Activity is null, ensure that the MainApplication.cs file is setting the CurrentActivity in your source code so Firebase Analytics can use it.");
+            Platform.CurrentActivity ?? throw new NullReferenceException("Current Activity is null, ensure that the MainApplication.cs file is setting the CurrentActivity in your source code so Firebase Analytics can use it.");
 
         private static Context AppContext =>
-            CrossCurrentActivity.Current.AppContext ?? throw new NullReferenceException("AppContext is null, ensure that the MainApplication.cs file is setting the CurrentActivity in your source code so the Firebase Analytics can use it.");
+            Platform.AppContext ?? throw new NullReferenceException("AppContext is null, ensure that the MainApplication.cs file is setting the CurrentActivity in your source code so the Firebase Analytics can use it.");
 
         public IFirebaseUser CurrentUser => _firebaseAuth.CurrentUser?.ToAbstract();
     }

@@ -58,7 +58,6 @@
     <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
         <PackageReference Include="Xamarin.Kotlin.StdLib.Jdk7" Version="1.7.10" ExcludeAssets="build;buildTransitive" />
         <PackageReference Include="Xamarin.Kotlin.StdLib.Jdk8" Version="1.7.10" ExcludeAssets="build;buildTransitive" />
-        <PackageReference Include="Plugin.CurrentActivity" Version="2.1.0.4" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">

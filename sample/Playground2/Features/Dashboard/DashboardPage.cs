@@ -8,23 +8,22 @@ public sealed class DashboardPage : ContentPageBase
     public DashboardPage(DashboardViewModel viewModel)
     {
         BindingContext = viewModel;
-        BackgroundColor = Colors.White;
         Shell.Current.FlyoutBehavior = FlyoutBehavior.Disabled;
-        
         Build();   
     }
 
     private void Build()
     {
-        Content = new StackLayout {
-            Children = {
-                    new Button { Text = Localization.ButtonAuth, TextColor = Colors.Black }
+        Content = new VerticalStackLayout {
+                Spacing = 4,
+                Children = {
+                    new Button { Text = Localization.ButtonAuth }
                         .Bind(nameof(Vm.NavigateToAuthPageCommand)),
-                    new Button { Text = Localization.ButtonCloudMessaging, TextColor = Colors.Black }
+                    new Button { Text = Localization.ButtonCloudMessaging }
                         .Bind(nameof(Vm.NavigateToCloudMessagingPageCommand)),
-                    new Button { Text = Localization.ButtonRemoteConfig, TextColor = Colors.Black }
+                    new Button { Text = Localization.ButtonRemoteConfig }
                         .Bind(nameof(Vm.NavigateToRemoteConfigPageCommand)),
-                    new Button { Text = Localization.ButtonStorage, TextColor = Colors.Black }
+                    new Button { Text = Localization.ButtonStorage }
                         .Bind(nameof(Vm.NavigateToStoragePageCommand))
                 }
             }

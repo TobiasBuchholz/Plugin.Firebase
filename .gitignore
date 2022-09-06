@@ -246,3 +246,5 @@ _Pvt_Extensions
 /tests/Plugin.Firebase.TestHarness.Android/Resources/Resource.designer.cs
 /sample/Playground2/GoogleService-Info.plist
 /sample/Playground2/google-services.json
+/tests/Plugin.Firebase.IntegrationTests2/GoogleService-Info.plist
+/tests/Plugin.Firebase.IntegrationTests2/google-services.json

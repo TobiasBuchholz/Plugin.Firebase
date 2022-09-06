@@ -238,13 +238,7 @@ _Pvt_Extensions
 .idea
 *.vs
 *.DS_Store
-/sample/Playground.Android/google-services.json
-/sample/Playground.iOS/GoogleService-Info.plist
-/sample/Playground.Android/Resources/Resource.designer.cs
-/tests/Plugin.Firebase.TestHarness.iOS/GoogleService-Info.plist
-/tests/Plugin.Firebase.TestHarness.Android/google-services.json
-/tests/Plugin.Firebase.TestHarness.Android/Resources/Resource.designer.cs
-/sample/Playground2/GoogleService-Info.plist
-/sample/Playground2/google-services.json
-/tests/Plugin.Firebase.IntegrationTests2/GoogleService-Info.plist
-/tests/Plugin.Firebase.IntegrationTests2/google-services.json
+/sample/Playground/GoogleService-Info.plist
+/sample/Playground/google-services.json
+/tests/Plugin.Firebase.IntegrationTests/GoogleService-Info.plist
+/tests/Plugin.Firebase.IntegrationTests/google-services.json

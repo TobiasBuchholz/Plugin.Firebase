@@ -5,9 +5,9 @@ VisualStudioVersion = 16.0.808.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.Firebase", "Plugin.Firebase.csproj", "{05AEE250-D409-414E-90EA-249656AF8492}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Playground2", "..\sample\Playground2\Playground2.csproj", "{ADA86FC0-F0F4-4AF4-86BA-E1D107314998}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Playground", "..\sample\Playground\Playground.csproj", "{ADA86FC0-F0F4-4AF4-86BA-E1D107314998}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.Firebase.IntegrationTests2", "..\tests\Plugin.Firebase.IntegrationTests2\Plugin.Firebase.IntegrationTests2.csproj", "{88D3930F-20B5-468B-8D1F-0D526672BA5A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.Firebase.IntegrationTests", "..\tests\Plugin.Firebase.IntegrationTests\Plugin.Firebase.IntegrationTests.csproj", "{88D3930F-20B5-468B-8D1F-0D526672BA5A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

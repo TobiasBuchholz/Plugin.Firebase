@@ -53,26 +53,12 @@ namespace Plugin.Firebase.iOS.Firestore
 
         public Task UpdateDataAsync(Dictionary<object, object> data)
         {
-            var nativeData = data.ToDictionary(x => x.Key, x => {
-                if(x.Value is FieldValue fieldValue) {
-                    return fieldValue.ToNative();
-                }
-                return x.Value;
-            });
-            return Wrapped.UpdateDataAsync(nativeData);
+            return Wrapped.UpdateDataAsync(data.ToNSObjectDictionary());
         }
 
         public Task UpdateDataAsync(params (string, object)[] data)
         {
-            var dict = new Dictionary<object, object>();
-            data.ToList().ForEach(x => {
-                if(x.Item2 is FieldValue fieldValue) {
-                    dict[x.Item1] = fieldValue.ToNative();
-                } else {
-                    dict[x.Item1] = x.Item2;
-                }
-            });
-            return Wrapped.UpdateDataAsync(dict);
+            return Wrapped.UpdateDataAsync(data.ToNSObjectDictionary());
         }
 
         public Task DeleteDocumentAsync()

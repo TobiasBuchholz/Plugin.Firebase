@@ -57,7 +57,8 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             var update = new Dictionary<object, object> {
                 { "name", "Cool Squirtle" },
                 { "moves", FieldValue.ArrayUnion("Bubble-Blast") },
-                { "first_sighting_location.latitude", 13.37 }
+                { "first_sighting_location.latitude", 13.37 },
+                { "original_reference", document }
             };
 
             await document.UpdateDataAsync(update);

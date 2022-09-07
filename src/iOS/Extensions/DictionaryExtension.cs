@@ -136,6 +136,11 @@ namespace Plugin.Firebase.iOS.Extensions
             return dict;
         }
 
+        public static Dictionary<object, object> ToNSObjectDictionary(this Dictionary<object, object> @this)
+        {
+            return @this.ToDictionary(x => x.Key, x => (object) x.Value.ToNSObject());
+        }
+
         public static Dictionary<object, object> ToNSObjectDictionary(this IEnumerable<(string, object)> @this)
         {
             var dict = new Dictionary<object, object>();

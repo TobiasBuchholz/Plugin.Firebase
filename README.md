@@ -16,8 +16,77 @@ This is a wrapper library around the native Android and iOS Firebase Xamarin SDK
 4. Set ```[GoogleService-Info.plist|google-services.json]``` **build action** behaviour to ```[Bundle Resource|GoogleServicesJson]``` by Right clicking/Build Action.
 5. Add the following line of code to the place where your app gets bootstrapped:
 ```c#
-  CrossFirebase.Initialize(..., new CrossFirebaseSettings(...));
+CrossFirebase.Initialize(..., new CrossFirebaseSettings(...));
 ```
+
+## .NET MAUI support
+The new plugin version 1.2.0 now supports .NET MAUI applications with .NET 6 🚀 
+
+To get started add the `GoogleService-Info.plist` and the `google-services.json` files to the root folder of your project and include them in the .csproj file like this:
+
+```xml
+<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
+    <GoogleServicesJson Include="google-services.json" />
+</ItemGroup>
+
+<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
+    <BundleResource Include="GoogleService-Info.plist" />
+</ItemGroup>
+```
+
+Put the initialization call from step 5 of the basic setup in your `MauiProgram.cs` like this:
+
+```c#
+public static class MauiProgram
+{
+    public static MauiApp CreateMauiApp()
+    {
+        return MauiApp
+            .CreateBuilder()
+            .UseMauiApp<App>()
+            ...
+            .RegisterFirebaseServices()
+            .Build();
+    }
+    
+    private static MauiAppBuilder RegisterFirebaseServices(this MauiAppBuilder builder)
+    {
+        builder.ConfigureLifecycleEvents(events => {
+#if IOS
+            events.AddiOS(iOS => iOS.FinishedLaunching((app, launchOptions) => {
+                CrossFirebase.Initialize(app, launchOptions, CreateCrossFirebaseSettings());
+                return false;
+            }));
+#else
+            events.AddAndroid(android => android.OnCreate((activity, state) =>
+                CrossFirebase.Initialize(activity, state, CreateCrossFirebaseSettings())));
+#endif
+        });
+        
+        builder.Services.AddSingleton(_ => CrossFirebaseAuth.Current);
+        return builder;
+    }
+    
+    private static CrossFirebaseSettings CreateCrossFirebaseSettings()
+    {
+        return new CrossFirebaseSettings(isAuthEnabled: true);
+    }
+}
+```
+
+### Android specifics
+- Add the following `ItemGroup` to your `.csproj file` to prevent build errors:
+```xml
+<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
+  <PackageReference Include="Xamarin.Kotlin.StdLib.Jdk7" Version="1.7.10" ExcludeAssets="build;buildTransitive" />
+  <PackageReference Include="Xamarin.Kotlin.StdLib.Jdk8" Version="1.7.10" ExcludeAssets="build;buildTransitive" />
+</ItemGroup>
+```
+
+Take a look at the [sample project](https://github.com/TobiasBuchholz/Plugin.Firebase/tree/development/sample/Playground) to get more information.
+
+## Plugin.Firebase.Legacy
+If you are working with an older Xamarin project and are not able to migrate to .NET MAUI yet, there is a legacy version of the plugin called [Plugin.Firebase.Legacy](https://www.nuget.org/packages/Plugin.Firebase/). The code for this package is located on a branch called `legacy`. Bugfixes or other small important changes can be done here and will be synced to the `development/master` branch if needed.
 
 ### Android specifics
 - Add the following `PackageReference` to the `.csproj file` of your android project to prevent a build error (see this [github comment](https://github.com/xamarin/GooglePlayServicesComponents/issues/379#issuecomment-733266753) for more information):

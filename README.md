@@ -8,6 +8,8 @@ This is a wrapper library around the native Android and iOS Firebase Xamarin SDK
 
 > Install-Package Plugin.Firebase
 
+Hint: If you encounter a build error with Visual Studio on Windows, try to add the package via `dotnet add package Plugin.Firebase`, see [issue #69](https://github.com/TobiasBuchholz/Plugin.Firebase/issues/65) for more information.
+
 ## Basic setup
 
 1. Create a Firebase project in the [Firebase Console](https://console.firebase.google.com/), if you don't already have one. If you already have an existing Google project associated with your mobile app, click **Import Google Project**. Otherwise, click **Create New Project**.

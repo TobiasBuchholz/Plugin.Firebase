@@ -20,7 +20,7 @@
         <DefineConstants>$(DefineConstants);</DefineConstants>
 
         <!--Assembly and Namespace info -->
-        <PackageId>Plugin.Firebase</PackageId>
+        <PackageId>Plugin.Firebase.Legacy</PackageId>
         <PackageVersion>1.1.5</PackageVersion>
 
         <PackageLicenseExpression>MIT</PackageLicenseExpression>

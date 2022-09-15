@@ -3,12 +3,13 @@
 This is a wrapper library around the native Android and iOS Firebase Xamarin SDKs. It includes cross-platform APIs for Firebase [Analytics](https://firebase.google.com/docs/analytics), [Auth](https://firebase.google.com/docs/auth), [Cloud Messaging](https://firebase.google.com/docs/cloud-messaging), [Dynamic Links](https://firebase.google.com/docs/dynamic-links), [Firestore](https://firebase.google.com/docs/firestore), [Cloud Functions](https://firebase.google.com/docs/functions), [Remote Config](https://firebase.google.com/docs/remote-config) and [Storage](https://firebase.google.com/docs/storage).
 
 ## Installation
-#### Nuget
+### Nuget
 [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase/)
 
 > Install-Package Plugin.Firebase
 
-Hint: If you encounter a build error with Visual Studio on Windows, try to add the package via `dotnet add package Plugin.Firebase`, see [issue #69](https://github.com/TobiasBuchholz/Plugin.Firebase/issues/65) for more information.
+#### Visual Studio 2022 on Windows:
+If you encounter a build error, try to add the package via `dotnet add package Plugin.Firebase`, see [issue #69](https://github.com/TobiasBuchholz/Plugin.Firebase/issues/65) for more information.
 
 ## Basic setup
 

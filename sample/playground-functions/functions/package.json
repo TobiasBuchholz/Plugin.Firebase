@@ -3,6 +3,7 @@
   "scripts": {
     "lint": "tslint --project tsconfig.json",
     "build": "tsc",
+    "build:watch": "tsc --watch",
     "serve": "npm run build && firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",
@@ -10,19 +11,18 @@
     "logs": "firebase functions:log"
   },
   "engines": {
-    "node": "10"
+    "node": "16"
   },
   "main": "lib/index.js",
   "dependencies": {
     "class-transformer": "^0.3.1",
-    "firebase-admin": "^11.0.1",
-    "firebase-functions": "^3.6.1",
+    "firebase-admin": "^10.2.0",
+    "firebase-functions": "^3.21.0",
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
     "tslint": "^5.12.0",
-    "typescript": "^3.8.0",
-    "firebase-functions-test": "^0.2.0"
+    "typescript": "^4.6.4"
   },
   "private": true
 }

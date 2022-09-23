@@ -2,7 +2,7 @@ import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
 
 export const echo = functions.https.onRequest(async (request, response) => {
-  functions.logger.log("[+] echo");
+  functions.logger.log(`[+] echo: headers = ${JSON.stringify(request.headers)}`);
   response.send(request.body);
 });
 

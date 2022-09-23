@@ -21,3 +21,8 @@ exports.convertToLeet = functions.https.onCall(async (data, context) =>  {
   functions.logger.log('[+] convertToLeet:', data);
   return `{ "input_value": ${data?.input_value}, "output_value": 1337 }`;
 });
+
+exports.echo = functions.https.onRequest(async (request, response) => {
+    functions.logger.log(`[+] echo: headers = ${JSON.stringify(request.headers)}`);
+    response.send(request.body);
+});

@@ -83,6 +83,16 @@ Ensure that the `.csproj` file's bundle identifier matches that of your firebase
 <ApplicationIdGuid>LOTS-OF-HEX-NUMBERS-AND-DASHES</ApplicationIdGuid>
 ```
 
+To avoid build errors about target unsupported frameworks including Mac and Windows, remove them from the `.csproj` file, so that only android and ios remain.
+
+```xml
+<TargetFrameworks>net6.0-android;net6.0-ios;</TargetFrameworks>
+
+<!-- And lower down in the file... -->
+
+<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">14.2</SupportedOSPlatformVersion>
+<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
+```
 
 
 ### Android specifics

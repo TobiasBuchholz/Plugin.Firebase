@@ -76,6 +76,14 @@ public static class MauiProgram
     }
 }
 ```
+Ensure that the `.csproj` file's bundle identifier matches that of your firebase project (e.g. `com.company.myapp`). You can open the `google-services.json` file to check what yours is.
+```xml
+<!-- App Identifier -->
+<ApplicationId>com.me.myapp</ApplicationId> <!--FIX THIS-->
+<ApplicationIdGuid>LOTS-OF-HEX-NUMBERS-AND-DASHES</ApplicationIdGuid>
+```
+
+
 
 ### Android specifics
 - Add the following `ItemGroup` to your `.csproj file` to prevent build errors:

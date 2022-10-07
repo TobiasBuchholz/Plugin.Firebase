@@ -76,24 +76,18 @@ public static class MauiProgram
     }
 }
 ```
-Ensure that the `.csproj` file's bundle identifier matches that of your firebase project (e.g. `com.company.myapp`). You can open the `google-services.json` file to check what yours is.
+Ensure the `ApplicationId` in your `.csproj` file matches the `bundle_id` and `package_name` inside of the `[GoogleService-Info.plist|google-services.json]` files:
 ```xml
-<!-- App Identifier -->
-<ApplicationId>com.me.myapp</ApplicationId> <!--FIX THIS-->
-<ApplicationIdGuid>LOTS-OF-HEX-NUMBERS-AND-DASHES</ApplicationIdGuid>
+<ApplicationId>com.example.myapp</ApplicationId>
 ```
 
-To avoid build errors about target unsupported frameworks including Mac and Windows, remove them from the `.csproj` file, so that only android and ios remain.
+The plugin doesn't support Windows or Mac catalyst, so either remove their targets from your `.csproj` file or use  [preprocessor directives](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/preprocessor-directives#conditional-compilation) and [MSBuild conditions](https://learn.microsoft.com/de-de/visualstudio/msbuild/msbuild-conditions?view=vs-2022), e.g:
 
 ```xml
-<TargetFrameworks>net6.0-android;net6.0-ios;</TargetFrameworks>
-
-<!-- And lower down in the file... -->
-
-<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">14.2</SupportedOSPlatformVersion>
-<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
+<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios' OR '$(TargetFramework)' == 'net6.0-android'">
+    <PackageReference Include="Plugin.Firebase" Version="1.2.0" />
+</ItemGroup>
 ```
-
 
 ### Android specifics
 - Add the following `ItemGroup` to your `.csproj file` to prevent build errors:

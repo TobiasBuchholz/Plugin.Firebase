@@ -24,3 +24,43 @@ Since code should be documenting itself you can also take a look at the followin
 - [src/.../ITransaction.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Firestore/ITransaction.cs)
 - [src/.../IWriteBatch.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Firestore/IWriteBatch.cs)
 - [tests/.../FirestoreFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Firestore/FirestoreFixture.cs)
+
+### Receiving Data From Firestore
+
+To exchange data with Firestore, attributes need to be added to public properties in data classes. Without these attributes, the returned data object from calls to Firestore will contain all null fields.
+
+For example:
+```csharp
+[FirestoreDocumentId]
+public string FireStoreId
+{
+    get => Id;
+    set => Id = value;
+}
+
+[FirestoreProperty(nameof(Name))]
+public string FireStoreName { 
+    get => Name;
+    set => Name = value;
+}
+```
+The `nameof(Name)` lets the plugin know that it expects a Firebase field named "Name" when synchronizing, when using `IDocumentSnapshot.Data` etc.
+
+
+### Compatibility with CommunityToolkit.Mvvm.ComponentModel
+
+If you use `[ObservableProperty]` From the CommunityToolkit.Mvvm.ComponentModel package, This can cause problems since this attribute needs to be on fields (properties are auto-generated in a separate file), whereas `[FirestoreProperty]` needs to be on public properties.
+
+A simple solution is to make the `[FirestoreProperty]` property a simple wrapper around the autogenetrated property. 
+
+```csharp
+[ObservableProperty]
+string _name;
+
+[FirestoreProperty(nameof(Name))]
+public string FireStoreName { 
+    get => Name;
+    set => Name = value;
+}
+```
+This means that any time firestore updates the public property, the notification events still fire and are bindable from your UI in the normal fashion.

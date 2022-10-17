@@ -112,11 +112,11 @@ If you are working with an older Xamarin project and are not able to migrate to 
 
 ## Documentation and samples
 
-In the [docs folder](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/docs) you can find for every feature a designated readme file that describes the setup and usage of this feature or where to find more information.
+In the [docs folder](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs) you can find for every feature a designated readme file that describes the setup and usage of this feature or where to find more information.
 
-In the [sample folder](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/sample) you can find a sample Xamarin.Forms project. This project serves as a base to play around with the plugin and to test features that are hard to test automatically (like Authentication or Cloud Messages). [playground-functions](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/sample/playground-functions) is a Cloud Functions project and contains the code to enable sending Cloud Messages from the backend.
+In the [sample folder](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/sample) you can find a sample Xamarin.Forms project. This project serves as a base to play around with the plugin and to test features that are hard to test automatically (like Authentication or Cloud Messages). [playground-functions](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/sample/playground-functions) is a Cloud Functions project and contains the code to enable sending Cloud Messages from the backend.
 
-In the [tests folder](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests) you can find a Xamarin.Forms project that lets you run integration tests. You should definitely check out the ```*Fixture.cs``` files to learn how the plugin is supposed to work. All the tests should pass when they get executed on a real device.
+In the [tests folder](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/tests) you can find a Xamarin.Forms project that lets you run integration tests. You should definitely check out the ```*Fixture.cs``` files to learn how the plugin is supposed to work. All the tests should pass when they get executed on a real device.
 
 In case you would like to run the sample or test project by yourself, you need to add the ```GoogleService-Info.plist``` and ```google-services.json``` files of your own firebase project and adapt the other config files like ```Info.plist, Entitlements.plist, AndroidManifest.xml```.
 
@@ -131,4 +131,4 @@ You are welcome to contribute to this project by creating a [Pull Request](https
 
 ## License
 
-```Plugin.Firebase``` is released under the MIT license. See the [LICENSE](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/LICENSE) file for details.
+```Plugin.Firebase``` is released under the MIT license. See the [LICENSE](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/LICENSE) file for details.

@@ -14,6 +14,59 @@ Cloud Firestore is a flexible, scalable database for mobile, web, and server dev
 
 ## Usage
 
+To be able to fetch your data from the firestore, you'll need to create a POCO that implements the `IFirestoreObject` interface. Use the `FirestoreDocumentId` and `FirestoreProperty` attributes to hook up its properties, for example:
+```c#
+
+public sealed class Pokemon : IFirestoreObject
+{
+    [FirestoreDocumentId]
+    public string Id { get; private set; }
+
+    [FirestoreProperty("name")]
+    public string Name { get; private set; }
+
+    [FirestoreProperty("weight_in_kg")]
+    public double WeightInKg { get; private set; }
+
+    [FirestoreProperty("height_in_cm")]
+    public float HeightInCm { get; private set; }
+
+    [FirestoreProperty("sighting_count")]
+    public long SightingCount { get; private set; }
+
+    [FirestoreProperty("is_from_first_generation")]
+    public bool IsFromFirstGeneration { get; private set; }
+
+    [FirestoreProperty("poke_type")]
+    public PokeType PokeType { get; private set; }
+
+    [FirestoreProperty("moves")]
+    public IList<string> Moves { get; private set; }
+    
+    [FirestoreProperty("first_sighting_location")]
+    public SightingLocation FirstSightingLocation { get; private set; }
+
+    [FirestoreProperty("items")]
+    public IList<SimpleItem> Items { get; private set; }
+
+    [FirestoreProperty("creation_date")]
+    public DateTimeOffset CreationDate { get; private set; }
+
+    [FirestoreServerTimestamp("server_timestamp")]
+    public DateTimeOffset ServerTimestamp { get; private set; }
+
+    [FirestoreProperty("original_reference")]
+    public IDocumentReference OriginalReference { get; private set; }
+
+}
+```
+
+This class is represented in firestore like this:
+
+![firestore_poco.png](../art/firestore_poco.png)
+
+### Further information
+
 Take a look at the [documentation](https://github.com/xamarin/GoogleApisForiOSComponents/blob/master/docs/Firebase/CloudFirestore/GettingStarted.md) for the Xamarin.Firebase.iOS.CloudFirestore packages, because Plugin.Firebase's code is abstracted but still very similar.
 
 Since code should be documenting itself you can also take a look at the following classes:
@@ -24,43 +77,3 @@ Since code should be documenting itself you can also take a look at the followin
 - [src/.../ITransaction.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Firestore/ITransaction.cs)
 - [src/.../IWriteBatch.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Firestore/IWriteBatch.cs)
 - [tests/.../FirestoreFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Firestore/FirestoreFixture.cs)
-
-### Receiving Data From Firestore
-
-To exchange data with Firestore, attributes need to be added to public properties in data classes. Without these attributes, the returned data object from calls to Firestore will contain all null fields.
-
-For example:
-```csharp
-[FirestoreDocumentId]
-public string FireStoreId
-{
-    get => Id;
-    set => Id = value;
-}
-
-[FirestoreProperty(nameof(Name))]
-public string FireStoreName { 
-    get => Name;
-    set => Name = value;
-}
-```
-The `nameof(Name)` lets the plugin know that it expects a Firebase field named "Name" when synchronizing, when using `IDocumentSnapshot.Data` etc.
-
-
-### Compatibility with CommunityToolkit.Mvvm.ComponentModel
-
-If you use `[ObservableProperty]` From the CommunityToolkit.Mvvm.ComponentModel package, This can cause problems since this attribute needs to be on fields (properties are auto-generated in a separate file), whereas `[FirestoreProperty]` needs to be on public properties.
-
-A simple solution is to make the `[FirestoreProperty]` property a simple wrapper around the autogenetrated property. 
-
-```csharp
-[ObservableProperty]
-string _name;
-
-[FirestoreProperty(nameof(Name))]
-public string FireStoreName { 
-    get => Name;
-    set => Name = value;
-}
-```
-This means that any time firestore updates the public property, the notification events still fire and are bindable from your UI in the normal fashion.

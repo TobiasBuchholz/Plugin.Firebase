@@ -79,7 +79,8 @@ namespace Plugin.Firebase.CloudMessaging
             var intent = _context.PackageManager.GetLaunchIntentForPackage(_context.PackageName);
             intent.PutExtra(IntentKeyFCMNotification, notification.ToBundle());
             intent.SetFlags(ActivityFlags.ClearTop | ActivityFlags.SingleTop);
-            var pendingIntent = PendingIntent.GetActivity(_context, 0, intent, PendingIntentFlags.Immutable);
+            var pendingIntent = PendingIntent.GetActivity(_context, 0, intent,
+                PendingIntentFlags.Immutable | PendingIntentFlags.UpdateCurrent);
             var builder = NotificationBuilderProvider?.Invoke(notification) ?? CreateDefaultNotificationBuilder(notification);
             var notificationManager = (NotificationManager) _context.GetSystemService(Context.NotificationService);
             notificationManager.Notify(1337, builder.SetContentIntent(pendingIntent).Build());

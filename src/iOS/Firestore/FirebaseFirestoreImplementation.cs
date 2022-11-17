@@ -11,7 +11,7 @@ namespace Plugin.Firebase.Firestore
 {
     public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseFirestore
     {
-        private readonly FBFirestore _firestore;
+        private FBFirestore _firestore;
 
         public FirebaseFirestoreImplementation()
         {
@@ -49,6 +49,36 @@ namespace Plugin.Firebase.Firestore
         public IWriteBatch CreateBatch()
         {
             return _firestore.CreateBatch().ToAbstract();
+        }
+
+        public Task WaitForPendingWritesAsync()
+        {
+            return _firestore.WaitForPendingWritesAsync();
+        }
+
+        public Task DisableNetworkAsync()
+        {
+            return _firestore.DisableNetworkAsync();
+        }
+
+        public Task EnableNetworkAsync()
+        {
+            return _firestore.EnableNetworkAsync();
+        }
+
+        public Task ClearPersistenceAsync()
+        {
+            return _firestore.ClearPersistenceAsync();
+        }
+
+        public Task TerminateAsync()
+        {
+            return _firestore.TerminateAsync();
+        }
+
+        public void Restart()
+        {
+            _firestore = FBFirestore.SharedInstance;
         }
 
         public void UseEmulator(string host, int port)

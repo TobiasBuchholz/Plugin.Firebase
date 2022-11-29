@@ -83,29 +83,29 @@
     <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
         <PackageReference Include="GoogleGson" Version="2.9.1" />
         <PackageReference Include="Xamarin.Facebook.Android" Version="11.2.0.1" />
-        <PackageReference Include="Xamarin.Firebase.Analytics" Version="120.1.2" />
-        <PackageReference Include="Xamarin.Firebase.Auth" Version="121.0.7" />
-        <PackageReference Include="Xamarin.Firebase.Config" Version="121.1.1" />
-        <PackageReference Include="Xamarin.Firebase.Dynamic.Links" Version="121.0.1" />
-        <PackageReference Include="Xamarin.Firebase.Firestore" Version="124.1.2" />
-        <PackageReference Include="Xamarin.Firebase.Functions" Version="120.0.2" />
-        <PackageReference Include="Xamarin.Firebase.Messaging" Version="123.0.7" />
-        <PackageReference Include="Xamarin.Firebase.Storage" Version="120.0.1" />
+        <PackageReference Include="Xamarin.Firebase.Analytics" Version="121.1.1" />
+        <PackageReference Include="Xamarin.Firebase.Auth" Version="121.0.8" />
+        <PackageReference Include="Xamarin.Firebase.Config" Version="121.1.2" />
+        <PackageReference Include="Xamarin.Firebase.Dynamic.Links" Version="121.0.2" />
+        <PackageReference Include="Xamarin.Firebase.Firestore" Version="124.3.1" />
+        <PackageReference Include="Xamarin.Firebase.Functions" Version="120.1.1" />
+        <PackageReference Include="Xamarin.Firebase.Messaging" Version="123.0.8" />
+        <PackageReference Include="Xamarin.Firebase.Storage" Version="120.0.2" />
         <PackageReference Include="Xamarin.Firebase.Storage.Common" Version="117.0.0.7" />
         <PackageReference Include="Xamarin.GooglePlayServices.Auth" Version="120.2.0.2" />
         <PackageReference Include="Xamarin.AndroidX.Browser" Version="1.4.0.2" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
-        <PackageReference Include="Xamarin.Firebase.iOS.Auth" Version="8.10.0.1" />
-        <PackageReference Include="Xamarin.Firebase.iOS.CloudFirestore" Version="8.10.0.1" />
-        <PackageReference Include="Xamarin.Firebase.iOS.CloudFunctions" Version="8.10.0.1" />
-        <PackageReference Include="Xamarin.Firebase.iOS.CloudMessaging" Version="8.10.0.1" />
-        <PackageReference Include="Xamarin.Firebase.iOS.DynamicLinks" Version="8.10.0.1" />
-        <PackageReference Include="Xamarin.Firebase.iOS.RemoteConfig" Version="8.10.0.1" />
-        <PackageReference Include="Xamarin.Firebase.iOS.Storage" Version="8.10.0.1" />
+        <PackageReference Include="Xamarin.Firebase.iOS.Auth" Version="8.10.0.3" />
+        <PackageReference Include="Xamarin.Firebase.iOS.CloudFirestore" Version="8.10.0.3" />
+        <PackageReference Include="Xamarin.Firebase.iOS.CloudFunctions" Version="8.10.0.3" />
+        <PackageReference Include="Xamarin.Firebase.iOS.CloudMessaging" Version="8.10.0.3" />
+        <PackageReference Include="Xamarin.Firebase.iOS.DynamicLinks" Version="8.10.0.3" />
+        <PackageReference Include="Xamarin.Firebase.iOS.RemoteConfig" Version="8.10.0.3" />
+        <PackageReference Include="Xamarin.Firebase.iOS.Storage" Version="8.10.0.3" />
         <PackageReference Include="Xamarin.Facebook.iOS" Version="12.2.0.1" />
-        <PackageReference Include="Xamarin.Firebase.iOS.Analytics" Version="8.10.0.1" />
+        <PackageReference Include="Xamarin.Firebase.iOS.Analytics" Version="8.10.0.3" />
         <PackageReference Include="Xamarin.Google.iOS.SignIn" Version="5.0.2.3" />
     </ItemGroup>
 

@@ -8,8 +8,10 @@ namespace Plugin.Firebase.iOS.Firestore
         public SnapshotMetadataWrapper(SnapshotMetadata metadata)
         {
             HasPendingWrites = metadata.HasPendingWrites;
+            IsFromCache = metadata.IsFromCache;
         }
 
         public bool HasPendingWrites { get; }
+        public bool IsFromCache { get; }
     }
 }

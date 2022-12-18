@@ -308,11 +308,11 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             var sut = CrossFirebaseFirestore.Current;
             var collection = sut.GetCollection("testing");
 
-            var changes = new List<IEnumerable<DocumentChangeType>>();
+            var changes = new List<IEnumerable<(DocumentChangeType, string)>>();
             var disposable = collection
                 .WhereEqualsTo("poke_type", PokeType.Fire)
                 .AddSnapshotListener<Pokemon>(x => {
-                    changes.Add(x.DocumentChanges.Select(y => y.ChangeType));
+                    changes.Add(x.DocumentChanges.Select(y => (y.ChangeType, y.DocumentSnapshot.Data.Name)));
                 });
 
             await collection.GetDocument("4").SetDataAsync(PokemonFactory.CreateCharmander());
@@ -331,14 +331,14 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             await Task.Delay(TimeSpan.FromMilliseconds(500));
 
             var expectedChanges = new[] {
-                DocumentChangeType.Added,
-                DocumentChangeType.Modified,
-                DocumentChangeType.Added,
-                DocumentChangeType.Modified,
-                DocumentChangeType.Added,
-                DocumentChangeType.Modified,
-                DocumentChangeType.Modified,
-                DocumentChangeType.Removed
+                (DocumentChangeType.Added, "Charmander"),
+                (DocumentChangeType.Modified, "Charmander"),
+                (DocumentChangeType.Added, "Charmeleon"),
+                (DocumentChangeType.Modified, "Charmeleon"),
+                (DocumentChangeType.Added, "Charizard"),
+                (DocumentChangeType.Modified, "Charizard"),
+                (DocumentChangeType.Modified, "Charmander"),
+                (DocumentChangeType.Removed, "Charmeleon")
             };
 
             Assert.Equal(expectedChanges, changes.SelectMany(x => x));

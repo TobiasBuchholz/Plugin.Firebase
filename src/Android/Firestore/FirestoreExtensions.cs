@@ -9,7 +9,6 @@ using NativeFieldValue = Firebase.Firestore.FieldValue;
 using NativeSetOptions = Firebase.Firestore.SetOptions;
 using SetOptions = Plugin.Firebase.Firestore.SetOptions;
 using NativeDocumentChange = Firebase.Firestore.DocumentChange;
-using DocumentChange = Plugin.Firebase.Firestore.DocumentChange;
 using FieldPath = Plugin.Firebase.Firestore.FieldPath;
 using Source = Plugin.Firebase.Firestore.Source;
 using NativeSource = Firebase.Firestore.Source;
@@ -50,10 +49,10 @@ namespace Plugin.Firebase.Android.Firestore
             throw new FirebaseException($"This implementation of {nameof(IDocumentSnapshot)} is not supported for this method");
         }
 
-        public static DocumentChange ToAbstract(this NativeDocumentChange @this)
+        public static DocumentChange<T> ToAbstract<T>(this NativeDocumentChange @this)
         {
-            return new DocumentChange(
-                @this.Document.ToAbstract(),
+            return new DocumentChange<T>(
+                @this.Document.ToAbstract<T>(),
                 @this.GetType().ToAbstract(),
                 @this.NewIndex,
                 @this.OldIndex);

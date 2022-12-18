@@ -4,7 +4,6 @@ using Firebase.CloudFirestore;
 using Plugin.Firebase.Common;
 using Plugin.Firebase.Firestore;
 using Plugin.Firebase.iOS.Extensions;
-using DocumentChange = Plugin.Firebase.Firestore.DocumentChange;
 using DocumentChangeType = Plugin.Firebase.Firestore.DocumentChangeType;
 using FieldPath = Plugin.Firebase.Firestore.FieldPath;
 using FieldValue = Plugin.Firebase.Firestore.FieldValue;
@@ -51,10 +50,10 @@ namespace Plugin.Firebase.iOS.Firestore
             throw new FirebaseException($"This implementation of {nameof(IDocumentSnapshot)} is not supported for this method");
         }
 
-        public static DocumentChange ToAbstract(this NativeDocumentChange @this)
+        public static DocumentChange<T> ToAbstract<T>(this NativeDocumentChange @this)
         {
-            return new DocumentChange(
-                @this.Document.ToAbstract(),
+            return new DocumentChange<T>(
+                @this.Document.ToAbstract<T>(),
                 @this.Type.ToAbstract(),
                 (int) @this.NewIndex,
                 (int) @this.OldIndex);

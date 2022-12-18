@@ -2,10 +2,10 @@ using System;
 
 namespace Plugin.Firebase.Firestore
 {
-    public sealed class DocumentChange
+    public sealed class DocumentChange<T>
     {
         public DocumentChange(
-            IDocumentSnapshot documentSnapshot,
+            IDocumentSnapshot<T> documentSnapshot,
             DocumentChangeType changeType,
             int newIndex,
             int oldIndex)
@@ -16,7 +16,7 @@ namespace Plugin.Firebase.Firestore
             OldIndex = oldIndex;
         }
 
-        public IDocumentSnapshot DocumentSnapshot { get; }
+        public IDocumentSnapshot<T> DocumentSnapshot { get; }
         public DocumentChangeType ChangeType { get; }
         public int NewIndex { get; }
         public int OldIndex { get; }

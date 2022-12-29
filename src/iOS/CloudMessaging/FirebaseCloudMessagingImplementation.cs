@@ -80,6 +80,8 @@ namespace Plugin.Firebase.CloudMessaging
             } else {
                 _notificationTapped.Invoke(this, new FCMNotificationTappedEventArgs(response.Notification.ToFCMNotification()));
             }
+
+            completionHandler();
         }
 
         public Task<string> GetTokenAsync()

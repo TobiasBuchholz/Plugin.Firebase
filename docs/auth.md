@@ -50,6 +50,9 @@ You can use [Firebase Authentication](https://firebase.google.com/docs/auth) to 
 
 ### Android specifics
 
+- Make sure you have added the SHA-1 fingerprint matching the keystore you've used for signing the app bundle to the android project settings in the firebase console: 
+
+![firestore_poco.png](../art/project_settings_sha1.png)
 - Call ```FirebaseAuthImplementation.HandleActivityResultAsync(requestCode, resultCode, data);``` from ```MainActivity.OnActivityResult(...)```
 - In case you are using Authentication via Facebook, add the following code to your apps ```AndroidManifest.xml```:
 ```xml

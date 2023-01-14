@@ -16,7 +16,7 @@
   "main": "lib/index.js",
   "dependencies": {
     "@types/express-serve-static-core": "^4.17.29",
-    "firebase-admin": "^10.2.0",
+    "firebase-admin": "^11.4.1",
     "firebase-functions": "^3.21.0"
   },
   "devDependencies": {

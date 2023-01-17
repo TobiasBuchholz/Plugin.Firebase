@@ -1,8 +1,8 @@
+using System.Text.Json;
 using System.Threading.Tasks;
 using Plugin.Firebase.Functions;
 using Firebase.CloudFunctions;
 using Foundation;
-using Newtonsoft.Json;
 using Plugin.Firebase.Common;
 
 namespace Plugin.Firebase.iOS.Functions
@@ -37,7 +37,7 @@ namespace Plugin.Firebase.iOS.Functions
         public async Task<TResponse> CallAsync<TResponse>(string dataJson = null)
         {
             var result = await _httpsCallable.CallAsync(ConvertJsonToData(dataJson));
-            return JsonConvert.DeserializeObject<TResponse>(result.Data.ToString());
+            return JsonSerializer.Deserialize<TResponse>(result.Data.ToString());
         }
     }
 }

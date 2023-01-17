@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Threading.Tasks;
 using Android.Gms.Extensions;
 using Plugin.Firebase.Functions;
@@ -6,7 +7,6 @@ using GoogleGson;
 using GoogleGson.Reflect;
 using Java.Lang;
 using Java.Util;
-using Newtonsoft.Json;
 
 namespace Plugin.Firebase.Android.Functions
 {
@@ -36,7 +36,7 @@ namespace Plugin.Firebase.Android.Functions
         public async Task<TResponse> CallAsync<TResponse>(string dataJson = null)
         {
             var result = await _httpsCallable.Call(ConvertJsonToData(dataJson)).AsAsync<HttpsCallableResult>();
-            return JsonConvert.DeserializeObject<TResponse>(result.Data.ToString());
+            return JsonSerializer.Deserialize<TResponse>(result.Data.ToString());
         }
     }
 }

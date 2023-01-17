@@ -1,4 +1,5 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Plugin.Firebase.IntegrationTests.Functions
 {
@@ -16,10 +17,10 @@ namespace Plugin.Firebase.IntegrationTests.Functions
 
         public string ToJson()
         {
-            return JsonConvert.SerializeObject(this);
+            return JsonSerializer.Serialize(this);
         }
 
-        [JsonProperty("input_value")]
+        [JsonPropertyName("input_value")]
         public long InputValue { get; private set; }
     }
 }

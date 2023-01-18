@@ -55,6 +55,9 @@ namespace System.Collections.Generic
                 case IList x:
                     @this.Put(key.ToString(), x.ToJavaList());
                     break;
+                case DateTime x:
+                    @this.Put(key.ToString(), x.ToJavaDate());
+                    break;
                 case DateTimeOffset x:
                     @this.Put(key.ToString(), x.ToJavaDate());
                     break;

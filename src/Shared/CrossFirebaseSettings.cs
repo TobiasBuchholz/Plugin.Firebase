@@ -8,6 +8,7 @@ namespace Plugin.Firebase.Shared
             bool isAnalyticsEnabled = false,
             bool isAuthEnabled = false,
             bool isCloudMessagingEnabled = false,
+            bool isCrashlyticsEnabled = false,
             bool isDynamicLinksEnabled = false,
             bool isFirestoreEnabled = false,
             bool isFunctionsEnabled = false,
@@ -20,6 +21,7 @@ namespace Plugin.Firebase.Shared
             IsAnalyticsEnabled = isAnalyticsEnabled;
             IsAuthEnabled = isAuthEnabled;
             IsCloudMessagingEnabled = isCloudMessagingEnabled;
+            IsCrashlyticsEnabled = isCrashlyticsEnabled;
             IsDynamicLinksEnabled = isDynamicLinksEnabled;
             IsFirestoreEnabled = isFirestoreEnabled;
             IsFunctionsEnabled = isFunctionsEnabled;
@@ -36,6 +38,7 @@ namespace Plugin.Firebase.Shared
                    $"{nameof(IsAnalyticsEnabled)}={IsAnalyticsEnabled}," +
                    $"{nameof(IsAuthEnabled)}={IsAuthEnabled}," +
                    $"{nameof(IsCloudMessagingEnabled)}={IsCloudMessagingEnabled}," +
+                   $"{nameof(IsCrashlyticsEnabled)}={IsCrashlyticsEnabled}," +
                    $"{nameof(IsDynamicLinksEnabled)}={IsDynamicLinksEnabled}," +
                    $"{nameof(IsFirestoreEnabled)}={IsFirestoreEnabled}," +
                    $"{nameof(IsFunctionsEnabled)}={IsFunctionsEnabled}," +
@@ -46,6 +49,7 @@ namespace Plugin.Firebase.Shared
         public bool IsAnalyticsEnabled { get; }
         public bool IsAuthEnabled { get; }
         public bool IsCloudMessagingEnabled { get; }
+        public bool IsCrashlyticsEnabled { get; }
         public bool IsDynamicLinksEnabled { get; }
         public bool IsFirestoreEnabled { get; }
         public bool IsFunctionsEnabled { get; }

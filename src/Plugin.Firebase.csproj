@@ -31,7 +31,7 @@
 
         <Title>Plugin.Firebase</Title>
         <Summary>Xamarin wrapper around the native Android and iOS Firebase SDKs.</Summary>
-        <Description>The plugin includes cross-platform APIs for Firebase Analytics, Auth, Cloud Messaging, Dynamic Links, Firestore, Cloud Functions, Remote Config and Storage.</Description>
+        <Description>The plugin includes cross-platform APIs for Firebase Analytics, Auth, Cloud Messaging, Crashlytics, Dynamic Links, Firestore, Cloud Functions, Remote Config and Storage.</Description>
 
         <Owners>Tobias Buchholz</Owners>
         <Authors>Tobias Buchholz</Authors>
@@ -86,6 +86,7 @@
         <PackageReference Include="Xamarin.Firebase.Analytics" Version="121.1.1" />
         <PackageReference Include="Xamarin.Firebase.Auth" Version="121.0.8" />
         <PackageReference Include="Xamarin.Firebase.Config" Version="121.1.2" />
+        <PackageReference Include="Xamarin.Firebase.Crashlytics" Version="118.3.2" />
         <PackageReference Include="Xamarin.Firebase.Dynamic.Links" Version="121.0.2" />
         <PackageReference Include="Xamarin.Firebase.Firestore" Version="124.3.1" />
         <PackageReference Include="Xamarin.Firebase.Functions" Version="120.1.1" />
@@ -101,6 +102,7 @@
         <PackageReference Include="Xamarin.Firebase.iOS.CloudFirestore" Version="8.10.0.3" />
         <PackageReference Include="Xamarin.Firebase.iOS.CloudFunctions" Version="8.10.0.3" />
         <PackageReference Include="Xamarin.Firebase.iOS.CloudMessaging" Version="8.10.0.3" />
+        <PackageReference Include="Xamarin.Firebase.iOS.Crashlytics" Version="8.10.0.3" />
         <PackageReference Include="Xamarin.Firebase.iOS.DynamicLinks" Version="8.10.0.3" />
         <PackageReference Include="Xamarin.Firebase.iOS.RemoteConfig" Version="8.10.0.3" />
         <PackageReference Include="Xamarin.Firebase.iOS.Storage" Version="8.10.0.3" />

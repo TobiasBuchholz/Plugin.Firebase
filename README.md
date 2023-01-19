@@ -17,7 +17,15 @@ If you encounter a build error, try to add the package via `dotnet add package P
 2. Click **Add Firebase to your *[iOS|Android]* app** and follow the setup steps. If you're importing an existing Google project, this may happen automatically and you can just download the config file.
 3. Add ```[GoogleService-Info.plist|google-services.json]``` file to your app project.
 4. Set ```[GoogleService-Info.plist|google-services.json]``` **build action** behaviour to ```[Bundle Resource|GoogleServicesJson]``` by Right clicking/Build Action.
-5. Add the following line of code to the place where your app gets bootstrapped:
+5. At `Platforms/Android/Resources/values` add the following line to your `strings.xml`:
+```
+<resources>
+    ...
+    <string name="com.google.firebase.crashlytics.mapping_file_id">none</string>
+    ...
+</resources>
+```
+6. Add the following line of code to the place where your app gets bootstrapped:
 ```c#
 CrossFirebase.Initialize(..., new CrossFirebaseSettings(...));
 ```

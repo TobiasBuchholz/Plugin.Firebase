@@ -4,6 +4,7 @@ using Foundation;
 using Plugin.Firebase.Analytics;
 using Plugin.Firebase.Auth;
 using Plugin.Firebase.CloudMessaging;
+using Plugin.Firebase.Crashlytics;
 using Plugin.Firebase.Shared;
 using UIKit;
 
@@ -37,6 +38,8 @@ namespace Plugin.Firebase.iOS
             if(settings.IsCloudMessagingEnabled) {
                 FirebaseCloudMessagingImplementation.Initialize();
             }
+            
+            CrossFirebaseCrashlytics.Current.SetCrashlyticsCollectionEnabled(settings.IsCrashlyticsEnabled);
 
             Console.WriteLine($"Plugin.Firebase initialized with the following settings:\n{settings}");
         }

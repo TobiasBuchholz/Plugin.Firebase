@@ -46,6 +46,7 @@ public static class MauiProgram
             isAnalyticsEnabled: true,
             isAuthEnabled: true,
             isCloudMessagingEnabled: true,
+            isCrashlyticsEnabled: true,
             isDynamicLinksEnabled: true,
             isFirestoreEnabled: true,
             isFunctionsEnabled: true,

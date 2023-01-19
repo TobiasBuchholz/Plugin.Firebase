@@ -2,6 +2,7 @@ using System;
 using Android.App;
 using Android.OS;
 using Firebase;
+using Firebase.Crashlytics;
 using Plugin.Firebase.Analytics;
 using Plugin.Firebase.Auth;
 using Plugin.Firebase.Shared;
@@ -32,6 +33,8 @@ namespace Plugin.Firebase.Android
             if(settings.IsAuthEnabled) {
                 FirebaseAuthImplementation.Initialize(activity, savedInstanceState, settings.GoogleRequestIdToken ?? "123-abc");
             }
+
+            FirebaseCrashlytics.Instance.SetCrashlyticsCollectionEnabled(settings.IsCrashlyticsEnabled);
 
             Console.WriteLine($"Plugin.Firebase initialized with the following settings:\n{settings}");
         }

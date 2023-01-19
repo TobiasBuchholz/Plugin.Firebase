@@ -9,12 +9,12 @@ public sealed class PushNotification
 {
     public static PushNotification FromTokens(IEnumerable<string> fcmTokens, string title, string body)
     {
-        return new PushNotification(PushNotificationType.Tokens, fcmTokens: fcmTokens, title: title, body: body);
+        return new PushNotification(PushNotificationType.TOKENS, fcmTokens: fcmTokens, title: title, body: body);
     }
 
     public static PushNotification FromTopic(string topic, string title, string body)
     {
-        return new PushNotification(PushNotificationType.Topic, topic: topic, title: title, body: body);
+        return new PushNotification(PushNotificationType.TOPIC, topic: topic, title: title, body: body);
     }
 
     private PushNotification(

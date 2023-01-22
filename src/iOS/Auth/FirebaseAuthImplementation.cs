@@ -50,16 +50,16 @@ namespace Plugin.Firebase.Auth
 
         private readonly FirebaseAuth _firebaseAuth;
         private readonly EmailAuth _emailAuth;
-        private static GoogleAuth _googleAuth;
-        private readonly FacebookAuth _facebookAuth;
+        private static Lazy<GoogleAuth> _googleAuth;
+        private readonly Lazy<FacebookAuth> _facebookAuth;
         private readonly PhoneNumberAuth _phoneNumberAuth;
 
         public FirebaseAuthImplementation()
         {
             _firebaseAuth = FirebaseAuth.DefaultInstance;
             _emailAuth = new EmailAuth();
-            _googleAuth = new GoogleAuth();
-            _facebookAuth = new FacebookAuth();
+            _googleAuth = new Lazy<GoogleAuth>(() => new GoogleAuth());
+            _facebookAuth = new Lazy<FacebookAuth>(() => new FacebookAuth());
             _phoneNumberAuth = new PhoneNumberAuth();
 
             // apply the default app language for sending emails
@@ -155,7 +155,7 @@ namespace Plugin.Firebase.Auth
         public async Task<IFirebaseUser> SignInWithGoogleAsync()
         {
             try {
-                var credential = await _googleAuth.GetCredentialAsync(ViewController);
+                var credential = await _googleAuth.Value.GetCredentialAsync(ViewController);
                 return await SignInWithCredentialAsync(credential);
             } catch(NSErrorException e) {
                 throw GetFirebaseAuthException(e);
@@ -165,7 +165,7 @@ namespace Plugin.Firebase.Auth
         public async Task<IFirebaseUser> SignInWithFacebookAsync()
         {
             try {
-                var credential = await _facebookAuth.GetCredentialAsync(ViewController);
+                var credential = await _facebookAuth.Value.GetCredentialAsync(ViewController);
                 return await SignInWithCredentialAsync(credential);
             } catch(NSErrorException e) {
                 throw GetFirebaseAuthException(e);
@@ -236,10 +236,10 @@ namespace Plugin.Firebase.Auth
         public async Task<IFirebaseUser> LinkWithGoogleAsync()
         {
             try {
-                var credential = await _googleAuth.GetCredentialAsync(ViewController);
+                var credential = await _googleAuth.Value.GetCredentialAsync(ViewController);
                 return await LinkWithCredentialAsync(credential);
             } catch(NSErrorException e) {
-                _googleAuth.SignOut();
+                _googleAuth.Value.SignOut();
                 throw GetFirebaseAuthException(e);
             }
         }
@@ -247,10 +247,10 @@ namespace Plugin.Firebase.Auth
         public async Task<IFirebaseUser> LinkWithFacebookAsync()
         {
             try {
-                var credential = await _facebookAuth.GetCredentialAsync(ViewController);
+                var credential = await _facebookAuth.Value.GetCredentialAsync(ViewController);
                 return await LinkWithCredentialAsync(credential);
             } catch(NSErrorException e) {
-                _facebookAuth.SignOut();
+                _facebookAuth.Value.SignOut();
                 throw GetFirebaseAuthException(e);
             }
         }
@@ -275,8 +275,8 @@ namespace Plugin.Firebase.Auth
 
         public Task SignOutAsync()
         {
-            _googleAuth.SignOut();
-            _facebookAuth.SignOut();
+            _googleAuth.Value.SignOut();
+            _facebookAuth.Value.SignOut();
             _firebaseAuth.SignOut(out var e);
             return Task.CompletedTask;
         }

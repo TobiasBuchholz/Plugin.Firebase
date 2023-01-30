@@ -140,3 +140,13 @@ You are welcome to contribute to this project by creating a [Pull Request](https
 ## License
 
 ```Plugin.Firebase``` is released under the MIT license. See the [LICENSE](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/LICENSE) file for details.
+
+## Release notes
+- Version 1.3.0
+    - Get rid of newtonsoft.json, use system.text.json instead #119
+    - Add crashlytics implementation #120
+    - Add support for DateTime type to ToHashMap/Put extension #121
+    - Lazy google/facebook auth #122
+    - Return FIRAuthError.WrongPassword at android for wrong pw signin #117
+    - Calling completion in didReceiveNotificationResponse:completionHandler #106
+    - Big thanks to tranb3r for the contributions! :)

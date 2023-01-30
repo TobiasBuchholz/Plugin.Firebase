@@ -1,10 +1,11 @@
 using System;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Android.OS;
 using Android.Runtime;
 using AndroidX.Collection;
 using Java.Util;
-using Newtonsoft.Json.Linq;
 using Plugin.Firebase.Android.Extensions;
 using Plugin.Firebase.Common;
 using Plugin.Firebase.Firestore;
@@ -55,6 +56,9 @@ namespace System.Collections.Generic
                 case IList x:
                     @this.Put(key.ToString(), x.ToJavaList());
                     break;
+                case DateTime x:
+                    @this.Put(key.ToString(), x.ToJavaDate());
+                    break;
                 case DateTimeOffset x:
                     @this.Put(key.ToString(), x.ToJavaDate());
                     break;
@@ -97,8 +101,8 @@ namespace System.Collections.Generic
         {
             var hashMap = new HashMap();
             dictionary.ToList().ForEach(x => {
-                if(x.Value is JObject jsonValue) {
-                    hashMap.Put(x.Key, jsonValue.ToObject<Dictionary<string, object>>().ToHashMap());
+                if(x.Value is JsonObject jsonValue) {
+                    hashMap.Put(x.Key, jsonValue.Deserialize<Dictionary<string, object>>().ToHashMap());
                 } else {
                     hashMap.Put(x.Key, x.Value);
                 }

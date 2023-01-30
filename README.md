@@ -17,7 +17,15 @@ If you encounter a build error, try to add the package via `dotnet add package P
 2. Click **Add Firebase to your *[iOS|Android]* app** and follow the setup steps. If you're importing an existing Google project, this may happen automatically and you can just download the config file.
 3. Add ```[GoogleService-Info.plist|google-services.json]``` file to your app project.
 4. Set ```[GoogleService-Info.plist|google-services.json]``` **build action** behaviour to ```[Bundle Resource|GoogleServicesJson]``` by Right clicking/Build Action.
-5. Add the following line of code to the place where your app gets bootstrapped:
+5. At `Platforms/Android/Resources/values` add the following line to your `strings.xml`:
+```
+<resources>
+    ...
+    <string name="com.google.firebase.crashlytics.mapping_file_id">none</string>
+    ...
+</resources>
+```
+6. Add the following line of code to the place where your app gets bootstrapped:
 ```c#
 CrossFirebase.Initialize(..., new CrossFirebaseSettings(...));
 ```
@@ -132,3 +140,13 @@ You are welcome to contribute to this project by creating a [Pull Request](https
 ## License
 
 ```Plugin.Firebase``` is released under the MIT license. See the [LICENSE](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/LICENSE) file for details.
+
+## Release notes
+- Version 1.3.0
+    - Get rid of newtonsoft.json, use system.text.json instead #119
+    - Add crashlytics implementation #120
+    - Add support for DateTime type to ToHashMap/Put extension #121
+    - Lazy google/facebook auth #122
+    - Return FIRAuthError.WrongPassword at android for wrong pw signin #117
+    - Calling completion in didReceiveNotificationResponse:completionHandler #106
+    - Big thanks to tranb3r for the contributions! :)

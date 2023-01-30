@@ -14,5 +14,10 @@ namespace Plugin.Firebase.Android.Extensions
         {
             return new Date(@this.ToUnixTimeMilliseconds());
         }
+
+        public static Date ToJavaDate(this DateTime @this)
+        {
+            return ToJavaDate((DateTimeOffset) @this);
+        }
     }
 }

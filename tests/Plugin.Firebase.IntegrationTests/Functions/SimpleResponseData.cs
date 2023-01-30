@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Plugin.Firebase.IntegrationTests.Functions
 {
@@ -9,10 +9,10 @@ namespace Plugin.Firebase.IntegrationTests.Functions
         {
         }
 
-        [JsonProperty("input_value")]
-        public long InputValue { get; private set; }
+        [JsonPropertyName("input_value")]
+        public long InputValue { get; set; }
 
-        [JsonProperty("output_value")]
-        public long OutputValue { get; private set; }
+        [JsonPropertyName("output_value")]
+        public long OutputValue { get; set; }
     }
 }

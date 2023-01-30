@@ -28,14 +28,14 @@ namespace Plugin.Firebase.Auth
 
         public static Task HandleActivityResultAsync(int requestCode, Result resultCode, Intent data)
         {
-            _facebookAuth.HandleActivityResult(requestCode, resultCode, data);
-            return _googleAuth.HandleActivityResultAsync(requestCode, resultCode, data);
+            _facebookAuth.Value.HandleActivityResult(requestCode, resultCode, data);
+            return _googleAuth.Value.HandleActivityResultAsync(requestCode, resultCode, data);
         }
 
         private readonly FirebaseAuth _firebaseAuth;
         private readonly EmailAuth _emailAuth;
-        private static GoogleAuth _googleAuth;
-        private static FacebookAuth _facebookAuth;
+        private static Lazy<GoogleAuth> _googleAuth;
+        private static Lazy<FacebookAuth> _facebookAuth;
         private readonly PhoneNumberAuth _phoneNumberAuth;
         private static string _googleRequestIdToken;
 
@@ -43,8 +43,8 @@ namespace Plugin.Firebase.Auth
         {
             _firebaseAuth = FirebaseAuth.Instance;
             _emailAuth = new EmailAuth();
-            _googleAuth = new GoogleAuth(Activity, _googleRequestIdToken);
-            _facebookAuth = new FacebookAuth();
+            _googleAuth = new Lazy<GoogleAuth>(() => new GoogleAuth(Activity, _googleRequestIdToken));
+            _facebookAuth = new Lazy<FacebookAuth>(() => new FacebookAuth());
             _phoneNumberAuth = new PhoneNumberAuth();
 
             // apply the default app language for sending emails 
@@ -66,6 +66,7 @@ namespace Plugin.Firebase.Auth
                 FirebaseAuthEmailException => new CrossFirebaseAuthException(FIRAuthError.InvalidEmail, ex.Message),
                 FirebaseAuthInvalidUserException => new CrossFirebaseAuthException(FIRAuthError.UserNotFound, ex.Message),
                 FirebaseAuthWeakPasswordException => new CrossFirebaseAuthException(FIRAuthError.WeakPassword, ex.Message),
+                FirebaseAuthInvalidCredentialsException { ErrorCode: "ERROR_WRONG_PASSWORD" } => new CrossFirebaseAuthException(FIRAuthError.WrongPassword, ex.Message),
                 FirebaseAuthInvalidCredentialsException => new CrossFirebaseAuthException(FIRAuthError.InvalidCredential, ex.Message),
                 FirebaseAuthUserCollisionException { ErrorCode: "ERROR_EMAIL_ALREADY_IN_USE" } => new CrossFirebaseAuthException(FIRAuthError.EmailAlreadyInUse, ex.Message),
                 FirebaseAuthUserCollisionException { ErrorCode: "ERROR_ACCOUNT_EXISTS_WITH_DIFFERENT_CREDENTIAL" } => new CrossFirebaseAuthException(FIRAuthError.AccountExistsWithDifferentCredential, ex.Message),
@@ -135,7 +136,7 @@ namespace Plugin.Firebase.Auth
         public async Task<IFirebaseUser> SignInWithGoogleAsync()
         {
             try {
-                var credential = await _googleAuth.GetCredentialAsync(FragmentActivity);
+                var credential = await _googleAuth.Value.GetCredentialAsync(FragmentActivity);
                 return await SignInWithCredentialAsync(credential);
             } catch(Exception e) {
                 throw GetFirebaseAuthException(e);
@@ -145,7 +146,7 @@ namespace Plugin.Firebase.Auth
         public async Task<IFirebaseUser> SignInWithFacebookAsync()
         {
             try {
-                var credential = await _facebookAuth.GetCredentialAsync(Activity);
+                var credential = await _facebookAuth.Value.GetCredentialAsync(Activity);
                 return await SignInWithCredentialAsync(credential);
             } catch(Exception e) {
                 throw GetFirebaseAuthException(e);
@@ -196,10 +197,10 @@ namespace Plugin.Firebase.Auth
         public async Task<IFirebaseUser> LinkWithGoogleAsync()
         {
             try {
-                var credential = await _googleAuth.GetCredentialAsync(FragmentActivity);
+                var credential = await _googleAuth.Value.GetCredentialAsync(FragmentActivity);
                 return await LinkWithCredentialAsync(credential);
             } catch(Exception e) {
-                await _googleAuth.SignOutAsync();
+                await _googleAuth.Value.SignOutAsync();
                 throw GetFirebaseAuthException(e);
             }
         }
@@ -207,10 +208,10 @@ namespace Plugin.Firebase.Auth
         public async Task<IFirebaseUser> LinkWithFacebookAsync()
         {
             try {
-                var credential = await _facebookAuth.GetCredentialAsync(Activity);
+                var credential = await _facebookAuth.Value.GetCredentialAsync(Activity);
                 return await LinkWithCredentialAsync(credential);
             } catch(Exception e) {
-                _facebookAuth.SignOut();
+                _facebookAuth.Value.SignOut();
                 throw GetFirebaseAuthException(e);
             }
         }
@@ -238,7 +239,7 @@ namespace Plugin.Firebase.Auth
         {
             try {
                 _firebaseAuth.SignOut();
-                await _googleAuth.SignOutAsync();
+                await _googleAuth.Value.SignOutAsync();
             } catch(Exception e) {
                 throw GetFirebaseAuthException(e);
             }
@@ -276,10 +277,10 @@ namespace Plugin.Firebase.Auth
             Activity as FragmentActivity ?? throw new NullReferenceException($"Current Activity is either null or not of type {nameof(FragmentActivity)}, which is mandatory for sign in with Google");
 
         private static Activity Activity =>
-            Platform.CurrentActivity ?? throw new NullReferenceException("Current Activity is null, ensure that the MainApplication.cs file is setting the CurrentActivity in your source code so Firebase Analytics can use it.");
+            Platform.CurrentActivity ?? throw new NullReferenceException("Current Activity is null, ensure that the MainApplication.cs file is setting the CurrentActivity in your source code so Firebase Auth can use it.");
 
         private static Context AppContext =>
-            Platform.AppContext ?? throw new NullReferenceException("AppContext is null, ensure that the MainApplication.cs file is setting the CurrentActivity in your source code so the Firebase Analytics can use it.");
+            Platform.AppContext ?? throw new NullReferenceException("AppContext is null, ensure that the MainApplication.cs file is setting the CurrentActivity in your source code so the Firebase Auth can use it.");
 
         public IFirebaseUser CurrentUser => _firebaseAuth.CurrentUser?.ToAbstract();
     }

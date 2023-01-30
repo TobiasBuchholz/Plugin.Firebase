@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net6.0-android;net6.0-ios</TargetFrameworks>
+        <UseMaui>true</UseMaui>
+        <SingleProject>true</SingleProject>
+        <ImplicitUsings>enable</ImplicitUsings>
+
+        <RootNamespace>Plugin.Firebase.Shared</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
+      <PackageReference Include="Xamarin.Firebase.iOS.Core" Version="8.10.0.3" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
+      <PackageReference Include="GoogleGson" Version="2.9.1" />
+      <PackageReference Include="Xamarin.Firebase.Common" Version="120.1.2" />
+    </ItemGroup>
+
+</Project>

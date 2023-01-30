@@ -3,15 +3,12 @@
     x:Class="Playground.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:dashboard="clr-namespace:Playground.Features.Dashboard"
-    Title="Playground"
-    BackgroundColor="White"
-    ForegroundColor="Black"
-    TitleColor="Black"
-    TabBarTitleColor="Black"
-    TabBarForegroundColor="Black"
-    NavBarHasShadow="True"
+    xmlns:local="clr-namespace:Playground"
     Shell.FlyoutBehavior="Disabled">
-    <ShellContent ContentTemplate="{DataTemplate dashboard:DashboardPage}" />
-</Shell>
 
+    <ShellContent
+        Title="Home"
+        ContentTemplate="{DataTemplate local:MainPage}"
+        Route="MainPage" />
+
+</Shell>

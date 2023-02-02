@@ -1,4 +1,3 @@
-using System;
 using Firebase.Core;
 
 namespace Plugin.Firebase.iOS;

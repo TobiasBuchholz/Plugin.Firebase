@@ -1,21 +1,19 @@
-using System;
 using Android.Gms.Tasks;
 using Object = Java.Lang.Object;
 
-namespace Plugin.Firebase.Android.Common
+namespace Plugin.Firebase.Android.Common;
+
+public sealed class OnSuccessListener : Object, IOnSuccessListener
 {
-    public sealed class OnSuccessListener : Object, IOnSuccessListener
+    private readonly Action<Object> _action;
+
+    public OnSuccessListener(Action<Object> action)
     {
-        private readonly Action<Object> _action;
+        _action = action;
+    }
 
-        public OnSuccessListener(Action<Object> action)
-        {
-            _action = action;
-        }
-
-        public void OnSuccess(Object result)
-        {
-            _action(result);
-        }
+    public void OnSuccess(Object result)
+    {
+        _action(result);
     }
 }

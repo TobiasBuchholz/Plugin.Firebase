@@ -1,10 +1,9 @@
-namespace Plugin.Firebase.RemoteConfig
+namespace Plugin.Firebase.RemoteConfig;
+
+public enum RemoteConfigFetchStatus : long
 {
-    public enum RemoteConfigFetchStatus : long
-    {
-        NoFetchYet,
-        Success,
-        Failure,
-        Throttled
-    }
+    NoFetchYet,
+    Success,
+    Failure,
+    Throttled
 }

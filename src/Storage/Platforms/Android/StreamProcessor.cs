@@ -1,13 +1,11 @@
-using System.IO;
 using Firebase.Storage;
 
-namespace Plugin.Firebase.Android.Storage
+namespace Plugin.Firebase.Android.Storage;
+
+public sealed class StreamProcessor : Java.Lang.Object, StreamDownloadTask.IStreamProcessor
 {
-    public sealed class StreamProcessor : Java.Lang.Object, StreamDownloadTask.IStreamProcessor
+    public void DoInBackground(StreamDownloadTask.TaskSnapshot snapshot, Stream stream)
     {
-        public void DoInBackground(StreamDownloadTask.TaskSnapshot snapshot, Stream stream)
-        {
-            stream.Close();
-        }
+        stream.Close();
     }
 }

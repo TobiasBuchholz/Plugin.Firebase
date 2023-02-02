@@ -1,22 +1,19 @@
-using System;
+namespace Plugin.Firebase.Common;
 
-namespace Plugin.Firebase.Common
+public sealed class DisposableWithAction : DisposableBase
 {
-    public sealed class DisposableWithAction : DisposableBase
+    private readonly Action _action;
+
+    public DisposableWithAction(Action action)
     {
-        private readonly Action _action;
+        _action = action;
+    }
 
-        public DisposableWithAction(Action action)
-        {
-            _action = action;
-        }
-
-        public override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-            if(disposing) {
-                _action?.Invoke();
-            }
+    public override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        if(disposing) {
+            _action?.Invoke();
         }
     }
 }

@@ -1,31 +1,28 @@
-using System;
+namespace Plugin.Firebase.Common;
 
-namespace Plugin.Firebase.Common
+public class DisposableBase : IDisposable
 {
-    public class DisposableBase : IDisposable
+    private bool disposed = false;
+
+    public void Dispose()
     {
-        private bool disposed = false;
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+    ~DisposableBase()
+    {
+        Dispose(false);
+    }
 
-        ~DisposableBase()
-        {
-            Dispose(false);
-        }
-
-        public virtual void Dispose(bool disposing)
-        {
-            if(!disposed) {
-                if(disposing) {
-                    //dispose only
-                }
-
-                disposed = true;
+    public virtual void Dispose(bool disposing)
+    {
+        if(!disposed) {
+            if(disposing) {
+                //dispose only
             }
+
+            disposed = true;
         }
     }
 }

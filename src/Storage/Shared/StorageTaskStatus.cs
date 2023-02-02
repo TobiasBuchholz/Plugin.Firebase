@@ -1,11 +1,10 @@
-namespace Plugin.Firebase.Storage
+namespace Plugin.Firebase.Storage;
+
+public enum StorageTaskStatus : long
 {
-    public enum StorageTaskStatus : long
-    {
-        Unknown,
-        Progress,
-        Pause,
-        Success,
-        Failure
-    }
+    Unknown,
+    Progress,
+    Pause,
+    Success,
+    Failure
 }

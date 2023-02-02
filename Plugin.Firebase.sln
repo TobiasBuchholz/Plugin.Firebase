@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Playground", "sample\Playgr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Storage", "src\Storage\Storage.csproj", "{79E8DB9E-F631-401D-84E5-CC33EC4ED8A7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.Firebase.IntegrationTests", "tests\Plugin.Firebase.IntegrationTests\Plugin.Firebase.IntegrationTests.csproj", "{9426163C-B64D-4079-8C79-2E7D3C1105A1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{79E8DB9E-F631-401D-84E5-CC33EC4ED8A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{79E8DB9E-F631-401D-84E5-CC33EC4ED8A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79E8DB9E-F631-401D-84E5-CC33EC4ED8A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9426163C-B64D-4079-8C79-2E7D3C1105A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9426163C-B64D-4079-8C79-2E7D3C1105A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9426163C-B64D-4079-8C79-2E7D3C1105A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9426163C-B64D-4079-8C79-2E7D3C1105A1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

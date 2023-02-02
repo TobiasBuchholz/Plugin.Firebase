@@ -1,7 +1,7 @@
 using Plugin.Firebase.RemoteConfig;
 using NativeRemoteConfigSettings = Firebase.RemoteConfig.RemoteConfigSettings;
 
-namespace Plugin.Firebase.iOS.RemoteConfig;
+namespace Plugin.Firebase.iOS.RemoteConfig.Extensions;
 
 public static class RemoteConfigExtensions
 {

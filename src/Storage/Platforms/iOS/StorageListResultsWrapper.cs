@@ -1,5 +1,6 @@
 using Firebase.Storage;
 using Plugin.Firebase.Storage;
+using Plugin.Firebase.iOS.Storage.Extensions;
 
 namespace Plugin.Firebase.iOS.Storage;
 

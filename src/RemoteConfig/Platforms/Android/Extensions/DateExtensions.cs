@@ -1,6 +1,6 @@
 using Java.Util;
 
-namespace Plugin.Firebase.Android.RemoteConfig;
+namespace Plugin.Firebase.Android.RemoteConfig.Extensions;
 
 public static class DateExtensions
 {

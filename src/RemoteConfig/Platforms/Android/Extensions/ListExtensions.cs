@@ -1,7 +1,7 @@
 using System.Collections;
 using Android.Runtime;
 
-namespace Plugin.Firebase.Android.RemoteConfig;
+namespace Plugin.Firebase.Android.RemoteConfig.Extensions;
 
 public static class ListExtensions
 {

@@ -1,5 +1,5 @@
 using Plugin.Firebase.Common;
-using Plugin.Firebase.iOS.Storage;
+using Plugin.Firebase.iOS.Storage.Extensions;
 using FirebaseStorage = Firebase.Storage.Storage;
 
 namespace Plugin.Firebase.Storage;

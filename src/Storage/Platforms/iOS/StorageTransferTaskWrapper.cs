@@ -1,6 +1,7 @@
 using Firebase.Storage;
 using Foundation;
 using Plugin.Firebase.Storage;
+using Plugin.Firebase.iOS.Storage.Extensions;
 using NativeStorageTaskStatus = Firebase.Storage.StorageTaskStatus;
 using StorageTaskStatus = Plugin.Firebase.Storage.StorageTaskStatus;
 

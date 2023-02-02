@@ -3,7 +3,7 @@ using Plugin.Firebase.Common;
 using Plugin.Firebase.RemoteConfig;
 using NativeRemoteConfigSettings = Firebase.RemoteConfig.FirebaseRemoteConfigSettings;
 
-namespace Plugin.Firebase.Android.RemoteConfig;
+namespace Plugin.Firebase.Android.RemoteConfig.Extensions;
 
 public static class RemoteConfigExtensions
 {

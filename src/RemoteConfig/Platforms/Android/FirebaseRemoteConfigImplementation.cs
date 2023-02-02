@@ -1,6 +1,6 @@
 using Android.Gms.Extensions;
 using Firebase.RemoteConfig;
-using Plugin.Firebase.Android.RemoteConfig;
+using Plugin.Firebase.Android.RemoteConfig.Extensions;
 using Plugin.Firebase.Common;
 
 namespace Plugin.Firebase.RemoteConfig;

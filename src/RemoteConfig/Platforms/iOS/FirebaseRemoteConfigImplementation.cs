@@ -1,5 +1,5 @@
 using Plugin.Firebase.Common;
-using Plugin.Firebase.iOS.RemoteConfig;
+using Plugin.Firebase.iOS.RemoteConfig.Extensions;
 using FirebaseRemoteConfig = Firebase.RemoteConfig.RemoteConfig;
 
 namespace Plugin.Firebase.RemoteConfig;

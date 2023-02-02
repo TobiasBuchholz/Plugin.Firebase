@@ -1,7 +1,7 @@
-using System;
 using Java.Util;
 
-namespace Plugin.Firebase.Android.Extensions;
+namespace Plugin.Firebase.Android.RemoteConfig;
+
 public static class DateExtensions
 {
     public static DateTimeOffset ToDateTimeOffset(this Date date)

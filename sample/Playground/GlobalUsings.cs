@@ -1,0 +1,17 @@
+﻿global using static CommunityToolkit.Maui.Markup.GridRowsColumns;
+global using CommunityToolkit.Maui.Markup;
+global using Microsoft.Maui.Controls.Internals;
+global using ReactiveUI;
+global using ReactiveUI.Fody.Helpers;
+global using System.Diagnostics;
+global using System.Reactive;
+global using System.Reactive.Concurrency;
+global using System.Reactive.Disposables;
+global using System.Reactive.Threading.Tasks;
+global using System.Reactive.Linq;
+global using Playground.Resources;
+global using Playground.Common.Base;
+global using Playground.Common.Services.Navigation;
+global using Playground.Common.Services.Preferences;
+global using Playground.Common.Services.Scheduler;
+global using Playground.Common.Services.UserInteraction;

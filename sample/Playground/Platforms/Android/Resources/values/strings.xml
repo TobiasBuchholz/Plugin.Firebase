@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Playgound</string>
+    <string name="facebook_app_id">151743924915235</string>
+    <string name="fb_login_protocol_scheme">fb151743924915235</string>
+    <string name="com.google.firebase.crashlytics.mapping_file_id">none</string>
+</resources>

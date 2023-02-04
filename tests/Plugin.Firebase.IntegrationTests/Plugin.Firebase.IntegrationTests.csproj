@@ -39,6 +39,7 @@
     <!-- project references -->
     <ItemGroup>
         <ProjectReference Include="..\..\src\Core\Core.csproj" />
+        <ProjectReference Include="..\..\src\Firestore\Firestore.csproj" />
         <ProjectReference Include="..\..\src\RemoteConfig\RemoteConfig.csproj" />
         <ProjectReference Include="..\..\src\Storage\Storage.csproj" />
     </ItemGroup>
@@ -73,18 +74,6 @@
       <None Include="Auth\AuthFixture.cs" />
       <Compile Remove="DynamicLinks\DynamicLinksFixture.cs" />
       <None Include="DynamicLinks\DynamicLinksFixture.cs" />
-      <Compile Remove="Firestore\Evolution.cs" />
-      <None Include="Firestore\Evolution.cs" />
-      <Compile Remove="Firestore\FirestoreFixture.cs" />
-      <None Include="Firestore\FirestoreFixture.cs" />
-      <Compile Remove="Firestore\Pokemon.cs" />
-      <None Include="Firestore\Pokemon.cs" />
-      <Compile Remove="Firestore\PokemonFactory.cs" />
-      <None Include="Firestore\PokemonFactory.cs" />
-      <Compile Remove="Firestore\SightingLocation.cs" />
-      <None Include="Firestore\SightingLocation.cs" />
-      <Compile Remove="Firestore\SimpleItem.cs" />
-      <None Include="Firestore\SimpleItem.cs" />
       <Compile Remove="Functions\FunctionsFixture.cs" />
       <None Include="Functions\FunctionsFixture.cs" />
     </ItemGroup>

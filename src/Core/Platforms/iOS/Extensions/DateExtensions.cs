@@ -11,6 +11,11 @@ public static class DateExtensions
         }
         return (NSDate) @this;
     }
+    
+    public static NSDate ToNSDate(this DateTimeOffset @this)
+    {
+        return @this.DateTime.ToNSDate();
+    }
 
     public static DateTimeOffset ToDateTimeOffset(this NSDate @this)
     {

@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Features", "Features", "{FD
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Playground", "sample\Playground\Playground.csproj", "{69175BBF-DEAF-4CB3-AF0B-913C67B5F1CF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Firestore", "src\Firestore\Firestore.csproj", "{CC78C753-BA51-4946-8360-D3C7B29FA431}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,9 +40,14 @@ Global
 		{69175BBF-DEAF-4CB3-AF0B-913C67B5F1CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69175BBF-DEAF-4CB3-AF0B-913C67B5F1CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69175BBF-DEAF-4CB3-AF0B-913C67B5F1CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC78C753-BA51-4946-8360-D3C7B29FA431}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC78C753-BA51-4946-8360-D3C7B29FA431}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC78C753-BA51-4946-8360-D3C7B29FA431}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC78C753-BA51-4946-8360-D3C7B29FA431}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0C3FF90B-203F-445A-BA4A-2A27F784F73A} = {FD5845E5-6DE7-456C-AEF3-FCF0F678B7AB}
 		{79E8DB9E-F631-401D-84E5-CC33EC4ED8A7} = {FD5845E5-6DE7-456C-AEF3-FCF0F678B7AB}
+		{CC78C753-BA51-4946-8360-D3C7B29FA431} = {FD5845E5-6DE7-456C-AEF3-FCF0F678B7AB}
 	EndGlobalSection
 EndGlobal

@@ -1,4 +1,5 @@
 using Microsoft.Maui.LifecycleEvents;
+using Plugin.Firebase.Analytics;
 #if IOS
 using Plugin.Firebase.iOS;
 #else 
@@ -29,8 +30,11 @@ public static class MauiProgram
                 return false;
             }));
 #else
-            events.AddAndroid(android => android.OnCreate((activity, state) =>
-                CrossFirebase.Initialize(activity)));
+            events.AddAndroid(android => android.OnCreate((activity, _) => {
+                CrossFirebase.Initialize(activity);
+                FirebaseAnalyticsImplementation.Initialize(activity);
+            }));
+            
 #endif
         });
         return builder;

@@ -38,6 +38,7 @@
 
     <!-- project references -->
     <ItemGroup>
+        <ProjectReference Include="..\..\src\Analytics\Analytics.csproj" />
         <ProjectReference Include="..\..\src\Core\Core.csproj" />
         <ProjectReference Include="..\..\src\Firestore\Firestore.csproj" />
         <ProjectReference Include="..\..\src\RemoteConfig\RemoteConfig.csproj" />
@@ -68,8 +69,6 @@
 
     <!-- remove later when all separate projects are added -->
     <ItemGroup>
-      <Compile Remove="Analytics\AnalyticsFixture.cs" />
-      <None Include="Analytics\AnalyticsFixture.cs" />
       <Compile Remove="Auth\AuthFixture.cs" />
       <None Include="Auth\AuthFixture.cs" />
       <Compile Remove="DynamicLinks\DynamicLinksFixture.cs" />

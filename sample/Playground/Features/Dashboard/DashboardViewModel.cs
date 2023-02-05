@@ -7,17 +7,17 @@ namespace Playground.Features.Dashboard;
 public sealed class DashboardViewModel : ViewModelBase
 {
     private readonly INavigationService _navigationService;
-    // private readonly IPushNotificationService _pushNotificationService;
+    private readonly IPushNotificationService _pushNotificationService;
     private readonly IUserInteractionService _userInteractionService;
     
     public DashboardViewModel(
         // IDynamicLinkService dynamicLinkService,
         INavigationService navigationService,
-        // IPushNotificationService pushNotificationService,
+        IPushNotificationService pushNotificationService,
         IUserInteractionService userInteractionService)
     {
         _navigationService = navigationService;
-        // _pushNotificationService = pushNotificationService;
+        _pushNotificationService = pushNotificationService;
         _userInteractionService = userInteractionService;
     
         InitCommands();
@@ -35,10 +35,10 @@ public sealed class DashboardViewModel : ViewModelBase
 
     private void HandleTappedPushNotification()
     {
-        // _pushNotificationService
-        //     .NotificationTapped
-        //     .Subscribe(x => _userInteractionService.ShowDefaultDialogAsync(x.Title, x.Body))
-        //     .DisposeWith(Disposables);
+        _pushNotificationService
+            .NotificationTapped
+            .Subscribe(x => _userInteractionService.ShowDefaultDialogAsync(x.Title, x.Body))
+            .DisposeWith(Disposables);
     }
 
     public ReactiveCommand<Unit, Unit> NavigateToAuthPageCommand { get; private set; }

@@ -4,14 +4,14 @@ using Microsoft.Maui.LifecycleEvents;
 // using Playground.Common.Services.Auth;
 // using Playground.Common.Services.DynamicLink;
 using Playground.Common.Services.Logging;
-// using Playground.Common.Services.PushNotification;
+using Playground.Common.Services.PushNotification;
 using Playground.Features.Auth;
 using Playground.Features.CloudMessaging;
 using Playground.Features.Dashboard;
 using Playground.Features.RemoteConfig;
 using Playground.Features.Storage;
 // using Plugin.Firebase.Auth;
-// using Plugin.Firebase.CloudMessaging;
+using Plugin.Firebase.CloudMessaging;
 // using Plugin.Firebase.DynamicLinks;
 // using Plugin.Firebase.Functions;
 using Plugin.Firebase.RemoteConfig;
@@ -54,7 +54,7 @@ public static class MauiProgram
 		// builder.Services.AddSingleton<IDynamicLinkService, DynamicLinkService>();
 		builder.Services.AddSingleton<INavigationService, NavigationService>();
 		builder.Services.AddSingleton<IPreferencesService, PreferencesService>();
-		// builder.Services.AddSingleton<IPushNotificationService, PushNotificationService>();
+		builder.Services.AddSingleton<IPushNotificationService, PushNotificationService>();
 		builder.Services.AddSingleton<ISchedulerService, SchedulerService>();
 		builder.Services.AddSingleton<IUserInteractionService, UserInteractionService>();
         builder.Services.AddSingleton(LoggerService.GetLogger(typeof(MauiProgram)));
@@ -76,7 +76,7 @@ public static class MauiProgram
         });
         
         // builder.Services.AddSingleton(_ => CrossFirebaseAuth.Current);
-        // builder.Services.AddSingleton(_ => CrossFirebaseCloudMessaging.Current);
+        builder.Services.AddSingleton(_ => CrossFirebaseCloudMessaging.Current);
         // builder.Services.AddSingleton(_ => CrossFirebaseDynamicLinks.Current);
         // builder.Services.AddSingleton(_ => CrossFirebaseFunctions.Current);
         builder.Services.AddSingleton(_ => CrossFirebaseStorage.Current);

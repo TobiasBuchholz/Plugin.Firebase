@@ -54,6 +54,7 @@
 
     <!-- project references -->
     <ItemGroup>
+        <ProjectReference Include="..\..\src\CloudMessaging\CloudMessaging.csproj" />
         <ProjectReference Include="..\..\src\Core\Core.csproj" />
         <ProjectReference Include="..\..\src\RemoteConfig\RemoteConfig.csproj" />
         <ProjectReference Include="..\..\src\Storage\Storage.csproj" />
@@ -94,9 +95,5 @@
       <None Include="Common\Services\Auth\IAuthService.cs" />
       <Compile Remove="Common\Services\DynamicLink\DynamicLinkService.cs" />
       <None Include="Common\Services\DynamicLink\DynamicLinkService.cs" />
-      <Compile Remove="Common\Services\PushNotification\PushNotificationService.cs" />
-      <None Include="Common\Services\PushNotification\PushNotificationService.cs" />
-      <Compile Remove="Common\Services\PushNotification\IPushNotificationService.cs" />
-      <None Include="Common\Services\PushNotification\IPushNotificationService.cs" />
     </ItemGroup>
 </Project>

@@ -1,4 +1,4 @@
-// using Plugin.Firebase.CloudMessaging;
+using Plugin.Firebase.CloudMessaging;
 
 namespace Playground.Common.Services.PushNotification;
 

@@ -40,6 +40,7 @@
     <ItemGroup>
         <ProjectReference Include="..\..\src\Analytics\Analytics.csproj" />
         <ProjectReference Include="..\..\src\Core\Core.csproj" />
+        <ProjectReference Include="..\..\src\DynamicLinks\DynamicLinks.csproj" />
         <ProjectReference Include="..\..\src\Firestore\Firestore.csproj" />
         <ProjectReference Include="..\..\src\RemoteConfig\RemoteConfig.csproj" />
         <ProjectReference Include="..\..\src\Storage\Storage.csproj" />
@@ -71,8 +72,6 @@
     <ItemGroup>
       <Compile Remove="Auth\AuthFixture.cs" />
       <None Include="Auth\AuthFixture.cs" />
-      <Compile Remove="DynamicLinks\DynamicLinksFixture.cs" />
-      <None Include="DynamicLinks\DynamicLinksFixture.cs" />
       <Compile Remove="Functions\FunctionsFixture.cs" />
       <None Include="Functions\FunctionsFixture.cs" />
     </ItemGroup>

@@ -1,5 +1,5 @@
 using Foundation;
-// using Plugin.Firebase.DynamicLinks;
+using Plugin.Firebase.DynamicLinks;
 using UIKit;
 
 namespace Playground;
@@ -11,13 +11,13 @@ public class AppDelegate : MauiUIApplicationDelegate
 
     public override bool ContinueUserActivity(UIApplication application, NSUserActivity userActivity, UIApplicationRestorationHandler completionHandler)
     {
-        // FirebaseDynamicLinksImplementation.ContinueUserActivity(application, userActivity, completionHandler);
+        FirebaseDynamicLinksImplementation.ContinueUserActivity(application, userActivity, completionHandler);
         return base.ContinueUserActivity(application, userActivity, completionHandler);
     }
 
     public override bool OpenUrl(UIApplication application, NSUrl url, NSDictionary options)
     {
-        // FirebaseDynamicLinksImplementation.OpenUrl(application, url, options);
+        FirebaseDynamicLinksImplementation.OpenUrl(application, url, options);
         return base.OpenUrl(application, url, options);
     }
 }

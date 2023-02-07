@@ -40,8 +40,10 @@
     <ItemGroup>
         <ProjectReference Include="..\..\src\Analytics\Analytics.csproj" />
         <ProjectReference Include="..\..\src\Core\Core.csproj" />
+        <ProjectReference Include="..\..\src\CloudMessaging\CloudMessaging.csproj" />
         <ProjectReference Include="..\..\src\DynamicLinks\DynamicLinks.csproj" />
         <ProjectReference Include="..\..\src\Firestore\Firestore.csproj" />
+        <ProjectReference Include="..\..\src\Functions\Functions.csproj" />
         <ProjectReference Include="..\..\src\RemoteConfig\RemoteConfig.csproj" />
         <ProjectReference Include="..\..\src\Storage\Storage.csproj" />
     </ItemGroup>
@@ -72,7 +74,5 @@
     <ItemGroup>
       <Compile Remove="Auth\AuthFixture.cs" />
       <None Include="Auth\AuthFixture.cs" />
-      <Compile Remove="Functions\FunctionsFixture.cs" />
-      <None Include="Functions\FunctionsFixture.cs" />
     </ItemGroup>
 </Project>

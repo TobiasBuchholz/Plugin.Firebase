@@ -13,7 +13,7 @@ using Playground.Features.Storage;
 // using Plugin.Firebase.Auth;
 using Plugin.Firebase.CloudMessaging;
 using Plugin.Firebase.DynamicLinks;
-// using Plugin.Firebase.Functions;
+using Plugin.Firebase.Functions;
 using Plugin.Firebase.RemoteConfig;
 #if IOS
 using Plugin.Firebase.iOS;
@@ -78,7 +78,7 @@ public static class MauiProgram
         // builder.Services.AddSingleton(_ => CrossFirebaseAuth.Current);
         builder.Services.AddSingleton(_ => CrossFirebaseCloudMessaging.Current);
         builder.Services.AddSingleton(_ => CrossFirebaseDynamicLinks.Current);
-        // builder.Services.AddSingleton(_ => CrossFirebaseFunctions.Current);
+        builder.Services.AddSingleton(_ => CrossFirebaseFunctions.Current);
         builder.Services.AddSingleton(_ => CrossFirebaseStorage.Current);
         builder.Services.AddSingleton(_ => CrossFirebaseRemoteConfig.Current);
         return builder;

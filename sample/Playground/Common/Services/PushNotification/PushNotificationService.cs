@@ -2,23 +2,23 @@ using Genesis.Logging;
 using Playground.Common.Services.Helper;
 using Plugin.Firebase.CloudMessaging;
 using Plugin.Firebase.CloudMessaging.EventArgs;
-// using Plugin.Firebase.Functions;
+using Plugin.Firebase.Functions;
 
 namespace Playground.Common.Services.PushNotification;
 
 public sealed class PushNotificationService : IPushNotificationService
 {
     private readonly IFirebaseCloudMessaging _firebaseCloudMessaging;
-    // private readonly IFirebaseFunctions _firebaseFunctions;
+    private readonly IFirebaseFunctions _firebaseFunctions;
     private readonly ILogger _logger;
 
     public PushNotificationService(
         IFirebaseCloudMessaging firebaseCloudMessaging,
-        // IFirebaseFunctions firebaseFunctions,
+        IFirebaseFunctions firebaseFunctions,
         ILogger logger)
     {
         _firebaseCloudMessaging = firebaseCloudMessaging;
-        // _firebaseFunctions = firebaseFunctions;
+        _firebaseFunctions = firebaseFunctions;
         _logger = logger;
         NotificationTapped = GetNotificationTappedTicks();
     }
@@ -52,20 +52,16 @@ public sealed class PushNotificationService : IPushNotificationService
 
     public Task TriggerNotificationViaTokensAsync(IEnumerable<string> tokens, string title, string body)
     {
-        return Task.CompletedTask;
-        
-        // return _firebaseFunctions
-        //     .GetHttpsCallable(FirebaseFunctionNames.TriggerNotification)
-        //     .CallAsync(PushNotification.FromTokens(tokens, title, body).ToJson());
+        return _firebaseFunctions
+            .GetHttpsCallable(FirebaseFunctionNames.TriggerNotification)
+            .CallAsync(PushNotification.FromTokens(tokens, title, body).ToJson());
     }
 
     public Task TriggerNotificationViaTopicAsync(string topic, string title, string body)
     {
-        return Task.CompletedTask;
-        
-        // return _firebaseFunctions
-        //     .GetHttpsCallable(FirebaseFunctionNames.TriggerNotification)
-        //     .CallAsync(PushNotification.FromTopic(topic, title, body).ToJson());
+        return _firebaseFunctions
+            .GetHttpsCallable(FirebaseFunctionNames.TriggerNotification)
+            .CallAsync(PushNotification.FromTopic(topic, title, body).ToJson());
     }
 
     public IObservable<FCMNotification> NotificationTapped { get; }

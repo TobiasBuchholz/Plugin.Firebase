@@ -56,6 +56,7 @@
     <ItemGroup>
         <ProjectReference Include="..\..\src\CloudMessaging\CloudMessaging.csproj" />
         <ProjectReference Include="..\..\src\Core\Core.csproj" />
+        <ProjectReference Include="..\..\src\Crashlytics\Crashlytics.csproj" />
         <ProjectReference Include="..\..\src\DynamicLinks\DynamicLinks.csproj" />
         <ProjectReference Include="..\..\src\Functions\Functions.csproj" />
         <ProjectReference Include="..\..\src\RemoteConfig\RemoteConfig.csproj" />

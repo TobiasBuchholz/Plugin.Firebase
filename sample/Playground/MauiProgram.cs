@@ -67,6 +67,7 @@ public static class MauiProgram
 #if IOS
             events.AddiOS(iOS => iOS.FinishedLaunching((_,__) => {
                 CrossFirebase.Initialize();
+                FirebaseCloudMessagingImplementation.Initialize();
                 return false;
             }));
 #else

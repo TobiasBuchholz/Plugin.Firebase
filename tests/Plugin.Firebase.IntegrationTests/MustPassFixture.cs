@@ -1,5 +1,5 @@
 using Plugin.Firebase.Analytics;
-// using Plugin.Firebase.Auth;
+using Plugin.Firebase.Auth;
 using Plugin.Firebase.CloudMessaging;
 using Plugin.Firebase.DynamicLinks;
 using Plugin.Firebase.Firestore;
@@ -17,7 +17,7 @@ namespace Plugin.Firebase.IntegrationTests
         {
             Assert.True(true);
             Assert.True(CrossFirebaseAnalytics.IsSupported);
-            // Assert.True(CrossFirebaseAuth.IsSupported);
+            Assert.True(CrossFirebaseAuth.IsSupported);
             Assert.True(CrossFirebaseCloudMessaging.IsSupported);
             Assert.True(CrossFirebaseDynamicLinks.IsSupported);
             Assert.True(CrossFirebaseFirestore.IsSupported);

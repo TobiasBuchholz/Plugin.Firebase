@@ -1,7 +1,7 @@
 using CommunityToolkit.Maui;
 using Genesis.Logging;
 using Microsoft.Maui.LifecycleEvents;
-// using Playground.Common.Services.Auth;
+using Playground.Common.Services.Auth;
 using Playground.Common.Services.DynamicLink;
 using Playground.Common.Services.Logging;
 using Playground.Common.Services.PushNotification;
@@ -10,7 +10,7 @@ using Playground.Features.CloudMessaging;
 using Playground.Features.Dashboard;
 using Playground.Features.RemoteConfig;
 using Playground.Features.Storage;
-// using Plugin.Firebase.Auth;
+using Plugin.Firebase.Auth;
 using Plugin.Firebase.CloudMessaging;
 using Plugin.Firebase.DynamicLinks;
 using Plugin.Firebase.Functions;
@@ -50,7 +50,7 @@ public static class MauiProgram
 
     private static MauiAppBuilder RegisterServices(this MauiAppBuilder builder)
     {
-		// builder.Services.AddSingleton<IAuthService, AuthService>();
+		builder.Services.AddSingleton<IAuthService, AuthService>();
 		builder.Services.AddSingleton<IDynamicLinkService, DynamicLinkService>();
 		builder.Services.AddSingleton<INavigationService, NavigationService>();
 		builder.Services.AddSingleton<IPreferencesService, PreferencesService>();
@@ -65,18 +65,21 @@ public static class MauiProgram
     {
         builder.ConfigureLifecycleEvents(events => {
 #if IOS
-            events.AddiOS(iOS => iOS.FinishedLaunching((_,__) => {
+            events.AddiOS(iOS => iOS.FinishedLaunching((app, launchOptions) => {
                 CrossFirebase.Initialize();
                 FirebaseCloudMessagingImplementation.Initialize();
+                FirebaseAuthImplementation.Initialize(app, launchOptions, "151743924915235", "Plugin Firebase Playground");
                 return false;
             }));
 #else
-            events.AddAndroid(android => android.OnCreate((activity, _) =>
-                CrossFirebase.Initialize(activity)));
+            events.AddAndroid(android => android.OnCreate((activity, state) => {
+                CrossFirebase.Initialize(activity);
+                FirebaseAuthImplementation.Initialize("537235599720-723cgj10dtm47b4ilvuodtp206g0q0fg.apps.googleusercontent.com");
+            } ));
 #endif
         });
         
-        // builder.Services.AddSingleton(_ => CrossFirebaseAuth.Current);
+        builder.Services.AddSingleton(_ => CrossFirebaseAuth.Current);
         builder.Services.AddSingleton(_ => CrossFirebaseCloudMessaging.Current);
         builder.Services.AddSingleton(_ => CrossFirebaseDynamicLinks.Current);
         builder.Services.AddSingleton(_ => CrossFirebaseFunctions.Current);

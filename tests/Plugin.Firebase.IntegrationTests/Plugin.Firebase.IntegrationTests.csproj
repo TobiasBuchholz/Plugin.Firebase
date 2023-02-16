@@ -39,6 +39,7 @@
     <!-- project references -->
     <ItemGroup>
         <ProjectReference Include="..\..\src\Analytics\Analytics.csproj" />
+        <ProjectReference Include="..\..\src\Auth\Auth.csproj" />
         <ProjectReference Include="..\..\src\Core\Core.csproj" />
         <ProjectReference Include="..\..\src\CloudMessaging\CloudMessaging.csproj" />
         <ProjectReference Include="..\..\src\DynamicLinks\DynamicLinks.csproj" />
@@ -70,9 +71,4 @@
       <GoogleServicesJson Include="google-services.json" />
     </ItemGroup>
 
-    <!-- remove later when all separate projects are added -->
-    <ItemGroup>
-      <Compile Remove="Auth\AuthFixture.cs" />
-      <None Include="Auth\AuthFixture.cs" />
-    </ItemGroup>
 </Project>

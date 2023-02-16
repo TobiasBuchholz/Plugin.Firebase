@@ -3,7 +3,7 @@ using Android.Content;
 using Android.Content.PM;
 using Android.OS;
 using Android.Runtime;
-// using Plugin.Firebase.Auth;
+using Plugin.Firebase.Auth;
 using Plugin.Firebase.CloudMessaging;
 using Plugin.Firebase.DynamicLinks;
 
@@ -52,7 +52,7 @@ public class MainActivity : MauiAppCompatActivity
     protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
     {
         base.OnActivityResult(requestCode, resultCode, data);
-        // FirebaseAuthImplementation.HandleActivityResultAsync(requestCode, resultCode, data);
+        FirebaseAuthImplementation.HandleActivityResultAsync(requestCode, resultCode, data);
     }
     
     protected override void OnNewIntent(Intent intent)

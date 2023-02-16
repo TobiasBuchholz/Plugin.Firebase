@@ -54,6 +54,7 @@
 
     <!-- project references -->
     <ItemGroup>
+        <ProjectReference Include="..\..\src\Auth\Auth.csproj" />
         <ProjectReference Include="..\..\src\CloudMessaging\CloudMessaging.csproj" />
         <ProjectReference Include="..\..\src\Core\Core.csproj" />
         <ProjectReference Include="..\..\src\Crashlytics\Crashlytics.csproj" />
@@ -89,12 +90,5 @@
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
         <BundleResource Include="GoogleService-Info.plist" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Compile Remove="Common\Services\Auth\AuthService.cs" />
-      <None Include="Common\Services\Auth\AuthService.cs" />
-      <Compile Remove="Common\Services\Auth\IAuthService.cs" />
-      <None Include="Common\Services\Auth\IAuthService.cs" />
     </ItemGroup>
 </Project>

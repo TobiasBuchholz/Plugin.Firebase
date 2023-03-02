@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net6.0-android;net6.0-ios</TargetFrameworks>
+        <UseMaui>true</UseMaui>
+        <SingleProject>true</SingleProject>
+        <ImplicitUsings>enable</ImplicitUsings>
+
+        <RootNamespace>Plugin.Firebase.Bundled</RootNamespace>
+    </PropertyGroup>
+
+    <!-- project references -->
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\Analytics\Analytics.csproj" />
+        <ProjectReference Include="..\..\src\Auth\Auth.csproj" />
+        <ProjectReference Include="..\..\src\CloudMessaging\CloudMessaging.csproj" />
+        <ProjectReference Include="..\..\src\Core\Core.csproj" />
+        <ProjectReference Include="..\..\src\Crashlytics\Crashlytics.csproj" />
+        <ProjectReference Include="..\..\src\DynamicLinks\DynamicLinks.csproj" />
+        <ProjectReference Include="..\..\src\Firestore\Firestore.csproj" />
+        <ProjectReference Include="..\..\src\Functions\Functions.csproj" />
+        <ProjectReference Include="..\..\src\RemoteConfig\RemoteConfig.csproj" />
+        <ProjectReference Include="..\..\src\Storage\Storage.csproj" />
+    </ItemGroup>
+</Project>

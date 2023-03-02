@@ -26,6 +26,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crashlytics", "src\Crashlyt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Auth", "src\Auth\Auth.csproj", "{630C4CC0-6301-4278-816C-AA0598737321}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bundled", "src\Bundled\Bundled.csproj", "{3288A9C0-E047-480A-9FB9-E634920F2A54}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -80,6 +82,10 @@ Global
 		{630C4CC0-6301-4278-816C-AA0598737321}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{630C4CC0-6301-4278-816C-AA0598737321}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{630C4CC0-6301-4278-816C-AA0598737321}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3288A9C0-E047-480A-9FB9-E634920F2A54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3288A9C0-E047-480A-9FB9-E634920F2A54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3288A9C0-E047-480A-9FB9-E634920F2A54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3288A9C0-E047-480A-9FB9-E634920F2A54}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0C3FF90B-203F-445A-BA4A-2A27F784F73A} = {FD5845E5-6DE7-456C-AEF3-FCF0F678B7AB}

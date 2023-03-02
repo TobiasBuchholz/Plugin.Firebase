@@ -1,4 +1,5 @@
 namespace Plugin.Firebase.Storage;
+
 public sealed class CrossFirebaseStorage
 {
     private static Lazy<IFirebaseStorage> _implementation = new Lazy<IFirebaseStorage>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);

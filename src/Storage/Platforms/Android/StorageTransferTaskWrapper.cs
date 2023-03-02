@@ -1,12 +1,11 @@
 using Android.Gms.Extensions;
 using Firebase.Storage;
-using Plugin.Firebase.Android.Common;
-using Plugin.Firebase.Android.Storage.Listeners;
-using Plugin.Firebase.Storage;
+using Plugin.Firebase.Core.Platforms.Android;
+using Plugin.Firebase.Storage.Platforms.Android.Listeners;
 using Object = Java.Lang.Object;
-using OnSuccessListener = Plugin.Firebase.Android.Storage.Listeners.OnSuccessListener;
+using OnSuccessListener = Plugin.Firebase.Storage.Platforms.Android.Listeners.OnSuccessListener;
 
-namespace Plugin.Firebase.Android.Storage;
+namespace Plugin.Firebase.Storage.Platforms.Android;
 
 public sealed class StorageTransferTaskWrapper : IStorageTransferTask
 {

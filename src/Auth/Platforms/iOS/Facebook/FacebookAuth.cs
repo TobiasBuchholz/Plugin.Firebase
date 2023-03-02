@@ -3,7 +3,7 @@ using Firebase.Auth;
 using Foundation;
 using UIKit;
 
-namespace Plugin.Firebase.iOS.Auth.Facebook;
+namespace Plugin.Firebase.Auth.Platforms.iOS.Facebook;
 
 public sealed class FacebookAuth
 {

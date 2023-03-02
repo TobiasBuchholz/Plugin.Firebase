@@ -1,6 +1,5 @@
 using Firebase.CloudFirestore;
-using Plugin.Firebase.Common;
-using Plugin.Firebase.iOS.Firestore;
+using Plugin.Firebase.Core.Exceptions;
 using NativeFirestoreSettings = Firebase.CloudFirestore.FirestoreSettings;
 using NativeFieldValue = Firebase.CloudFirestore.FieldValue;
 using NativeDocumentChange = Firebase.CloudFirestore.DocumentChange;
@@ -8,7 +7,7 @@ using NativeDocumentChangeType = Firebase.CloudFirestore.DocumentChangeType;
 using NativeSource = Firebase.CloudFirestore.FirestoreSource;
 using NativeFieldPath = Firebase.CloudFirestore.FieldPath;
 
-namespace Plugin.Firebase.Firestore.iOS.Extensions
+namespace Plugin.Firebase.Firestore.Platforms.iOS.Extensions
 {
     public static class FirestoreExtensions
     {

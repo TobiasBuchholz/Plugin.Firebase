@@ -1,4 +1,4 @@
-namespace Plugin.Firebase.Shared.Common.Utils;
+namespace Plugin.Firebase.Core.Utils;
 
 public class FuncEqualityComparer<T> : IEqualityComparer<T>
 {

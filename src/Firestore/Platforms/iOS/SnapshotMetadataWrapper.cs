@@ -1,7 +1,6 @@
 using Firebase.CloudFirestore;
-using Plugin.Firebase.Firestore;
 
-namespace Plugin.Firebase.iOS.Firestore;
+namespace Plugin.Firebase.Firestore.Platforms.iOS;
 
 public sealed class SnapshotMetadataWrapper : ISnapshotMetadata
 {

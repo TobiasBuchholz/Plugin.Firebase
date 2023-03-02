@@ -1,4 +1,4 @@
-namespace Plugin.Firebase.Common;
+namespace Plugin.Firebase.Core;
 
 public class DisposableBase : IDisposable
 {

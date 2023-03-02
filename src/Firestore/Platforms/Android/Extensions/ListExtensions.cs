@@ -1,7 +1,7 @@
 using System.Collections;
 using Android.Runtime;
 
-namespace Plugin.Firebase.Firestore.Android.Extensions;
+namespace Plugin.Firebase.Firestore.Platforms.Android.Extensions;
 
 public static class ListExtensions
 {

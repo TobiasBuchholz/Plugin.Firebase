@@ -1,13 +1,12 @@
 using System.Text.Json;
 using Android.Gms.Extensions;
-using Plugin.Firebase.Functions;
 using Firebase.Functions;
 using GoogleGson;
 using GoogleGson.Reflect;
 using Java.Lang;
 using Java.Util;
 
-namespace Plugin.Firebase.Android.Functions;
+namespace Plugin.Firebase.Functions.Platforms.Android;
 
 public sealed class HttpsCallableWrapper : IHttpsCallable
 {

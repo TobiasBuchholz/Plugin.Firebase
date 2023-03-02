@@ -1,9 +1,8 @@
+using Firebase;
 using Firebase.RemoteConfig;
-using Plugin.Firebase.Common;
-using Plugin.Firebase.RemoteConfig;
 using NativeRemoteConfigSettings = Firebase.RemoteConfig.FirebaseRemoteConfigSettings;
 
-namespace Plugin.Firebase.Android.RemoteConfig.Extensions;
+namespace Plugin.Firebase.RemoteConfig.Platforms.Android.Extensions;
 
 public static class RemoteConfigExtensions
 {

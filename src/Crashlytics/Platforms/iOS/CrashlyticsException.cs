@@ -1,8 +1,6 @@
-using System;
-using System.Linq;
 using Firebase.Crashlytics;
 
-namespace Plugin.Firebase.Crashlytics;
+namespace Plugin.Firebase.Crashlytics.Platforms.iOS;
 
 internal class CrashlyticsException
 {

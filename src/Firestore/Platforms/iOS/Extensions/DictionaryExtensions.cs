@@ -2,7 +2,7 @@ using System.Collections;
 using Foundation;
 using NativeFieldValue = Firebase.CloudFirestore.FieldValue;
 
-namespace Plugin.Firebase.Firestore.iOS.Extensions;
+namespace Plugin.Firebase.Firestore.Platforms.iOS.Extensions;
 
 public static class DictionaryExtensions
 {

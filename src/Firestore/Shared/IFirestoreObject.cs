@@ -1,6 +1,5 @@
-namespace Plugin.Firebase.Firestore
+namespace Plugin.Firebase.Firestore;
+
+public interface IFirestoreObject
 {
-    public interface IFirestoreObject
-    {
-    }
 }

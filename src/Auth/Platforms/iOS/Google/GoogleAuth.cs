@@ -3,7 +3,7 @@ using Foundation;
 using Google.SignIn;
 using UIKit;
 
-namespace Plugin.Firebase.iOS.Auth.Google;
+namespace Plugin.Firebase.Auth.Platforms.iOS.Google;
 
 public sealed class GoogleAuth : NSObject, ISignInDelegate
 {

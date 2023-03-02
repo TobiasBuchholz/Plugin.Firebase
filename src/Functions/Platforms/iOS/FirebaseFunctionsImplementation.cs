@@ -1,6 +1,6 @@
-using Plugin.Firebase.Common;
-using Plugin.Firebase.iOS.Functions;
 using Firebase.CloudFunctions;
+using Plugin.Firebase.Core;
+using Plugin.Firebase.Functions.Platforms.iOS;
 
 namespace Plugin.Firebase.Functions;
 

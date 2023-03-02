@@ -1,8 +1,7 @@
 using Foundation;
-using Plugin.Firebase.CloudMessaging;
 using UserNotifications;
 
-namespace Plugin.Firebase.iOS.CloudMessaging;
+namespace Plugin.Firebase.CloudMessaging.Platforms.iOS.Extensions;
 
 public static class FCMNotificationExtension
 {

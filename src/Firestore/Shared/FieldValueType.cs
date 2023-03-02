@@ -1,7 +1,6 @@
-namespace Plugin.Firebase.Firestore
+namespace Plugin.Firebase.Firestore;
+
+public enum FieldValueType
 {
-    public enum FieldValueType
-    {
-        ArrayUnion, ArrayRemove, IntegerIncrement, DoubleIncrement, Delete, ServerTimestamp
-    }
+    ArrayUnion, ArrayRemove, IntegerIncrement, DoubleIncrement, Delete, ServerTimestamp
 }

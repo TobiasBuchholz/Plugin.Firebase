@@ -1,34 +1,31 @@
-using System;
+namespace Plugin.Firebase.Firestore;
 
-namespace Plugin.Firebase.Firestore
+[AttributeUsage(AttributeTargets.Property)]
+public class FirestorePropertyAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Property)]
-    public class FirestorePropertyAttribute : Attribute
+    public FirestorePropertyAttribute(string propertyName)
     {
-        public FirestorePropertyAttribute(string propertyName)
-        {
-            PropertyName = propertyName;
-        }
-
-        public string PropertyName { get; }
+        PropertyName = propertyName;
     }
 
-    [AttributeUsage(AttributeTargets.Property)]
-    public class FirestoreDocumentIdAttribute : Attribute
+    public string PropertyName { get; }
+}
+
+[AttributeUsage(AttributeTargets.Property)]
+public class FirestoreDocumentIdAttribute : Attribute
+{
+    public FirestoreDocumentIdAttribute()
     {
-        public FirestoreDocumentIdAttribute()
-        {
-        }
+    }
+}
+
+[AttributeUsage(AttributeTargets.Property)]
+public class FirestoreServerTimestampAttribute : Attribute
+{
+    public FirestoreServerTimestampAttribute(string propertyName)
+    {
+        PropertyName = propertyName;
     }
 
-    [AttributeUsage(AttributeTargets.Property)]
-    public class FirestoreServerTimestampAttribute : Attribute
-    {
-        public FirestoreServerTimestampAttribute(string propertyName)
-        {
-            PropertyName = propertyName;
-        }
-
-        public string PropertyName { get; }
-    }
+    public string PropertyName { get; }
 }

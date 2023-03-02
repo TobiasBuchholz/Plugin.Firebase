@@ -1,6 +1,6 @@
 using Foundation;
 
-namespace Plugin.Firebase.iOS.Extensions;
+namespace Plugin.Firebase.Core.Platforms.iOS.Extensions;
 
 public static class DateExtensions
 {

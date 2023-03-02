@@ -1,5 +1,6 @@
 using Foundation;
-using Plugin.Firebase.Common;
+using Plugin.Firebase.Core;
+using Plugin.Firebase.Crashlytics.Platforms.iOS;
 using FirebaseCrashlytics = Firebase.Crashlytics.Crashlytics;
 
 namespace Plugin.Firebase.Crashlytics;

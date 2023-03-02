@@ -1,4 +1,4 @@
-using Plugin.Firebase.Common;
+using Plugin.Firebase.Core.Exceptions;
 
 namespace Plugin.Firebase.CloudMessaging
 {

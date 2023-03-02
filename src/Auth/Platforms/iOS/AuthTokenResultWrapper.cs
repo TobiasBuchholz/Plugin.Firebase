@@ -1,9 +1,8 @@
 using Firebase.Auth;
-using Plugin.Firebase.Auth;
-using Plugin.Firebase.Auth.iOS.Extensions;
-using Plugin.Firebase.iOS.Extensions;
+using Plugin.Firebase.Auth.Platforms.iOS.Extensions;
+using Plugin.Firebase.Core.Platforms.iOS.Extensions;
 
-namespace Plugin.Firebase.iOS.Auth;
+namespace Plugin.Firebase.Auth.Platforms.iOS;
 
 public sealed class AuthTokenResultWrapper : IAuthTokenResult
 {

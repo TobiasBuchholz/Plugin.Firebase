@@ -1,7 +1,7 @@
 using Foundation;
-using Plugin.Firebase.iOS.Extensions;
+using Plugin.Firebase.Core.Platforms.iOS.Extensions;
 
-namespace Plugin.Firebase.Auth.iOS.Extensions;
+namespace Plugin.Firebase.Auth.Platforms.iOS.Extensions;
 
 public static class NSObjectExtensions
 {

@@ -2,7 +2,7 @@ using Java.Util;
 using Android.Runtime;
 using IList = System.Collections.IList;
 
-namespace Plugin.Firebase.Auth.Android.Extensions;
+namespace Plugin.Firebase.Auth.Platforms.Android.Extensions;
 
 public static class JavaObjectExtensions
 {

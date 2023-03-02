@@ -6,7 +6,7 @@ using IMap = Java.Util.IMap;
 using IList = System.Collections.IList;
 using NativeFieldValue = Firebase.Firestore.FieldValue;
 
-namespace Plugin.Firebase.Firestore.Android.Extensions;
+namespace Plugin.Firebase.Firestore.Platforms.Android.Extensions;
 
 public static class DictionaryExtensions
 {

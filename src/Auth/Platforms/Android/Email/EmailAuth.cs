@@ -1,6 +1,6 @@
 using Firebase.Auth;
 
-namespace Plugin.Firebase.Android.Auth.Email;
+namespace Plugin.Firebase.Auth.Platforms.Android.Email;
 
 public sealed class EmailAuth
 {

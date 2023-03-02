@@ -1,9 +1,9 @@
 using Android.App;
 using Firebase.Messaging;
 using Microsoft.Maui.Controls.Internals;
-using Plugin.Firebase.CloudMessaging;
+using Plugin.Firebase.CloudMessaging.Platforms.Android.Extensions;
 
-namespace Plugin.Firebase.Android.CloudMessaging;
+namespace Plugin.Firebase.CloudMessaging.Platforms.Android;
 
 [Service(Exported = true)]
 [IntentFilter(new[] { "com.google.firebase.MESSAGING_EVENT" })]

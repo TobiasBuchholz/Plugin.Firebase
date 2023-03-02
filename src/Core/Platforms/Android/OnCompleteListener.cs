@@ -1,7 +1,7 @@
 using Android.Gms.Tasks;
 using Task = Android.Gms.Tasks.Task;
 
-namespace Plugin.Firebase.Android.Common;
+namespace Plugin.Firebase.Core.Platforms.Android;
 
 public class OnCompleteListener : Java.Lang.Object, IOnCompleteListener
 {

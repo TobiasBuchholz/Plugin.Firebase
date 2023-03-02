@@ -1,12 +1,10 @@
 using Android.Gms.Extensions;
 using Android.Runtime;
 using Firebase.Auth;
-using Plugin.Firebase.Auth;
-using Plugin.Firebase.Auth.Android.Extensions;
-using ActionCodeSettings = Plugin.Firebase.Auth.ActionCodeSettings;
+using Plugin.Firebase.Auth.Platforms.Android.Extensions;
 using Uri = Android.Net.Uri;
 
-namespace Plugin.Firebase.Android.Auth;
+namespace Plugin.Firebase.Auth.Platforms.Android;
 
 public sealed class FirebaseUserWrapper : IFirebaseUser
 {

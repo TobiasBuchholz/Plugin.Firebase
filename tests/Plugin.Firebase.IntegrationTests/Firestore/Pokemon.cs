@@ -1,6 +1,5 @@
-using Plugin.Firebase.Common;
+using Plugin.Firebase.Core.Extensions;
 using Plugin.Firebase.Firestore;
-using Plugin.Firebase.Shared.Common.Extensions;
 
 namespace Plugin.Firebase.IntegrationTests.Firestore
 {

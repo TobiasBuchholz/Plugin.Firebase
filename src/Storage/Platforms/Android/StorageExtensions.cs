@@ -1,10 +1,8 @@
 using Firebase.Storage;
 using Java.Lang;
-using Plugin.Firebase.Storage;
 using NativeStorageMetadata = Firebase.Storage.StorageMetadata;
-using StorageMetadata = Plugin.Firebase.Storage.StorageMetadata;
 
-namespace Plugin.Firebase.Android.Storage;
+namespace Plugin.Firebase.Storage.Platforms.Android;
 
 public static class StorageExtensions
 {

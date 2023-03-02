@@ -1,9 +1,8 @@
 using Firebase.Firestore;
-using Plugin.Firebase.Firestore.Android.Extensions;
-using Plugin.Firebase.Firestore;
+using Plugin.Firebase.Firestore.Platforms.Android.Extensions;
 using Object = Java.Lang.Object;
 
-namespace Plugin.Firebase.Android.Firestore;
+namespace Plugin.Firebase.Firestore.Platforms.Android;
 
 public class TransactionFunction<TResult> : Object, Transaction.IFunction
 {

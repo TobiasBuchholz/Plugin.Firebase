@@ -1,5 +1,3 @@
-using System;
-
 namespace Plugin.Firebase.CloudMessaging
 {
     public sealed class CrossFirebaseCloudMessaging

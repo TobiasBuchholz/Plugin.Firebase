@@ -1,6 +1,6 @@
-using Plugin.Firebase.Shared.Common.Utils;
+using Plugin.Firebase.Core.Utils;
 
-namespace Plugin.Firebase.Shared.Common.Extensions;
+namespace Plugin.Firebase.Core.Extensions;
 
 public static class EnumerableExtensions
 {

@@ -3,7 +3,7 @@ using Android.Runtime;
 using Firebase.Storage;
 using Object = Java.Lang.Object;
 
-namespace Plugin.Firebase.Android.Storage.Listeners;
+namespace Plugin.Firebase.Storage.Platforms.Android.Listeners;
 
 public sealed class OnSuccessListener : Object, IOnSuccessListener
 {

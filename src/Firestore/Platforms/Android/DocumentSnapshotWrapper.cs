@@ -1,8 +1,7 @@
 using Firebase.Firestore;
-using Plugin.Firebase.Firestore;
-using Plugin.Firebase.Firestore.Android.Extensions;
+using Plugin.Firebase.Firestore.Platforms.Android.Extensions;
 
-namespace Plugin.Firebase.Android.Firestore;
+namespace Plugin.Firebase.Firestore.Platforms.Android;
 
 public sealed class DocumentSnapshotWrapper<T> : DocumentSnapshotWrapper, IDocumentSnapshot<T>
 {

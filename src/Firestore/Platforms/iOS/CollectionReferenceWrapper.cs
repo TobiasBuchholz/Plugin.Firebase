@@ -1,10 +1,9 @@
 using Firebase.CloudFirestore;
-using Plugin.Firebase.Common;
-using Plugin.Firebase.Firestore;
-using Plugin.Firebase.Firestore.iOS.Extensions;
-using FieldPath = Plugin.Firebase.Firestore.FieldPath;
+using Plugin.Firebase.Core;
+using Plugin.Firebase.Core.Exceptions;
+using Plugin.Firebase.Firestore.Platforms.iOS.Extensions;
 
-namespace Plugin.Firebase.iOS.Firestore;
+namespace Plugin.Firebase.Firestore.Platforms.iOS;
 
 public sealed class CollectionReferenceWrapper : ICollectionReference
 {

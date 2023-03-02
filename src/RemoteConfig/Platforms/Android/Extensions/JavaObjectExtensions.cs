@@ -2,7 +2,7 @@ using Java.Util;
 using Android.Runtime;
 using IList = System.Collections.IList;
 
-namespace Plugin.Firebase.Android.RemoteConfig.Extensions;
+namespace Plugin.Firebase.RemoteConfig.Platforms.Android.Extensions;
 
 public static class JavaObjectExtensions
 {

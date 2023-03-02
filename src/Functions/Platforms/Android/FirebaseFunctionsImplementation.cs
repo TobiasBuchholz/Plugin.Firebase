@@ -1,7 +1,6 @@
-using Plugin.Firebase.Functions;
-using Plugin.Firebase.Common;
 using Firebase.Functions;
-using Plugin.Firebase.Android.Functions;
+using Plugin.Firebase.Core;
+using Plugin.Firebase.Functions.Platforms.Android;
 
 namespace Plugin.Firebase.Functions;
 

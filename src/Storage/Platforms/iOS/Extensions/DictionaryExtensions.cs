@@ -1,6 +1,6 @@
 using Foundation;
 
-namespace Plugin.Firebase.iOS.Storage.Extensions;
+namespace Plugin.Firebase.Storage.Platforms.iOS.Extensions;
 
 public static class DictionaryExtensions
 {

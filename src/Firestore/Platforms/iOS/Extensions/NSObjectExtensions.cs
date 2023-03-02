@@ -1,10 +1,9 @@
 using System.Collections;
 using Firebase.CloudFirestore;
 using Foundation;
-using Plugin.Firebase.iOS.Extensions;
-using Plugin.Firebase.iOS.Firestore;
+using Plugin.Firebase.Core.Platforms.iOS.Extensions;
 
-namespace Plugin.Firebase.Firestore.iOS.Extensions;
+namespace Plugin.Firebase.Firestore.Platforms.iOS.Extensions;
 
 public static class NSObjectExtensions
 {

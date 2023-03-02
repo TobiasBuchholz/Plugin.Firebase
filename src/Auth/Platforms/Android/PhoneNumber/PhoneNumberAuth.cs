@@ -3,7 +3,7 @@ using Firebase.Auth;
 using Java.Lang;
 using Java.Util.Concurrent;
 
-namespace Plugin.Firebase.Android.Auth.PhoneNumber;
+namespace Plugin.Firebase.Auth.Platforms.Android.PhoneNumber;
 
 public sealed class PhoneNumberAuth
 {

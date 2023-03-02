@@ -1,13 +1,11 @@
 using Android.Gms.Extensions;
 using Android.Runtime;
+using Firebase;
 using Firebase.Firestore;
-using Plugin.Firebase.Common;
-using Plugin.Firebase.Firestore;
-using Plugin.Firebase.Firestore.Android.Extensions;
-using FieldPath = Plugin.Firebase.Firestore.FieldPath;
-using Source = Plugin.Firebase.Firestore.Source;
+using Plugin.Firebase.Core;
+using Plugin.Firebase.Firestore.Platforms.Android.Extensions;
 
-namespace Plugin.Firebase.Android.Firestore;
+namespace Plugin.Firebase.Firestore.Platforms.Android;
 
 public sealed class QueryWrapper : IQuery
 {

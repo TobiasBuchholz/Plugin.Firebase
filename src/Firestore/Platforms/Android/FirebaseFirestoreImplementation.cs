@@ -1,7 +1,7 @@
 using Android.Gms.Extensions;
-using Plugin.Firebase.Firestore.Android.Extensions;
-using Plugin.Firebase.Common;
-using Plugin.Firebase.Android.Firestore;
+using Plugin.Firebase.Core;
+using Plugin.Firebase.Firestore.Platforms.Android;
+using Plugin.Firebase.Firestore.Platforms.Android.Extensions;
 using FirebaseFirestore = Firebase.Firestore.FirebaseFirestore;
 
 namespace Plugin.Firebase.Firestore;

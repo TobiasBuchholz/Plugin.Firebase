@@ -1,7 +1,7 @@
 using System.Collections;
 using Foundation;
 
-namespace Plugin.Firebase.Firestore.iOS.Extensions;
+namespace Plugin.Firebase.Firestore.Platforms.iOS.Extensions;
 
 public static class ListExtensions
 {

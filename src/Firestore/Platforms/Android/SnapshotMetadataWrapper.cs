@@ -1,7 +1,6 @@
 using Firebase.Firestore;
-using Plugin.Firebase.Firestore;
 
-namespace Plugin.Firebase.Android.Firestore;
+namespace Plugin.Firebase.Firestore.Platforms.Android;
 
 public sealed class SnapshotMetadataWrapper : ISnapshotMetadata
 {

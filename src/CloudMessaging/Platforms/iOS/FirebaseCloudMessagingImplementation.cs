@@ -1,8 +1,8 @@
 using Firebase.CloudMessaging;
 using Foundation;
 using Plugin.Firebase.CloudMessaging.EventArgs;
-using Plugin.Firebase.Common;
-using Plugin.Firebase.iOS.CloudMessaging;
+using Plugin.Firebase.CloudMessaging.Platforms.iOS.Extensions;
+using Plugin.Firebase.Core.Exceptions;
 using UIKit;
 using UserNotifications;
 

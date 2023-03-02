@@ -1,5 +1,5 @@
-using Plugin.Firebase.Common;
-using Plugin.Firebase.Analytics.iOS.Extensions;
+using Plugin.Firebase.Core;
+using Plugin.Firebase.Analytics.Platforms.iOS.Extensions;
 using FirebaseAnalytics = Firebase.Analytics.Analytics;
 
 namespace Plugin.Firebase.Analytics;

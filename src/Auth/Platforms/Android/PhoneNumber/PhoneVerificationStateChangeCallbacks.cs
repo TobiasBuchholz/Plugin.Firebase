@@ -1,7 +1,7 @@
 using Firebase;
 using Firebase.Auth;
 
-namespace Plugin.Firebase.Android.Auth.PhoneNumber;
+namespace Plugin.Firebase.Auth.Platforms.Android.PhoneNumber;
 
 public sealed class PhoneVerificationStateChangeCallbacks : PhoneAuthProvider.OnVerificationStateChangedCallbacks
 {

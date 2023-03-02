@@ -1,12 +1,11 @@
 using Android.Gms.Extensions;
 using Android.Runtime;
 using Firebase.DynamicLinks;
-using Plugin.Firebase.DynamicLinks;
 using Plugin.Firebase.DynamicLinks.Parameters;
-using Plugin.Firebase.DynamicLinks.Android.Extensions;
+using Plugin.Firebase.DynamicLinks.Platforms.Android.Extensions;
 using AndroidUri = Android.Net.Uri;
 
-namespace Plugin.Firebase.Android.DynamicLinks;
+namespace Plugin.Firebase.DynamicLinks.Platforms.Android;
 
 public sealed class DynamicLinkBuilder : IDynamicLinkBuilder
 {

@@ -1,10 +1,8 @@
 using Android.Content;
 using Android.OS;
 using Firebase.Messaging;
-using Plugin.Firebase.CloudMessaging;
-using Plugin.Firebase.CloudMessaging.Android.Extensions;
 
-namespace Plugin.Firebase.Android.CloudMessaging;
+namespace Plugin.Firebase.CloudMessaging.Platforms.Android.Extensions;
 
 public static class FCMNotificationExtensions
 {

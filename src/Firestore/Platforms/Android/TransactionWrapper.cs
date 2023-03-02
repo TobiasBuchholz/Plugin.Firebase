@@ -1,9 +1,7 @@
 using Firebase.Firestore;
-using Plugin.Firebase.Firestore;
-using Plugin.Firebase.Firestore.Android.Extensions;
-using SetOptions = Plugin.Firebase.Firestore.SetOptions;
+using Plugin.Firebase.Firestore.Platforms.Android.Extensions;
 
-namespace Plugin.Firebase.Android.Firestore;
+namespace Plugin.Firebase.Firestore.Platforms.Android;
 
 public sealed class TransactionWrapper : ITransaction
 {

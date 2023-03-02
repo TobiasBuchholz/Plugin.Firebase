@@ -2,7 +2,7 @@ using Firebase.DynamicLinks;
 using Foundation;
 using Plugin.Firebase.DynamicLinks.Parameters;
 
-namespace Plugin.Firebase.DynamicLinks.iOS.Extensions;
+namespace Plugin.Firebase.DynamicLinks.Platforms.iOS.Extensions;
     
 public static class DynamicLinksExtensions
 {

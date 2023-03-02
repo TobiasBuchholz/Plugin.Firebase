@@ -1,11 +1,8 @@
 using Firebase.Auth;
 using Foundation;
-using Plugin.Firebase.Auth;
-using Plugin.Firebase.Auth.iOS.Extensions;
-using ActionCodeSettings = Plugin.Firebase.Auth.ActionCodeSettings;
-using UserMetadata = Plugin.Firebase.Auth.UserMetadata;
+using Plugin.Firebase.Auth.Platforms.iOS.Extensions;
 
-namespace Plugin.Firebase.iOS.Auth;
+namespace Plugin.Firebase.Auth.Platforms.iOS;
 
 public sealed class FirebaseUserWrapper : IFirebaseUser
 {

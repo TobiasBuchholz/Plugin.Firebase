@@ -1,10 +1,9 @@
 using Firebase.DynamicLinks;
 using Foundation;
-using Plugin.Firebase.DynamicLinks;
-using Plugin.Firebase.DynamicLinks.iOS.Extensions;
 using Plugin.Firebase.DynamicLinks.Parameters;
+using Plugin.Firebase.DynamicLinks.Platforms.iOS.Extensions;
 
-namespace Plugin.Firebase.iOS.DynamicLinks;
+namespace Plugin.Firebase.DynamicLinks.Platforms.iOS;
 
 public sealed class DynamicLinkBuilder : IDynamicLinkBuilder
 {

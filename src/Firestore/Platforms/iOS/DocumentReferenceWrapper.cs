@@ -1,10 +1,10 @@
 using Firebase.CloudFirestore;
-using Plugin.Firebase.Common;
-using Plugin.Firebase.Firestore;
-using Plugin.Firebase.Firestore.iOS.Extensions;
-using FieldPath = Firebase.CloudFirestore.FieldPath;
+using Plugin.Firebase.Core;
+using Plugin.Firebase.Core.Exceptions;
+using Plugin.Firebase.Firestore.Platforms.iOS.Extensions;
+using NativeFieldPath = Firebase.CloudFirestore.FieldPath;
 
-namespace Plugin.Firebase.iOS.Firestore;
+namespace Plugin.Firebase.Firestore.Platforms.iOS;
 
 public sealed class DocumentReferenceWrapper : IDocumentReference
 {
@@ -28,7 +28,7 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
             case SetOptions.TypeMerge:
                 return Wrapped.SetDataAsync(data, true);
             case SetOptions.TypeMergeFieldPaths:
-                return Wrapped.SetDataAsync(data, options.FieldPaths.Select(x => new FieldPath(x.ToArray())).ToArray());
+                return Wrapped.SetDataAsync(data, options.FieldPaths.Select(x => new NativeFieldPath(x.ToArray())).ToArray());
             case SetOptions.TypeMergeFields:
                 return Wrapped.SetDataAsync(data, options.Fields.ToArray());
             default:

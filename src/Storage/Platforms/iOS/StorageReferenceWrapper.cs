@@ -1,12 +1,11 @@
 using Firebase.Storage;
 using Foundation;
-using Plugin.Firebase.Common;
-using Plugin.Firebase.Storage;
-using Plugin.Firebase.iOS.Storage.Extensions;
+using Plugin.Firebase.Core.Exceptions;
+using Plugin.Firebase.Storage.Platforms.iOS.Extensions;
 using NativeStorageTaskStatus = Firebase.Storage.StorageTaskStatus;
 using NativeStorageMetadata = Firebase.Storage.StorageMetadata;
 
-namespace Plugin.Firebase.iOS.Storage;
+namespace Plugin.Firebase.Storage.Platforms.iOS;
 
 public sealed class StorageReferenceWrapper : IStorageReference
 {

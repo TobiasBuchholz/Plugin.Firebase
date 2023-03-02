@@ -2,7 +2,7 @@ using Firebase.DynamicLinks;
 using Plugin.Firebase.DynamicLinks.Parameters;
 using Uri = Android.Net.Uri;
 
-namespace Plugin.Firebase.DynamicLinks.Android.Extensions;
+namespace Plugin.Firebase.DynamicLinks.Platforms.Android.Extensions;
 
 public static class DynamicLinkExtensions
 {

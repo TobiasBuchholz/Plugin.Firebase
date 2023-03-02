@@ -4,7 +4,7 @@ using Firebase.Auth;
 using Xamarin.Facebook;
 using Xamarin.Facebook.Login;
 
-namespace Plugin.Firebase.Android.Auth.Facebook;
+namespace Plugin.Firebase.Auth.Platforms.Android.Facebook;
 
 public sealed class FacebookAuth
 {

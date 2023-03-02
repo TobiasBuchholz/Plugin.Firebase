@@ -7,7 +7,7 @@ using Firebase.Auth;
 using GoogleApi = Android.Gms.Auth.Api.Auth;
 using GmsTask = Android.Gms.Tasks.Task;
 
-namespace Plugin.Firebase.Android.Auth.Google;
+namespace Plugin.Firebase.Auth.Platforms.Android.Google;
 
 public sealed class GoogleAuth
 {

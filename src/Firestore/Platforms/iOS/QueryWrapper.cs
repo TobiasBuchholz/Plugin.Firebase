@@ -1,9 +1,9 @@
-using Plugin.Firebase.Common;
-using Plugin.Firebase.Firestore;
-using Plugin.Firebase.Firestore.iOS.Extensions;
+using Plugin.Firebase.Core;
+using Plugin.Firebase.Core.Exceptions;
+using Plugin.Firebase.Firestore.Platforms.iOS.Extensions;
 using Query = Firebase.CloudFirestore.Query;
 
-namespace Plugin.Firebase.iOS.Firestore;
+namespace Plugin.Firebase.Firestore.Platforms.iOS;
 
 public sealed class QueryWrapper : IQuery
 {

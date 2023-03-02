@@ -1,6 +1,6 @@
 using Java.Util;
 
-namespace Plugin.Firebase.Firestore.Android.Extensions;
+namespace Plugin.Firebase.Firestore.Platforms.Android.Extensions;
 
 public static class DateExtensions
 {

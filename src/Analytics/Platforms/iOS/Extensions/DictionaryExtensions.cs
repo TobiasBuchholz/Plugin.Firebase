@@ -1,7 +1,7 @@
 using System.Collections;
 using Foundation;
 
-namespace Plugin.Firebase.Analytics.iOS.Extensions;
+namespace Plugin.Firebase.Analytics.Platforms.iOS.Extensions;
 
 public static class DictionaryExtensions
 {

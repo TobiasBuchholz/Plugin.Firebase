@@ -3,15 +3,16 @@ using Android.Content;
 using Android.Gms.Extensions;
 using AndroidX.Fragment.App;
 using Firebase.Auth;
-using Plugin.Firebase.Android.Auth.Email;
-using Plugin.Firebase.Android.Auth.Facebook;
-using Plugin.Firebase.Android.Auth.Google;
-using Plugin.Firebase.Android.Auth.PhoneNumber;
-using Plugin.Firebase.Auth.Android.Extensions;
-using Plugin.Firebase.Common;
+using Plugin.Firebase.Auth.Platforms.Android.Email;
+using Plugin.Firebase.Auth.Platforms.Android.Facebook;
+using Plugin.Firebase.Auth.Platforms.Android.Google;
+using Plugin.Firebase.Auth.Platforms.Android.PhoneNumber;
+using Plugin.Firebase.Auth.Platforms.Android.Extensions;
+using Plugin.Firebase.Core;
+using Plugin.Firebase.Core.Exceptions;
 using Activity = Android.App.Activity;
 using CrossActionCodeSettings = Plugin.Firebase.Auth.ActionCodeSettings;
-using CrossFirebaseAuthException = Plugin.Firebase.Common.FirebaseAuthException;
+using CrossFirebaseAuthException = Plugin.Firebase.Core.Exceptions.FirebaseAuthException;
 
 namespace Plugin.Firebase.Auth;
 

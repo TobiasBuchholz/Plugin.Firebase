@@ -1,7 +1,7 @@
 using System.Collections;
 using Foundation;
 
-namespace Plugin.Firebase.Auth.iOS.Extensions;
+namespace Plugin.Firebase.Auth.Platforms.iOS.Extensions;
 
 public static class DictionaryExtensions
 {

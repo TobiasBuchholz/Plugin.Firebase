@@ -1,13 +1,13 @@
 using Foundation;
 using Plugin.Firebase.DynamicLinks.EventArgs;
-using Plugin.Firebase.iOS.DynamicLinks;
+using Plugin.Firebase.DynamicLinks.Platforms.iOS;
 using UIKit;
 using FirebaseDynamicLinks = Firebase.DynamicLinks.DynamicLinks;
 using DynamicLink = Firebase.DynamicLinks.DynamicLink;
 
 namespace Plugin.Firebase.DynamicLinks;
-    [Preserve(AllMembers = true)]
-    
+
+[Preserve(AllMembers = true)]
 public sealed class FirebaseDynamicLinksImplementation : IFirebaseDynamicLinks
 {
     private static event EventHandler<DynamicLinkReceivedEventArgs> _dynamicLinkReceived;

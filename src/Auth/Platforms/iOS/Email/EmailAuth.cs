@@ -1,8 +1,7 @@
-using System.Threading.Tasks;
 using Firebase.Auth;
 using FirebaseAuth = Firebase.Auth.Auth;
 
-namespace Plugin.Firebase.iOS.Auth.Email
+namespace Plugin.Firebase.Auth.Platforms.iOS.Email
 {
     public sealed class EmailAuth
     {

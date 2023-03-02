@@ -1,13 +1,12 @@
 using Firebase.Firestore;
-using Plugin.Firebase.Android.Firestore;
-using Plugin.Firebase.Common;
+using Plugin.Firebase.Core.Exceptions;
 using NativeFieldValue = Firebase.Firestore.FieldValue;
 using NativeSetOptions = Firebase.Firestore.SetOptions;
 using NativeDocumentChange = Firebase.Firestore.DocumentChange;
 using NativeSource = Firebase.Firestore.Source;
 using NativeFieldPath = Firebase.Firestore.FieldPath;
 
-namespace Plugin.Firebase.Firestore.Android.Extensions
+namespace Plugin.Firebase.Firestore.Platforms.Android.Extensions
 {
     public static class FirestoreExtensions
     {

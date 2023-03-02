@@ -1,6 +1,6 @@
 using Java.Lang;
 
-namespace Plugin.Firebase.Crashlytics;
+namespace Plugin.Firebase.Crashlytics.Platforms.Android;
 
 internal class CrashlyticsException : Java.Lang.Exception
 {

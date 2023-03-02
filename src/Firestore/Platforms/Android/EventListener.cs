@@ -2,7 +2,7 @@ using Firebase.Firestore;
 using Object = Java.Lang.Object;
 using IEventListener = Firebase.Firestore.IEventListener;
 
-namespace Plugin.Firebase.Android.Firestore;
+namespace Plugin.Firebase.Firestore.Platforms.Android;
 
 public sealed class EventListener : Object, IEventListener
 {

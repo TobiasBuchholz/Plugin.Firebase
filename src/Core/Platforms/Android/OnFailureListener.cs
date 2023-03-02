@@ -2,7 +2,7 @@ using Android.Gms.Tasks;
 using Exception = Java.Lang.Exception;
 using Object = Java.Lang.Object;
 
-namespace Plugin.Firebase.Android.Common;
+namespace Plugin.Firebase.Core.Platforms.Android;
 
 public sealed class OnFailureListener : Object, IOnFailureListener
 {

@@ -20,5 +20,13 @@
     <ItemGroup>
         <ProjectReference Include="..\Core\Core.csproj" />
     </ItemGroup>
+    <ItemGroup>
+      <Compile Update="Platforms\Android\Extensions\FCMNotificationExtensions.cs">
+        <ExcludeFromCurrentConfiguration>false</ExcludeFromCurrentConfiguration>
+      </Compile>
+      <Compile Update="Platforms\iOS\Extensions\FCMNotificationExtensions.cs">
+        <ExcludeFromCurrentConfiguration>true</ExcludeFromCurrentConfiguration>
+      </Compile>
+    </ItemGroup>
     
 </Project>

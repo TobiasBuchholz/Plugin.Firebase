@@ -1,6 +1,6 @@
 using Firebase.Storage;
-using Plugin.Firebase.Android.Storage;
-using Plugin.Firebase.Common;
+using Plugin.Firebase.Core;
+using Plugin.Firebase.Storage.Platforms.Android;
 
 namespace Plugin.Firebase.Storage;
 

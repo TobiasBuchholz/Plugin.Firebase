@@ -1,9 +1,9 @@
 using Android.Graphics;
 using AndroidX.Core.App;
 using Java.Net;
-using Plugin.Firebase.Common;
+using Plugin.Firebase.Core.Exceptions;
 
-namespace Plugin.Firebase.CloudMessaging.Android.Extensions;
+namespace Plugin.Firebase.CloudMessaging.Platforms.Android.Extensions;
 
 public static class NotificationBuilderExtensions
 {

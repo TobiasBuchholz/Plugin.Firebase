@@ -1,12 +1,11 @@
 using Android.Gms.Extensions;
 using Firebase.Storage;
-using Plugin.Firebase.Storage;
 using AndroidUri = Android.Net.Uri;
 using AndroidTask = Android.Gms.Tasks.Task;
 using File = Java.IO.File;
-using StorageMetadata = Firebase.Storage.StorageMetadata;
+using NativeStorageMetadata = Firebase.Storage.StorageMetadata;
 
-namespace Plugin.Firebase.Android.Storage;
+namespace Plugin.Firebase.Storage.Platforms.Android;
 
 public sealed class StorageReferenceWrapper : IStorageReference
 {
@@ -45,12 +44,12 @@ public sealed class StorageReferenceWrapper : IStorageReference
 
     public async Task<IStorageMetadata> GetMetadataAsync()
     {
-        return (await _wrapped.GetMetadata().AsAsync<StorageMetadata>()).ToAbstract();
+        return (await _wrapped.GetMetadata().AsAsync<NativeStorageMetadata>()).ToAbstract();
     }
 
     public async Task<IStorageMetadata> UpdateMetadataAsync(IStorageMetadata metadata)
     {
-        return (await _wrapped.UpdateMetadata(metadata.ToNative()).AsAsync<StorageMetadata>()).ToAbstract();
+        return (await _wrapped.UpdateMetadata(metadata.ToNative()).AsAsync<NativeStorageMetadata>()).ToAbstract();
     }
 
     public async Task<string> GetDownloadUrlAsync()

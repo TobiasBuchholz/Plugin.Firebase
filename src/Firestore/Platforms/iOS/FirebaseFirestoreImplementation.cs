@@ -1,8 +1,9 @@
 using Firebase.CloudFirestore;
 using Foundation;
-using Plugin.Firebase.Common;
-using Plugin.Firebase.Firestore.iOS.Extensions;
-using Plugin.Firebase.iOS.Firestore;
+using Plugin.Firebase.Core;
+using Plugin.Firebase.Core.Exceptions;
+using Plugin.Firebase.Firestore.Platforms.iOS;
+using Plugin.Firebase.Firestore.Platforms.iOS.Extensions;
 using FBFirestore = Firebase.CloudFirestore.Firestore;
 
 namespace Plugin.Firebase.Firestore;

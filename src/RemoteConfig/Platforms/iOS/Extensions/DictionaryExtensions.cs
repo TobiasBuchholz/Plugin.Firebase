@@ -1,7 +1,7 @@
 using System.Collections;
 using Foundation;
 
-namespace Plugin.Firebase.iOS.RemoteConfig.Extensions;
+namespace Plugin.Firebase.RemoteConfig.Platforms.iOS.Extensions;
 
 public static class DictionaryExtensions
 {

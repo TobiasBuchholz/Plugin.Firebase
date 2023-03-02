@@ -1,11 +1,9 @@
 using Firebase.Storage;
 using Foundation;
-using Plugin.Firebase.Storage;
-using Plugin.Firebase.iOS.Storage.Extensions;
+using Plugin.Firebase.Storage.Platforms.iOS.Extensions;
 using NativeStorageTaskStatus = Firebase.Storage.StorageTaskStatus;
-using StorageTaskStatus = Plugin.Firebase.Storage.StorageTaskStatus;
 
-namespace Plugin.Firebase.iOS.Storage;
+namespace Plugin.Firebase.Storage.Platforms.iOS;
 
 public sealed class StorageTransferTaskWrapper<StorageTransferTask, CompletionResult> : IStorageTransferTask
     where StorageTransferTask : StorageObservableTask, IStorageTaskManagement

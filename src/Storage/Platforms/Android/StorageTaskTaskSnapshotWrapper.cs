@@ -1,8 +1,7 @@
 using Firebase.Storage;
-using Plugin.Firebase.Common;
-using Plugin.Firebase.Storage;
+using Plugin.Firebase.Core.Exceptions;
 
-namespace Plugin.Firebase.Android.Storage;
+namespace Plugin.Firebase.Storage.Platforms.Android;
 
 public sealed class StorageTaskTaskSnapshotWrapper : IStorageTaskSnapshot
 {

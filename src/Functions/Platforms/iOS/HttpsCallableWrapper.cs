@@ -1,10 +1,9 @@
 using System.Text.Json;
-using Plugin.Firebase.Functions;
 using Firebase.CloudFunctions;
 using Foundation;
-using Plugin.Firebase.Common;
+using Plugin.Firebase.Core.Exceptions;
 
-namespace Plugin.Firebase.iOS.Functions;
+namespace Plugin.Firebase.Functions.Platforms.iOS;
 
 public sealed class HttpsCallableWrapper : IHttpsCallable
 {

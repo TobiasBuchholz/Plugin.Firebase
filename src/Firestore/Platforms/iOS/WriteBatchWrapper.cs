@@ -1,9 +1,8 @@
 using Firebase.CloudFirestore;
-using Plugin.Firebase.Firestore;
-using Plugin.Firebase.Firestore.iOS.Extensions;
-using FieldPath = Firebase.CloudFirestore.FieldPath;
+using Plugin.Firebase.Firestore.Platforms.iOS.Extensions;
+using NativeFieldPath = Firebase.CloudFirestore.FieldPath;
 
-namespace Plugin.Firebase.iOS.Firestore;
+namespace Plugin.Firebase.Firestore.Platforms.iOS;
 
 public sealed class WriteBatchWrapper : IWriteBatch
 {
@@ -34,7 +33,7 @@ public sealed class WriteBatchWrapper : IWriteBatch
             case SetOptions.TypeMerge:
                 return _wrapped.SetData(data, document.ToNative(), true).ToAbstract();
             case SetOptions.TypeMergeFieldPaths:
-                return _wrapped.SetData(data, document.ToNative(), options.FieldPaths.Select(x => new FieldPath(x.ToArray())).ToArray()).ToAbstract();
+                return _wrapped.SetData(data, document.ToNative(), options.FieldPaths.Select(x => new NativeFieldPath(x.ToArray())).ToArray()).ToAbstract();
             case SetOptions.TypeMergeFields:
                 return _wrapped.SetData(data, document.ToNative(), options.Fields.ToArray()).ToAbstract();
             default:

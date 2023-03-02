@@ -1,6 +1,7 @@
 using Android.Gms.Extensions;
 using Firebase.Crashlytics;
-using Plugin.Firebase.Common;
+using Plugin.Firebase.Core;
+using Plugin.Firebase.Crashlytics.Platforms.Android;
 
 namespace Plugin.Firebase.Crashlytics;
 

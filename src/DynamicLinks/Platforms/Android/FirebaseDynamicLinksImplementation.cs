@@ -3,7 +3,7 @@ using Android.Gms.Extensions;
 using Firebase.DynamicLinks;
 using Microsoft.Maui.Controls.Internals;
 using Plugin.Firebase.DynamicLinks.EventArgs;
-using Plugin.Firebase.Android.DynamicLinks;
+using Plugin.Firebase.DynamicLinks.Platforms.Android;
 using Exception = Java.Lang.Exception;
 
 namespace Plugin.Firebase.DynamicLinks;

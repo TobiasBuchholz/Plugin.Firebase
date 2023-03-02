@@ -1,7 +1,6 @@
 using Firebase.Storage;
-using Plugin.Firebase.Storage;
 
-namespace Plugin.Firebase.Android.Storage;
+namespace Plugin.Firebase.Storage.Platforms.Android;
 
 public sealed class StorageListResultWrapper : IStorageListResult
 {

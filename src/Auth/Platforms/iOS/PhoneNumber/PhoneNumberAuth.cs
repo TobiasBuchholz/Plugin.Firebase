@@ -2,7 +2,7 @@ using Firebase.Auth;
 using Foundation;
 using UIKit;
 
-namespace Plugin.Firebase.Auth.PhoneNumber;
+namespace Plugin.Firebase.Auth.Platforms.iOS.PhoneNumber;
 
 public sealed class PhoneNumberAuth : NSObject, IAuthUIDelegate
 {

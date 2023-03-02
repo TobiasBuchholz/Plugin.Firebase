@@ -1,5 +1,5 @@
 using Plugin.Firebase.Auth;
-using Plugin.Firebase.Common;
+using Plugin.Firebase.Core.Exceptions;
 
 namespace Plugin.Firebase.IntegrationTests.Auth
 {

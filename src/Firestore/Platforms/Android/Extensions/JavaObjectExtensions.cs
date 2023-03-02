@@ -3,11 +3,10 @@ using Java.Util;
 using Android.Runtime;
 using AndroidX.Collection;
 using Firebase.Firestore;
-using Plugin.Firebase.Android.Firestore;
 using IList = System.Collections.IList;
 using NativeFirebase = Firebase;
 
-namespace Plugin.Firebase.Firestore.Android.Extensions;
+namespace Plugin.Firebase.Firestore.Platforms.Android.Extensions;
 
 public static class JavaObjectExtensions
 {

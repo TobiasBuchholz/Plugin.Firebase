@@ -1,6 +1,6 @@
 using Firebase.CloudFirestore;
 
-namespace Plugin.Firebase.Firestore.iOS.Extensions;
+namespace Plugin.Firebase.Firestore.Platforms.iOS.Extensions;
 
 public static class DateExtensions
 {

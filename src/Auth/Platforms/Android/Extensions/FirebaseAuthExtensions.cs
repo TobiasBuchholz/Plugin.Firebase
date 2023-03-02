@@ -1,8 +1,7 @@
 using Firebase.Auth;
-using Plugin.Firebase.Android.Auth;
 using NativeActionCodeSettings = Firebase.Auth.ActionCodeSettings;
 
-namespace Plugin.Firebase.Auth.Android.Extensions;
+namespace Plugin.Firebase.Auth.Platforms.Android.Extensions;
 
 public static class FirebaseAuthExtensions
 {

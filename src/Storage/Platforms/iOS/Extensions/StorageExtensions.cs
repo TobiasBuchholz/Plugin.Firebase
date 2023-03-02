@@ -1,12 +1,9 @@
 using Firebase.Storage;
-using Plugin.Firebase.iOS.Extensions;
-using Plugin.Firebase.Storage;
+using Plugin.Firebase.Core.Platforms.iOS.Extensions;
 using NativeStorageTaskStatus = Firebase.Storage.StorageTaskStatus;
 using NativeStorageMetadata = Firebase.Storage.StorageMetadata;
-using StorageMetadata = Plugin.Firebase.Storage.StorageMetadata;
-using StorageTaskStatus = Plugin.Firebase.Storage.StorageTaskStatus;
 
-namespace Plugin.Firebase.iOS.Storage.Extensions;
+namespace Plugin.Firebase.Storage.Platforms.iOS.Extensions;
 
 public static class StorageExtensions
 {

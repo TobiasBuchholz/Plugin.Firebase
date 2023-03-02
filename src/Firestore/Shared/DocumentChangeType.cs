@@ -1,9 +1,8 @@
-namespace Plugin.Firebase.Firestore
+namespace Plugin.Firebase.Firestore;
+
+public enum DocumentChangeType
 {
-    public enum DocumentChangeType
-    {
-        Added,
-        Modified,
-        Removed
-    }
+    Added,
+    Modified,
+    Removed
 }

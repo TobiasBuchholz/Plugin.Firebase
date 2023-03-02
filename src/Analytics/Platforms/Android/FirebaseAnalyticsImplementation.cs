@@ -1,8 +1,8 @@
 using Android.Content;
 using Android.Gms.Extensions;
 using Firebase.Analytics;
-using Plugin.Firebase.Analytics.Android.Extensions;
-using Plugin.Firebase.Common;
+using Plugin.Firebase.Analytics.Platforms.Android.Extensions;
+using Plugin.Firebase.Core;
 
 namespace Plugin.Firebase.Analytics;
 

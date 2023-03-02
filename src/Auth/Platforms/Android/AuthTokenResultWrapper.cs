@@ -1,8 +1,7 @@
 using Firebase.Auth;
-using Plugin.Firebase.Auth.Android.Extensions;
-using Plugin.Firebase.Auth;
+using Plugin.Firebase.Auth.Platforms.Android.Extensions;
 
-namespace Plugin.Firebase.Android.Auth;
+namespace Plugin.Firebase.Auth.Platforms.Android;
 
 public sealed class AuthTokenResultWrapper : IAuthTokenResult
 {

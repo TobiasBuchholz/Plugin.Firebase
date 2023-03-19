@@ -35,8 +35,13 @@ public sealed class FirebaseCloudMessagingImplementation : NSObject, IFirebaseCl
 
     public Task OnTokenRefreshAsync()
     {
-        TokenChanged?.Invoke(this, new FCMTokenChangedEventArgs(Messaging.SharedInstance.FcmToken));
+        OnTokenRefresh(Messaging.SharedInstance.FcmToken);
         return Task.CompletedTask;
+    }
+
+    private void OnTokenRefresh(string fcmToken)
+    {
+        TokenChanged?.Invoke(this, new FCMTokenChangedEventArgs(fcmToken));
     }
 
     public Task CheckIfValidAsync()
@@ -80,6 +85,12 @@ public sealed class FirebaseCloudMessagingImplementation : NSObject, IFirebaseCl
         }
 
         completionHandler();
+    }
+    
+    [Export("messaging:didReceiveRegistrationToken:")]
+    public void DidReceiveRegistrationToken(Messaging messaging, string fcmToken)
+    {
+        OnTokenRefresh(fcmToken);
     }
 
     public Task<string> GetTokenAsync()

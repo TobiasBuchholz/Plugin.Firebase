@@ -65,7 +65,10 @@ public static class NSObjectExtensions
             case global::Firebase.CloudFirestore.GeoPoint x:
                 return new GeoPoint(x.Latitude, x.Longitude);
             case Timestamp x:
-                return x.ToDateTimeOffset();
+                if(targetType == typeof(DateTime)) 
+                    return x.ToDateTime();
+                else 
+                    return x.ToDateTimeOffset();
             case DocumentReference x:
                 return new DocumentReferenceWrapper(x);
             case NSNull x:

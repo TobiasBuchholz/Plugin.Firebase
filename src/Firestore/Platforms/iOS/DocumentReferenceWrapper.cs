@@ -26,11 +26,11 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
 
         switch(options.Type) {
             case SetOptions.TypeMerge:
-                return Wrapped.SetDataAsync(data, true);
+                return Wrapped.SetDataAsync(data.ToNSObjectDictionary(), true);
             case SetOptions.TypeMergeFieldPaths:
-                return Wrapped.SetDataAsync(data, options.FieldPaths.Select(x => new NativeFieldPath(x.ToArray())).ToArray());
+                return Wrapped.SetDataAsync(data.ToNSObjectDictionary(), options.FieldPaths.Select(x => new NativeFieldPath(x.ToArray())).ToArray());
             case SetOptions.TypeMergeFields:
-                return Wrapped.SetDataAsync(data, options.Fields.ToArray());
+                return Wrapped.SetDataAsync(data.ToNSObjectDictionary(), options.Fields.ToArray());
             default:
                 throw new ArgumentException($"SetOptions type {options.Type} is not supported.");
         }

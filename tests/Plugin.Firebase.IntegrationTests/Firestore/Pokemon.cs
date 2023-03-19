@@ -34,7 +34,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             Moves = moves;
             FirstSightingLocation = firstSightingLocation;
             Items = items;
-            CreationDate = DateTimeOffset.Now;
+            CreationDate = DateTime.Now;
             OriginalReference = originalReference;
         }
 
@@ -110,7 +110,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         public IList<SimpleItem> Items { get; private set; }
 
         [FirestoreProperty("creation_date")]
-        public DateTimeOffset CreationDate { get; private set; }
+        public DateTime CreationDate { get; private set; }
 
         [FirestoreServerTimestamp("server_timestamp")]
         public DateTimeOffset ServerTimestamp { get; private set; }

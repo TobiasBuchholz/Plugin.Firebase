@@ -15,11 +15,12 @@ using Plugin.Firebase.CloudMessaging;
 using Plugin.Firebase.DynamicLinks;
 using Plugin.Firebase.Functions;
 using Plugin.Firebase.RemoteConfig;
+using Plugin.Firebase.Bundled.Shared;
 #if IOS
-using Plugin.Firebase.iOS;
+using Plugin.Firebase.Bundled.Platforms.iOS;
 using Playground.Platforms.iOS.Services.UserInteraction;
 #else
-using Plugin.Firebase.Android;
+using Plugin.Firebase.Bundled.Platforms.Android;
 using Playground.Platforms.Android.Services.UserInteraction;
 #endif
 using Plugin.Firebase.Storage;
@@ -66,16 +67,12 @@ public static class MauiProgram
         builder.ConfigureLifecycleEvents(events => {
 #if IOS
             events.AddiOS(iOS => iOS.FinishedLaunching((app, launchOptions) => {
-                CrossFirebase.Initialize();
-                FirebaseCloudMessagingImplementation.Initialize();
-                FirebaseAuthImplementation.Initialize(app, launchOptions, "151743924915235", "Plugin Firebase Playground");
+                CrossFirebase.Initialize(app, launchOptions, CreateCrossFirebaseSettings());
                 return false;
             }));
 #else
-            events.AddAndroid(android => android.OnCreate((activity, state) => {
-                CrossFirebase.Initialize(activity);
-                FirebaseAuthImplementation.Initialize("537235599720-723cgj10dtm47b4ilvuodtp206g0q0fg.apps.googleusercontent.com");
-            } ));
+            events.AddAndroid(android => android.OnCreate((activity,_) => 
+                CrossFirebase.Initialize(activity, CreateCrossFirebaseSettings())));
 #endif
         });
         
@@ -106,5 +103,21 @@ public static class MauiProgram
 		builder.Services.AddTransient<RemoteConfigPage>();
 		builder.Services.AddTransient<StoragePage>();
         return builder;
+    }
+    
+    private static CrossFirebaseSettings CreateCrossFirebaseSettings()
+    {
+        return new CrossFirebaseSettings(
+            isAnalyticsEnabled: true,
+            isAuthEnabled: true,
+            isCloudMessagingEnabled: true,
+            isDynamicLinksEnabled: true,
+            isFirestoreEnabled: true,
+            isFunctionsEnabled: true,
+            isRemoteConfigEnabled: true,
+            isStorageEnabled: true,
+            facebookId: "151743924915235",
+            facebookAppName: "Plugin Firebase Playground",
+            googleRequestIdToken: "537235599720-723cgj10dtm47b4ilvuodtp206g0q0fg.apps.googleusercontent.com");
     }
 }

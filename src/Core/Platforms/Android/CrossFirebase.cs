@@ -1,7 +1,7 @@
 using Android.App;
 using Firebase;
 
-namespace Plugin.Firebase.Android;
+namespace Plugin.Firebase.Core.Platforms.Android;
 
 public static class CrossFirebase
 {

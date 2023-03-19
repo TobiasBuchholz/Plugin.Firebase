@@ -1,6 +1,6 @@
 using Firebase.Core;
 
-namespace Plugin.Firebase.iOS;
+namespace Plugin.Firebase.Core.Platforms.iOS;
 
 public static class CrossFirebase
 {

@@ -1,10 +1,9 @@
 using Microsoft.Maui.LifecycleEvents;
-using Plugin.Firebase.Analytics;
-using Plugin.Firebase.Auth;
+using Plugin.Firebase.Bundled.Shared;
 #if IOS
-using Plugin.Firebase.iOS;
+using Plugin.Firebase.Bundled.Platforms.iOS;
 #else 
-using Plugin.Firebase.Android;
+using Plugin.Firebase.Bundled.Platforms.Android;
 #endif
 using Xunit.Runners.Maui;
 
@@ -27,18 +26,31 @@ public static class MauiProgram
         builder.ConfigureLifecycleEvents(events => {
 #if IOS
             events.AddiOS(iOS => iOS.FinishedLaunching((app, launchOptions) => {
-                CrossFirebase.Initialize();
-                FirebaseAuthImplementation.Initialize(app, launchOptions, "151743924915235", "Plugin Firebase Integration Tests");
+                CrossFirebase.Initialize(app, launchOptions, CreateCrossFirebaseSettings());
                 return false;
             }));
 #else
-            events.AddAndroid(android => android.OnCreate((activity,_) => {
-                CrossFirebase.Initialize(activity);
-                FirebaseAnalyticsImplementation.Initialize(activity);
-                FirebaseAuthImplementation.Initialize("316652897245-lbddc4dc4v87nv3n19thi032n3dvrcvu.apps.googleusercontent.com");
-            }));
+            events.AddAndroid(android => android.OnCreate((activity,_) => 
+                CrossFirebase.Initialize(activity, CreateCrossFirebaseSettings())));
 #endif
         });
         return builder;
+    }
+    
+    private static CrossFirebaseSettings CreateCrossFirebaseSettings()
+    {
+        return new CrossFirebaseSettings(
+            isAnalyticsEnabled: true,
+            isAuthEnabled: true,
+            isCloudMessagingEnabled: true,
+            isCrashlyticsEnabled: true,
+            isDynamicLinksEnabled: true,
+            isFirestoreEnabled: true,
+            isFunctionsEnabled: true,
+            isRemoteConfigEnabled: true,
+            isStorageEnabled: true,
+            facebookId: "151743924915235",
+            facebookAppName: "Plugin Firebase Integration Tests",
+            googleRequestIdToken: "316652897245-lbddc4dc4v87nv3n19thi032n3dvrcvu.apps.googleusercontent.com");
     }
 }

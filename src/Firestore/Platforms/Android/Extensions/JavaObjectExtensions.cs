@@ -94,7 +94,10 @@ public static class JavaObjectExtensions
             case Date x:
                 return x.ToDateTimeOffset();
             case NativeFirebase.Timestamp x:
-                return x.ToDate().ToDateTimeOffset();
+                if(targetType == typeof(DateTime))
+                    return x.ToDate().ToDateTime();
+                else
+                    return x.ToDate().ToDateTimeOffset();
             case IDictionary x:
                 return x.ToDictionaryObject(targetType);
             case JavaList x:

@@ -11,6 +11,7 @@ using Playground.Features.Dashboard;
 using Playground.Features.RemoteConfig;
 using Playground.Features.Storage;
 using Plugin.Firebase.Auth;
+using Plugin.Firebase.Auth.Facebook;
 using Plugin.Firebase.CloudMessaging;
 using Plugin.Firebase.DynamicLinks;
 using Plugin.Firebase.Functions;
@@ -67,7 +68,9 @@ public static class MauiProgram
         builder.ConfigureLifecycleEvents(events => {
 #if IOS
             events.AddiOS(iOS => iOS.FinishedLaunching((app, launchOptions) => {
-                CrossFirebase.Initialize(app, launchOptions, CreateCrossFirebaseSettings());
+                var settings = CreateCrossFirebaseSettings();
+                CrossFirebase.Initialize(settings);
+                FirebaseAuthFacebookImplementation.Initialize(app, launchOptions, settings.FacebookId, settings.FacebookAppName);
                 return false;
             }));
 #else
@@ -77,6 +80,7 @@ public static class MauiProgram
         });
         
         builder.Services.AddSingleton(_ => CrossFirebaseAuth.Current);
+        builder.Services.AddSingleton(_ => CrossFirebaseAuthFacebook.Current);
         builder.Services.AddSingleton(_ => CrossFirebaseCloudMessaging.Current);
         builder.Services.AddSingleton(_ => CrossFirebaseDynamicLinks.Current);
         builder.Services.AddSingleton(_ => CrossFirebaseFunctions.Current);

@@ -55,6 +55,7 @@
     <!-- project references -->
     <ItemGroup>
         <ProjectReference Include="..\..\src\Bundled\Bundled.csproj" />
+        <ProjectReference Include="..\..\src\Auth.Facebook\Auth.Facebook.csproj" />
     </ItemGroup>
 
     <!-- nuget packages -->

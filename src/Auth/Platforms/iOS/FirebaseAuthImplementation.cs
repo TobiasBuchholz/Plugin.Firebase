@@ -1,10 +1,8 @@
-using Facebook.CoreKit;
 using Firebase.Auth;
 using Foundation;
 using Google.SignIn;
 using Plugin.Firebase.Auth.Platforms.iOS.Email;
 using Plugin.Firebase.Auth.Platforms.iOS.Extensions;
-using Plugin.Firebase.Auth.Platforms.iOS.Facebook;
 using Plugin.Firebase.Auth.Platforms.iOS.Google;
 using Plugin.Firebase.Auth.Platforms.iOS.PhoneNumber;
 using Plugin.Firebase.Core;
@@ -18,19 +16,10 @@ namespace Plugin.Firebase.Auth;
 
 public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
 {
-    public static void Initialize(UIApplication application, NSDictionary launchOptions, string facebookAppId, string facebookDisplayName)
+    public static void Initialize()
     {
         var googleServiceDictionary = NSDictionary.FromFile("GoogleService-Info.plist");
         SignIn.SharedInstance.ClientId = googleServiceDictionary["CLIENT_ID"].ToString();
-
-        Settings.AppId = facebookAppId;
-        Settings.DisplayName = facebookDisplayName;
-        ApplicationDelegate.SharedInstance.FinishedLaunching(application, launchOptions);
-    }
-
-    public static void OnActivated(UIApplication application)
-    {
-        AppEvents.Shared.ActivateApp();
     }
 
     public static bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options)
@@ -38,15 +27,9 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         return SignIn.SharedInstance.HandleUrl(url);
     }
 
-    public static bool OpenUrl(UIApplication application, NSUrl url, string sourceApplication, NSObject annotation)
-    {
-        return ApplicationDelegate.SharedInstance.OpenUrl(application, url, sourceApplication, annotation);
-    }
-
     private readonly FirebaseAuth _firebaseAuth;
     private readonly EmailAuth _emailAuth;
     private static Lazy<GoogleAuth> _googleAuth;
-    private readonly Lazy<FacebookAuth> _facebookAuth;
     private readonly PhoneNumberAuth _phoneNumberAuth;
 
     public FirebaseAuthImplementation()
@@ -54,7 +37,6 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         _firebaseAuth = FirebaseAuth.DefaultInstance;
         _emailAuth = new EmailAuth();
         _googleAuth = new Lazy<GoogleAuth>(() => new GoogleAuth());
-        _facebookAuth = new Lazy<FacebookAuth>(() => new FacebookAuth());
         _phoneNumberAuth = new PhoneNumberAuth();
 
         // apply the default app language for sending emails
@@ -157,16 +139,6 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         }
     }
 
-    public async Task<IFirebaseUser> SignInWithFacebookAsync()
-    {
-        try {
-            var credential = await _facebookAuth.Value.GetCredentialAsync(ViewController);
-            return await SignInWithCredentialAsync(credential);
-        } catch(NSErrorException e) {
-            throw GetFirebaseAuthException(e);
-        }
-    }
-
     public async Task<IFirebaseUser> SignInWithAppleAsync()
     {
         try {
@@ -239,17 +211,6 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         }
     }
 
-    public async Task<IFirebaseUser> LinkWithFacebookAsync()
-    {
-        try {
-            var credential = await _facebookAuth.Value.GetCredentialAsync(ViewController);
-            return await LinkWithCredentialAsync(credential);
-        } catch(NSErrorException e) {
-            _facebookAuth.Value.SignOut();
-            throw GetFirebaseAuthException(e);
-        }
-    }
-
     public async Task<string[]> FetchSignInMethodsAsync(string email)
     {
         try {
@@ -271,7 +232,6 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
     public Task SignOutAsync()
     {
         _googleAuth.Value.SignOut();
-        _facebookAuth.Value.SignOut();
         _firebaseAuth.SignOut(out var e);
         return Task.CompletedTask;
     }

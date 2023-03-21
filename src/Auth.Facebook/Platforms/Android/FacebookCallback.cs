@@ -1,7 +1,7 @@
 using Android.Runtime;
 using Xamarin.Facebook;
 
-namespace Plugin.Firebase.Auth.Platforms.Android.Facebook;
+namespace Plugin.Firebase.Auth.Facebook.Platforms.Android;
 
 public sealed class FacebookCallback<TResult> : Java.Lang.Object, IFacebookCallback where TResult : Java.Lang.Object
 {

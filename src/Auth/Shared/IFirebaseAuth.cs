@@ -25,7 +25,6 @@ public interface IFirebaseAuth : IDisposable
     /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
     Task<IFirebaseUser> SignInWithCustomTokenAsync(string token);
 
-
     /// <summary>
     /// Signs in using the verification code that was send to the given phone number after calling <c>VerifyPhoneNumberAsync(phoneNumber)</c>.
     /// </summary>
@@ -55,12 +54,6 @@ public interface IFirebaseAuth : IDisposable
     /// </summary>
     /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
     Task<IFirebaseUser> SignInWithGoogleAsync();
-
-    /// <summary>
-    /// Signs in using a facebook account.
-    /// </summary>
-    /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
-    Task<IFirebaseUser> SignInWithFacebookAsync();
 
     /// <summary>
     /// Signs in using a Apple account.
@@ -95,12 +88,6 @@ public interface IFirebaseAuth : IDisposable
     /// </summary>
     /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
     Task<IFirebaseUser> LinkWithGoogleAsync();
-
-    /// <summary>
-    /// Link the signed in user with a facebook account.
-    /// </summary>
-    /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
-    Task<IFirebaseUser> LinkWithFacebookAsync();
 
     /// <summary>
     /// Fetches the list of all sign-in methods previously used for the provided email address.

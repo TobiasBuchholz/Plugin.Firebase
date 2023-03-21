@@ -4,7 +4,6 @@ using Android.Gms.Extensions;
 using AndroidX.Fragment.App;
 using Firebase.Auth;
 using Plugin.Firebase.Auth.Platforms.Android.Email;
-using Plugin.Firebase.Auth.Platforms.Android.Facebook;
 using Plugin.Firebase.Auth.Platforms.Android.Google;
 using Plugin.Firebase.Auth.Platforms.Android.PhoneNumber;
 using Plugin.Firebase.Auth.Platforms.Android.Extensions;
@@ -25,14 +24,12 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
 
     public static Task HandleActivityResultAsync(int requestCode, Result resultCode, Intent data)
     {
-        _facebookAuth.Value.HandleActivityResult(requestCode, resultCode, data);
         return _googleAuth.Value.HandleActivityResultAsync(requestCode, resultCode, data);
     }
 
     private readonly FirebaseAuth _firebaseAuth;
     private readonly EmailAuth _emailAuth;
     private static Lazy<GoogleAuth> _googleAuth;
-    private static Lazy<FacebookAuth> _facebookAuth;
     private readonly PhoneNumberAuth _phoneNumberAuth;
     private static string _googleRequestIdToken;
 
@@ -41,7 +38,6 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         _firebaseAuth = FirebaseAuth.Instance;
         _emailAuth = new EmailAuth();
         _googleAuth = new Lazy<GoogleAuth>(() => new GoogleAuth(Activity, _googleRequestIdToken));
-        _facebookAuth = new Lazy<FacebookAuth>(() => new FacebookAuth());
         _phoneNumberAuth = new PhoneNumberAuth();
 
         // apply the default app language for sending emails 
@@ -140,16 +136,6 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         }
     }
 
-    public async Task<IFirebaseUser> SignInWithFacebookAsync()
-    {
-        try {
-            var credential = await _facebookAuth.Value.GetCredentialAsync(Activity);
-            return await SignInWithCredentialAsync(credential);
-        } catch(Exception e) {
-            throw GetFirebaseAuthException(e);
-        }
-    }
-
     public Task<IFirebaseUser> SignInWithAppleAsync()
     {
         throw new PlatformNotSupportedException();
@@ -198,17 +184,6 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             return await LinkWithCredentialAsync(credential);
         } catch(Exception e) {
             await _googleAuth.Value.SignOutAsync();
-            throw GetFirebaseAuthException(e);
-        }
-    }
-
-    public async Task<IFirebaseUser> LinkWithFacebookAsync()
-    {
-        try {
-            var credential = await _facebookAuth.Value.GetCredentialAsync(Activity);
-            return await LinkWithCredentialAsync(credential);
-        } catch(Exception e) {
-            _facebookAuth.Value.SignOut();
             throw GetFirebaseAuthException(e);
         }
     }

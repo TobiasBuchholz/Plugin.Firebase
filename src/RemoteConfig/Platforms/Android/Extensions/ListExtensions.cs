@@ -18,7 +18,7 @@ public static class ListExtensions
         }
         return list;
     }
-    
+
     public static JavaList ToJavaList(this IEnumerable @this)
     {
         var list = new JavaList();

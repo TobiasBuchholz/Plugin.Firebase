@@ -14,7 +14,7 @@ public sealed class RemoteConfigPage : ContentPageBase
     private void Build()
     {
         Content = new Grid {
-                Children = {
+            Children = {
                     new Label()
                         .Center()
                         .Bind(nameof(Vm.SomeRemoteConfigValue)),
@@ -22,7 +22,7 @@ public sealed class RemoteConfigPage : ContentPageBase
                         .Bottom()
                         .Bind(nameof(Vm.FetchAndActivateCommand)),
                 }
-            }
+        }
             .Margin(32);
     }
 }

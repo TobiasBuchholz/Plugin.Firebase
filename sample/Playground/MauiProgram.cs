@@ -33,7 +33,7 @@ public static class MauiProgram
     public static MauiApp CreateMauiApp()
     {
         LogOutputService.Initialize();
-        
+
         return MauiApp
             .CreateBuilder()
             .UseMauiApp<App>()
@@ -52,13 +52,13 @@ public static class MauiProgram
 
     private static MauiAppBuilder RegisterServices(this MauiAppBuilder builder)
     {
-		builder.Services.AddSingleton<IAuthService, AuthService>();
-		builder.Services.AddSingleton<IDynamicLinkService, DynamicLinkService>();
-		builder.Services.AddSingleton<INavigationService, NavigationService>();
-		builder.Services.AddSingleton<IPreferencesService, PreferencesService>();
-		builder.Services.AddSingleton<IPushNotificationService, PushNotificationService>();
-		builder.Services.AddSingleton<ISchedulerService, SchedulerService>();
-		builder.Services.AddSingleton<IUserInteractionService, UserInteractionService>();
+        builder.Services.AddSingleton<IAuthService, AuthService>();
+        builder.Services.AddSingleton<IDynamicLinkService, DynamicLinkService>();
+        builder.Services.AddSingleton<INavigationService, NavigationService>();
+        builder.Services.AddSingleton<IPreferencesService, PreferencesService>();
+        builder.Services.AddSingleton<IPushNotificationService, PushNotificationService>();
+        builder.Services.AddSingleton<ISchedulerService, SchedulerService>();
+        builder.Services.AddSingleton<IUserInteractionService, UserInteractionService>();
         builder.Services.AddSingleton(LoggerService.GetLogger(typeof(MauiProgram)));
         return builder;
     }
@@ -74,11 +74,11 @@ public static class MauiProgram
                 return false;
             }));
 #else
-            events.AddAndroid(android => android.OnCreate((activity,_) => 
+            events.AddAndroid(android => android.OnCreate((activity, _) =>
                 CrossFirebase.Initialize(activity, CreateCrossFirebaseSettings())));
 #endif
         });
-        
+
         builder.Services.AddSingleton(_ => CrossFirebaseAuth.Current);
         builder.Services.AddSingleton(_ => CrossFirebaseAuthFacebook.Current);
         builder.Services.AddSingleton(_ => CrossFirebaseCloudMessaging.Current);
@@ -88,27 +88,27 @@ public static class MauiProgram
         builder.Services.AddSingleton(_ => CrossFirebaseRemoteConfig.Current);
         return builder;
     }
-    
+
     private static MauiAppBuilder RegisterViewModels(this MauiAppBuilder builder)
     {
         builder.Services.AddSingleton<DashboardViewModel>();
-		builder.Services.AddTransient<AuthViewModel>();
-		builder.Services.AddTransient<CloudMessagingViewModel>();
-		builder.Services.AddTransient<RemoteConfigViewModel>();
-		builder.Services.AddTransient<StorageViewModel>();
+        builder.Services.AddTransient<AuthViewModel>();
+        builder.Services.AddTransient<CloudMessagingViewModel>();
+        builder.Services.AddTransient<RemoteConfigViewModel>();
+        builder.Services.AddTransient<StorageViewModel>();
         return builder;
     }
-    
+
     private static MauiAppBuilder RegisterViews(this MauiAppBuilder builder)
     {
-		builder.Services.AddSingleton<DashboardPage>();
-		builder.Services.AddTransient<AuthPage>();
-		builder.Services.AddTransient<CloudMessagingPage>();
-		builder.Services.AddTransient<RemoteConfigPage>();
-		builder.Services.AddTransient<StoragePage>();
+        builder.Services.AddSingleton<DashboardPage>();
+        builder.Services.AddTransient<AuthPage>();
+        builder.Services.AddTransient<CloudMessagingPage>();
+        builder.Services.AddTransient<RemoteConfigPage>();
+        builder.Services.AddTransient<StoragePage>();
         return builder;
     }
-    
+
     private static CrossFirebaseSettings CreateCrossFirebaseSettings()
     {
         return new CrossFirebaseSettings(

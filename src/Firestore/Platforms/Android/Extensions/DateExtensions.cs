@@ -8,7 +8,7 @@ public static class DateExtensions
     {
         return DateTimeOffset.FromUnixTimeMilliseconds(date.Time);
     }
-    
+
     public static DateTime ToDateTime(this Date date)
     {
         return DateTime.FromFileTimeUtc(date.Time);

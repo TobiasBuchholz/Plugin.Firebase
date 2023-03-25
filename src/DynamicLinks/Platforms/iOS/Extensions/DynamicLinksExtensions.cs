@@ -3,7 +3,7 @@ using Foundation;
 using Plugin.Firebase.DynamicLinks.Parameters;
 
 namespace Plugin.Firebase.DynamicLinks.Platforms.iOS.Extensions;
-    
+
 public static class DynamicLinksExtensions
 {
     public static DynamicLinkSocialMetaTagParameters ToNative(this SocialMetaTagParameters @this)

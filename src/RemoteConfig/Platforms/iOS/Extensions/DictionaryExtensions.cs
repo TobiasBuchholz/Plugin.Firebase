@@ -9,7 +9,7 @@ public static class DictionaryExtensions
     {
         return ((IDictionary) dictionary).ToNSDictionaryFromNonGeneric();
     }
-    
+
     public static NSDictionary<NSString, NSObject> ToNSDictionaryFromNonGeneric(this IDictionary dictionary)
     {
         if(dictionary.Count > 0) {
@@ -66,7 +66,7 @@ public static class DictionaryExtensions
                 }
         }
     }
-    
+
     public static NSDictionary<NSString, NSObject> ToNSDictionary(this IEnumerable<(string, object)> tuples)
     {
         var dict = new Dictionary<string, object>();

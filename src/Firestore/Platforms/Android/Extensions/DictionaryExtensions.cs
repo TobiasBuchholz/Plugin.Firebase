@@ -22,7 +22,7 @@ public static class DictionaryExtensions
         });
         return hashMap;
     }
-    
+
     private static void Put(this IMap @this, object key, object value)
     {
         switch(value) {
@@ -80,7 +80,7 @@ public static class DictionaryExtensions
                 }
         }
     }
-    
+
     public static HashMap ToHashMapFromNonGenericDict(this IDictionary dictionary)
     {
         var hashMap = new HashMap();
@@ -89,7 +89,7 @@ public static class DictionaryExtensions
         }
         return hashMap;
     }
-    
+
     public static HashMap ToHashMap(this object @this)
     {
         var map = new HashMap();
@@ -109,21 +109,21 @@ public static class DictionaryExtensions
         }
         return map;
     }
-    
+
     public static IDictionary<string, Java.Lang.Object> ToJavaObjectDictionary(this IEnumerable<(string, object)> tuples)
     {
         var dict = new Dictionary<string, object>();
         tuples.ToList().ForEach(x => dict.Add(x.Item1, x.Item2));
         return dict.ToJavaObjectDictionary();
     }
-    
+
     public static IDictionary<string, Java.Lang.Object> ToJavaObjectDictionary(this IDictionary<string, object> dictionary)
     {
         var result = new Dictionary<string, Java.Lang.Object>();
         dictionary.ToList().ForEach(x => result.Add(x.Key, x.Value.ToJavaObject()));
         return result;
     }
-    
+
     public static IDictionary<string, Java.Lang.Object> ToJavaObjectDictionary(this IDictionary<object, object> @this)
     {
         var dict = new Dictionary<string, object>();

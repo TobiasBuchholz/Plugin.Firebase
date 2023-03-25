@@ -8,7 +8,7 @@ public static class DictionaryExtensions
         dictionary.ToList().ForEach(x => result.Add(x.Key, x.Value.ToJavaObject()));
         return result;
     }
-    
+
     public static IDictionary<string, Java.Lang.Object> ToJavaObjectDictionary(this IEnumerable<(string, object)> tuples)
     {
         var dict = new Dictionary<string, object>();

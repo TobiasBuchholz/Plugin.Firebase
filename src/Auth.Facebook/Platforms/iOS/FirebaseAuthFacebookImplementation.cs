@@ -31,13 +31,13 @@ public sealed class FirebaseAuthFacebookImplementation : DisposableBase, IFireba
 
     private readonly FirebaseAuth _firebaseAuth;
     private readonly Lazy<FacebookAuth> _facebookAuth;
-    
+
     public FirebaseAuthFacebookImplementation()
     {
         _firebaseAuth = FirebaseAuth.DefaultInstance;
         _facebookAuth = new Lazy<FacebookAuth>(() => new FacebookAuth());
     }
-    
+
     public async Task<IFirebaseUser> SignInWithFacebookAsync()
     {
         try {
@@ -47,13 +47,13 @@ public sealed class FirebaseAuthFacebookImplementation : DisposableBase, IFireba
             throw GetFirebaseAuthException(e);
         }
     }
-    
+
     private async Task<IFirebaseUser> SignInWithCredentialAsync(AuthCredential credential)
     {
         var authResult = await _firebaseAuth.SignInWithCredentialAsync(credential);
         return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
     }
-    
+
     private static FirebaseAuthException GetFirebaseAuthException(NSErrorException ex)
     {
         AuthErrorCode errorCode;
@@ -77,19 +77,19 @@ public sealed class FirebaseAuthFacebookImplementation : DisposableBase, IFireba
             throw GetFirebaseAuthException(e);
         }
     }
-    
+
     private async Task<IFirebaseUser> LinkWithCredentialAsync(AuthCredential credential)
     {
         var authResult = await _firebaseAuth.CurrentUser.LinkAsync(credential);
         return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
     }
-    
+
     public Task SignOutAsync()
     {
         _facebookAuth.Value.SignOut();
         return Task.CompletedTask;
     }
-    
+
     private static UIViewController ViewController {
         get {
             var rootViewController = UIApplication.SharedApplication.KeyWindow.RootViewController;

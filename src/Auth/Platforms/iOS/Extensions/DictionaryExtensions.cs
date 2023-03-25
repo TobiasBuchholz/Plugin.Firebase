@@ -13,7 +13,7 @@ public static class DictionaryExtensions
         }
         return dict;
     }
-    
+
     public static IDictionary<string, object> ToDictionary(this NSDictionary<NSString, NSObject> @this)
     {
         var dict = new Dictionary<string, object>();

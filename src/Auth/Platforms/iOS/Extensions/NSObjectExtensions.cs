@@ -22,7 +22,7 @@ public static class NSObjectExtensions
                 throw new ArgumentException($"Could not convert NSObject of type {@this.GetType()} to object");
         }
     }
-    
+
     public static object ToObject(this NSNumber @this, Type targetType = null)
     {
         if(targetType == null) {
@@ -58,7 +58,7 @@ public static class NSObjectExtensions
                 return null;
         }
     }
-    
+
     private static Type GetGenericListType(Type targetType)
     {
         var genericType = targetType.GenericTypeArguments?.FirstOrDefault();
@@ -67,5 +67,5 @@ public static class NSObjectExtensions
         }
         return genericType;
     }
-    
+
 }

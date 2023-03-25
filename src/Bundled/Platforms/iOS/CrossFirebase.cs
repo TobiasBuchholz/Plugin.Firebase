@@ -6,7 +6,7 @@ using Plugin.Firebase.Crashlytics;
 using Plugin.Firebase.Bundled.Shared;
 
 namespace Plugin.Firebase.Bundled.Platforms.iOS;
-    
+
 public static class CrossFirebase
 {
     public static void Initialize(
@@ -33,7 +33,7 @@ public static class CrossFirebase
         if(settings.IsCloudMessagingEnabled) {
             FirebaseCloudMessagingImplementation.Initialize();
         }
-        
+
         CrossFirebaseCrashlytics.Current.SetCrashlyticsCollectionEnabled(settings.IsCrashlyticsEnabled);
 
         Console.WriteLine($"Plugin.Firebase initialized with the following settings:\n{settings}");

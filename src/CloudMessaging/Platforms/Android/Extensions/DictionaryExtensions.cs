@@ -47,7 +47,7 @@ public static class DictionaryExtensions
                 }
         }
     }
-    
+
     public static IDictionary<string, string> ToDictionary(this Bundle bundle)
     {
         return bundle
@@ -55,7 +55,7 @@ public static class DictionaryExtensions
             .Select(x => (x, bundle.GetObject(x).ToString()))
             .ToDictionary(x => x.Item1, x => x.Item2);
     }
-    
+
     private static object GetObject(this Bundle bundle, string key)
     {
         dynamic obj = bundle.GetString(key);

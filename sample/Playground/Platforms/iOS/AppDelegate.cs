@@ -21,4 +21,3 @@ public class AppDelegate : MauiUIApplicationDelegate
         return base.OpenUrl(application, url, options);
     }
 }
-

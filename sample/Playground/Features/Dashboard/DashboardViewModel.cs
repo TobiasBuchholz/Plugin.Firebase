@@ -9,7 +9,7 @@ public sealed class DashboardViewModel : ViewModelBase
     private readonly INavigationService _navigationService;
     private readonly IPushNotificationService _pushNotificationService;
     private readonly IUserInteractionService _userInteractionService;
-    
+
     public DashboardViewModel(
         IDynamicLinkService dynamicLinkService,
         INavigationService navigationService,
@@ -19,7 +19,7 @@ public sealed class DashboardViewModel : ViewModelBase
         _navigationService = navigationService;
         _pushNotificationService = pushNotificationService;
         _userInteractionService = userInteractionService;
-    
+
         InitCommands();
         HandleTappedPushNotification();
         dynamicLinkService.Register();

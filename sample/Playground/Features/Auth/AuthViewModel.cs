@@ -19,7 +19,7 @@ public sealed class AuthViewModel : ViewModelBase
         _authService = authService;
         _userInteractionService = userInteractionService;
         _schedulerService = schedulerService;
-    
+
         InitCommands();
         InitProperties();
     }
@@ -28,7 +28,7 @@ public sealed class AuthViewModel : ViewModelBase
     {
         var canSignIn = this.WhenAnyValue(x => x.User).Select(x => x == null).ObserveOn(_schedulerService.Main);
         var canSignOut = this.WhenAnyValue(x => x.User).Select(x => x != null).ObserveOn(_schedulerService.Main);
-    
+
         SignInAnonymouslyCommand = ReactiveCommand.CreateFromObservable(SignInAnonymously, canSignIn);
         SignInWithEmailCommand = ReactiveCommand.CreateFromTask(SignInWithEmailAsync, canSignIn);
         SignInWithEmailLinkCommand = ReactiveCommand.CreateFromTask(SignInWithEmailLinkAsync, canSignIn);
@@ -43,7 +43,7 @@ public sealed class AuthViewModel : ViewModelBase
         UnlinkProviderCommand = ReactiveCommand.CreateFromObservable(UnlinkProvider);
         SignOutCommand = ReactiveCommand.CreateFromObservable(SignOut, canSignOut);
         SendPasswordResetEmailCommand = ReactiveCommand.CreateFromObservable(SendPasswordResetEmail);
-    
+
         Observable
             .Merge(
                 SignInAnonymouslyCommand.ThrownExceptions,
@@ -64,12 +64,12 @@ public sealed class AuthViewModel : ViewModelBase
             .Subscribe(e => _userInteractionService.ShowErrorDialogAsync(Localization.DialogTitleUnexpectedError, e))
             .DisposeWith(Disposables);
     }
-    
+
     private IObservable<Unit> SignInAnonymously()
     {
         return _authService.SignAnonymously();
     }
-    
+
     private async Task SignInWithEmailAsync()
     {
         var email = await AskForEmailAsync();
@@ -77,7 +77,7 @@ public sealed class AuthViewModel : ViewModelBase
             await SignInWithEmailAsync(email);
         }
     }
-    
+
     private Task<string> AskForEmailAsync()
     {
         return _userInteractionService.ShowAsPromptAsync(new UserInfoBuilder()
@@ -86,7 +86,7 @@ public sealed class AuthViewModel : ViewModelBase
             .WithCancelButton(Localization.Cancel)
             .Build());
     }
-    
+
     private async Task SignInWithEmailAsync(string email)
     {
         var password = await AskForPasswordAsync();
@@ -94,7 +94,7 @@ public sealed class AuthViewModel : ViewModelBase
             await _authService.SignInWithEmailAndPassword(email, password).ToTask();
         }
     }
-    
+
     private Task<string> AskForPasswordAsync()
     {
         return _userInteractionService.ShowAsPromptAsync(new UserInfoBuilder()
@@ -103,7 +103,7 @@ public sealed class AuthViewModel : ViewModelBase
             .WithCancelButton(Localization.Cancel)
             .Build());
     }
-    
+
     private async Task SignInWithEmailLinkAsync()
     {
         var email = await AskForEmailAsync();
@@ -111,35 +111,35 @@ public sealed class AuthViewModel : ViewModelBase
             await SignInWithEmailLinkAsync(email);
         }
     }
-    
+
     private async Task SignInWithEmailLinkAsync(string email)
     {
         await _authService.SendSignInLink(email);
         await _userInteractionService.ShowDefaultDialogAsync(Localization.DialogTitleSignInLinkSent, Localization.DialogMessageSignInLinkSent);
     }
-    
+
     private IObservable<Unit> SignInWithGoogle()
     {
         return _authService.SignInWithGoogle();
     }
-    
+
     private IObservable<Unit> SignInWithFacebook()
     {
         return _authService.SignInWithFacebook();
     }
-    
+
     private IObservable<Unit> SignInWithApple()
     {
         return _authService.SignInWithApple();
     }
-    
+
     private IObservable<Unit> SignInWithPhoneNumber()
     {
         return AskForPhoneNumberAsync()
             .ToObservable()
             .SelectMany(x => string.IsNullOrEmpty(x) ? Observables.Unit : SignInWithPhoneNumber(x));
     }
-    
+
     private Task<string> AskForPhoneNumberAsync()
     {
         return _userInteractionService.ShowAsPromptAsync(new UserInfoBuilder()
@@ -148,7 +148,7 @@ public sealed class AuthViewModel : ViewModelBase
             .WithCancelButton(Localization.Cancel)
             .Build());
     }
-    
+
     private IObservable<Unit> SignInWithPhoneNumber(string phoneNumber)
     {
         return Observable
@@ -157,7 +157,7 @@ public sealed class AuthViewModel : ViewModelBase
             .SelectMany(_ => AskForVerificationCodeAsync())
             .SelectMany(x => string.IsNullOrEmpty(x) ? Observables.Unit : _authService.SignInWithPhoneNumberVerificationCode(x));
     }
-    
+
     private Task<string> AskForVerificationCodeAsync()
     {
         return _userInteractionService.ShowAsPromptAsync(new UserInfoBuilder()
@@ -166,7 +166,7 @@ public sealed class AuthViewModel : ViewModelBase
             .WithCancelButton(Localization.Cancel)
             .Build());
     }
-    
+
     private async Task LinkWithEmailAsync()
     {
         var email = await AskForEmailAsync();
@@ -174,7 +174,7 @@ public sealed class AuthViewModel : ViewModelBase
             await LinkWithEmailAsync(email);
         }
     }
-    
+
     private async Task LinkWithEmailAsync(string email)
     {
         var password = await AskForPasswordAsync();
@@ -182,24 +182,24 @@ public sealed class AuthViewModel : ViewModelBase
             await _authService.LinkWithEmailAndPassword(email, password).ToTask();
         }
     }
-    
+
     private IObservable<Unit> LinkWithGoogle()
     {
         return _authService.LinkWithGoogle();
     }
-    
+
     private IObservable<Unit> LinkWithFacebook()
     {
         return _authService.LinkWithFacebook();
     }
-    
+
     private IObservable<Unit> LinkWithPhoneNumber()
     {
         return AskForPhoneNumberAsync()
             .ToObservable()
             .SelectMany(x => string.IsNullOrEmpty(x) ? Observables.Unit : LinkWithPhoneNumber(x));
     }
-    
+
     private IObservable<Unit> LinkWithPhoneNumber(string phoneNumber)
     {
         return Observable
@@ -208,7 +208,7 @@ public sealed class AuthViewModel : ViewModelBase
             .SelectMany(_ => AskForVerificationCodeAsync())
             .SelectMany(x => string.IsNullOrEmpty(x) ? null : _authService.LinkWithPhoneNumberVerificationCode(x));
     }
-    
+
     private IObservable<Unit> UnlinkProvider()
     {
         return AskForProviderIdAsync()
@@ -216,29 +216,29 @@ public sealed class AuthViewModel : ViewModelBase
             .SelectMany(x => _authService.UnlinkProvider(x))
             .Catch<Unit, ArgumentException>(_ => Observables.Unit);
     }
-    
+
     private async Task<string> AskForProviderIdAsync()
     {
         var builder = new UserInfoBuilder().WithTitle(Localization.DialogTitleUnlinkProvider).WithMessage(Localization.DialogMessageUnlinkProvider);
         var providerIds = _authService.CurrentUser.ProviderInfos.Select(x => x.ProviderId).ToList();
         providerIds.ForEach(x => builder.WithDefaultButton(x));
-    
+
         var index = await _userInteractionService.ShowAsActionSheetAsync(builder.Build());
         return index >= 0 ? providerIds[index] : throw new ArgumentException("No provider selected");
     }
-    
+
     private IObservable<Unit> SignOut()
     {
         return _authService.SignOut();
     }
-    
+
     private IObservable<Unit> SendPasswordResetEmail()
     {
         return _authService
             .SendPasswordResetEmail()
             .SelectMany(_ => ShowPasswordResetSuccessfulDialog().ToObservable());
     }
-    
+
     private Task ShowPasswordResetSuccessfulDialog()
     {
         return _userInteractionService.ShowAsDialogAsync(new UserInfoBuilder()
@@ -247,7 +247,7 @@ public sealed class AuthViewModel : ViewModelBase
             .WithDefaultButton(Localization.Ok)
             .Build());
     }
-    
+
     private void InitProperties()
     {
         InitUserProperty();
@@ -257,7 +257,7 @@ public sealed class AuthViewModel : ViewModelBase
         InitIsInProgressProperty();
         InitLoginTextProperty();
     }
-    
+
     private void InitUserProperty()
     {
         _authService
@@ -265,7 +265,7 @@ public sealed class AuthViewModel : ViewModelBase
             .ToPropertyEx(this, x => x.User)
             .DisposeWith(Disposables);
     }
-    
+
     private void InitShowsSignInButtonsProperty()
     {
         this.WhenAnyValue(x => x.User, x => x.IsInProgress)
@@ -273,7 +273,7 @@ public sealed class AuthViewModel : ViewModelBase
             .ToPropertyEx(this, x => x.ShowsSignInButtons)
             .DisposeWith(Disposables);
     }
-    
+
     private void InitShowsLinkingButtons()
     {
         this.WhenAnyValue(x => x.User, x => x.IsInProgress)
@@ -281,7 +281,7 @@ public sealed class AuthViewModel : ViewModelBase
             .ToPropertyEx(this, x => x.ShowsLinkingButtons)
             .DisposeWith(Disposables);
     }
-    
+
     private void InitShowsSignOutButtonProperty()
     {
         this.WhenAnyValue(x => x.User, x => x.IsInProgress)
@@ -289,7 +289,7 @@ public sealed class AuthViewModel : ViewModelBase
             .ToPropertyEx(this, x => x.ShowsSignOutButtons)
             .DisposeWith(Disposables);
     }
-    
+
     private void InitIsInProgressProperty()
     {
         Observable
@@ -301,7 +301,7 @@ public sealed class AuthViewModel : ViewModelBase
             .ToPropertyEx(this, x => x.IsInProgress)
             .DisposeWith(Disposables);
     }
-    
+
     private void InitLoginTextProperty()
     {
         this.WhenAnyValue(x => x.User)
@@ -309,7 +309,7 @@ public sealed class AuthViewModel : ViewModelBase
             .ToPropertyEx(this, x => x.LoginText)
             .DisposeWith(Disposables);
     }
-    
+
     private IObservable<string> GetLoginText(IFirebaseUser user)
     {
         if(user == null) {
@@ -322,7 +322,7 @@ public sealed class AuthViewModel : ViewModelBase
                 .Select(x => Localization.LabelUserIsSignedIn.WithParams(user.Email, x?.FirstOrDefault()));
         }
     }
-    
+
     private extern IFirebaseUser User { [ObservableAsProperty] get; }
     public extern string LoginText { [ObservableAsProperty] get; }
     public extern bool ShowsSignInButtons { [ObservableAsProperty] get; }

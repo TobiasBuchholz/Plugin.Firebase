@@ -29,7 +29,7 @@ public static class JavaObjectExtensions
                 throw new ArgumentException($"Could not convert Java.Lang.Object of type {@this.GetType()} to object");
         }
     }
-    
+
     public static Java.Lang.Object ToJavaObject(this object @this)
     {
         switch(@this) {

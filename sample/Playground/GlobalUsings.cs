@@ -1,4 +1,4 @@
-﻿global using static CommunityToolkit.Maui.Markup.GridRowsColumns;
+global using static CommunityToolkit.Maui.Markup.GridRowsColumns;
 global using CommunityToolkit.Maui.Markup;
 global using Microsoft.Maui.Controls.Internals;
 global using ReactiveUI;

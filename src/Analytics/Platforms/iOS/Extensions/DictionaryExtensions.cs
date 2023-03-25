@@ -9,7 +9,7 @@ public static class DictionaryExtensions
     {
         return ((IDictionary) dictionary).ToNSDictionaryFromNonGeneric();
     }
-    
+
     public static NSDictionary<NSString, NSObject> ToNSDictionaryFromNonGeneric(this IDictionary dictionary)
     {
         if(dictionary.Count > 0) {

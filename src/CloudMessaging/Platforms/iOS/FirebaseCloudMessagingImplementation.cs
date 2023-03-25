@@ -86,7 +86,7 @@ public sealed class FirebaseCloudMessagingImplementation : NSObject, IFirebaseCl
 
         completionHandler();
     }
-    
+
     [Export("messaging:didReceiveRegistrationToken:")]
     public void DidReceiveRegistrationToken(Messaging messaging, string fcmToken)
     {

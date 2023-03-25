@@ -30,13 +30,13 @@ public static class MauiProgram
                 return false;
             }));
 #else
-            events.AddAndroid(android => android.OnCreate((activity,_) => 
+            events.AddAndroid(android => android.OnCreate((activity, _) =>
                 CrossFirebase.Initialize(activity, CreateCrossFirebaseSettings())));
 #endif
         });
         return builder;
     }
-    
+
     private static CrossFirebaseSettings CreateCrossFirebaseSettings()
     {
         return new CrossFirebaseSettings(

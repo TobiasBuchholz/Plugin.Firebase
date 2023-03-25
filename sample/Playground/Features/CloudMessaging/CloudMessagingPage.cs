@@ -14,8 +14,8 @@ public sealed class CloudMessagingPage : ContentPageBase
     private void Build()
     {
         Content = new VerticalStackLayout() {
-                Spacing = 4,
-                Children = {
+            Spacing = 4,
+            Children = {
                     new Button { Text = Localization.ButtonCheckFcmValidity }
                         .Bind(IsVisibleProperty, nameof(Vm.IsInProgress), convert:Negate)
                         .Bind(nameof(Vm.CheckIfValidCommand)),
@@ -35,7 +35,7 @@ public sealed class CloudMessagingPage : ContentPageBase
                         .Center()
                         .Bind(ActivityIndicator.IsRunningProperty, nameof(Vm.IsInProgress)),
                 }
-            }
+        }
             .FillHorizontal()
             .CenterVertical()
             .Margin(24);

@@ -12,7 +12,7 @@ public static class DictionaryExtensions
         }
         return dict;
     }
-    
+
     public static NSDictionary<NSString, NSString> ToNSDictionary(this IDictionary<string, string> @this)
     {
         return NSDictionary<NSString, NSString>.FromObjectsAndKeys(@this.Values.ToArray(), @this.Keys.ToArray());

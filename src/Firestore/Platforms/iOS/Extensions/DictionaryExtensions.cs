@@ -22,7 +22,7 @@ public static class DictionaryExtensions
             return new NSDictionary<NSString, NSObject>();
         }
     }
-    
+
     private static void PutIntoNSDictionary(KeyValuePair<string, object> pair, ref NSMutableDictionary<NSString, NSObject> nsDictionary)
     {
         switch(pair.Value) {
@@ -62,7 +62,7 @@ public static class DictionaryExtensions
                 }
         }
     }
-    
+
     public static Dictionary<object, object> ToDictionary(this object @this)
     {
         var dict = new Dictionary<object, object>();
@@ -87,7 +87,7 @@ public static class DictionaryExtensions
         }
         return dict;
     }
-    
+
     public static object ToDictionaryObject(this NSDictionary @this, Type targetType)
     {
         if(targetType == null) {
@@ -99,7 +99,7 @@ public static class DictionaryExtensions
             return @this.Cast(targetType);
         }
     }
-    
+
     public static IDictionary ToDictionary(this NSDictionary @this, Type keyType, Type valueType)
     {
         var dict = (IDictionary) Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(keyType, valueType));
@@ -108,12 +108,12 @@ public static class DictionaryExtensions
         }
         return dict;
     }
-    
+
     public static Dictionary<object, object> ToNSObjectDictionary(this Dictionary<object, object> @this)
     {
         return @this.ToDictionary(x => x.Key, x => (object) x.Value.ToNSObject());
     }
-    
+
     public static Dictionary<object, object> ToNSObjectDictionary(this IEnumerable<(string, object)> @this)
     {
         var dict = new Dictionary<object, object>();

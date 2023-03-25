@@ -1,4 +1,4 @@
-﻿using Playground.Common.Services.Scheduler;
+using Playground.Common.Services.Scheduler;
 using Playground.Common.Services.UserInteraction;
 // using TTGSnackBar;
 using UIKit;
@@ -21,7 +21,7 @@ namespace Playground.Platforms.iOS.Services.UserInteraction
             UIApplication.SharedApplication.KeyWindow?.RootViewController?.PresentViewController(alert, true, null);
             return tcs.Task;
         }
-        
+
         private static void AddDefaultButtonsToDialog(TaskCompletionSource<int> tcs, UIAlertController alert, IList<string> defaultButtonTexts)
         {
             for(var i = 0; i < defaultButtonTexts.Count; i++) {
@@ -29,14 +29,14 @@ namespace Playground.Platforms.iOS.Services.UserInteraction
             }
         }
 
-        private static UIAlertAction CreateDefaultAction(TaskCompletionSource<int> tcs, int index, IList<string> defaultButtonTexts) 
+        private static UIAlertAction CreateDefaultAction(TaskCompletionSource<int> tcs, int index, IList<string> defaultButtonTexts)
         {
             return UIAlertAction.Create(defaultButtonTexts[index], UIAlertActionStyle.Default, _ => tcs.TrySetResult(index));
         }
-        
+
         private static void AddCancelButtonToAlertIfNeeded(TaskCompletionSource<int> tcs, UIAlertController alert, string text)
         {
-            if (!string.IsNullOrEmpty(text)) {
+            if(!string.IsNullOrEmpty(text)) {
                 alert.AddAction(UIAlertAction.Create(text, UIAlertActionStyle.Cancel, _ => tcs.TrySetResult(DialogButtonIndex.Cancel)));
             }
         }
@@ -69,7 +69,7 @@ namespace Playground.Platforms.iOS.Services.UserInteraction
         // {
         //     return x => tcs.TrySetResult(index);
         // }
-        
+
         private static UIViewController RootViewController => UIApplication.SharedApplication.KeyWindow?.RootViewController;
     }
 }

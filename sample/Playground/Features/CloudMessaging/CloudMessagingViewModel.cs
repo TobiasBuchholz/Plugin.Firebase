@@ -7,14 +7,14 @@ public sealed class CloudMessagingViewModel : ViewModelBase
 {
     private readonly IPushNotificationService _pushNotificationService;
     private readonly IUserInteractionService _userInteractionService;
-    
+
     public CloudMessagingViewModel(
         IPushNotificationService pushNotificationService,
         IUserInteractionService userInteractionService)
     {
         _pushNotificationService = pushNotificationService;
         _userInteractionService = userInteractionService;
-    
+
         InitCommands();
         InitProperties();
     }
@@ -26,7 +26,7 @@ public sealed class CloudMessagingViewModel : ViewModelBase
         UnsubscribeFromTopicCommand = ReactiveCommand.CreateFromTask(UnsubscribeFromTopicAsync);
         TriggerNotificationViaTokenCommand = ReactiveCommand.CreateFromTask(TriggerNotificationViaTokenAsync);
         TriggerNotificationViaTopicCommand = ReactiveCommand.CreateFromTask(TriggerNotificationViaTopicAsync);
-    
+
         Observable
             .Merge(
                 CheckIfValidCommand.ThrownExceptions,
@@ -38,13 +38,13 @@ public sealed class CloudMessagingViewModel : ViewModelBase
             .Subscribe(e => _userInteractionService.ShowErrorDialogAsync(Localization.DialogTitleUnexpectedError, e))
             .DisposeWith(Disposables);
     }
-    
+
     private async Task CheckIfValidAsync()
     {
         await _pushNotificationService.CheckIfValidAsync();
         await _userInteractionService.ShowDefaultDialogAsync(Localization.DialogTitleCloudMessaging, Localization.DialogMessageFcmValid);
     }
-    
+
     private async Task SubscribeToTopicAsync()
     {
         var topic = await AskForTopicAsync();
@@ -52,7 +52,7 @@ public sealed class CloudMessagingViewModel : ViewModelBase
             await _pushNotificationService.SubscribeToTopicAsync(topic);
         }
     }
-    
+
     private Task<string> AskForTopicAsync()
     {
         return _userInteractionService.ShowAsPromptAsync(new UserInfoBuilder()
@@ -62,7 +62,7 @@ public sealed class CloudMessagingViewModel : ViewModelBase
             .WithCancelButton(Localization.Cancel)
             .Build());
     }
-    
+
     private async Task UnsubscribeFromTopicAsync()
     {
         var topic = await AskForTopicAsync();
@@ -70,7 +70,7 @@ public sealed class CloudMessagingViewModel : ViewModelBase
             await _pushNotificationService.UnsubscribeFromTopicAsync(topic);
         }
     }
-    
+
     private async Task TriggerNotificationViaTokenAsync()
     {
         var messageBody = await AskForMessageBoyAsync();
@@ -78,13 +78,13 @@ public sealed class CloudMessagingViewModel : ViewModelBase
             await TriggerNotificationViaTokenAsync(messageBody);
         }
     }
-    
+
     private async Task TriggerNotificationViaTokenAsync(string messageBody)
     {
         var token = await _pushNotificationService.GetFcmTokenAsync();
         await _pushNotificationService.TriggerNotificationViaTokensAsync(new[] { token }, "Notification via token", messageBody);
     }
-    
+
     private Task<string> AskForMessageBoyAsync()
     {
         return _userInteractionService.ShowAsPromptAsync(new UserInfoBuilder()
@@ -94,7 +94,7 @@ public sealed class CloudMessagingViewModel : ViewModelBase
             .WithCancelButton(Localization.Cancel)
             .Build());
     }
-    
+
     private async Task TriggerNotificationViaTopicAsync()
     {
         var topic = await AskForTopicAsync();
@@ -102,7 +102,7 @@ public sealed class CloudMessagingViewModel : ViewModelBase
             await TriggerNotificationViaTopicAsync(topic);
         }
     }
-    
+
     private async Task TriggerNotificationViaTopicAsync(string topic)
     {
         var messageBody = await AskForMessageBoyAsync();
@@ -110,7 +110,7 @@ public sealed class CloudMessagingViewModel : ViewModelBase
             await _pushNotificationService.TriggerNotificationViaTopicAsync(topic, $"Notification via topic: {topic}", messageBody);
         }
     }
-    
+
     private void InitProperties()
     {
         Observable

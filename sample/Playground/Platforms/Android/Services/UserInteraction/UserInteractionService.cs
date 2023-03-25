@@ -1,4 +1,4 @@
-﻿using AlertDialog = AndroidX.AppCompat.App.AlertDialog;
+using AlertDialog = AndroidX.AppCompat.App.AlertDialog;
 using NativeSnackbar = Google.Android.Material.Snackbar.Snackbar;
 using NativeView = Android.Views.View;
 
@@ -19,9 +19,9 @@ public sealed class UserInteractionService : UserInteractionServiceBase
             .Builder(Platform.CurrentActivity)
             .SetTitle(userInfo.Title)
             .SetMessage(userInfo.Message)
-            .SetPositiveButton(userInfo.DefaultButtonTexts[0], (_,__) => tcs.SetResult(0))
-            .SetNeutralButton(userInfo.DefaultButtonTexts[1], (_,__) => tcs.SetResult(1))
-            .SetNegativeButton(userInfo.CancelButtonText ?? userInfo.DefaultButtonTexts[2], (_,__) => tcs.SetResult(DialogButtonIndex.Cancel))
+            .SetPositiveButton(userInfo.DefaultButtonTexts[0], (_, __) => tcs.SetResult(0))
+            .SetNeutralButton(userInfo.DefaultButtonTexts[1], (_, __) => tcs.SetResult(1))
+            .SetNegativeButton(userInfo.CancelButtonText ?? userInfo.DefaultButtonTexts[2], (_, __) => tcs.SetResult(DialogButtonIndex.Cancel))
             .Create()
             .Show();
 

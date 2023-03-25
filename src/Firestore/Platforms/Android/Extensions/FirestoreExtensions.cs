@@ -116,7 +116,7 @@ namespace Plugin.Firebase.Firestore.Platforms.Android.Extensions
                     throw new ArgumentException($"SetOptions type {options.Type} is not supported.");
             }
         }
-        
+
         public static FirestoreSettings ToAbstract(this FirebaseFirestoreSettings @this)
         {
             return new FirestoreSettings(@this.Host, @this.IsPersistenceEnabled, @this.IsSslEnabled, @this.CacheSizeBytes);

@@ -17,10 +17,10 @@ public sealed class FirebaseAuthFacebookImplementation : DisposableBase, IFireba
         _facebookAuth.Value.HandleActivityResult(requestCode, resultCode, data);
         return Task.CompletedTask;
     }
-    
+
     private readonly FirebaseAuth _firebaseAuth;
     private static Lazy<FacebookAuth> _facebookAuth;
-    
+
     public FirebaseAuthFacebookImplementation()
     {
         _firebaseAuth = FirebaseAuth.Instance;
@@ -36,13 +36,13 @@ public sealed class FirebaseAuthFacebookImplementation : DisposableBase, IFireba
             throw GetFirebaseAuthException(e);
         }
     }
-    
+
     private async Task<IFirebaseUser> SignInWithCredentialAsync(AuthCredential credential)
     {
         var authResult = await _firebaseAuth.SignInWithCredentialAsync(credential);
         return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
     }
-    
+
     private static CrossFirebaseAuthException GetFirebaseAuthException(Exception ex)
     {
         return ex switch {
@@ -67,7 +67,7 @@ public sealed class FirebaseAuthFacebookImplementation : DisposableBase, IFireba
             throw GetFirebaseAuthException(e);
         }
     }
-    
+
     private async Task<IFirebaseUser> LinkWithCredentialAsync(AuthCredential credential)
     {
         var authResult = await _firebaseAuth.CurrentUser.LinkWithCredentialAsync(credential);
@@ -78,7 +78,7 @@ public sealed class FirebaseAuthFacebookImplementation : DisposableBase, IFireba
     {
         return Task.CompletedTask;
     }
-    
+
     private static Activity Activity =>
         Platform.CurrentActivity ?? throw new NullReferenceException("Platform.CurrentActivity is null");
 }

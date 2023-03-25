@@ -12,7 +12,7 @@ public partial class AppShell : Shell
         InitializeComponent();
         RegisterRoutes();
     }
-    
+
     private static void RegisterRoutes()
     {
         Routing.RegisterRoute(NavigationPaths.PageAuth, typeof(AuthPage));
@@ -21,4 +21,3 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(NavigationPaths.PageStorage, typeof(StoragePage));
     }
 }
-

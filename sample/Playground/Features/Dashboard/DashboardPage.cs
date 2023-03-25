@@ -9,14 +9,14 @@ public sealed class DashboardPage : ContentPageBase
     {
         BindingContext = viewModel;
         Shell.Current.FlyoutBehavior = FlyoutBehavior.Disabled;
-        Build();   
+        Build();
     }
 
     private void Build()
     {
         Content = new VerticalStackLayout {
-                Spacing = 4,
-                Children = {
+            Spacing = 4,
+            Children = {
                     new Button { Text = Localization.ButtonAuth }
                         .Bind(nameof(Vm.NavigateToAuthPageCommand)),
                     new Button { Text = Localization.ButtonCloudMessaging }
@@ -26,7 +26,7 @@ public sealed class DashboardPage : ContentPageBase
                     new Button { Text = Localization.ButtonStorage }
                         .Bind(nameof(Vm.NavigateToStoragePageCommand))
                 }
-            }
+        }
             .FillHorizontal()
             .CenterVertical()
             .Margin(24);

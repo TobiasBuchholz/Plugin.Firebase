@@ -13,7 +13,7 @@ public static class ListExtensions
         }
         return array;
     }
-    
+
     public static IList ToList(this NSArray @this, Type targetType)
     {
         var list = (IList) Activator.CreateInstance(typeof(List<>).MakeGenericType(targetType));

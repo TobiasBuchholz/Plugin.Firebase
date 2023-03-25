@@ -26,14 +26,14 @@ public class MainActivity : MauiAppCompatActivity
         FirebaseCloudMessagingImplementation.OnNewIntent(intent);
         FirebaseDynamicLinksImplementation.HandleDynamicLinkAsync(intent).Ignore();
     }
-    
+
     private void CreateNotificationChannelIfNeeded()
     {
         if(Build.VERSION.SdkInt >= BuildVersionCodes.O) {
             CreateNotificationChannel();
         }
     }
-    
+
     private void CreateNotificationChannel()
     {
         var channelId = $"{PackageName}.general";
@@ -43,24 +43,23 @@ public class MainActivity : MauiAppCompatActivity
         FirebaseCloudMessagingImplementation.ChannelId = channelId;
         FirebaseCloudMessagingImplementation.SmallIconRef = Resource.Drawable.ic_push_small;
     }
-    
+
     public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
     {
         Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
         base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
     }
-    
+
     protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
     {
         base.OnActivityResult(requestCode, resultCode, data);
         FirebaseAuthImplementation.HandleActivityResultAsync(requestCode, resultCode, data);
         FirebaseAuthFacebookImplementation.HandleActivityResultAsync(requestCode, resultCode, data);
     }
-    
+
     protected override void OnNewIntent(Intent intent)
     {
         base.OnNewIntent(intent);
         HandleIntent(intent);
     }
 }
-

@@ -14,7 +14,7 @@ public static class JavaObjectExtensions
     {
         return (T) ((IDictionary) @this).Cast(typeof(T), documentId);
     }
-    
+
     public static Java.Lang.Object ToJavaObject(this object @this)
     {
         switch(@this) {
@@ -70,12 +70,12 @@ public static class JavaObjectExtensions
                 throw new ArgumentException($"Could not convert object of type {@this.GetType()} to Java.Lang.Object. Does it extend {nameof(IFirestoreObject)}?");
         }
     }
-    
+
     public static Java.Lang.Object ToJavaObject(this IFirestoreObject @this)
     {
         return @this.ToHashMap().ToJavaObject();
     }
-    
+
     public static object ToObject(this Java.Lang.Object @this, Type targetType = null)
     {
         switch(@this) {
@@ -112,7 +112,7 @@ public static class JavaObjectExtensions
                 throw new ArgumentException($"Could not convert Java.Lang.Object of type {@this.GetType()} to object");
         }
     }
-    
+
     private static object ToDictionaryObject(this IDictionary @this, Type targetType)
     {
         if(targetType != null && targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) {
@@ -122,7 +122,7 @@ public static class JavaObjectExtensions
             return @this.Cast(targetType);
         }
     }
-    
+
     public static IDictionary ToDictionary(this IDictionary @this, Type keyType, Type valueType)
     {
         var dict = (IDictionary) Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(keyType, valueType));
@@ -133,7 +133,7 @@ public static class JavaObjectExtensions
         }
         return dict;
     }
-    
+
     private static object Cast(this IDictionary @this, Type targetType, string documentId = null)
     {
         var instance = Activator.CreateInstance(targetType);
@@ -174,7 +174,7 @@ public static class JavaObjectExtensions
         }
         return instance;
     }
-    
+
     public static IDictionary<string, object> ToDictionary(this ArrayMap @this)
     {
         var dict = new Dictionary<string, object>();

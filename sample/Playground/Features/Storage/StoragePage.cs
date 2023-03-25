@@ -14,7 +14,7 @@ public sealed class StoragePage : ContentPageBase
     private void Build()
     {
         Content = new Grid {
-                Children = {
+            Children = {
                     new Entry { Placeholder = Localization.EntryPlaceholderStorage }
                         .CenterVertical()
                         .FillHorizontal()
@@ -23,7 +23,7 @@ public sealed class StoragePage : ContentPageBase
                         .Bottom()
                         .Bind(nameof(Vm.UploadTextCommand)),
                 }
-            }
+        }
             .Margin(32);
     }
 }

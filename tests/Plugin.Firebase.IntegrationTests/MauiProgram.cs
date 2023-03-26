@@ -49,8 +49,6 @@ public static class MauiProgram
             isFunctionsEnabled: true,
             isRemoteConfigEnabled: true,
             isStorageEnabled: true,
-            facebookId: "151743924915235",
-            facebookAppName: "Plugin Firebase Integration Tests",
             googleRequestIdToken: "316652897245-lbddc4dc4v87nv3n19thi032n3dvrcvu.apps.googleusercontent.com");
     }
 }

@@ -17,9 +17,7 @@ Firebase Analytics collects usage and behavior data for your app. The SDK logs t
 - Add the following lines of code after calling `CrossFirebase.Initialize()`:
 
 ```c#
-#if IOS
-  FirebaseAnalyticsImplementation.Initialize();
-#elif ANDROID
+#if ANDROID
   FirebaseAnalyticsImplementation.Initialize(activity);
 #endif
 ```

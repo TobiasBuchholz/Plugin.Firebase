@@ -6,11 +6,6 @@ namespace Plugin.Firebase.Analytics;
 
 public sealed class FirebaseAnalyticsImplementation : DisposableBase, IFirebaseAnalytics
 {
-    public static void Initialize()
-    {
-        // does nothing but still used for consistency across all features
-    }
-
     public Task<string> GetAppInstanceIdAsync()
     {
         return Task.FromResult(FirebaseAnalytics.AppInstanceId);

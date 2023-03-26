@@ -4,21 +4,22 @@ With Firebase Dynamic Links, you can give new users of your app a personalized o
 
 Dynamic Links are links into an app that work whether or not users have installed the app yet. When users open a Dynamic Link into an app that is not installed, the app's App- or Playstore page opens, where users can install the app. After users install and open the app, the app handles the link.
 
+## Installation
+### Nuget
+[![NuGet](https://img.shields.io/nuget/v/plugin.firebase.dynamic_links.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.DynamicLinks/)
+
+> Install-Package Plugin.Firebase.DynamicLinks
+
 ## Setup
 
 - Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/README.md#basic-setup)
 - Enable Dynamic Links at your project in the [Firebase Console](https://console.firebase.google.com/)
-- Initialize CrossFirebase with Dynamic Links enabled:
-
-```c#
-  CrossFirebase.Initialize(..., new CrossFirebaseSettings(isDynamicLinksEnabled:true));
-```
 
 ### iOS specifics
 - Go to the firebase console -> Project Settings -> choose your iOS app -> enter Appstore ID and Team ID (if not filled out already)
 - Go to developers.apple.com -> Certificates, Identifiers & Profiles -> App IDs -> choose your app and enable 'Associated Domains'
 - Go to provisioning profiles -> choose your profile, make it valid again, download and double tap it
-- add associated domains to your apps ```Entitlements.plist```:
+- add associated domains to your apps `Entitlements.plist`:
 ```xml
   <key>com.apple.developer.associated-domains</key>
   <array>
@@ -49,8 +50,8 @@ Dynamic Links are links into an app that work whether or not users have installe
   keytool -exportcert -list -v -alias <your-key-name> -keystore <path-to-production-keystore>
 ```
 - Go to firebase console -> Project Settings -> choose your android app -> insert the SHA-1 and SHA-256 fingerprints
-- Call ```FirebaseDynamicLinksImplementation.HandleDynamicLinkAsync(intent)``` from ```MainActivity.OnCreate(...)``` and ```MainActivity.OnNewIntent(...)```
-- Add your ```MainActivity``` to the ```<application>``` tag in your apps ```AndroidManifest.xml```:
+- Call `FirebaseDynamicLinksImplementation.HandleDynamicLinkAsync(intent)` from `MainActivity.OnCreate(...)` and `MainActivity.OnNewIntent(...)`
+- Add your `MainActivity` to the `<application>` tag in your apps `AndroidManifest.xml`:
 ```xml
   <activity
     android:name="my.fancy.app.MainActivity"

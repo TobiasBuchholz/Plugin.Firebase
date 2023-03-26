@@ -1,21 +1,24 @@
 using System.Reactive.Subjects;
-using Playground.Common.Services.Preferences;
 using Plugin.Firebase.Auth;
+using Plugin.Firebase.Auth.Facebook;
 
 namespace Playground.Common.Services.Auth;
 
 public sealed class AuthService : IAuthService
 {
     private readonly IFirebaseAuth _firebaseAuth;
+    private readonly IFirebaseAuthFacebook _firebaseAuthFacebook;
     private readonly IPreferencesService _preferencesService;
     private readonly BehaviorSubject<IFirebaseUser> _currentUserSubject;
     private readonly ISubject<bool> _isSignInRunningSubject;
 
     public AuthService(
         IFirebaseAuth firebaseAuth,
+        IFirebaseAuthFacebook firebaseAuthFacebook,
         IPreferencesService preferencesService)
     {
         _firebaseAuth = firebaseAuth;
+        _firebaseAuthFacebook = firebaseAuthFacebook;
         _preferencesService = preferencesService;
         _currentUserSubject = new BehaviorSubject<IFirebaseUser>(null);
         _isSignInRunningSubject = new BehaviorSubject<bool>(false);
@@ -63,7 +66,7 @@ public sealed class AuthService : IAuthService
     public IObservable<Unit> SignInWithFacebook()
     {
         return RunAuthTask(
-            _firebaseAuth.SignInWithFacebookAsync(),
+            _firebaseAuthFacebook.SignInWithFacebookAsync(),
             signOutWhenFailed: true);
     }
 
@@ -98,7 +101,7 @@ public sealed class AuthService : IAuthService
 
     public IObservable<Unit> LinkWithFacebook()
     {
-        return RunAuthTask(_firebaseAuth.LinkWithFacebookAsync());
+        return RunAuthTask(_firebaseAuthFacebook.LinkWithFacebookAsync());
     }
 
     public IObservable<Unit> LinkWithPhoneNumberVerificationCode(string verificationCode)
@@ -135,8 +138,8 @@ public sealed class AuthService : IAuthService
 
     public IObservable<Unit> SignOut()
     {
-        return _firebaseAuth
-            .SignOutAsync()
+        return Task
+            .WhenAll(_firebaseAuth.SignOutAsync(), _firebaseAuthFacebook.SignOutAsync())
             .ToObservable()
             .Do(_ => HandleUserSignedOut());
     }

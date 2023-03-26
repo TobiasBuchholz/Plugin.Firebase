@@ -123,7 +123,7 @@ public abstract class UserInteractionServiceBase : IUserInteractionService
             case UserInfoType.Dialog:
                 return ShowAsDialogAsync(userInfo);
             // case UserInfoType.Snackbar:
-                // return ShowAsSnackbarAsync(userInfo);
+            // return ShowAsSnackbarAsync(userInfo);
             case UserInfoType.ActionSheet:
                 return ShowAsActionSheetAsync(userInfo);
             default:

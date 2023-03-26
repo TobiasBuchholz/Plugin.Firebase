@@ -1,4 +1,3 @@
-using Plugin.Firebase.Common;
 using Plugin.Firebase.Firestore;
 
 namespace Plugin.Firebase.IntegrationTests.Firestore

@@ -38,7 +38,7 @@
 
     <!-- project references -->
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Plugin.Firebase.csproj" />
+        <ProjectReference Include="..\..\src\Bundled\Bundled.csproj" />
     </ItemGroup>
 
     <!-- nuget packages -->
@@ -62,4 +62,5 @@
     <ItemGroup>
       <GoogleServicesJson Include="google-services.json" />
     </ItemGroup>
+
 </Project>

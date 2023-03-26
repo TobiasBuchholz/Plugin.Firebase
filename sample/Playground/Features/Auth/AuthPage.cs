@@ -14,9 +14,9 @@ public sealed class AuthPage : ContentPageBase
     private void Build()
     {
         Content = new Grid {
-                RowDefinitions = Rows.Define(Star, Star),
-                RowSpacing = 4,
-                Children = {
+            RowDefinitions = Rows.Define(Star, Star),
+            RowSpacing = 4,
+            Children = {
                     new Label { HorizontalTextAlignment = TextAlignment.Center }
                         .Row(0)
                         .Center()
@@ -42,7 +42,7 @@ public sealed class AuthPage : ContentPageBase
                         .Bottom()
                         .Bind(IsVisibleProperty, nameof(Vm.ShowsSignOutButtons))
                 }
-            }
+        }
             .Margin(24);
     }
 

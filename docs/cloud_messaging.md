@@ -2,14 +2,21 @@
 
 Firebase Cloud Messaging offers a broad range of messaging options and capabilities. I invite you to read the following [documentation](https://firebase.google.com/docs/cloud-messaging/concept-options) to have a better understanding about notification messages and data messages and what you can do with them using FCM's options.
 
+## Installation
+### Nuget
+[![NuGet](https://img.shields.io/nuget/v/plugin.firebase.cloud_messaging.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.CloudMessaging/)
+
+> Install-Package Plugin.Firebase.CloudMessaging
+
 ## Setup
 
 - Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/README.md#basic-setup)
 - Enable Cloud Messaging at your project in the [Firebase Console](https://console.firebase.google.com/)
-- Initialize CrossFirebase with Cloud Messaging enabled:
-
+- Add the following line of code after calling `CrossFirebase.Initialize()`:
 ```c#
-  CrossFirebase.Initialize(..., new CrossFirebaseSettings(isCloudMessagingEnabled:true));
+#if IOS
+  FirebaseCloudMessagingImplementation.Initialize();
+#endif
 ```
 - Make sure the device is able to receive cloud messages and the user has granted the permissions for it:
 ```c#
@@ -19,7 +26,7 @@ Firebase Cloud Messaging offers a broad range of messaging options and capabilit
 ### iOS specifics
 - Go to [developers.apple.com](https://developer.apple.com/) -> Certificates, Identifiers & Profiles -> enable Push Notifications in your provisioning profile, download and double tap it
 - [Create and upload APNs authentication key](https://firebase.google.com/docs/cloud-messaging/ios/client#upload_your_apns_authentication_key) to your project in the [Firebase Console](https://console.firebase.google.com/)
-- Enable Push Notifications in your apps ```Entitlements.plist```:
+- Enable Push Notifications in your apps `Entitlements.plist`:
 ```xml
   <key>aps-environment</key>
   <string>development</string>
@@ -29,7 +36,7 @@ Firebase Cloud Messaging offers a broad range of messaging options and capabilit
 
 
 ### Android specifics
-- Add the following code snippet to the ```<application>``` tag in your apps ```AndroidManifest.xml```:
+- Add the following code snippet to the `<application>` tag in your apps `AndroidManifest.xml`:
 ```xml
   <receiver
     android:name="com.google.firebase.iid.FirebaseInstanceIdInternalReceiver"
@@ -45,7 +52,7 @@ Firebase Cloud Messaging offers a broad range of messaging options and capabilit
     </intent-filter>
   </receiver>
 ```
-- Call ```FirebaseCloudMessagingImplementation.OnNewIntent(intent)``` from ```MainActivity.OnCreate(...)``` and ```MainActivity.OnNewIntent(...)```
+- Call `FirebaseCloudMessagingImplementation.OnNewIntent(intent)` from `MainActivity.OnCreate(...)` and `MainActivity.OnNewIntent(...)`
 - Create a notification channel and set the ```ChannelId``` to ```FirebaseCloudMessagingImplementation```:
 ```c#
   private void CreateNotificationChannel()

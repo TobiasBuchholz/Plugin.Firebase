@@ -5,15 +5,22 @@ Firebase Analytics collects usage and behavior data for your app. The SDK logs t
 - Events: What is happening in your app, such as user actions, system events, or errors
 - User properties: Attributes you define to describe segments of your userbase, such as language preference or geographic location
 
+## Installation
+### Nuget
+[![NuGet](https://img.shields.io/nuget/v/plugin.firebase.analytics.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Analytics/)
+
+> Install-Package Plugin.Firebase.Analytics
+
 ## Setup
 
 - Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/README.md#basic-setup)
-- Initialize CrossFirebase with Analytics enabled:
+- Add the following lines of code after calling `CrossFirebase.Initialize()`:
 
 ```c#
-  CrossFirebase.Initialize(..., new CrossFirebaseSettings(isAnalyticsEnabled:true));
+#if ANDROID
+  FirebaseAnalyticsImplementation.Initialize(activity);
+#endif
 ```
-
 
 ## Usage
 

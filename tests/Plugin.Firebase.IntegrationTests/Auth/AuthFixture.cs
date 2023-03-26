@@ -1,5 +1,5 @@
 using Plugin.Firebase.Auth;
-using Plugin.Firebase.Common;
+using Plugin.Firebase.Core.Exceptions;
 
 namespace Plugin.Firebase.IntegrationTests.Auth
 {
@@ -108,27 +108,27 @@ namespace Plugin.Firebase.IntegrationTests.Auth
             Assert.NotNull(sut.CurrentUser);
             Assert.Null(sut.CurrentUser.DisplayName);
             Assert.Null(sut.CurrentUser.PhotoUrl);
-            
+
             await sut.CurrentUser.UpdateProfileAsync(displayName, photoUrl);
             Assert.Equal(displayName, sut.CurrentUser.DisplayName);
             Assert.Equal(photoUrl, sut.CurrentUser.PhotoUrl);
-            
+
             await sut.CurrentUser.UpdateProfileAsync(displayName: null);
             Assert.Null(sut.CurrentUser.DisplayName);
             Assert.Equal(photoUrl, sut.CurrentUser.PhotoUrl);
-            
+
             await sut.CurrentUser.UpdateProfileAsync(displayName);
             Assert.Equal(displayName, sut.CurrentUser.DisplayName);
             Assert.Equal(photoUrl, sut.CurrentUser.PhotoUrl);
-            
+
             await sut.CurrentUser.UpdateProfileAsync(photoUrl: null);
             Assert.Equal(displayName, sut.CurrentUser.DisplayName);
             Assert.Null(sut.CurrentUser.PhotoUrl);
-            
+
             await sut.CurrentUser.UpdateProfileAsync(photoUrl: photoUrl);
             Assert.Equal(displayName, sut.CurrentUser.DisplayName);
             Assert.Equal(photoUrl, sut.CurrentUser.PhotoUrl);
-            
+
             await sut.CurrentUser.UpdateProfileAsync(displayName, photoUrl);
             Assert.Equal(displayName, sut.CurrentUser.DisplayName);
             Assert.Equal(photoUrl, sut.CurrentUser.PhotoUrl);

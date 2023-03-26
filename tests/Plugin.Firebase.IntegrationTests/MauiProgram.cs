@@ -1,13 +1,10 @@
-using Firebase;
 using Microsoft.Maui.LifecycleEvents;
-using Plugin.Firebase.Analytics;
-using Plugin.Firebase.Auth;
+using Plugin.Firebase.Bundled.Shared;
 #if IOS
-using Plugin.Firebase.iOS;
+using Plugin.Firebase.Bundled.Platforms.iOS;
 #else 
-using Plugin.Firebase.Android;
+using Plugin.Firebase.Bundled.Platforms.Android;
 #endif
-using Plugin.Firebase.Shared;
 using Xunit.Runners.Maui;
 
 namespace Plugin.Firebase.IntegrationTests2;
@@ -28,18 +25,18 @@ public static class MauiProgram
     {
         builder.ConfigureLifecycleEvents(events => {
 #if IOS
-            events.AddiOS(iOS => iOS.FinishedLaunching((app, launchOptions) => {
-                CrossFirebase.Initialize(app, launchOptions, CreateCrossFirebaseSettings());
+            events.AddiOS(iOS => iOS.FinishedLaunching((_,__) => {
+                CrossFirebase.Initialize(CreateCrossFirebaseSettings());
                 return false;
             }));
 #else
-            events.AddAndroid(android => android.OnCreate((activity, state) =>
-                CrossFirebase.Initialize(activity, state, CreateCrossFirebaseSettings())));
+            events.AddAndroid(android => android.OnCreate((activity, _) =>
+                CrossFirebase.Initialize(activity, CreateCrossFirebaseSettings())));
 #endif
         });
         return builder;
     }
-    
+
     private static CrossFirebaseSettings CreateCrossFirebaseSettings()
     {
         return new CrossFirebaseSettings(
@@ -52,8 +49,6 @@ public static class MauiProgram
             isFunctionsEnabled: true,
             isRemoteConfigEnabled: true,
             isStorageEnabled: true,
-            facebookId: "151743924915235",
-            facebookAppName: "Plugin Firebase Integration Tests",
             googleRequestIdToken: "316652897245-lbddc4dc4v87nv3n19thi032n3dvrcvu.apps.googleusercontent.com");
     }
 }

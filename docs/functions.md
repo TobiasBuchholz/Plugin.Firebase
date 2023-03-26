@@ -2,16 +2,17 @@
 
 Cloud Functions for Firebase is a serverless framework that lets you automatically run backend code in response to events triggered by Firebase features and HTTPS requests. Your JavaScript or TypeScript code is stored in Google's cloud and runs in a managed environment. There's no need to manage and scale your own servers.
 
+## Installation
+### Nuget
+[![NuGet](https://img.shields.io/nuget/v/plugin.firebase.functions.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Functions/)
+
+> Install-Package Plugin.Firebase.Functions
+
 ## Setup
 
 - Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/README.md#basic-setup)
 - Enable Cloud Functions at your project in the [Firebase Console](https://console.firebase.google.com/)
 - [Deploy](https://firebase.google.com/docs/functions/get-started?hl=en) your own function
-- Initialize CrossFirebase with Functions enabled:
-
-```c#
-  CrossFirebase.Initialize(..., new CrossFirebaseSettings(isFunctionsEnabled:true));
-```
 
 ## Usage
 

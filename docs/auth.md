@@ -2,26 +2,25 @@
 
 You can use [Firebase Authentication](https://firebase.google.com/docs/auth) to allow users to sign in to your app using one or more sign-in methods, including email address and password sign-in, and federated identity providers such as Google Sign-in and Facebook Login.
 
+## Installation
+### Nuget
+[![NuGet](https://img.shields.io/nuget/v/plugin.firebase.auth.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Auth/)
+
+> Install-Package Plugin.Firebase.Auth
+
 ## Setup
 
 - Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/README.md#basic-setup)
 - Enable Authentication at your project in the [Firebase Console](https://console.firebase.google.com/).
-- Initialize CrossFirebase with Auth enabled:
+- Add the following lines of code after calling `CrossFirebase.Initialize()`:
 ```c#
-  CrossFirebase.Initialize(..., new CrossFirebaseSettings(isAuthEnabled:true));
+#if IOS
+  FirebaseAuthImplementation.Initialize();
+#elif ANDROID
+  FirebaseAuthImplementation.Initialize("your-google-request-id-token");
+#endif
 ```
-- If you want to enable authentication via Facebook or Google, initialize CrossFirebase with the appropriate settings:
-```c#
-  var settings = new CrossFirebaseSettings(
-      isAuthEnabled:true,
-      facebookId:"12345678",
-      facebookAppName:"My fancy app",
-      googleRequestIdToken:"123456-abcdef.apps.googleusercontent.com");
-
-```
-- The ```facebookId``` and ```facebookAppName``` can be accessed at [Facebook Developers](https://developers.facebook.com/apps/)
-- The ```googleRequestIdToken``` can be accessed at the [Google API Console](https://console.developers.google.com/apis/credentials) (make sure to use the Client-ID of the Web client)
-
+- The `googleRequestIdToken` can be accessed at the [Google API Console](https://console.developers.google.com/apis/credentials) (make sure to use the Client-ID of the Web client)
 
 ### iOS specifics
 - Enable keychain entitlement in Entitlements.plist:
@@ -34,7 +33,7 @@ You can use [Firebase Authentication](https://firebase.google.com/docs/auth) to 
     </array>
   </dict>
 ```
-- In case you are using Authentication via Google, add an url scheme to your apps ```Info.plist```:
+- In case you are using Authentication via Google, add an url scheme to your apps `Info.plist`:
 ```xml
   <key>CFBundleURLTypes</key>
   <array>
@@ -53,25 +52,7 @@ You can use [Firebase Authentication](https://firebase.google.com/docs/auth) to 
 - Make sure you have added the SHA-1 fingerprint matching the keystore you've used for signing the app bundle to the android project settings in the firebase console: 
 
 ![firestore_poco.png](../art/project_settings_sha1.png)
-- Call ```FirebaseAuthImplementation.HandleActivityResultAsync(requestCode, resultCode, data);``` from ```MainActivity.OnActivityResult(...)```
-- In case you are using Authentication via Facebook, add the following code to your apps ```AndroidManifest.xml```:
-```xml
-  <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id" />
-  <activity android:name="com.facebook.FacebookActivity" android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation" android:label="@string/app_name" />
-  <activity android:name="com.facebook.CustomTabActivity" android:exported="true">
-    <intent-filter>
-      <action android:name="android.intent.action.VIEW" />
-      <category android:name="android.intent.category.DEFAULT" />
-      <category android:name="android.intent.category.BROWSABLE" />
-      <data android:scheme="@string/fb_login_protocol_scheme" />
-    </intent-filter>
-  </activity>
-```
-- Add ```facebook_app_id``` and ```fb_login_protocol_scheme``` to ```strings.xml```:
-```xml
-  <string name="facebook_app_id">12345678</string>
-  <string name="fb_login_protocol_scheme">fb12345678</string>
-```
+- Call `FirebaseAuthImplementation.HandleActivityResultAsync(requestCode, resultCode, data);` from `MainActivity.OnActivityResult(...)`
 - For more specific instructions take a look at the official [Firebase documentation](https://firebase.google.com/docs/auth/android/start?hl=en)
 
 ## Usage

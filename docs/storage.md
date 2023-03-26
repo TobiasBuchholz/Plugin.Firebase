@@ -2,15 +2,16 @@
 
 Firebase Storage lets you upload and share user generated content, such as images and video, which allows you to build rich media content into your apps. Firebase Storage stores this data in a Google Cloud Storage bucket, an exabyte scale object storage solution with high availability and global redundancy. Firebase Storage lets you securely upload these files directly from mobile devices and web browsers, handling spotty networks with ease.
 
+## Installation
+### Nuget
+[![NuGet](https://img.shields.io/nuget/v/plugin.firebase.storage.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Storage/)
+
+> Install-Package Plugin.Firebase.Storage
+
 ## Setup
 
 - Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/README.md#basic-setup)
 - Enable Storage at your project in the [Firebase Console](https://console.firebase.google.com/)
-- Initialize CrossFirebase with Storage enabled:
-
-```c#
-  CrossFirebase.Initialize(..., new CrossFirebaseSettings(isStorageEnabled:true));
-```
 
 ## Usage
 

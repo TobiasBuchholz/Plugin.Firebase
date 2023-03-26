@@ -12,8 +12,6 @@ public sealed class CrossFirebaseSettings
         bool isFunctionsEnabled = false,
         bool isRemoteConfigEnabled = false,
         bool isStorageEnabled = false,
-        string facebookId = null,
-        string facebookAppName = null,
         string googleRequestIdToken = null)
     {
         IsAnalyticsEnabled = isAnalyticsEnabled;
@@ -25,8 +23,6 @@ public sealed class CrossFirebaseSettings
         IsFunctionsEnabled = isFunctionsEnabled;
         IsRemoteConfigEnabled = isRemoteConfigEnabled;
         IsStorageEnabled = isStorageEnabled;
-        FacebookId = facebookId;
-        FacebookAppName = facebookAppName;
         GoogleRequestIdToken = googleRequestIdToken;
     }
 
@@ -54,7 +50,5 @@ public sealed class CrossFirebaseSettings
     public bool IsRemoteConfigEnabled { get; }
     public bool IsStorageEnabled { get; }
 
-    public string FacebookId { get; }
-    public string FacebookAppName { get; }
     public string GoogleRequestIdToken { get; }
 }

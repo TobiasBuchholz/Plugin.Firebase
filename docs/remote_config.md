@@ -2,15 +2,16 @@
 
 You can use Firebase Remote Config to define parameters in your app and update their values in the cloud, allowing you to modify the appearance and behavior of your app without distributing an app update.
 
+## Installation
+### Nuget
+[![NuGet](https://img.shields.io/nuget/v/plugin.firebase.remote_config.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.RemoteConfig/)
+
+> Install-Package Plugin.Firebase.RemoteConfig
+
 ## Setup
 
 - Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/README.md#basic-setup)
 - Add a Remote Config key-value pair at your project in the [Firebase Console](https://console.firebase.google.com/)
-- Initialize CrossFirebase with Remote Config enabled:
-
-```c#
-  CrossFirebase.Initialize(..., new CrossFirebaseSettings(isRemoteConfigEnabled:true));
-```
 
 ## Usage
 

@@ -1,36 +1,31 @@
 # Plugin.Firebase
 
-This is a wrapper library around the native Android and iOS Firebase Xamarin SDKs. It includes cross-platform APIs for Firebase [Analytics](https://firebase.google.com/docs/analytics), [Auth](https://firebase.google.com/docs/auth), [Cloud Messaging](https://firebase.google.com/docs/cloud-messaging), [Dynamic Links](https://firebase.google.com/docs/dynamic-links), [Firestore](https://firebase.google.com/docs/firestore), [Cloud Functions](https://firebase.google.com/docs/functions), [Remote Config](https://firebase.google.com/docs/remote-config) and [Storage](https://firebase.google.com/docs/storage).
+This is a wrapper library around the native Android and iOS Firebase Xamarin SDKs which includes cross-platform APIs for most of the Firebase features.
 
-## Installation
-### Nuget
-[![NuGet](https://img.shields.io/nuget/v/plugin.firebase.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase/)
+## Supported features
 
-> Install-Package Plugin.Firebase
-
-#### Visual Studio 2022 on Windows:
-If you encounter a build error, try to add the package via `dotnet add package Plugin.Firebase`, see [issue #69](https://github.com/TobiasBuchholz/Plugin.Firebase/issues/65) for more information.
+| Feature | Plugin | Version |
+|---------|--------|---------|
+| [Analytics](https://firebase.google.com/docs/analytics) | [Plugin.Firebase.Analytics](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/analytics.md) | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.analytics.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Analytics/) |
+| [Auth](https://firebase.google.com/docs/auth) | [Plugin.Firebase.Auth](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/auth.md) | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.auth.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Auth/) |
+| [Facebook Auth](https://developers.facebook.com/docs/facebook-login/) | [Plugin.Firebase.Auth.Facebook](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/auth_facebook.md) | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.auth.facebook.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Auth.Facebook/) |
+| [Cloud Messaging](https://firebase.google.com/docs/cloud-messaging) | [Plugin.Firebase.CloudMessaging](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/cloud_messaging.md) | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.cloud_messaging.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.CloudMessaging/)
+| [Crashlytics](https://firebase.google.com/docs/crashlytics) | [Plugin.Firebase.CloudMessaging](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/crashlytics.md) | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.crashlytics.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Crashlytics/)
+| [Dynamic Links](https://firebase.google.com/docs/dynamic-links) | [Plugin.Firebase.DynamicLinks](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/dynamic_links.md) | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.dynamic_links.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.jirebase.DynamicLinks/)
+| [Firestore](https://firebase.google.com/docs/firestore) | [Plugin.Firebase.Firestore](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/firestore.md) | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.firestore.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Firestore/)
+| [Cloud Functions](https://firebase.google.com/docs/functions) | [Plugin.Firebase.Functions](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/functions.md) | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.functions.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Functions/)
+| [Remote Config](https://firebase.google.com/docs/remote-config) | [Plugin.Firebase.RemoteConfig](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/remote_config.md) | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.remote_config.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.RemoteConfig/)
+| [Storage](https://firebase.google.com/docs/storage) | [Plugin.Firebase.Storage](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/storage.md) | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.storage.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Storage/)
+| All in one | [Plugin.Firebase](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/bundled.md) | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase/)
 
 ## Basic setup
 
 1. Create a Firebase project in the [Firebase Console](https://console.firebase.google.com/), if you don't already have one. If you already have an existing Google project associated with your mobile app, click **Import Google Project**. Otherwise, click **Create New Project**.
 2. Click **Add Firebase to your *[iOS|Android]* app** and follow the setup steps. If you're importing an existing Google project, this may happen automatically and you can just download the config file.
-3. Add ```[GoogleService-Info.plist|google-services.json]``` file to your app project.
-4. Set ```[GoogleService-Info.plist|google-services.json]``` **build action** behaviour to ```[Bundle Resource|GoogleServicesJson]``` by Right clicking/Build Action.
-5. At `Platforms/Android/Resources/values` add the following line to your `strings.xml`:
-```
-<resources>
-    ...
-    <string name="com.google.firebase.crashlytics.mapping_file_id">none</string>
-    ...
-</resources>
-```
-6. Add the following line of code to the place where your app gets bootstrapped:
-```c#
-CrossFirebase.Initialize(..., new CrossFirebaseSettings(...));
-```
+3. Add `[GoogleService-Info.plist|google-services.json]` file to your app project.
+4. Set `[GoogleService-Info.plist|google-services.json]` **build action** behaviour to `[Bundle Resource|GoogleServicesJson]` by Right clicking/Build Action.
 
-## .NET MAUI support
+### .NET MAUI support
 The new plugin version 1.2.0 now supports .NET MAUI applications with .NET 6 🚀 
 
 To get started add the `GoogleService-Info.plist` and the `google-services.json` files to the root folder of your project and include them in the .csproj file like this:
@@ -45,7 +40,7 @@ To get started add the `GoogleService-Info.plist` and the `google-services.json`
 </ItemGroup>
 ```
 
-Put the initialization call from step 5 of the basic setup in your `MauiProgram.cs` like this:
+Initialize the plugin in your `MauiProgram.cs` like this:
 
 ```c#
 public static class MauiProgram
@@ -65,12 +60,12 @@ public static class MauiProgram
         builder.ConfigureLifecycleEvents(events => {
 #if IOS
             events.AddiOS(iOS => iOS.FinishedLaunching((app, launchOptions) => {
-                CrossFirebase.Initialize(app, launchOptions, CreateCrossFirebaseSettings());
+                CrossFirebase.Initialize(app, launchOptions);
                 return false;
             }));
 #else
             events.AddAndroid(android => android.OnCreate((activity, state) =>
-                CrossFirebase.Initialize(activity, state, CreateCrossFirebaseSettings())));
+                CrossFirebase.Initialize(activity, state)));
 #endif
         });
         
@@ -78,10 +73,6 @@ public static class MauiProgram
         return builder;
     }
     
-    private static CrossFirebaseSettings CreateCrossFirebaseSettings()
-    {
-        return new CrossFirebaseSettings(isAuthEnabled: true);
-    }
 }
 ```
 Ensure the `ApplicationId` in your `.csproj` file matches the `bundle_id` and `package_name` inside of the `[GoogleService-Info.plist|google-services.json]` files:
@@ -126,7 +117,7 @@ In the [sample folder](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/de
 
 In the [tests folder](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/tests) you can find a Xamarin.Forms project that lets you run integration tests. You should definitely check out the ```*Fixture.cs``` files to learn how the plugin is supposed to work. All the tests should pass when they get executed on a real device.
 
-In case you would like to run the sample or test project by yourself, you need to add the ```GoogleService-Info.plist``` and ```google-services.json``` files of your own firebase project and adapt the other config files like ```Info.plist, Entitlements.plist, AndroidManifest.xml```.
+In case you would like to run the sample or test project by yourself, you need to add the `GoogleService-Info.plist` and `google-services.json` files of your own firebase project and adapt the other config files like `Info.plist, Entitlements.plist, AndroidManifest.xml`.
 
 ## Using Firebase Local Emulator Suite
 If you would like to use the [Firebase Local Emulator Suite](https://firebase.google.com/docs/emulator-suite) for your tests or rapid prototyping you can do so by following the steps of the [Getting started guide](https://firebase.google.com/docs/emulator-suite/connect_and_prototype) and calling the [`UseEmulator(host, port)`](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/src/Shared/Firestore/IFirebaseFirestore.cs#L45) method of the desired firebase service before doing any other operations.
@@ -139,14 +130,22 @@ You are welcome to contribute to this project by creating a [Pull Request](https
 
 ## License
 
-```Plugin.Firebase``` is released under the MIT license. See the [LICENSE](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/LICENSE) file for details.
+`Plugin.Firebase` is released under the MIT license. See the [LICENSE](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/LICENSE) file for details.
 
 ## Release notes
+- Version 2.0.0
+  - All features have been split into separate nuget packages 
+  - Cleaned up namespaces
+  - Enable usage of `DateTime` in Firestore #137
+  - Remove unnecessary dependency `Microsoft.CSharp` #143
+  - Fix fcm token refresh by adding `DidReceiveRegistrationToken` method to `FirebaseCloudMessagingImplementation`
+  
+
 - Version 1.3.0
-    - Get rid of newtonsoft.json, use system.text.json instead #119
-    - Add crashlytics implementation #120
-    - Add support for DateTime type to ToHashMap/Put extension #121
-    - Lazy google/facebook auth #122
-    - Return FIRAuthError.WrongPassword at android for wrong pw signin #117
-    - Calling completion in didReceiveNotificationResponse:completionHandler #106
-    - Big thanks to tranb3r for the contributions! :)
+  - Get rid of newtonsoft.json, use system.text.json instead #119
+  - Add crashlytics implementation #120
+  - Add support for DateTime type to ToHashMap/Put extension #121
+  - Lazy google/facebook auth #122
+  - Return FIRAuthError.WrongPassword at android for wrong pw signin #117
+  - Calling completion in didReceiveNotificationResponse:completionHandler #106
+  - Big thanks to tranb3r for the contributions! :)

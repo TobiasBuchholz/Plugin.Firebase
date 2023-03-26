@@ -2,12 +2,18 @@
 
 Firebase [Firebase Crashlytics](https://firebase.google.com/docs/crashlytics) is a lightweight, realtime crash reporter that helps you track, prioritize, and fix stability issues that erode your app quality. Crashlytics saves you troubleshooting time by intelligently grouping crashes and highlighting the circumstances that lead up to them.
 
+## Installation
+### Nuget
+[![NuGet](https://img.shields.io/nuget/v/plugin.firebase.crashlytics.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Crashlytics/)
+
+> Install-Package Plugin.Firebase.Crashlytics
+
 ## Setup
 
 - Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/README.md#basic-setup)
-- Initialize CrossFirebase with Crashlytics enabled:
+- Add the following line of code after calling `CrossFirebase.Initialize()`:
 ```c#
-  CrossFirebase.Initialize(..., new CrossFirebaseSettings(isCrashlyticsEnabled:true));
+  CrossFirebaseCrashlytics.Current.SetCrashlyticsCollectionEnabled(true);
 ```
 
 ### iOS specifics

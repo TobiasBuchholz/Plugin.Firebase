@@ -70,7 +70,7 @@ public static class MauiProgram
             events.AddiOS(iOS => iOS.FinishedLaunching((app, launchOptions) => {
                 var settings = CreateCrossFirebaseSettings();
                 CrossFirebase.Initialize(settings);
-                FirebaseAuthFacebookImplementation.Initialize(app, launchOptions, settings.FacebookId, settings.FacebookAppName);
+                FirebaseAuthFacebookImplementation.Initialize(app, launchOptions, "151743924915235", "Plugin Firebase Playground");
                 return false;
             }));
 #else
@@ -120,8 +120,6 @@ public static class MauiProgram
             isFunctionsEnabled: true,
             isRemoteConfigEnabled: true,
             isStorageEnabled: true,
-            facebookId: "151743924915235",
-            facebookAppName: "Plugin Firebase Playground",
             googleRequestIdToken: "537235599720-723cgj10dtm47b4ilvuodtp206g0q0fg.apps.googleusercontent.com");
     }
 }

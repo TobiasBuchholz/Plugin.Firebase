@@ -1,13 +1,13 @@
 using Firebase.Auth;
-using Foundation;
 using Google.SignIn;
+using Microsoft.Maui.Authentication;
+using Microsoft.Maui.Devices;
 using Plugin.Firebase.Auth.Platforms.iOS.Email;
 using Plugin.Firebase.Auth.Platforms.iOS.Extensions;
 using Plugin.Firebase.Auth.Platforms.iOS.Google;
 using Plugin.Firebase.Auth.Platforms.iOS.PhoneNumber;
 using Plugin.Firebase.Core;
 using Plugin.Firebase.Core.Exceptions;
-using UIKit;
 using FirebaseAuth = Firebase.Auth.Auth;
 using Task = System.Threading.Tasks.Task;
 using CrossActionCodeSettings = Plugin.Firebase.Auth.ActionCodeSettings;

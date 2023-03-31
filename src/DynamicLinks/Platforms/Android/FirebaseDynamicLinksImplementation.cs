@@ -1,14 +1,12 @@
 using Android.Content;
 using Android.Gms.Extensions;
 using Firebase.DynamicLinks;
-using Microsoft.Maui.Controls.Internals;
 using Plugin.Firebase.DynamicLinks.EventArgs;
 using Plugin.Firebase.DynamicLinks.Platforms.Android;
 using Exception = Java.Lang.Exception;
 
 namespace Plugin.Firebase.DynamicLinks;
 
-[Preserve(AllMembers = true)]
 public class FirebaseDynamicLinksImplementation : IFirebaseDynamicLinks
 {
     private static event EventHandler<DynamicLinkReceivedEventArgs> _dynamicLinkReceived;

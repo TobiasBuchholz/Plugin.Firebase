@@ -1,11 +1,9 @@
-using Android.App;
 using Android.Content;
 using Android.Gms.Common;
 using Android.Gms.Extensions;
 using AndroidX.Core.App;
 using Firebase;
 using Firebase.Messaging;
-using Microsoft.Maui.Controls.Internals;
 using Plugin.Firebase.CloudMessaging.EventArgs;
 using Plugin.Firebase.CloudMessaging.Platforms.Android.Extensions;
 using Plugin.Firebase.Core;
@@ -13,7 +11,6 @@ using Application = Android.App.Application;
 
 namespace Plugin.Firebase.CloudMessaging;
 
-[Preserve(AllMembers = true)]
 public sealed class FirebaseCloudMessagingImplementation : DisposableBase, IFirebaseCloudMessaging
 {
     private const string IntentKeyFCMNotification = "intent_key_fcm_notification";

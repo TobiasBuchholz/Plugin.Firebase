@@ -1,8 +1,8 @@
-using Android.App;
 using Android.Content;
 using Android.Gms.Extensions;
 using AndroidX.Fragment.App;
 using Firebase.Auth;
+using Microsoft.Maui.ApplicationModel;
 using Plugin.Firebase.Auth.Platforms.Android.Email;
 using Plugin.Firebase.Auth.Platforms.Android.Google;
 using Plugin.Firebase.Auth.Platforms.Android.PhoneNumber;

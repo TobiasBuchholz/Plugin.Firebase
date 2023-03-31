@@ -58,165 +58,140 @@ public static class DictionaryExtensions
 
     private static object GetObject(this Bundle bundle, string key)
     {
-        dynamic obj = bundle.GetString(key);
-        if(obj != null) {
-            return obj;
+        if(bundle.GetString(key) is { } str) {
+            return str;
         }
 
-        obj = bundle.GetStringArray(key);
-        if(obj != null) {
-            return obj;
+        if(bundle.GetStringArray(key) is { } strArray) {
+            return strArray;
         }
 
-        obj = bundle.GetStringArrayList(key);
-        if(obj != null) {
-            return obj;
+        if(bundle.GetStringArrayList(key) is { } strArrayList) {
+            return strArrayList;
         }
 
-        obj = bundle.GetInt(key, int.MaxValue);
-        if(obj != int.MaxValue) {
-            return obj;
+        var i = bundle.GetInt(key, int.MaxValue);
+        if(i != int.MaxValue) {
+            return i;
         }
 
-        obj = bundle.GetIntArray(key);
-        if(obj != null) {
-            return obj;
+        if(bundle.GetIntArray(key) is { } intArray) {
+            return intArray;
         }
 
-        obj = bundle.GetIntegerArrayList(key);
-        if(obj != null) {
-            return obj;
+        if(bundle.GetIntegerArrayList(key) is { } intArrayList) {
+            return intArrayList;
         }
 
-        obj = bundle.GetLong(key, long.MaxValue);
-        if(obj != long.MaxValue) {
-            return obj;
+        var l = bundle.GetLong(key, long.MaxValue);
+        if(l != long.MaxValue) {
+            return l;
         }
 
-        obj = bundle.GetLongArray(key);
-        if(obj != null) {
-            return obj;
+        if(bundle.GetLongArray(key) is { } longArray) {
+            return longArray;
         }
 
-        obj = bundle.GetFloat(key, float.MaxValue);
-        if(obj < float.MaxValue) {
-            return obj;
+        var f = bundle.GetFloat(key, float.MaxValue);
+        if(f < float.MaxValue) {
+            return f;
         }
 
-        obj = bundle.GetFloatArray(key);
-        if(obj != null) {
-            return obj;
+        if(bundle.GetFloatArray(key) is { } floatArray) {
+            return floatArray;
         }
 
-        obj = bundle.GetDouble(key, double.MaxValue);
-        if(obj < double.MaxValue) {
-            return obj;
+        var d = bundle.GetDouble(key, double.MaxValue);
+        if(d < double.MaxValue) {
+            return d;
         }
 
-        obj = bundle.GetDoubleArray(key);
-        if(obj != null) {
-            return obj;
+        if(bundle.GetDoubleArray(key) is { } doubleArray) {
+            return doubleArray;
         }
 
-        obj = bundle.GetShort(key, short.MaxValue);
-        if(obj < short.MaxValue) {
-            return obj;
+        var sh = bundle.GetShort(key, short.MaxValue);
+        if(sh < short.MaxValue) {
+            return sh;
         }
 
-        obj = bundle.GetShortArray(key);
-        if(obj != null) {
-            return obj;
+        if(bundle.GetShortArray(key) is { } shortArray) {
+            return shortArray;
         }
 
-        obj = bundle.GetChar(key, char.MaxValue);
-        if(obj < char.MaxValue) {
-            return obj;
+        var c = bundle.GetChar(key, char.MaxValue);
+        if(c < char.MaxValue) {
+            return c;
         }
 
-        obj = bundle.GetCharArray(key);
-        if(obj != null) {
-            return obj;
+        if(bundle.GetCharArray(key) is { } charArray) {
+            return charArray;
         }
 
-        obj = bundle.GetCharSequence(key);
-        if(obj != null) {
-            return obj;
+        if(bundle.GetCharSequence(key) is { } charSequence) {
+            return charSequence;
         }
 
-        obj = bundle.GetCharSequenceArray(key);
-        if(obj != null) {
-            return obj;
+        if(bundle.GetCharSequenceArray(key) is { } charSequenceArray) {
+            return charSequenceArray;
         }
 
-        obj = bundle.GetCharSequenceFormatted(key);
-        if(obj != null) {
-            return obj;
+        if(bundle.GetCharSequenceFormatted(key) is { } charSequenceFormatted) {
+            return charSequenceFormatted;
         }
 
-        obj = bundle.GetCharSequenceArrayFormatted(key);
-        if(obj != null) {
-            return obj;
+        if(bundle.GetCharSequenceArrayFormatted(key) is { } charSequenceArrayFormatted) {
+            return charSequenceArrayFormatted;
         }
 
-        obj = bundle.GetCharSequenceArrayList(key);
-        if(obj != null) {
-            return obj;
+        if(bundle.GetCharSequenceArrayList(key) is { } charSequenceArrayList) {
+            return charSequenceArrayList;
         }
 
-        obj = bundle.GetSize(key);
-        if(obj != null) {
-            return obj;
+        if(bundle.GetSize(key) is { } size) {
+            return size;
         }
 
-        obj = bundle.GetSizeF(key);
-        if(obj != null) {
-            return obj;
+        if(bundle.GetSizeF(key) is { } sizeF) {
+            return sizeF;
         }
 
         // TODO: crashes like this
-        // obj = bundle.GetByte(key, sbyte.MaxValue);
-        // if(obj != sbyte.MaxValue) {
-        //     return obj;
+        // var b = bundle.GetByte(key, sbyte.MaxValue);
+        // if(b != sbyte.MaxValue) {
+        //     return b;
         // }
 
-        obj = bundle.GetByteArray(key);
-        if(obj != null) {
-            return obj;
+        if(bundle.GetByteArray(key) is { } byteArray) {
+            return byteArray;
         }
 
-        obj = bundle.GetBooleanArray(key);
-        if(obj != null) {
-            return obj;
+        if(bundle.GetBooleanArray(key) is { } booleanArray) {
+            return booleanArray;
         }
 
-        obj = bundle.GetBundle(key);
-        if(obj != null) {
-            return obj;
+        if(bundle.GetBundle(key) is { } bdl) {
+            return bdl;
         }
 
-        obj = bundle.GetParcelable(key);
-        if(obj != null) {
-            return obj;
+        if(bundle.GetParcelable(key) is { } parcelable) {
+            return parcelable;
         }
 
-        obj = bundle.GetParcelableArray(key);
-        if(obj != null) {
-            return obj;
+        if(bundle.GetParcelableArray(key) is { } parcelableArray) {
+            return parcelableArray;
         }
 
-        obj = bundle.GetParcelableArrayList(key);
-        if(obj != null) {
-            return obj;
+        if(bundle.GetParcelableArrayList(key) is { } parcelableArrayList) {
+            return parcelableArrayList;
         }
 
-        obj = bundle.GetSparseParcelableArray(key);
-        if(obj != null) {
-            return obj;
+        if(bundle.GetSparseParcelableArray(key) is { } sparseParcelableArray) {
+            return sparseParcelableArray;
         }
 
-        obj = bundle.GetSerializable(key);
-        if(obj != null) {
-            return obj;
+        if(bundle.GetSerializable(key) is { } serializable) {
+            return serializable;
         }
 
         return bundle.GetBoolean(key);

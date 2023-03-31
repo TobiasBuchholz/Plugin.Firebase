@@ -1,6 +1,6 @@
-using Android.App;
 using Android.Content;
 using Firebase.Auth;
+using Microsoft.Maui.ApplicationModel;
 using Plugin.Firebase.Core;
 using Plugin.Firebase.Auth.Facebook.Platforms.Android;
 using Plugin.Firebase.Auth.Platforms.Android.Extensions;

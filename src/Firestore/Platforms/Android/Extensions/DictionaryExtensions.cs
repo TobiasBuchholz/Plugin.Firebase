@@ -10,6 +10,13 @@ namespace Plugin.Firebase.Firestore.Platforms.Android.Extensions;
 
 public static class DictionaryExtensions
 {
+    public static HashMap ToHashMap(this IDictionary<object, object> dictionary)
+    {
+        var map = new HashMap();
+        dictionary.ToList().ForEach(x => map.Put(x.Key, x.Value));
+        return map;
+    }
+
     public static HashMap ToHashMap(this IDictionary<string, object> dictionary)
     {
         var hashMap = new HashMap();

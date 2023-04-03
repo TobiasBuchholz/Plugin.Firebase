@@ -43,6 +43,14 @@ To get started add the `GoogleService-Info.plist` and the `google-services.json`
 Initialize the plugin in your `MauiProgram.cs` like this:
 
 ```c#
+using Plugin.Firebase.Auth;
+
+#if IOS
+using Plugin.Firebase.Core.Platforms.iOS;
+#else
+using Plugin.Firebase.Core.Platforms.Android;
+#endif
+
 public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
@@ -59,12 +67,12 @@ public static class MauiProgram
     {
         builder.ConfigureLifecycleEvents(events => {
 #if IOS
-            events.AddiOS(iOS => iOS.FinishedLaunching((app, launchOptions) => {
+            events.AddiOS(iOS => iOS.FinishedLaunching((_,__) => {
                 CrossFirebase.Initialize();
                 return false;
             }));
 #else
-            events.AddAndroid(android => android.OnCreate((activity, state) =>
+            events.AddAndroid(android => android.OnCreate((activity, _) =>
                 CrossFirebase.Initialize(activity)));
 #endif
         });

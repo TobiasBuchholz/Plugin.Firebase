@@ -22,6 +22,12 @@ If you encounter a build error, try to add the package via `dotnet add package P
 ```
 - Add the following line of code to the place where your app gets bootstrapped:
 ```c#
+#if IOS
+using Plugin.Firebase.Bundled.Platforms.iOS;
+#else
+using Plugin.Firebase.Bundled.Platforms.Android;
+#endif
+
   var settings = new CrossFirebaseSettings(
         isAnalyticsEnabled: true,
         isAuthEnabled: true,
@@ -34,8 +40,8 @@ If you encounter a build error, try to add the package via `dotnet add package P
         googleRequestIdToken: "537235599720-723cgj10dtm47b4ilvuodtp206g0q0fg.apps.googleusercontent.com")
 
 #if IOS
-  CrossFirebase.Initialize(app, launchOptions, settings);
+  CrossFirebase.Initialize(settings);
 #else
-  CrossFirebase.Initialize(activity, state, settings);
+  CrossFirebase.Initialize(activity, settings);
 #endif
 ```

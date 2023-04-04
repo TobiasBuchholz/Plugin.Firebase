@@ -20,17 +20,17 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
 
     public Task SetDataAsync(Dictionary<object, object> data, SetOptions options)
     {
+        var nsData = data.ToNSObjectDictionary();
         if(options == null) {
-            return Wrapped.SetDataAsync(data);
+            return Wrapped.SetDataAsync(nsData);
         }
-
         switch(options.Type) {
             case SetOptions.TypeMerge:
-                return Wrapped.SetDataAsync(data.ToNSObjectDictionary(), true);
+                return Wrapped.SetDataAsync(nsData, true);
             case SetOptions.TypeMergeFieldPaths:
-                return Wrapped.SetDataAsync(data.ToNSObjectDictionary(), options.FieldPaths.Select(x => new NativeFieldPath(x.ToArray())).ToArray());
+                return Wrapped.SetDataAsync(nsData, options.FieldPaths.Select(x => new NativeFieldPath(x.ToArray())).ToArray());
             case SetOptions.TypeMergeFields:
-                return Wrapped.SetDataAsync(data.ToNSObjectDictionary(), options.Fields.ToArray());
+                return Wrapped.SetDataAsync(nsData, options.Fields.ToArray());
             default:
                 throw new ArgumentException($"SetOptions type {options.Type} is not supported.");
         }

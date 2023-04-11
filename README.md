@@ -141,14 +141,14 @@ You are welcome to contribute to this project by creating a [Pull Request](https
 `Plugin.Firebase` is released under the MIT license. See the [LICENSE](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/LICENSE) file for details.
 
 ## Release notes
+- Version 2.0.*
+  - see docs of separate nuget packages
 - Version 2.0.0
   - All features have been split into separate nuget packages 
   - Cleaned up namespaces
   - Enable usage of `DateTime` in Firestore #137
   - Remove unnecessary dependency `Microsoft.CSharp` #143
   - Fix fcm token refresh by adding `DidReceiveRegistrationToken` method to `FirebaseCloudMessagingImplementation`
-  
-
 - Version 1.3.0
   - Get rid of newtonsoft.json, use system.text.json instead #119
   - Add crashlytics implementation #120

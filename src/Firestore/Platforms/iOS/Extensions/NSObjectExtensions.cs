@@ -126,6 +126,8 @@ public static class NSObjectExtensions
     public static NSObject ToNSObject(this object @this)
     {
         switch(@this) {
+            case NSObject x:
+                return x;
             case string x:
                 return new NSString(x);
             case int x:

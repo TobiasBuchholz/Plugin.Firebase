@@ -10,8 +10,12 @@ public static class NotificationBuilderExtensions
     public static NotificationCompat.Builder TrySetBigPictureStyle(this NotificationCompat.Builder @this, FCMNotification notification)
     {
         try {
-            var bitmap = DecodeBitmap(notification.ImageUrl);
-            return @this.SetLargeIcon(bitmap).SetStyle(new NotificationCompat.BigPictureStyle().BigPicture(bitmap).BigLargeIcon(null));
+            if(Uri.IsWellFormedUriString(notification.ImageUrl, UriKind.Absolute)) {
+                var bitmap = DecodeBitmap(notification.ImageUrl);
+                return @this.SetLargeIcon(bitmap).SetStyle(new NotificationCompat.BigPictureStyle().BigPicture(bitmap).BigLargeIcon(null));
+            } else {
+                return @this;
+            }
         } catch(Exception e) {
             Console.WriteLine($"[Plugin.Firebase]: Couldn't attach image to push notification: {e.Message}");
             return @this;

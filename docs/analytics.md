@@ -1,4 +1,4 @@
-# Analytics
+# Analyticss
 
 Firebase Analytics collects usage and behavior data for your app. The SDK logs two primary types of information:
 
@@ -29,3 +29,8 @@ Take a look at the [documentation](https://github.com/xamarin/GoogleApisForiOSCo
 Since code should be documenting itself you can also take a look at the following classes:
 - [src/.../IFirebaseAnalytics.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Analytics/IFirebaseAnalytics.cs)
 - [tests/.../AnalyticsFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Analytics/AnalyticsFixture.cs)
+
+## Release notes
+- Version 2.0.1
+  - Remove unnecessary UseMaui property from csproj files
+  - Readd net6.0 tfm

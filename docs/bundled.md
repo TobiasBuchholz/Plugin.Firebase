@@ -45,3 +45,10 @@ using Plugin.Firebase.Bundled.Platforms.Android;
   CrossFirebase.Initialize(activity, settings);
 #endif
 ```
+## Release notes
+- Version 2.0.2
+  - Plugin.Firebase.CloudMessaging 2.0.2
+  - Plugin.Firebase.Firestore 2.0.2
+- Version 2.0.1
+  - Remove unnecessary UseMaui property from csproj files
+  - Readd net6.0 tfm

@@ -82,3 +82,8 @@ Since code should be documenting itself you can also take a look at the followin
 - [src/.../IFirebaseDynamicLinks.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/DynamicLinks/IFirebaseDynamicLinks.cs)
 - [tests/.../DynamicLinksFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/DynamicLinks/DynamicLinksFixture.cs)
 - [sample/.../DynamicLinkService.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/sample/Playground/Common/Services/DynamicLink/DynamicLinkService.cs)
+
+## Release notes
+- Version 2.0.1
+  - Remove unnecessary UseMaui property from csproj files
+  - Readd net6.0 tfm

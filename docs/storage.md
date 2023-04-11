@@ -24,3 +24,8 @@ Since code should be documenting itself you can also take a look at the followin
 - [src/.../IStorageTransferTask.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Storage/IStorageTransferTask.cs)
 - [src/.../IStorageReference.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Storage/IStorageReference.cs)
 - [tests/.../StorageFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Firestore/StorageFixture.cs)
+
+## Release notes
+- Version 2.0.1
+  - Remove unnecessary UseMaui property from csproj files
+  - Readd net6.0 tfm

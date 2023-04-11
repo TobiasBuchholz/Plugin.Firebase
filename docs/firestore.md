@@ -78,3 +78,11 @@ Since code should be documenting itself you can also take a look at the followin
 - [src/.../ITransaction.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Firestore/ITransaction.cs)
 - [src/.../IWriteBatch.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Firestore/IWriteBatch.cs)
 - [tests/.../FirestoreFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Firestore/FirestoreFixture.cs)
+
+## Release notes
+- Version 2.0.2
+  - re-add tohashmap extension for firestore setdataasync method when data is a dictionary of objects
+  - fix firestore setdataasync for ios
+- Version 2.0.1
+  - Remove unnecessary UseMaui property from csproj files
+  - Readd net6.0 tfm

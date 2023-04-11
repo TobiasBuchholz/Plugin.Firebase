@@ -40,3 +40,8 @@ You can use [Facebook Authentication](https://developers.facebook.com/docs/faceb
   <string name="fb_login_protocol_scheme">fb12345678</string>
 ```
 - Call `FirebaseAuthFacebookImplementation.HandleActivityResultAsync(requestCode, resultCode, data);` from `MainActivity.OnActivityResult(...)`
+
+## Release notes
+- Version 2.0.1
+  - Remove unnecessary UseMaui property from csproj files
+  - Readd net6.0 tfm

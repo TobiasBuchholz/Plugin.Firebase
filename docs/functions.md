@@ -23,3 +23,8 @@ Since code should be documenting itself you can also take a look at the followin
 - [src/.../IHttpsCallable.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Functions/IHttpsCallable.cs)
 - [tests/.../FunctionsFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Functions/FunctionsFixture.cs)
 - [tests/cloud-functions/.../index.ts](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/cloud-functions/functions/src/index.ts)
+
+## Release notes
+- Version 2.0.1
+  - Remove unnecessary UseMaui property from csproj files
+  - Readd net6.0 tfm

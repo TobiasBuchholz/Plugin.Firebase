@@ -80,6 +80,8 @@ Since code should be documenting itself you can also take a look at the followin
 - [tests/.../FirestoreFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Firestore/FirestoreFixture.cs)
 
 ## Release notes
+- Version 2.0.3
+  - Use `Debug.WriteLine()` in object extensions (issue #174)
 - Version 2.0.2
   - re-add tohashmap extension for firestore setdataasync method when data is a dictionary of objects
   - fix firestore setdataasync for ios

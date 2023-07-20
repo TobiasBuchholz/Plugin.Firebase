@@ -5,6 +5,7 @@ using AndroidX.Collection;
 using Firebase.Firestore;
 using IList = System.Collections.IList;
 using NativeFirebase = Firebase;
+using System.Diagnostics;
 
 namespace Plugin.Firebase.Firestore.Platforms.Android.Extensions;
 
@@ -149,7 +150,7 @@ public static class JavaObjectExtensions
                 var attribute = (FirestorePropertyAttribute) attributes[0];
                 var value = @this[attribute.PropertyName];
                 if(value == null) {
-                    Console.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because it's not contained in the dictionary.");
+                    Debug.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because it's not contained in the dictionary.");
                 } else if(value is Java.Lang.Object javaValue) {
                     property.SetValue(instance, javaValue.ToObject(property.PropertyType));
                 } else if(property.PropertyType == typeof(float)) {
@@ -164,11 +165,11 @@ public static class JavaObjectExtensions
                 var attribute = (FirestoreServerTimestampAttribute) timestampAttributes[0];
                 var value = @this[attribute.PropertyName];
                 if(value == null) {
-                    Console.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because value is null");
+                    Debug.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because value is null");
                 } else if(property.PropertyType == typeof(DateTimeOffset) && value is NativeFirebase.Timestamp timestamp) {
                     property.SetValue(instance, timestamp.ToDate().ToDateTimeOffset());
                 } else {
-                    Console.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because properties that use the {nameof(FirestoreServerTimestampAttribute)} need to be of type {nameof(DateTimeOffset)} and value of type {nameof(NativeFirebase.Timestamp)}");
+                    Debug.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because properties that use the {nameof(FirestoreServerTimestampAttribute)} need to be of type {nameof(DateTimeOffset)} and value of type {nameof(NativeFirebase.Timestamp)}");
                 }
             }
         }

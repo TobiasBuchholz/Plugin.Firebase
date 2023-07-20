@@ -103,17 +103,16 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             return await SignInWithCredentialAsync(credential);
         } catch(NSErrorException e) {
             if(e.Code == (long) AuthErrorCode.UserNotFound && createsUserAutomatically) {
-                await CreateUserAsync(email, password);
-                return await SignInWithEmailAndPasswordAsync(email, password, false);
+                return await CreateUserAsync(email, password);
             }
             throw GetFirebaseAuthException(e);
         }
     }
 
-    public async Task CreateUserAsync(string email, string password)
+    public async Task<IFirebaseUser> CreateUserAsync(string email, string password)
     {
         try {
-            await _emailAuth.CreateUserAsync(email, password);
+            return await _emailAuth.CreateUserAsync(email, password);
         } catch(NSErrorException e) {
             throw GetFirebaseAuthException(e);
         }

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Diagnostics;
 using Firebase.CloudFirestore;
 using Foundation;
 using Plugin.Firebase.Core.Platforms.iOS.Extensions;
@@ -27,7 +28,7 @@ public static class NSObjectExtensions
                 var attribute = (FirestorePropertyAttribute) attributes[0];
                 var value = @this[attribute.PropertyName];
                 if(value == null) {
-                    Console.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because it's not contained in the NSDictionary.");
+                    Debug.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because it's not contained in the NSDictionary.");
                 } else {
                     property.SetValue(instance, value.ToObject(property.PropertyType));
                 }
@@ -38,11 +39,11 @@ public static class NSObjectExtensions
                 var attribute = (FirestoreServerTimestampAttribute) timestampAttributes[0];
                 var value = @this[attribute.PropertyName];
                 if(value == null) {
-                    Console.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because value is null");
+                    Debug.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because value is null");
                 } else if(property.PropertyType == typeof(DateTimeOffset) && value is Timestamp timestamp) {
                     property.SetValue(instance, timestamp.ToDateTimeOffset());
                 } else {
-                    Console.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because properties that use the {nameof(FirestoreServerTimestampAttribute)} need to be of type {nameof(DateTimeOffset)} and value of type {nameof(Timestamp)}");
+                    Debug.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because properties that use the {nameof(FirestoreServerTimestampAttribute)} need to be of type {nameof(DateTimeOffset)} and value of type {nameof(Timestamp)}");
                 }
             }
         }

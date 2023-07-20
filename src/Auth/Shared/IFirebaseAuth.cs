@@ -16,7 +16,8 @@ public interface IFirebaseAuth : IDisposable
     /// </summary>
     /// <param name="email">The user’s email address.</param>
     /// <param name="password">The user’s password.</param>
-    Task CreateUserAsync(string email, string password);
+    /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
+    Task<IFirebaseUser> CreateUserAsync(string email, string password);
 
     /// <summary>
     /// Asynchronously signs in to Firebase with the given Auth token.

@@ -10,9 +10,10 @@ namespace Plugin.Firebase.Auth.Platforms.iOS.Email
             return Task.FromResult(EmailAuthProvider.GetCredentialFromPassword(email, password));
         }
 
-        public Task CreateUserAsync(string email, string password)
+        public async Task<IFirebaseUser> CreateUserAsync(string email, string password)
         {
-            return FirebaseAuth.DefaultInstance.CreateUserAsync(email, password);
+            var result = await FirebaseAuth.DefaultInstance.CreateUserAsync(email, password);
+            return new FirebaseUserWrapper(result.User);
         }
     }
 }

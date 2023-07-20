@@ -9,8 +9,9 @@ public sealed class EmailAuth
         return Task.FromResult(EmailAuthProvider.GetCredential(email, password));
     }
 
-    public Task CreateUserAsync(string email, string password)
+    public async Task<IFirebaseUser> CreateUserAsync(string email, string password)
     {
-        return FirebaseAuth.Instance.CreateUserWithEmailAndPasswordAsync(email, password);
+        var result = await FirebaseAuth.Instance.CreateUserWithEmailAndPasswordAsync(email, password);
+        return new FirebaseUserWrapper(result.User);
     }
 }

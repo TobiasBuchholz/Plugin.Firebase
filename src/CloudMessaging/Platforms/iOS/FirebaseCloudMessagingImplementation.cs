@@ -66,8 +66,15 @@ public sealed class FirebaseCloudMessagingImplementation : NSObject, IFirebaseCl
     [Export("userNotificationCenter:willPresentNotification:withCompletionHandler:")]
     public void WillPresentNotification(UNUserNotificationCenter center, UNNotification notification, Action<UNNotificationPresentationOptions> completionHandler)
     {
-        OnNotificationReceived(notification.ToFCMNotification());
-        completionHandler(UNNotificationPresentationOptions.Alert);
+        var fcmNotification = notification.ToFCMNotification();
+        OnNotificationReceived(fcmNotification);
+       
+       if(!fcmNotification.Data.ContainsKey("silent"))
+        {
+            completionHandler(UNNotificationPresentationOptions.Alert);
+            
+        }
+        
     }
 
     public void OnNotificationReceived(FCMNotification message)

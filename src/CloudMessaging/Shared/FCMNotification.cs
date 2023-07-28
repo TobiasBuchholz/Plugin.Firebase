@@ -27,8 +27,10 @@ namespace Plugin.Firebase.CloudMessaging
             return $"[FCMNotification: Body={Body}, Title={Title}, Data={(Data == null ? "" : string.Join(", ", Data.Select(kvp => $"{kvp.Key}:{kvp.Value}")))}]";
         }
 
+
         public string Body => _body ?? (Data != null && Data.ContainsKey("body") ? Data["body"] : "");
         public string Title => _title ?? (Data != null && Data.ContainsKey("title") ? Data["title"] : "");
+        public bool IsSilentInForeground => Data != null && Data.ContainsKey("is_silent_in_foreground") && bool.TryParse(Data["is_silent_in_foreground"], out var value) && value;
         public string ImageUrl { get; }
         public IDictionary<string, string> Data { get; }
     }

@@ -74,11 +74,40 @@ Since code should be documenting itself you can also take a look at the followin
 - [src/.../IFirebaseCloudMessaging.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/CloudMessaging/IFirebaseCloudMessaging.cs)
 - [sample/.../PushNotificationService.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/sample/Playground/Common/Services/PushNotification/PushNotificationService.cs)
 
+## Test with curl
+
+```
+curl --location 'https://fcm.googleapis.com/fcm/send' \
+--header 'Authorization: key=<your-api-token-from-firebase-console-cloud-messaging-project-settings>' \
+--header 'Content-Type: application/json' \
+--data '{
+ "to" : "<your-device-fcm-token>",
+ "collapse_key" : "type_a",
+ "mutable_content": true,
+ "notification" : {
+     "title": "Knock knock",
+     "body" : "Who's there?",
+     "badge": 1
+ },
+ "data" : {
+     "body" : "body of your notification in data",
+     "title": "title of your notification in data",
+     "is_silent_in_foreground": false
+ }
+}'
+```
+
+#### Extra flags
+##### is_silent_in_foreground
+- add `"is_silent_in_foreground": true` to the `data` payload to prevent showing the local push notification - as the name suggests, this only works when the app is in foreground otherwise the notifications will still be shown
+
 ## Troubleshooting
 
 If you are having trouble receiving push notifications on your device, take a look at this helpful https://github.com/TobiasBuchholz/Plugin.Firebase/issues/145#issuecomment-1455182588 by @andyzukunft.
 
 ## Release notes
+- Version 2.0.3
+  - Enable silent push notifications when the app is in foreground (PR #188)
 - Version 2.0.2
   - Prevent error message when no image is attached to push notifications
 - Version 2.0.1

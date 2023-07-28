@@ -66,11 +66,8 @@ public sealed class FirebaseCloudMessagingImplementation : DisposableBase, IFire
 
     private static void HandleShowLocalNotificationIfNeeded(FCMNotification fcmNotification)
     {
-        if(!string.IsNullOrEmpty(fcmNotification.Title) || !string.IsNullOrEmpty(fcmNotification.Body)) {
-            if(!fcmNotification.Data.ContainsKey("silent"))
-            {
-                HandleShowLocalNotification(fcmNotification);
-            }
+        if(!fcmNotification.IsSilentInForeground) {
+            HandleShowLocalNotification(fcmNotification);
         }
     }
 

@@ -5,7 +5,7 @@ using Query = Firebase.CloudFirestore.Query;
 
 namespace Plugin.Firebase.Firestore.Platforms.iOS;
 
-public sealed class QueryWrapper : IQuery
+public class QueryWrapper : IQuery
 {
     private readonly Query _wrapped;
 

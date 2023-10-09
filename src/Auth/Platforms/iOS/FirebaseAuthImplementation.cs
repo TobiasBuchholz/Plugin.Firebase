@@ -1,10 +1,8 @@
 using Firebase.Auth;
-using Google.SignIn;
 using Microsoft.Maui.Authentication;
 using Microsoft.Maui.Devices;
 using Plugin.Firebase.Auth.Platforms.iOS.Email;
 using Plugin.Firebase.Auth.Platforms.iOS.Extensions;
-using Plugin.Firebase.Auth.Platforms.iOS.Google;
 using Plugin.Firebase.Auth.Platforms.iOS.PhoneNumber;
 using Plugin.Firebase.Core;
 using Plugin.Firebase.Core.Exceptions;
@@ -16,27 +14,14 @@ namespace Plugin.Firebase.Auth;
 
 public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
 {
-    public static void Initialize()
-    {
-        var googleServiceDictionary = NSDictionary.FromFile("GoogleService-Info.plist");
-        SignIn.SharedInstance.ClientId = googleServiceDictionary["CLIENT_ID"].ToString();
-    }
-
-    public static bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options)
-    {
-        return SignIn.SharedInstance.HandleUrl(url);
-    }
-
     private readonly FirebaseAuth _firebaseAuth;
     private readonly EmailAuth _emailAuth;
-    private static Lazy<GoogleAuth> _googleAuth;
     private readonly PhoneNumberAuth _phoneNumberAuth;
 
     public FirebaseAuthImplementation()
     {
         _firebaseAuth = FirebaseAuth.DefaultInstance;
         _emailAuth = new EmailAuth();
-        _googleAuth = new Lazy<GoogleAuth>(() => new GoogleAuth());
         _phoneNumberAuth = new PhoneNumberAuth();
 
         // apply the default app language for sending emails
@@ -128,16 +113,6 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         }
     }
 
-    public async Task<IFirebaseUser> SignInWithGoogleAsync()
-    {
-        try {
-            var credential = await _googleAuth.Value.GetCredentialAsync(ViewController);
-            return await SignInWithCredentialAsync(credential);
-        } catch(NSErrorException e) {
-            throw GetFirebaseAuthException(e);
-        }
-    }
-
     public async Task<IFirebaseUser> SignInWithAppleAsync()
     {
         try {
@@ -199,17 +174,6 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         }
     }
 
-    public async Task<IFirebaseUser> LinkWithGoogleAsync()
-    {
-        try {
-            var credential = await _googleAuth.Value.GetCredentialAsync(ViewController);
-            return await LinkWithCredentialAsync(credential);
-        } catch(NSErrorException e) {
-            _googleAuth.Value.SignOut();
-            throw GetFirebaseAuthException(e);
-        }
-    }
-
     public async Task<string[]> FetchSignInMethodsAsync(string email)
     {
         try {
@@ -230,7 +194,6 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
 
     public Task SignOutAsync()
     {
-        _googleAuth.Value.SignOut();
         _firebaseAuth.SignOut(out var e);
         return Task.CompletedTask;
     }

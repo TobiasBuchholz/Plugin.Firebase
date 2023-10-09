@@ -51,12 +51,6 @@ public interface IFirebaseAuth : IDisposable
     Task<IFirebaseUser> SignInWithEmailLinkAsync(string email, string link);
 
     /// <summary>
-    /// Signs in using a google account.
-    /// </summary>
-    /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
-    Task<IFirebaseUser> SignInWithGoogleAsync();
-
-    /// <summary>
     /// Signs in using a Apple account.
     /// </summary>
     /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
@@ -83,12 +77,6 @@ public interface IFirebaseAuth : IDisposable
     /// <param name="password">The user’s password.</param>
     /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
     Task<IFirebaseUser> LinkWithEmailAndPasswordAsync(string email, string password);
-
-    /// <summary>
-    /// Link the signed in user with a google account.
-    /// </summary>
-    /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
-    Task<IFirebaseUser> LinkWithGoogleAsync();
 
     /// <summary>
     /// Fetches the list of all sign-in methods previously used for the provided email address.

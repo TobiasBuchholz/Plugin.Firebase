@@ -1,7 +1,5 @@
 using Firebase.Auth;
-using Foundation;
 using Google.SignIn;
-using UIKit;
 
 namespace Plugin.Firebase.Auth.Platforms.iOS.Google;
 

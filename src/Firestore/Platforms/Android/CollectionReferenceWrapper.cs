@@ -185,4 +185,6 @@ public sealed class CollectionReferenceWrapper : ICollectionReference
     {
         return new QuerySnapshotWrapper<T>(await _wrapped.Get(source.ToNative()).AsAsync<QuerySnapshot>());
     }
+
+    public IDocumentReference Parent => _wrapped.Parent.ToAbstract();
 }

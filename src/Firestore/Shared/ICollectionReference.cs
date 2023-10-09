@@ -264,4 +264,9 @@ public interface ICollectionReference
     /// <param name="source">A value to configure the get behavior.</param>
     /// <typeparam name="T">The type of the document items.</typeparam>
     Task<IQuerySnapshot<T>> GetDocumentsAsync<T>(Source source = Source.Default);
+    
+    /// <summary>
+    /// A reference to the document to which this <c>ICollectionReference</c> belongs.
+    /// </summary>
+    IDocumentReference Parent { get; }
 }

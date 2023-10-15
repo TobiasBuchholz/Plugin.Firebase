@@ -103,6 +103,10 @@ curl --location 'https://fcm.googleapis.com/fcm/send' \
 
 ## Troubleshooting
 
+### Error "Java.Lang.IllegalStateException: 'Default FirebaseApp is not initialized in this process com.name.package. Make sure to call FirebaseApp.initializeApp(Context) first.'"
+This indicates that you either do not provide a valid google-service.json or at the very least your Maui.csproj `ApplicationId` does not match the Firebase application id.
+
+### Message not showing on device
 If you are having trouble receiving push notifications on your device, take a look at this helpful https://github.com/TobiasBuchholz/Plugin.Firebase/issues/145#issuecomment-1455182588 by @andyzukunft.
 
 ## Release notes

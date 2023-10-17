@@ -15,6 +15,11 @@ public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseF
         _firestore = FirebaseFirestore.Instance;
     }
 
+    public IQuery GetCollectionGroup(string collectionId)
+    {
+        return new QueryWrapper(_firestore.CollectionGroup(collectionId));
+    }
+
     public ICollectionReference GetCollection(string collectionPath)
     {
         return new CollectionReferenceWrapper(_firestore.Collection(collectionPath));

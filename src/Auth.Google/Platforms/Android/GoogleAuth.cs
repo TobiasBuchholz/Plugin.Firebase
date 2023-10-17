@@ -1,4 +1,3 @@
-using Android.App;
 using Android.Content;
 using Android.Gms.Auth.Api.SignIn;
 using Android.Gms.Extensions;
@@ -7,7 +6,7 @@ using Firebase.Auth;
 using GoogleApi = Android.Gms.Auth.Api.Auth;
 using GmsTask = Android.Gms.Tasks.Task;
 
-namespace Plugin.Firebase.Auth.Platforms.Android.Google;
+namespace Plugin.Firebase.Auth.Google.Platforms.Android;
 
 public sealed class GoogleAuth
 {

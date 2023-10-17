@@ -7,8 +7,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
 
         <!--Assembly and Namespace info -->
-        <AssemblyName>Plugin.Firebase.Auth</AssemblyName>
-        <RootNamespace>Plugin.Firebase.Auth</RootNamespace>
+        <AssemblyName>Plugin.Firebase.Auth.Google</AssemblyName>
+        <RootNamespace>Plugin.Firebase.Auth.Google</RootNamespace>
 
         <Product>$(AssemblyName) ($(TargetFramework))</Product>
         <NeutralLanguage>en</NeutralLanguage>
@@ -20,8 +20,8 @@
         <DefineConstants>$(DefineConstants);</DefineConstants>
 
         <!--Assembly and Namespace info -->
-        <PackageId>Plugin.Firebase.Auth</PackageId>
-        <PackageVersion>2.0.3</PackageVersion>
+        <PackageId>Plugin.Firebase.Auth.Google</PackageId>
+        <PackageVersion>2.0.1</PackageVersion>
 
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/TobiasBuchholz/Plugin.Firebase</PackageProjectUrl>
@@ -40,7 +40,7 @@
         <!--Version of C# to use -->
         <LangVersion>default</LangVersion>
     </PropertyGroup>
-    
+
     <!-- Define what happens on build and release -->
     <PropertyGroup Condition=" '$(Configuration)'=='Debug' ">
         <DebugType>full</DebugType>
@@ -59,7 +59,7 @@
         <None Remove=".vs\**" />
         <None Remove=".idea\**" />
         <None Include="..\..\art\icon.png" Pack="true" PackagePath="" />
-        
+
         <Compile Include="Shared\**\*.cs" />
     </ItemGroup>
 
@@ -73,16 +73,17 @@
     
     <!-- project references -->
     <ItemGroup>
+        <ProjectReference Include="..\Auth\Auth.csproj" />
         <ProjectReference Include="..\Core\Core.csproj" />
     </ItemGroup>
 
     <!-- nuget packages -->
     <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
-        <PackageReference Include="Xamarin.Firebase.Auth" Version="121.0.8" />
+        <PackageReference Include="Xamarin.GooglePlayServices.Auth" Version="120.2.0.2" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
-        <PackageReference Include="Xamarin.Firebase.iOS.Auth" Version="8.10.0.3" />
+        <PackageReference Include="Xamarin.Google.iOS.SignIn" Version="5.0.2.4" />
     </ItemGroup>
-    
+
 </Project>

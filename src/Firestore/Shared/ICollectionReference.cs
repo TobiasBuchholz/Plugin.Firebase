@@ -23,4 +23,9 @@ public interface ICollectionReference : IQuery
     /// </summary>
     /// <param name="data">An object containing the data for the new document.</param>
     Task<IDocumentReference> AddDocumentAsync(object data);
+    
+    /// <summary>
+    /// A reference to the document to which this <c>ICollectionReference</c> belongs.
+    /// </summary>
+    IDocumentReference Parent { get; }
 }

@@ -29,4 +29,6 @@ public sealed class CollectionReferenceWrapper : QueryWrapper, ICollectionRefere
         var documentReference = (DocumentReference) await _wrapped.Add(data.ToHashMap());
         return new DocumentReferenceWrapper(documentReference);
     }
+
+    public IDocumentReference Parent => _wrapped.Parent.ToAbstract();
 }

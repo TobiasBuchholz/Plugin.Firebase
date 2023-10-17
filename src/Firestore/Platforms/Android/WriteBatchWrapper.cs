@@ -63,4 +63,9 @@ public sealed class WriteBatchWrapper : IWriteBatch
     {
         return _wrapped.Commit().AsAsync();
     }
+
+    public void CommitLocal()
+    {
+        _wrapped.Commit();
+    }
 }

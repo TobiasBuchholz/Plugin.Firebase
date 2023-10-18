@@ -27,10 +27,6 @@ public static class CrossFirebase
             FirebaseAnalyticsImplementation.Initialize(activity);
         }
 
-        if(settings.IsAuthEnabled) {
-            FirebaseAuthImplementation.Initialize(settings.GoogleRequestIdToken ?? "123-abc");
-        }
-
         FirebaseCrashlytics.Instance.SetCrashlyticsCollectionEnabled(settings.IsCrashlyticsEnabled);
 
         Console.WriteLine($"Plugin.Firebase initialized with the following settings:\n{settings}");

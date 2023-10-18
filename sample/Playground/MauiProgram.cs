@@ -12,6 +12,7 @@ using Playground.Features.RemoteConfig;
 using Playground.Features.Storage;
 using Plugin.Firebase.Auth;
 using Plugin.Firebase.Auth.Facebook;
+using Plugin.Firebase.Auth.Google;
 using Plugin.Firebase.CloudMessaging;
 using Plugin.Firebase.DynamicLinks;
 using Plugin.Firebase.Functions;
@@ -70,16 +71,21 @@ public static class MauiProgram
             events.AddiOS(iOS => iOS.FinishedLaunching((app, launchOptions) => {
                 CrossFirebase.Initialize(CreateCrossFirebaseSettings());
                 FirebaseAuthFacebookImplementation.Initialize(app, launchOptions, "151743924915235", "Plugin Firebase Playground");
+                FirebaseAuthGoogleImplementation.Initialize();
                 return false;
             }));
 #else
-            events.AddAndroid(android => android.OnCreate((activity, _) =>
-                CrossFirebase.Initialize(activity, CreateCrossFirebaseSettings())));
+            events.AddAndroid(android => android.OnCreate((activity, _) => {
+                var settings = CreateCrossFirebaseSettings();
+                CrossFirebase.Initialize(activity, settings);
+                FirebaseAuthGoogleImplementation.Initialize(settings.GoogleRequestIdToken);
+            }));
 #endif
         });
 
         builder.Services.AddSingleton(_ => CrossFirebaseAuth.Current);
         builder.Services.AddSingleton(_ => CrossFirebaseAuthFacebook.Current);
+        builder.Services.AddSingleton(_ => CrossFirebaseAuthGoogle.Current);
         builder.Services.AddSingleton(_ => CrossFirebaseCloudMessaging.Current);
         builder.Services.AddSingleton(_ => CrossFirebaseDynamicLinks.Current);
         builder.Services.AddSingleton(_ => CrossFirebaseFunctions.Current);

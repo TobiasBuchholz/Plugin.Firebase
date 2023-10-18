@@ -22,10 +22,6 @@ public static class CrossFirebase
             App.Configure(name, firebaseOptions);
         }
 
-        if(settings.IsAuthEnabled) {
-            FirebaseAuthImplementation.Initialize();
-        }
-
         if(settings.IsCloudMessagingEnabled) {
             FirebaseCloudMessagingImplementation.Initialize();
         }

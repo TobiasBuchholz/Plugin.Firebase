@@ -80,6 +80,11 @@ Since code should be documenting itself you can also take a look at the followin
 - [tests/.../FirestoreFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Firestore/FirestoreFixture.cs)
 
 ## Release notes
+- Version 2.0.4
+  - Firestore CollectionReference inherits Query (PR #205)
+  - Adding GetCollectionGroup to FirebaseFirestore (PR #207)
+  - Adding synchronous versions of WriteBatch.Commit() (PR #208)
+  - Added the Parent property to CollectionReference. (PR #209)
 - Version 2.0.3
   - Use `Debug.WriteLine()` in object extensions (issue #174)
 - Version 2.0.2

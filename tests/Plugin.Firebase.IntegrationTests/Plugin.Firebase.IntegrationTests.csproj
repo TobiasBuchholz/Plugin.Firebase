@@ -63,4 +63,8 @@
       <GoogleServicesJson Include="google-services.json" />
     </ItemGroup>
 
+    <!-- needed for android build to work -->
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net6.0-android|AnyCPU'">
+      <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+    </PropertyGroup>
 </Project>

@@ -66,5 +66,10 @@ namespace Plugin.Firebase.Android.Firestore
         {
             return _wrapped.Commit().AsAsync();
         }
+
+        public void CommitLocal()
+        {
+            _wrapped.Commit();
+        }
     }
 }

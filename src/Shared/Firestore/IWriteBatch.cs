@@ -77,5 +77,10 @@ namespace Plugin.Firebase.Firestore
         /// Commits all of the writes in this write batch as a single atomic unit.
         /// </summary>
         Task CommitAsync();
+        
+        /// <summary>
+        /// Commits all of the writes in this write batch as a single atomic unit. Returns immediately, without waiting for the commit to complete.
+        /// </summary>
+        void CommitLocal();
     }
 }

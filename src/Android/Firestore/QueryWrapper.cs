@@ -12,7 +12,7 @@ using Source = Plugin.Firebase.Firestore.Source;
 
 namespace Plugin.Firebase.Android.Firestore
 {
-    public sealed class QueryWrapper : IQuery
+    public class QueryWrapper : IQuery
     {
         private readonly Query _wrapped;
 

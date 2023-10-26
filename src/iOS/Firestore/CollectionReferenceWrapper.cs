@@ -207,6 +207,6 @@ namespace Plugin.Firebase.iOS.Firestore
             return tcs.Task;
         }
         
-        public IDocumentReference Parent => _wrapped.Parent.ToAbstract();
+        public IDocumentReference Parent => _wrapped.Parent?.ToAbstract();
     }
 }

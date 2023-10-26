@@ -191,5 +191,7 @@ namespace Plugin.Firebase.Android.Firestore
         {
             return new QuerySnapshotWrapper<T>(await _wrapped.Get(source.ToNative()).AsAsync<QuerySnapshot>());
         }
+        
+        public IDocumentReference Parent => _wrapped.Parent.ToAbstract();
     }
 }

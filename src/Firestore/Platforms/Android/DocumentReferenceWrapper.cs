@@ -100,6 +100,6 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
 
     public string Id => Wrapped.Id;
     public string Path => Wrapped.Path;
-    public ICollectionReference Parent => new CollectionReferenceWrapper(Wrapped.Parent);
+    public ICollectionReference Parent => Wrapped.Parent == null ? null : new CollectionReferenceWrapper(Wrapped.Parent);
     public DocumentReference Wrapped { get; }
 }

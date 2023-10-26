@@ -30,5 +30,5 @@ public sealed class CollectionReferenceWrapper : QueryWrapper, ICollectionRefere
         return new DocumentReferenceWrapper(documentReference);
     }
 
-    public IDocumentReference Parent => _wrapped.Parent.ToAbstract();
+    public IDocumentReference Parent => _wrapped.Parent?.ToAbstract();
 }

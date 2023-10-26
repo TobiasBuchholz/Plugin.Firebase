@@ -38,5 +38,5 @@ public sealed class CollectionReferenceWrapper : QueryWrapper, ICollectionRefere
         return tcs.Task;
     }
 
-    public IDocumentReference Parent => _wrapped.Parent.ToAbstract();
+    public IDocumentReference Parent => _wrapped.Parent?.ToAbstract();
 }

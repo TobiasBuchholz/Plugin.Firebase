@@ -16,6 +16,11 @@ namespace Plugin.Firebase.Firestore
         {
             _firestore = FirebaseFirestore.Instance;
         }
+        
+        public IQuery GetCollectionGroup(string collectionId)
+        {
+            return new QueryWrapper(_firestore.CollectionGroup(collectionId));
+        }
 
         public ICollectionReference GetCollection(string collectionPath)
         {

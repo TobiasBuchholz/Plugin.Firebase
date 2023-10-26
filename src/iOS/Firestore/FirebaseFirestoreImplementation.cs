@@ -17,6 +17,11 @@ namespace Plugin.Firebase.Firestore
         {
             _firestore = FBFirestore.SharedInstance;
         }
+        
+        public IQuery GetCollectionGroup(string collectionId)
+        {
+            return new QueryWrapper(_firestore.GetCollectionGroup(collectionId));
+        }
 
         public ICollectionReference GetCollection(string collectionPath)
         {

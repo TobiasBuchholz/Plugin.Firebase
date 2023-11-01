@@ -75,5 +75,10 @@ namespace Plugin.Firebase.iOS.Firestore
         {
             return _wrapped.CommitAsync();
         }
+
+        public void CommitLocal()
+        {
+            _wrapped.Commit();
+        }
     }
 }

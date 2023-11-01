@@ -32,6 +32,6 @@ namespace Plugin.Firebase.Android.Firestore
             return new DocumentReferenceWrapper(documentReference);
         }
 
-        public IDocumentReference Parent => _wrapped.Parent.ToAbstract();
+        public IDocumentReference Parent => _wrapped.Parent?.ToAbstract();
     }
 }

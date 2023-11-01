@@ -152,5 +152,15 @@ namespace Plugin.Firebase.Auth
         /// The currently signed in <c>IFirebaseUser</c> object or <c>null</c> if the user is signed out.
         /// </summary>
         IFirebaseUser CurrentUser { get; }
+        
+        /// <summary>
+        /// Registers a block as an "auth state did change" listener. To be invoked when the block is registered, a user with a different UID from the current user has signed in, or the current user has signed out.
+        /// </summary>
+        /// <remarks>
+        /// The block is invoked immediately after it according to it's standard invocation semantics, asynchronously on the main thread. Users should pay special attention to making sure the block does not inadvertently retain objects which should not be retained by the long-lived block. The block itself will be retained until it is unregistered or until the Auth instance is otherwise deallocated.
+        /// </remarks>
+        /// <param name="callback">The block of code to run.</param>
+        /// <returns>An <c>IDisposable</c> that unregisters the listener.</returns>
+        IDisposable AddAuthStateDidChangeListener(Action<IFirebaseAuth, IFirebaseUser> callback);
     }
 }

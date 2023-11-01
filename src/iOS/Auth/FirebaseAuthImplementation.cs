@@ -307,6 +307,16 @@ namespace Plugin.Firebase.Auth
         {
             _firebaseAuth.UseEmulatorWithHost(host, port);
         }
+        
+        public IDisposable AddAuthStateDidChangeListener(Action<IFirebaseAuth, IFirebaseUser> callback)
+        {
+            try {
+                var listener = _firebaseAuth.AddAuthStateDidChangeListener((_, user) => callback(this, user.ToAbstract()));
+                return new DisposableWithAction(() => _firebaseAuth.RemoveAuthStateDidChangeListener(listener));
+            } catch(NSErrorException e) {
+                throw GetFirebaseAuthException(e);
+            }
+        }
 
         private static UIViewController ViewController {
             get {

@@ -272,6 +272,34 @@ namespace Plugin.Firebase.Auth
         {
             _firebaseAuth.UseEmulator(host, port);
         }
+        
+        private class AuthStateListener : Java.Lang.Object, FirebaseAuth.IAuthStateListener
+        {
+            private readonly Action<IFirebaseAuth, IFirebaseUser> _callback;
+            private readonly IFirebaseAuth _auth;
+        
+            public AuthStateListener(IFirebaseAuth auth, Action<IFirebaseAuth, IFirebaseUser> callback)
+            {
+                _auth = auth;
+                _callback = callback;
+            }
+        
+            public void OnAuthStateChanged(FirebaseAuth auth)
+            {
+                _callback.Invoke(_auth, auth.CurrentUser?.ToAbstract());
+            }
+        }
+    
+        public IDisposable AddAuthStateDidChangeListener(Action<IFirebaseAuth, IFirebaseUser> callback)
+        {
+            try {
+                var authStateListener = new AuthStateListener(this, callback);
+                _firebaseAuth.AddAuthStateListener(authStateListener);
+                return new DisposableWithAction(() => _firebaseAuth.RemoveAuthStateListener(authStateListener));
+            } catch(Exception e) {
+                throw GetFirebaseAuthException(e);
+            }
+        }
 
         private static FragmentActivity FragmentActivity =>
             Activity as FragmentActivity ?? throw new NullReferenceException($"Current Activity is either null or not of type {nameof(FragmentActivity)}, which is mandatory for sign in with Google");

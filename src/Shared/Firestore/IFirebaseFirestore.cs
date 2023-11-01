@@ -9,6 +9,13 @@ namespace Plugin.Firebase.Firestore
     public interface IFirebaseFirestore : IDisposable
     {
         /// <summary>
+        /// Creates and returns a new <c>IQuery</c> object that includes all documents in the database that are contained.
+        /// </summary>
+        /// <param name="collectionId">The collectionId of the collection or subcollection.</param>
+        /// <returns></returns>
+        IQuery GetCollectionGroup(string collectionId);
+        
+        /// <summary>
         /// Gets a <c>ICollectionReference</c> object referring to the collection at the specified path within the database.
         /// </summary>
         /// <param name="collectionPath">The slash-separated path of the collection for which to get a <c>ICollectionReference</c>.</param>

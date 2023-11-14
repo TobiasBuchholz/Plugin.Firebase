@@ -26,6 +26,9 @@ Since code should be documenting itself you can also take a look at the followin
 - [tests/.../StorageFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Firestore/StorageFixture.cs)
 
 ## Release notes
+- Version 2.0.2
+  - Bumped up Xamarin.Firebase.Storage package to version 120.2.1.3
+  - Bumped up Xamarin.Firebase.Storage.Common package to version 117.0.0.12
 - Version 2.0.1
   - Remove unnecessary UseMaui property from csproj files
   - Readd net6.0 tfm

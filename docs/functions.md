@@ -25,6 +25,8 @@ Since code should be documenting itself you can also take a look at the followin
 - [tests/cloud-functions/.../index.ts](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/cloud-functions/functions/src/index.ts)
 
 ## Release notes
+- Version 2.0.2
+  - Bumped up Xamarin.Firebase.Functions package to version 120.3.1.3
 - Version 2.0.1
   - Remove unnecessary UseMaui property from csproj files
   - Readd net6.0 tfm

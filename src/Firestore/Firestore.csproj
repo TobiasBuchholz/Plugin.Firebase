@@ -20,7 +20,7 @@
 
         <!--Assembly and Namespace info -->
         <PackageId>Plugin.Firebase.Firestore</PackageId>
-        <PackageVersion>2.0.4</PackageVersion>
+        <PackageVersion>2.0.5</PackageVersion>
 
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/TobiasBuchholz/Plugin.Firebase</PackageProjectUrl>
@@ -77,7 +77,7 @@
 
     <!-- nuget packages -->
     <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
-        <PackageReference Include="Xamarin.Firebase.Firestore" Version="124.3.1" />
+        <PackageReference Include="Xamarin.Firebase.Firestore" Version="124.8.1.1" />
     </ItemGroup>
     
     <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">

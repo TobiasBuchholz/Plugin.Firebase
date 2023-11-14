@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net6.0-android;net6.0-ios</TargetFrameworks>
+		<TargetFrameworks>net7.0-android;net7.0-ios</TargetFrameworks>
 		<RootNamespace>Playground</RootNamespace>
 		<UseMaui>true</UseMaui>
 		<SingleProject>true</SingleProject>
@@ -48,7 +48,7 @@
     </ItemGroup>
 
     <!-- ios entitlements -->
-    <PropertyGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
+    <PropertyGroup Condition="'$(TargetFramework)' == 'net7.0-ios'">
         <CodesignEntitlements>Platforms\iOS\Entitlements.plist</CodesignEntitlements>
     </PropertyGroup>
 
@@ -70,25 +70,23 @@
         <PackageReference Include="ReactiveUI.Maui" Version="18.3.1" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
+    <ItemGroup Condition="'$(TargetFramework)' == 'net7.0-ios'">
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
-        <PackageReference Include="Xamarin.Kotlin.StdLib.Jdk7" Version="1.7.10" ExcludeAssets="build;buildTransitive" />
-        <PackageReference Include="Xamarin.Kotlin.StdLib.Jdk8" Version="1.7.10" ExcludeAssets="build;buildTransitive" />
+    <ItemGroup Condition="'$(TargetFramework)' == 'net7.0-android'">
     </ItemGroup>
 
     <!-- platform assets -->
-    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
+    <ItemGroup Condition="'$(TargetFramework)' == 'net7.0-android'">
         <GoogleServicesJson Include="google-services.json" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
+    <ItemGroup Condition="'$(TargetFramework)' == 'net7.0-ios'">
         <BundleResource Include="GoogleService-Info.plist" />
     </ItemGroup>
 
     <!-- needed for android build to work -->
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net6.0-android|AnyCPU'">
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-android|AnyCPU'">
       <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
     </PropertyGroup>
 </Project>

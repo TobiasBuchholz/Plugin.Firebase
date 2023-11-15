@@ -25,7 +25,7 @@ public static class MauiProgram
     {
         builder.ConfigureLifecycleEvents(events => {
 #if IOS
-            events.AddiOS(iOS => iOS.FinishedLaunching((_,__) => {
+            events.AddiOS(iOS => iOS.WillFinishLaunching((_,__) => {
                 CrossFirebase.Initialize(CreateCrossFirebaseSettings());
                 return false;
             }));

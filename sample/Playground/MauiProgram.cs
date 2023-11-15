@@ -68,7 +68,7 @@ public static class MauiProgram
     {
         builder.ConfigureLifecycleEvents(events => {
 #if IOS
-            events.AddiOS(iOS => iOS.FinishedLaunching((app, launchOptions) => {
+            events.AddiOS(iOS => iOS.WillFinishLaunching((app, launchOptions) => {
                 CrossFirebase.Initialize(CreateCrossFirebaseSettings());
                 FirebaseAuthFacebookImplementation.Initialize(app, launchOptions, "151743924915235", "Plugin Firebase Playground");
                 FirebaseAuthGoogleImplementation.Initialize();

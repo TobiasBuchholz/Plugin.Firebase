@@ -1,8 +1,11 @@
+using Android;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
 using Android.OS;
 using Android.Runtime;
+using AndroidX.Core.App;
+using AndroidX.Core.Content;
 using Plugin.Firebase.Auth.Facebook;
 using Plugin.Firebase.Auth.Google;
 using Plugin.Firebase.CloudMessaging;
@@ -19,12 +22,20 @@ public class MainActivity : MauiAppCompatActivity
         base.OnCreate(savedInstanceState);
         HandleIntent(Intent);
         CreateNotificationChannelIfNeeded();
+        RequestPushNotificationsPermission();
     }
 
     private static void HandleIntent(Intent intent)
     {
         FirebaseCloudMessagingImplementation.OnNewIntent(intent);
         FirebaseDynamicLinksImplementation.HandleDynamicLinkAsync(intent).Ignore();
+    }
+
+    private void RequestPushNotificationsPermission()
+    {
+        if(Build.VERSION.SdkInt >= BuildVersionCodes.Tiramisu && ContextCompat.CheckSelfPermission(this, Manifest.Permission.PostNotifications) != Permission.Granted) {
+            ActivityCompat.RequestPermissions(this, new[] { Manifest.Permission.PostNotifications }, 0); ;
+        }
     }
 
     private void CreateNotificationChannelIfNeeded()

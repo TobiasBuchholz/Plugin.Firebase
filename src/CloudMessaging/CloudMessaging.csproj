@@ -20,7 +20,7 @@
 
         <!--Assembly and Namespace info -->
         <PackageId>Plugin.Firebase.CloudMessaging</PackageId>
-        <PackageVersion>2.0.3</PackageVersion>
+        <PackageVersion>2.0.4</PackageVersion>
 
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/TobiasBuchholz/Plugin.Firebase</PackageProjectUrl>

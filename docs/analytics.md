@@ -31,6 +31,8 @@ Since code should be documenting itself you can also take a look at the followin
 - [tests/.../AnalyticsFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Analytics/AnalyticsFixture.cs)
 
 ## Release notes
+- Version 2.0.2
+  - Update Xamarin.Firebase.Analytics to fix issue #172
 - Version 2.0.1
   - Remove unnecessary UseMaui property from csproj files
   - Readd net6.0 tfm

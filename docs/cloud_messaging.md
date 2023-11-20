@@ -143,6 +143,8 @@ curl --location 'https://fcm.googleapis.com/fcm/send' \
 If you are having trouble receiving push notifications on your device, take a look at this helpful https://github.com/TobiasBuchholz/Plugin.Firebase/issues/145#issuecomment-1455182588 by @andyzukunft. Additionally he has created a dedicated project to simplify the demonstration on how Firebase Cloud Messaging works: https://github.com/andyzukunft/Plugin.Firebase/tree/fcm-demo/sample/Fcm
 
 ## Release notes
+- Version 2.0.4
+  - Add FirebaseCloudMessagingImplementation.ShowLocalNotificationAction (issue #163)
 - Version 2.0.3
   - Enable silent push notifications when the app is in foreground (PR #188)
 - Version 2.0.2

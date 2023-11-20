@@ -13,12 +13,13 @@ namespace Plugin.Firebase.CloudMessaging;
 
 public sealed class FirebaseCloudMessagingImplementation : DisposableBase, IFirebaseCloudMessaging
 {
-    private const string IntentKeyFCMNotification = "intent_key_fcm_notification";
     private static Context _context;
 
+    public static string IntentKeyFCMNotification { get; set; } = "intent_key_fcm_notification";
     public static string ChannelId { get; set; }
-    public static int SmallIconRef { private get; set; } = global::Android.Resource.Drawable.SymDefAppIcon;
+    public static int SmallIconRef { private get; set; } = Android.Resource.Drawable.SymDefAppIcon;
     public static Func<FCMNotification, NotificationCompat.Builder> NotificationBuilderProvider { private get; set; }
+    public static Action<FCMNotification> ShowLocalNotificationAction { private get; set; }
 
     private FCMNotification _missedTappedNotification;
 
@@ -67,7 +68,11 @@ public sealed class FirebaseCloudMessagingImplementation : DisposableBase, IFire
     private static void HandleShowLocalNotificationIfNeeded(FCMNotification fcmNotification)
     {
         if(!fcmNotification.IsSilentInForeground) {
-            HandleShowLocalNotification(fcmNotification);
+            if(ShowLocalNotificationAction == null) {
+                HandleShowLocalNotification(fcmNotification);
+            } else {
+                ShowLocalNotificationAction(fcmNotification);
+            }
         }
     }
 

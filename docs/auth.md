@@ -12,12 +12,12 @@ You can use [Firebase Authentication](https://firebase.google.com/docs/auth) to 
 
 - Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/README.md#basic-setup)
 - Enable Authentication at your project in the [Firebase Console](https://console.firebase.google.com/).
-- Add the following lines of code after calling `CrossFirebase.Initialize()`:
+- When using [Plugin.Firebase.Auth.Google](https://www.nuget.org/packages/Plugin.Firebase.Auth.Google/), add the following lines of code after calling `CrossFirebase.Initialize()`:
 ```c#
 #if IOS
-  FirebaseAuthImplementation.Initialize();
+  FirebaseAuthGoogleImplementation.Initialize();
 #elif ANDROID
-  FirebaseAuthImplementation.Initialize("your-google-request-id-token");
+  FirebaseAuthGoogleImplementation.Initialize("your-google-request-id-token");
 #endif
 ```
 - The `googleRequestIdToken` can be accessed at the [Google API Console](https://console.developers.google.com/apis/credentials) (make sure to use the Client-ID of the Web client)

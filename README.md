@@ -48,7 +48,7 @@ using Plugin.Firebase.Auth;
 
 #if IOS
 using Plugin.Firebase.Core.Platforms.iOS;
-#else
+#elif ANDROID
 using Plugin.Firebase.Core.Platforms.Android;
 #endif
 
@@ -72,7 +72,7 @@ public static class MauiProgram
                 CrossFirebase.Initialize();
                 return false;
             }));
-#else
+#elif ANDROID
             events.AddAndroid(android => android.OnCreate((activity, _) =>
                 CrossFirebase.Initialize(activity)));
 #endif

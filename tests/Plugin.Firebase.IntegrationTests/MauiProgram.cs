@@ -2,7 +2,7 @@ using Microsoft.Maui.LifecycleEvents;
 using Plugin.Firebase.Bundled.Shared;
 #if IOS
 using Plugin.Firebase.Bundled.Platforms.iOS;
-#else 
+#elif ANDROID
 using Plugin.Firebase.Bundled.Platforms.Android;
 #endif
 using Xunit.Runners.Maui;
@@ -29,7 +29,7 @@ public static class MauiProgram
                 CrossFirebase.Initialize(CreateCrossFirebaseSettings());
                 return false;
             }));
-#else
+#elif ANDROID
             events.AddAndroid(android => android.OnCreate((activity, _) =>
                 CrossFirebase.Initialize(activity, CreateCrossFirebaseSettings())));
 #endif

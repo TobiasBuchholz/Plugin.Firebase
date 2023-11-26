@@ -21,7 +21,7 @@ using Plugin.Firebase.Bundled.Shared;
 #if IOS
 using Plugin.Firebase.Bundled.Platforms.iOS;
 using Playground.Platforms.iOS.Services.UserInteraction;
-#else
+#elif ANDROID
 using Plugin.Firebase.Bundled.Platforms.Android;
 using Playground.Platforms.Android.Services.UserInteraction;
 #endif
@@ -74,7 +74,7 @@ public static class MauiProgram
                 FirebaseAuthGoogleImplementation.Initialize();
                 return false;
             }));
-#else
+#elif ANDROID
             events.AddAndroid(android => android.OnCreate((activity, _) => {
                 var settings = CreateCrossFirebaseSettings();
                 CrossFirebase.Initialize(activity, settings);

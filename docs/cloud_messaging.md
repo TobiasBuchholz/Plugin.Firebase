@@ -136,7 +136,9 @@ curl --location 'https://fcm.googleapis.com/fcm/send' \
 
 #### Extra flags
 ##### is_silent_in_foreground
-- add `"is_silent_in_foreground": "true"` to the `data` payload to prevent showing the local push notification - as the name suggests, this only works when the app is in foreground otherwise the notifications will still be shown
+Add `"is_silent_in_foreground": "true"` to the `data` payload to prevent showing the local push notification. The flag prevents a notification to be generated if the app is in foreground - otherwise the notifications will still be shown.  Event `CrossFirebaseCloudMessaging.Current.NotificationReceived` is still triggered to allow for manual notification handling.
+
+Note: this is a Plugin.Firebase custom field and hence not documented with google FCM documentation.
 
 ## Troubleshooting
 

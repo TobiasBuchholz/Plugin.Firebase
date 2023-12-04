@@ -24,7 +24,7 @@ If you encounter a build error, try to add the package via `dotnet add package P
 ```c#
 #if IOS
 using Plugin.Firebase.Bundled.Platforms.iOS;
-#else
+#elif ANDROID
 using Plugin.Firebase.Bundled.Platforms.Android;
 #endif
 
@@ -41,7 +41,7 @@ using Plugin.Firebase.Bundled.Platforms.Android;
 
 #if IOS
   CrossFirebase.Initialize(settings);
-#else
+#elif ANDROID
   CrossFirebase.Initialize(activity, settings);
 #endif
 ```

@@ -42,6 +42,8 @@ Since code should be documenting itself you can also take a look at the followin
 - [src/.../IFirebaseCrashlytics.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Crashlytics/IFirebaseCrashlytics.cs)
 
 ## Release notes
+- Version 2.0.2
+  - Fix StackTraceParser for Crashlytics (PR #245)
 - Version 2.0.1
   - Remove unnecessary UseMaui property from csproj files
   - Readd net6.0 tfm

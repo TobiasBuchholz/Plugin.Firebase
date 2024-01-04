@@ -71,6 +71,8 @@ Since code should be documenting itself you can also take a look at the followin
 - [sample/.../AuthService.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/sample/Playground/Common/Services/Auth/AuthService.cs)
 
 ## Release notes
+- Version 2.0.6
+  - Fix dates in android AuthTokenResultWrapper (issue #244)
 - Version 2.0.5
   - Bump up Xamarin.Firebase.Auth from 121.0.8 to 122.2.0 (issue #131)
 - Version 2.0.4

@@ -17,10 +17,10 @@ public sealed class AuthTokenResultWrapper : IAuthTokenResult
         return (T) _wrapped.Claims[key].ToObject(typeof(T));
     }
 
-    public DateTimeOffset AuthDate => DateTimeOffset.FromUnixTimeMilliseconds(_wrapped.AuthTimestamp);
+    public DateTimeOffset AuthDate => DateTimeOffset.FromUnixTimeSeconds(_wrapped.AuthTimestamp);
     public IDictionary<string, object> Claims => _wrapped.Claims.ToDictionary();
-    public DateTimeOffset ExpirationDate => DateTimeOffset.FromUnixTimeMilliseconds(_wrapped.ExpirationTimestamp);
-    public DateTimeOffset IssuedAtDate => DateTimeOffset.FromUnixTimeMilliseconds(_wrapped.IssuedAtTimestamp);
+    public DateTimeOffset ExpirationDate => DateTimeOffset.FromUnixTimeSeconds(_wrapped.ExpirationTimestamp);
+    public DateTimeOffset IssuedAtDate => DateTimeOffset.FromUnixTimeSeconds(_wrapped.IssuedAtTimestamp);
     public string SignInProvider => _wrapped.SignInProvider;
     public string SignInSecondFactor => _wrapped.SignInSecondFactor;
     public string Token => _wrapped.Token;

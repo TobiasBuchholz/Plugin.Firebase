@@ -207,6 +207,13 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
     {
         _firebaseAuth.UseEmulator(host, port);
     }
+    
+    public IDisposable AddAuthStateListener(Action<IFirebaseAuth> listener)
+    {
+        var authStateListener = new AuthStateListener(_ => listener.Invoke(this));
+        _firebaseAuth.AddAuthStateListener(authStateListener);
+        return new DisposableWithAction(() => _firebaseAuth.RemoveAuthStateListener(authStateListener));
+    }
 
     private static FragmentActivity FragmentActivity =>
         Activity as FragmentActivity ?? throw new NullReferenceException($"Current Activity is either null or not of type {nameof(FragmentActivity)}, which is mandatory for sign in with Google");
@@ -218,4 +225,19 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         Platform.AppContext ?? throw new NullReferenceException("Platform.AppContext is null");
 
     public IFirebaseUser CurrentUser => _firebaseAuth.CurrentUser?.ToAbstract();
+    
+    private class AuthStateListener : Java.Lang.Object, FirebaseAuth.IAuthStateListener
+    {
+        private readonly Action<FirebaseAuth> _onAuthStateChanged;
+
+        public AuthStateListener(Action<FirebaseAuth> onAuthStateChanged)
+        {
+            _onAuthStateChanged = onAuthStateChanged;
+        }
+        
+        public void OnAuthStateChanged(FirebaseAuth auth)
+        {
+            _onAuthStateChanged.Invoke(auth);
+        }
+    }
 }

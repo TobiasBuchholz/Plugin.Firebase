@@ -225,6 +225,12 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
     {
         _firebaseAuth.UseEmulatorWithHost(host, port);
     }
+    
+    public IDisposable AddAuthStateListener(Action<IFirebaseAuth> listener)
+    {
+        var handle =_firebaseAuth.AddAuthStateDidChangeListener((_, _) => listener.Invoke(this));
+        return new DisposableWithAction(() => _firebaseAuth.RemoveAuthStateDidChangeListener(handle));
+    }
 
     private static UIViewController ViewController {
         get {

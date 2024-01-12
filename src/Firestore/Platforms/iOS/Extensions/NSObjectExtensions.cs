@@ -85,7 +85,7 @@ public static class NSObjectExtensions
             return @this.Int32Value;
         }
 
-        switch(Type.GetTypeCode(targetType)) {
+        switch(Type.GetTypeCode(Nullable.GetUnderlyingType(targetType) ?? targetType)) {
             case TypeCode.Boolean:
                 return @this.BoolValue;
             case TypeCode.Char:

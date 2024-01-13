@@ -146,6 +146,43 @@ If you would like to use the [Firebase Local Emulator Suite](https://firebase.go
 
 For example the [`Plugin.Firebase.IntegrationTests`](https://github.com/TobiasBuchholz/Plugin.Firebase/tree/development/tests/Plugin.Firebase.IntegrationTests) project is configured to be able to use the [Cloud Firestore emulator](https://firebase.google.com/docs/emulator-suite/connect_firestore). You can start the emulator with initial seed data by running `firebase emulators:start --only firestore --import=test-data/`. Uncomment the line `CrossFirebaseFirestore.Current.UseEmulator("localhost", 8080);` in [`IntegrationTestAppDelegate.cs`](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/tests/Plugin.Firebase.TestHarness.iOS/IntegrationTestAppDelegate.cs) or [`MainActivity.cs`](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/tests/Plugin.Firebase.TestHarness.Android/MainActivity.cs) to let the test project know it should use the emulator. Now all firestore related tests should pass.
 
+## Troubleshooting
+#### Windows 11 long path issue
+Problems with the Xamarin.Firebase.iOS.Core package mean that installation can fail on Windows due to long paths See dotnet/maui#17828. To combat this, you need to enable long paths in the registry and move your local nuget cache. You should also keep the path to your project as short as possible.:
+
+##### Powershell
+
+Run in an elevated prompt
+```
+New-ItemProperty `
+    -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" `
+    -Name "LongPathsEnabled" `
+    -Value 1 `
+    -PropertyType DWORD `
+    -Force
+```
+
+##### Nuget cache
+
+Create a folder named `C:\n`. Add an environment variable:
+
+`NUGET_PACKAGES = C:\n`
+
+**Install package !!!manually via CLI!!!**
+
+Don't open or build the project in VS until you have done the next part.
+
+Navigate to your project folder and run in a command line:
+
+`dotnet add package Xamarin.Firebase.iOS.Core`
+
+##### Additional hints:
+- The long path problem is caused by XCFramework format. These are just naturally going to have long file names.
+- Visual Studio (Windows) is fundamentally not compatible with long file names.
+- There's nothing this plugin can do about it. Issues should be opened with the Visual Studio team and the iOS components team over at https://github.com/xamarin/GoogleApisForiOSComponents (for all the good it'll do you...)
+- This doesn't affect macs, which don't have an issue with the long file names.
+- The plugin is still buildable on VS (Windows) as long as you run dotnet restore outside of the IDE. However, the archiving will probably still need to happen on a mac.
+
 ## Contributions
 
 You are welcome to contribute to this project by creating a [Pull Request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests). The project contains an .editorconfig file that handles the code formatting, so please apply the formatting rules by running `dotnet format src/Plugin.Firebase.sln` in the console before creating a Pull Request (see [dotnet-format docs](https://github.com/dotnet/format) or [this video](https://www.youtube.com/watch?v=lGvP9SZ98vM&t) for more information).

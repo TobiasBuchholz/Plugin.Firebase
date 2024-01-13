@@ -71,6 +71,8 @@ Since code should be documenting itself you can also take a look at the followin
 - [sample/.../AuthService.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/sample/Playground/Common/Services/Auth/AuthService.cs)
 
 ## Release notes
+- Version 2.0.7
+  - Added AddAuthStateListener to FirebaseAuth (PR #246)
 - Version 2.0.6
   - Fix dates in android AuthTokenResultWrapper (issue #244)
 - Version 2.0.5

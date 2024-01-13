@@ -80,6 +80,9 @@ Since code should be documenting itself you can also take a look at the followin
 - [tests/.../FirestoreFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Firestore/FirestoreFixture.cs)
 
 ## Release notes
+- Version 2.0.6
+  - Support int properties on IFirestoreObjects on Android (PR #247)
+  - Firestore plugin converts NSNumbers to nullable .NET types (e.g. float?, int?, long?) (PR #250)
 - Version 2.0.5
   - Bumped up Xamarin.Firebase.Firestore package to version 124.8.1.1
 - Version 2.0.4

@@ -138,6 +138,9 @@ In the [tests folder](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/dev
 
 In case you would like to run the sample or test project by yourself, you need to add the `GoogleService-Info.plist` and `google-services.json` files of your own firebase project and adapt the other config files like `Info.plist, Entitlements.plist, AndroidManifest.xml`.
 
+#### For windows users
+@coop-tim has created a [.NET 8 sample project](https://github.com/coop-tim/maui-sample) with a really good and extensive description. It's targeting iOS and Android with Firebase Cloud Messaging, Analytics and the relevant build pipelines to get them built and pushed into App Center. Definitely worth checking it out!
+
 ## Using Firebase Local Emulator Suite
 If you would like to use the [Firebase Local Emulator Suite](https://firebase.google.com/docs/emulator-suite) for your tests or rapid prototyping you can do so by following the steps of the [Getting started guide](https://firebase.google.com/docs/emulator-suite/connect_and_prototype) and calling the [`UseEmulator(host, port)`](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/src/Shared/Firestore/IFirebaseFirestore.cs#L45) method of the desired firebase service before doing any other operations.
 

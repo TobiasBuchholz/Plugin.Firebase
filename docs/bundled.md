@@ -46,6 +46,8 @@ using Plugin.Firebase.Bundled.Platforms.Android;
 #endif
 ```
 ## Release notes
+- Version 2.0.12
+  - Plugin.Firebase.Crashlytics 2.0.3
 - Version 2.0.11
   - Plugin.Firebase.Auth 2.0.7
   - Plugin.Firebase.Firestore 2.0.6

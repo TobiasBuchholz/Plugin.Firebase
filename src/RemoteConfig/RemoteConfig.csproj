@@ -27,6 +27,7 @@
         <RepositoryUrl>https://github.com/TobiasBuchholz/Plugin.Firebase</RepositoryUrl>
         <PackageIcon>icon.png</PackageIcon>
         <PackageTags>xamarin, ios, android</PackageTags>
+        <PackageReadmeFile>remote_config.md</PackageReadmeFile>
 
         <Title>Plugin.Firebase</Title>
         <Summary>Xamarin wrapper around the native Android and iOS Firebase SDKs.</Summary>
@@ -58,6 +59,7 @@
         <None Remove=".vs\**" />
         <None Remove=".idea\**" />
         <None Include="..\..\art\icon.png" Pack="true" PackagePath="" />
+        <None Include="..\..\docs\remote_config.md" Pack="true" PackagePath="\"/>
 
         <Compile Include="Shared\**\*.cs" />
     </ItemGroup>

@@ -31,6 +31,8 @@ public static class JavaObjectExtensions
                 return x;
             case bool x:
                 return x;
+            case DateTime x:
+                return x.ToJavaDate();
             case DateTimeOffset x:
                 return x.ToJavaDate();
             case FieldValue x:

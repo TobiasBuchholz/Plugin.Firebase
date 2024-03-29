@@ -18,8 +18,9 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             float heightInCm = 0,
             long sightingCount = 0,
             bool isFromFirstGeneration = false,
-            PokeType pokeType = default(PokeType),
+            PokeType pokeType = default,
             IList<string> moves = null,
+            IList<double> someNumbers = null,
             SightingLocation firstSightingLocation = null,
             IList<SimpleItem> items = null,
             IDocumentReference originalReference = null)
@@ -32,6 +33,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             IsFromFirstGeneration = isFromFirstGeneration;
             PokeType = pokeType;
             Moves = moves;
+            SomeNumbers = someNumbers;
             FirstSightingLocation = firstSightingLocation;
             Items = items;
             CreationDate = DateTime.Now;
@@ -53,6 +55,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 isFromFirstGeneration: this.IsFromFirstGeneration,
                 pokeType: this.PokeType,
                 moves: this.Moves.ToList(),
+                someNumbers: this.SomeNumbers.ToList(),
                 firstSightingLocation: this.FirstSightingLocation,
                 items: this.Items.ToList(),
                 originalReference: originalReference);
@@ -64,6 +67,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 return (Id, Name, WeightInKg, HeightInCm, SightingCount, IsFromFirstGeneration, PokeType, FirstSightingLocation)
                     .Equals((other.Id, other.Name, other.WeightInKg, other.HeightInCm, other.SightingCount, other.IsFromFirstGeneration, other.PokeType, other.FirstSightingLocation)) &&
                     Moves.SequenceEqualSafe(other.Moves) &&
+                    SomeNumbers.SequenceEqualSafe(other.SomeNumbers) &&
                     Items.SequenceEqualSafe(other.Items);
             }
             return false;
@@ -71,7 +75,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
 
         public override int GetHashCode()
         {
-            return (Id, Name, WeightInKg, HeightInCm, SightingCount, IsFromFirstGeneration, PokeType, Moves, FirstSightingLocation, Items, CreationDate).GetHashCode();
+            return (Id, Name, WeightInKg, HeightInCm, SightingCount, IsFromFirstGeneration, PokeType, Moves, SomeNumbers, FirstSightingLocation, Items, CreationDate).GetHashCode();
         }
 
         public override string ToString()
@@ -102,6 +106,9 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
 
         [FirestoreProperty("moves")]
         public IList<string> Moves { get; private set; }
+
+        [FirestoreProperty("some_numbers")]
+        public IList<double> SomeNumbers { get; private set; }
 
         [FirestoreProperty("first_sighting_location")]
         public SightingLocation FirstSightingLocation { get; private set; }

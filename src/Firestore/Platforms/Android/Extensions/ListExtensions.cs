@@ -12,6 +12,20 @@ public static class ListExtensions
             var value = @this[i];
             if(value is Java.Lang.Object javaValue) {
                 list.Add(javaValue.ToObject(targetType));
+            } else if(targetType == typeof(string)) {
+                list.Add(Convert.ToString(value));
+            } else if(targetType == typeof(int)) {
+                list.Add(Convert.ToInt32(value));
+            } else if(targetType == typeof(long)) {
+                list.Add(Convert.ToInt64(value));
+            } else if(targetType == typeof(float)) {
+                list.Add(Convert.ToSingle(value));
+            } else if(targetType == typeof(double)) {
+                list.Add(Convert.ToDouble(value));
+            } else if(targetType == typeof(decimal)) {
+                list.Add(Convert.ToDecimal(value));
+            } else if(targetType == typeof(bool)) {
+                list.Add(Convert.ToBoolean(value));
             } else {
                 list.Add(value);
             }

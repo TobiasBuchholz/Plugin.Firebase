@@ -14,6 +14,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 isFromFirstGeneration: true,
                 pokeType: PokeType.Plant,
                 moves: new List<string> { "Razor-Wind", "Swords-Dance", "Cut" },
+                someNumbers: new List<double> { 1, 2, 3 },
                 firstSightingLocation: new SightingLocation(52.5042112, 13.5290173),
                 items: CreateSimpleItems("Wonder Berry", "Air Balloon"));
         }

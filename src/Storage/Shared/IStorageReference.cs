@@ -77,6 +77,14 @@ public interface IStorageReference
     Task<Stream> GetStreamAsync(long maxSize);
 
     /// <summary>
+    /// Asynchronously downloads the object from this <c>IStorageReference</c>. A byte array will be allocated large enough to hold the entire file in memory.
+    /// Therefore, using this method will impact memory usage of your process. If you are downloading many large files, getStream may be a better option.
+    /// </summary>
+    /// <param name="maxDownloadSizeBytes">
+    /// The maximum allowed size in bytes that will be allocated. Set this parameter to prevent out of memory conditions from occurring. If the download exceeds this limit, the task will fail and an IndexOutOfBoundsException will be returned.    /// </param>
+    Task<byte[]> GetBytesAsync(long maxDownloadSizeBytes);
+
+    /// <summary>
     /// Asynchronously downloads the object at the current path to a specified system filepath.
     /// </summary>
     /// <param name="destinationPath">A file system URL representing the path the object should be downloaded to.</param>

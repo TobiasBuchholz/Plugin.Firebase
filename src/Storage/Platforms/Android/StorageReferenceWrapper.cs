@@ -73,6 +73,11 @@ public sealed class StorageReferenceWrapper : IStorageReference
         return (await _wrapped.GetStream(new StreamProcessor()).AsAsync<StreamDownloadTask.TaskSnapshot>()).Stream;
     }
 
+    public async Task<byte[]> GetBytesAsync(long maxDownloadSizeBytes)
+    {
+        return (byte[]) await _wrapped.GetBytes(maxDownloadSizeBytes);
+    }
+
     public IStorageTransferTask DownloadFile(string destinationPath)
     {
         return _wrapped.GetFile(AndroidUri.Parse(destinationPath)).ToAbstract();

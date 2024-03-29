@@ -177,6 +177,18 @@ namespace Plugin.Firebase.IntegrationTests.Storage
         }
 
         [Fact]
+        public async Task gets_data_as_bytes()
+        {
+            var reference = CrossFirebaseStorage
+                .Current
+                .GetReferenceFromPath("files_to_keep/text_1.txt");
+
+            var bytes = await reference.GetBytesAsync(1 * 1024 * 1024);
+            Assert.NotNull(bytes);
+            Assert.Equal(34, bytes.Length);
+        }
+
+        [Fact]
         public async Task downloads_file()
         {
             var reference = CrossFirebaseStorage

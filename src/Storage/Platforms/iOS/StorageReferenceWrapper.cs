@@ -98,6 +98,20 @@ public sealed class StorageReferenceWrapper : IStorageReference
         return tcs.Task;
     }
 
+
+    public Task<byte[]> GetBytesAsync(long maxDownloadSizeBytes)
+    {
+        var tcs = new TaskCompletionSource<byte[]>();
+        _wrapped.GetData(maxDownloadSizeBytes, (data, error) => {
+            if(error == null && data != null) {
+                tcs.SetResult(data.ToArray());
+            } else {
+                tcs.SetException(new FirebaseException(error?.LocalizedDescription ?? "Data is null"));
+            }
+        });
+        return tcs.Task;
+    }
+
     public IStorageTransferTask DownloadFile(string destinationPath)
     {
         var wrapper = new StorageTransferTaskWrapper<StorageDownloadTask, NSUrl>();

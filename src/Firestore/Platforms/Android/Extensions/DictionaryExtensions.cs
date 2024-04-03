@@ -5,6 +5,9 @@ using Java.Util;
 using IMap = Java.Util.IMap;
 using IList = System.Collections.IList;
 using NativeFieldValue = Firebase.Firestore.FieldValue;
+//CDP Added
+using NativeGeoPoint = Firebase.Firestore.GeoPoint;
+//END CDP Added
 
 namespace Plugin.Firebase.Firestore.Platforms.Android.Extensions;
 
@@ -78,6 +81,11 @@ public static class DictionaryExtensions
             case IDocumentReference x:
                 @this.Put(key.ToString(), x.ToJavaObject());
                 break;
+            //CDP Added
+            case GeoPoint x:
+                @this.Put(key.ToString(), new NativeGeoPoint(x.Latitude, x.Longitude));
+                break;
+            //END CDP Added
             default:
                 if(value == null) {
                     @this.Put(key.ToString(), null);

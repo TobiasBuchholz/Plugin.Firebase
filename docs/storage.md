@@ -33,4 +33,4 @@ Since code should be documenting itself you can also take a look at the followin
   - Bumped up Xamarin.Firebase.Storage.Common package to version 117.0.0.12
 - Version 2.0.1
   - Remove unnecessary UseMaui property from csproj files
-  - Readd net6.0 tfm
+  - Readd net8.0 tfm

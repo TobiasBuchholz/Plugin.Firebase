@@ -1,6 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
+        <CheckEolWorkloads>false</CheckEolWorkloads>
 		<TargetFrameworks>net7.0-android;net7.0-ios</TargetFrameworks>
 		<OutputType>Exe</OutputType>
 		<RootNamespace>Plugin.Firebase.IntegrationTests</RootNamespace>

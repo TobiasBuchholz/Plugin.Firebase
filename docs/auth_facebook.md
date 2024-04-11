@@ -44,4 +44,4 @@ You can use [Facebook Authentication](https://developers.facebook.com/docs/faceb
 ## Release notes
 - Version 2.0.1
   - Remove unnecessary UseMaui property from csproj files
-  - Readd net6.0 tfm
+  - Readd net8.0 tfm

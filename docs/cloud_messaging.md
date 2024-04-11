@@ -153,4 +153,4 @@ If you are having trouble receiving push notifications on your device, take a lo
   - Prevent error message when no image is attached to push notifications
 - Version 2.0.1
   - Remove unnecessary UseMaui property from csproj files
-  - Readd net6.0 tfm
+  - Readd net8.0 tfm

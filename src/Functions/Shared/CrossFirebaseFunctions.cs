@@ -2,16 +2,20 @@ namespace Plugin.Firebase.Functions;
 
 public sealed class CrossFirebaseFunctions
 {
-    private static Lazy<IFirebaseFunctions> _implementation = new Lazy<IFirebaseFunctions>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);
+    private static Lazy<IFirebaseFunctions> _implementation = new Lazy<IFirebaseFunctions>(() => CreateInstance("us-central1"), System.Threading.LazyThreadSafetyMode.PublicationOnly);
 
-    private static IFirebaseFunctions CreateInstance()
+    // Overload that allows setting the region
+    public static void Initialize(string region)
+    {
+        _implementation = new Lazy<IFirebaseFunctions>(() => CreateInstance(region), System.Threading.LazyThreadSafetyMode.PublicationOnly);
+    }
+
+    private static IFirebaseFunctions CreateInstance(string region)
     {
 #if IOS || ANDROID
-        return new FirebaseFunctionsImplementation();
+        return new FirebaseFunctionsImplementation(region);
 #else
-#pragma warning disable IDE0022 // Use expression body for methods
         return null;
-#pragma warning restore IDE0022 // Use expression body for methods
 #endif
     }
 
@@ -43,7 +47,7 @@ public sealed class CrossFirebaseFunctions
     {
         if(_implementation != null && _implementation.IsValueCreated) {
             _implementation.Value.Dispose();
-            _implementation = new Lazy<IFirebaseFunctions>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);
+            _implementation = new Lazy<IFirebaseFunctions>(() => CreateInstance("us-central1"), System.Threading.LazyThreadSafetyMode.PublicationOnly);
         }
     }
 }

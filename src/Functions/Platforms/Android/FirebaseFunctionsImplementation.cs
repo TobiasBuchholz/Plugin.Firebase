@@ -8,9 +8,9 @@ public sealed class FirebaseFunctionsImplementation : DisposableBase, IFirebaseF
 {
     private readonly FirebaseFunctions _functions;
 
-    public FirebaseFunctionsImplementation()
+    public FirebaseFunctionsImplementation(string region = "us-central1")  // Default to "us-central1" if not specified
     {
-        _functions = FirebaseFunctions.Instance;
+        _functions = FirebaseFunctions.GetInstance(region);
     }
 
     public IHttpsCallable GetHttpsCallable(string name)

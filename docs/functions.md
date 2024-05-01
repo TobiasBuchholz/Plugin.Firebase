@@ -13,6 +13,7 @@ Cloud Functions for Firebase is a serverless framework that lets you automatical
 - Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/README.md#basic-setup)
 - Enable Cloud Functions at your project in the [Firebase Console](https://console.firebase.google.com/)
 - [Deploy](https://firebase.google.com/docs/functions/get-started?hl=en) your own function
+- Call `CrossFirebaseFunctions.Initialize(string region)` if your functions are deployed outside the default `us-central1` region
 
 ## Usage
 
@@ -25,6 +26,8 @@ Since code should be documenting itself you can also take a look at the followin
 - [tests/cloud-functions/.../index.ts](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/cloud-functions/functions/src/index.ts)
 
 ## Release notes
+- Version 2.0.3
+  - Added support for non-default regions
 - Version 2.0.2
   - Bumped up Xamarin.Firebase.Functions package to version 120.3.1.3
 - Version 2.0.1

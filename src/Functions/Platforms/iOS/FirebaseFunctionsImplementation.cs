@@ -13,6 +13,11 @@ public sealed class FirebaseFunctionsImplementation : DisposableBase, IFirebaseF
         _functions = CloudFunctions.DefaultInstance;
     }
 
+    public FirebaseFunctionsImplementation(string region)
+    {
+        _functions = CloudFunctions.FromRegion(region);
+    }
+
     public IHttpsCallable GetHttpsCallable(string name)
     {
         return new HttpsCallableWrapper(_functions.HttpsCallable(name));

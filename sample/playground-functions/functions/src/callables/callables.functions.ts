@@ -1,4 +1,4 @@
-import * as functions from 'firebase-functions';
+import * as functions from 'firebase-functions/v1';
 import { TriggerNotificationFunction } from "./trigger-notification.function";
 
 export const convertToLeet = functions.https.onCall(async (data, context) =>  {

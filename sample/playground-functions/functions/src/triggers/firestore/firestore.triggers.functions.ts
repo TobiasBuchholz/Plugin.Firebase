@@ -1,4 +1,4 @@
-import * as functions from 'firebase-functions';
+import * as functions from 'firebase-functions/v1';
 import { FirestorePaths } from "../../helpers/firestore-paths.helper";
 import { OnPushNotificationCreateFunction } from "./on-push-notification-create.function";
 

@@ -76,7 +76,7 @@ Dynamic Links are links into an app that work whether or not users have installe
 
 ## Usage
 
-Take a look at the [documentation](https://github.com/xamarin/GoogleApisForiOSComponents/blob/master/docs/Firebase/DynamicLinks/GettingStarted.md) for the Xamarin.Firebase.iOS.DynamicLinks packages, because Plugin.Firebase's code is abstracted but still very similar.
+Take a look at the [documentation](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents/blob/master/docs/Firebase/DynamicLinks/GettingStarted.md) for the AdamE.Firebase.iOS.DynamicLinks packages, because Plugin.Firebase's code is abstracted but still very similar.
 
 Since code should be documenting itself you can also take a look at the following classes:
 - [src/.../IFirebaseDynamicLinks.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/DynamicLinks/IFirebaseDynamicLinks.cs)
@@ -84,6 +84,8 @@ Since code should be documenting itself you can also take a look at the followin
 - [sample/.../DynamicLinkService.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/sample/Playground/Common/Services/DynamicLink/DynamicLinkService.cs)
 
 ## Release notes
+- Version 3.0.0
+  - Swapped Xamarin.Firebase.iOS.DynamicLinks (native SDK 8.10.0) for AdamE.Firebase.iOS.DynamicLinks (native SDK 10.24.0)
 - Version 2.0.1
   - Remove unnecessary UseMaui property from csproj files
   - Readd net6.0 tfm

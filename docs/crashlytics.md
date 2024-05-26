@@ -36,12 +36,14 @@ Firebase [Firebase Crashlytics](https://firebase.google.com/docs/crashlytics) is
 
 To test if everything is setup correctly, restart the app after a forced crash and visit the [Crashlytics Dashboard](https://console.firebase.google.com/u/0/project/_/crashlytics) to view your reports and statistics.
 
-Take a look at the [documentation](https://github.com/xamarin/GoogleApisForiOSComponents/blob/master/docs/Firebase/Crashlytics/GettingStarted.md) for the Xamarin.Firebase.iOS.Crashlytics packages, because Plugin.Firebase's code is abstracted but still very similar.
+Take a look at the [documentation](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents/blob/master/docs/Firebase/Crashlytics/GettingStarted.md) for the AdamE.Firebase.iOS.Crashlytics packages, because Plugin.Firebase's code is abstracted but still very similar.
 
 Since code should be documenting itself you can also take a look at the following class:
 - [src/.../IFirebaseCrashlytics.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Crashlytics/IFirebaseCrashlytics.cs)
 
 ## Release notes
+- Version 3.0.0
+  - Swapped Xamarin.Firebase.iOS.Crashlytics (native SDK 8.10.0) for AdamE.Firebase.iOS.Crashlytics (native SDK 10.24.0)
 - Version 2.0.3
   - Fix StackTraceParser for Crashlytics (PR #255)
 - Version 2.0.2

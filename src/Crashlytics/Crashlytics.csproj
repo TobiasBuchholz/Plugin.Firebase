@@ -20,7 +20,7 @@
 
         <!--Assembly and Namespace info -->
         <PackageId>Plugin.Firebase.Crashlytics</PackageId>
-        <PackageVersion>2.0.3</PackageVersion>
+        <PackageVersion>3.0.0</PackageVersion>
 
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/TobiasBuchholz/Plugin.Firebase</PackageProjectUrl>
@@ -83,7 +83,7 @@
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
-        <PackageReference Include="Xamarin.Firebase.iOS.Crashlytics" Version="8.10.0.3" />
+        <PackageReference Include="AdamE.Firebase.iOS.Crashlytics" Version="10.24.0" />
     </ItemGroup>
 
 </Project>

@@ -105,7 +105,7 @@ You can find more specific instructions for android at the official [Firebase do
 
 ## Usage
 
-Take a look at the [documentation](https://github.com/xamarin/GoogleApisForiOSComponents/blob/master/docs/Firebase/CloudMessaging/GettingStarted.md) for the Xamarin.Firebase.iOS.CloudMessaging packages, because Plugin.Firebase's code is abstracted but still very similar.
+Take a look at the [documentation](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents/blob/master/docs/Firebase/CloudMessaging/GettingStarted.md) for the AdamE.Firebase.iOS.CloudMessaging packages, because Plugin.Firebase's code is abstracted but still very similar.
 
 Since code should be documenting itself you can also take a look at the following classes:
 - [src/.../IFirebaseCloudMessaging.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/CloudMessaging/IFirebaseCloudMessaging.cs)
@@ -145,6 +145,8 @@ Note: this is a Plugin.Firebase custom field and hence not documented with googl
 If you are having trouble receiving push notifications on your device, take a look at this helpful https://github.com/TobiasBuchholz/Plugin.Firebase/issues/145#issuecomment-1455182588 by @andyzukunft. Additionally he has created a dedicated project to simplify the demonstration on how Firebase Cloud Messaging works: https://github.com/andyzukunft/Plugin.Firebase/tree/fcm-demo/sample/Fcm
 
 ## Release notes
+- Version 3.0.0
+  - Swapped Xamarin.Firebase.iOS.CloudMessaging (native SDK 8.10.0) for AdamE.Firebase.iOS.CloudMessaging (native SDK 10.24.0)
 - Version 2.0.4
   - Add FirebaseCloudMessagingImplementation.ShowLocalNotificationAction (issue #163)
 - Version 2.0.3

@@ -19,12 +19,22 @@ This is a wrapper library around the native Android and iOS Firebase Xamarin SDK
 | [Storage](https://firebase.google.com/docs/storage) | [Plugin.Firebase.Storage](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/storage.md) | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.storage.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Storage/)
 | All in one | [Plugin.Firebase](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/bundled.md) | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase/)
 
+## Version 3.0.0 Notes
+Version 3.0.0 of this plugin marks a migration from the abandoned Microsoft-published Firebase iOS Nuget packages (prefixed with `Xamarin.Firebase.iOS.*` this plugin previously depended on.
+
+Public discussion of the issue can be found on [MAUI's GH](https://github.com/dotnet/maui/discussions/20359)
+
+There should not be any breaking API changes. However, we felt the major version bump was appropriate to communicate the significant change in the plugin's iOS binding dependencies, which are no longer sourced by Microsoft. Moving forward, this plugin will depend on a [community-maintained fork](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents) of the deprecated packages published under a new package prefix `AdamE.Firebase.iOS.*`
+
+The migration to `AdamE.Firebase.iOS.*` packages additionally bumps underlying native Firebase iOS SDKs to version 10.24.0. This is a significant upgrade from the previous latest-available version supported by Microsoft of 8.10. Check the [Firebase iOS SDK release notes](https://firebase.google.com/support/release-notes/ios) to see what's changed, which includes various bug fixes as well as privacy manifest support.
+
 ## Basic setup
 
 1. Create a Firebase project in the [Firebase Console](https://console.firebase.google.com/), if you don't already have one. If you already have an existing Google project associated with your mobile app, click **Import Google Project**. Otherwise, click **Create New Project**.
 2. Click **Add Firebase to your *[iOS|Android]* app** and follow the setup steps. If you're importing an existing Google project, this may happen automatically and you can just download the config file.
 3. Add `[GoogleService-Info.plist|google-services.json]` file to your app project.
 4. Set `[GoogleService-Info.plist|google-services.json]` **build action** behaviour to `[Bundle Resource|GoogleServicesJson]` by Right clicking/Build Action.
+5. (iOS only) Check the Readme at [AdamEssenmacher/GoogleApisForiOSComponents](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents) for additional setup steps that may be required.
 
 ### .NET MAUI support
 The new plugin version 1.2.0 now supports .NET MAUI applications with .NET 6 🚀 
@@ -40,6 +50,8 @@ To get started add the `GoogleService-Info.plist` and the `google-services.json`
     <BundleResource Include="GoogleService-Info.plist" />
 </ItemGroup>
 ```
+
+Be sure to change the `TargetFramework` condition to the correct value for your target versions (i.e. `net6.0-*`, `net7.0-*`, `net8.0-*`, etc.)
 
 Initialize the plugin in your `MauiProgram.cs` like this:
 

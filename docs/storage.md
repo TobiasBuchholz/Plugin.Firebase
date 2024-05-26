@@ -15,7 +15,7 @@ Firebase Storage lets you upload and share user generated content, such as image
 
 ## Usage
 
-Take a look at the [documentation](https://github.com/xamarin/GoogleApisForiOSComponents/blob/master/docs/Firebase/Storage/GettingStarted.md) for the Xamarin.Firebase.iOS.Storage packages, because Plugin.Firebase's code is abstracted but still very similar.
+Take a look at the [documentation](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents/blob/master/docs/Firebase/Storage/GettingStarted.md) for the AdamE.Firebase.iOS.Storage packages, because Plugin.Firebase's code is abstracted but still very similar.
 
 Since code should be documenting itself you can also take a look at the following classes:
 - [src/.../IFirebaseStorage.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Storage/IFirebaseStorage.cs)
@@ -26,6 +26,8 @@ Since code should be documenting itself you can also take a look at the followin
 - [tests/.../StorageFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Firestore/StorageFixture.cs)
 
 ## Release notes
+- Version 3.0.0
+  - Swapped Xamarin.Firebase.iOS.Storage (native SDK 8.10.0) for AdamE.Firebase.iOS.Storage (native SDK 10.24.0)
 - Version 2.0.3
   - Add missing GetBytes() method to IStorageReference (issue #279)
 - Version 2.0.2

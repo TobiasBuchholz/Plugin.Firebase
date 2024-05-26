@@ -26,6 +26,8 @@ Since code should be documenting itself you can also take a look at the followin
 - [tests/cloud-functions/.../index.ts](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/cloud-functions/functions/src/index.ts)
 
 ## Release notes
+- Version 3.0.0
+  - Swapped Xamarin.Firebase.iOS.CloudFunctions (native SDK 8.10.0) for AdamE.Firebase.iOS.CloudFunctions (native SDK 10.24.0)
 - Version 2.0.3
   - Added support for non-default regions
 - Version 2.0.2

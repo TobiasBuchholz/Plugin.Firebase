@@ -68,7 +68,7 @@ This class is represented in firestore like this:
 
 ### Further information
 
-Take a look at the [documentation](https://github.com/xamarin/GoogleApisForiOSComponents/blob/master/docs/Firebase/CloudFirestore/GettingStarted.md) for the Xamarin.Firebase.iOS.CloudFirestore packages, because Plugin.Firebase's code is abstracted but still very similar.
+Take a look at the [documentation](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents/blob/master/docs/Firebase/CloudFirestore/GettingStarted.md) for the AdamE.Firebase.iOS.CloudFirestore packages, because Plugin.Firebase's code is abstracted but still very similar.
 
 Since code should be documenting itself you can also take a look at the following classes:
 - [src/.../IFirebaseFirestore.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Firestore/IFirebaseFirestore.cs)
@@ -80,6 +80,8 @@ Since code should be documenting itself you can also take a look at the followin
 - [tests/.../FirestoreFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Firestore/FirestoreFixture.cs)
 
 ## Release notes
+- Version 3.0.0
+  - Swapped Xamarin.Firebase.iOS.Firestore (native SDK 8.10.0) for AdamE.Firebase.iOS.Firestore (native SDK 10.24.0)
 - Version 2.0.7
   - Fixed missing DateTime in firestore (PR #280)
   - Fix simple number arrays on firestore android (issue #276)

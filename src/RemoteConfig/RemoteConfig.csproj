@@ -20,7 +20,7 @@
 
         <!--Assembly and Namespace info -->
         <PackageId>Plugin.Firebase.RemoteConfig</PackageId>
-        <PackageVersion>2.0.1</PackageVersion>
+        <PackageVersion>3.0.0</PackageVersion>
 
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/TobiasBuchholz/Plugin.Firebase</PackageProjectUrl>
@@ -83,7 +83,7 @@
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
-        <PackageReference Include="Xamarin.Firebase.iOS.RemoteConfig" Version="8.10.0.3" />
+        <PackageReference Include="AdamE.Firebase.iOS.RemoteConfig" Version="10.24.0-alpha1" />
     </ItemGroup>
 
 </Project>

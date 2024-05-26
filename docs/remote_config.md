@@ -15,13 +15,15 @@ You can use Firebase Remote Config to define parameters in your app and update t
 
 ## Usage
 
-Take a look at the [documentation](https://github.com/xamarin/GoogleApisForiOSComponents/blob/master/docs/Firebase/RemoteConfig/GettingStarted.md) for the Xamarin.Firebase.iOS.RemoteConfig packages, because Plugin.Firebase's code is abstracted but still very similar.
+Take a look at the [documentation](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents/blob/master/docs/Firebase/RemoteConfig/GettingStarted.md) for the AdamE.Firebase.iOS.RemoteConfig packages, because Plugin.Firebase's code is abstracted but still very similar.
 
 Since code should be documenting itself you can also take a look at the following classes:
 - [src/.../IFirebaseRemoteConfig.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/RemoteConfig/IFirebaseRemoteConfig.cs)
 - [tests/.../RemoteConfigFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/RemoteConfig/RemoteConfigFixture.cs)
 
 ## Release notes
+- Version 3.0.0
+  - Swapped Xamarin.Firebase.iOS.RemoteConfig (native SDK 8.10.0) for AdamE.Firebase.iOS.RemoteConfig (native SDK 10.24.0)
 - Version 2.0.1
   - Remove unnecessary UseMaui property from csproj files
   - Readd net6.0 tfm

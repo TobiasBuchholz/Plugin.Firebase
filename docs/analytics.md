@@ -24,13 +24,15 @@ Firebase Analytics collects usage and behavior data for your app. The SDK logs t
 
 ## Usage
 
-Take a look at the [documentation](https://github.com/xamarin/GoogleApisForiOSComponents/blob/master/docs/Firebase/Analytics/GettingStarted.md) for the Xamarin.Firebase.iOS.Analytics packages, because Plugin.Firebase's code is abstracted but still very similar.
+Take a look at the [documentation](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents/blob/master/docs/Firebase/Analytics/GettingStarted.md) for the AdamE.Firebase.iOS.Analytics packages, because Plugin.Firebase's code is abstracted but still very similar.
 
 Since code should be documenting itself you can also take a look at the following classes:
 - [src/.../IFirebaseAnalytics.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Analytics/IFirebaseAnalytics.cs)
 - [tests/.../AnalyticsFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Analytics/AnalyticsFixture.cs)
 
 ## Release notes
+- Version 3.0.0
+  - Swapped Xamarin.Firebase.iOS.Analytics (native SDK 8.10.0) for AdamE.Firebase.iOS.Analytics (native SDK 10.24.0)
 - Version 2.0.2
   - Update Xamarin.Firebase.Analytics to fix issue #172
 - Version 2.0.1

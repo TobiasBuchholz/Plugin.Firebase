@@ -62,7 +62,7 @@ For more specific instructions take a look at the official [Firebase documentati
 
 ## Usage
 
-Take a look at the [documentation](https://github.com/xamarin/GoogleApisForiOSComponents/blob/master/docs/Firebase/Auth/GettingStarted.md) for the Xamarin.Firebase.iOS.Auth packages, because Plugin.Firebase's code is abstracted but still very similar.
+Take a look at the [documentation](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents/blob/master/docs/Firebase/Auth/GettingStarted.md) for the AdamE.Firebase.iOS.Auth packages, because Plugin.Firebase's code is abstracted but still very similar.
 
 Since code should be documenting itself you can also take a look at the following classes:
 - [src/.../IFirebaseAuth.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Auth/IFirebaseAuth.cs)
@@ -71,6 +71,8 @@ Since code should be documenting itself you can also take a look at the followin
 - [sample/.../AuthService.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/sample/Playground/Common/Services/Auth/AuthService.cs)
 
 ## Release notes
+- Version 3.0.0
+  - Swapped Xamarin.Firebase.iOS.Auth (native SDK 8.10.0) for AdamE.Firebase.iOS.Auth (native SDK 10.24.0)
 - Version 2.0.7
   - Added AddAuthStateListener to FirebaseAuth (PR #246)
 - Version 2.0.6

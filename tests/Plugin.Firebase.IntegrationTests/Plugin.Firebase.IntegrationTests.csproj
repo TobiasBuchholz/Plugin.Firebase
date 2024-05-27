@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net7.0-android;net7.0-ios</TargetFrameworks>
+		<TargetFrameworks>net8.0-android;net8.0-ios</TargetFrameworks>
 		<OutputType>Exe</OutputType>
 		<RootNamespace>Plugin.Firebase.IntegrationTests</RootNamespace>
 		<UseMaui>true</UseMaui>
@@ -44,17 +44,18 @@
     <!-- nuget packages -->
     <ItemGroup>
         <PackageReference Include="Shiny.Xunit.Runners.Maui" Version="1.0.0" />
+        <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.40" />
     </ItemGroup>
     
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
     </ItemGroup>
 
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
-        <PackageReference Include="Xamarin.AndroidX.Core" Version="1.12.0.2" />
-        <PackageReference Include="Xamarin.AndroidX.Collection" Version="1.3.0.1" />
-        <PackageReference Include="Xamarin.AndroidX.Collection.Ktx" Version="1.3.0.1" />
-        <PackageReference Include="Xamarin.AndroidX.Activity.Ktx" Version="1.8.0.1" />
-        <PackageReference Include="Xamarin.AndroidX.Browser" Version="1.6.0.2" />
+        <PackageReference Include="Xamarin.AndroidX.Core" Version="1.12.0.3" />
+		<PackageReference Include="Xamarin.AndroidX.Collection" Version="1.3.0.2" />
+		<PackageReference Include="Xamarin.AndroidX.Collection.Ktx" Version="1.3.0.1" />
+		<PackageReference Include="Xamarin.AndroidX.Activity.Ktx" Version="1.8.0.1" />
+		<PackageReference Include="Xamarin.AndroidX.Browser" Version="1.7.0.1" />
     </ItemGroup>
 
     <!-- platform assets -->
@@ -67,7 +68,7 @@
     </ItemGroup>
 
     <!-- needed for android build to work -->
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-android|AnyCPU'">
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-android|AnyCPU'">
       <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
     </PropertyGroup>
 

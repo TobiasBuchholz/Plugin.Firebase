@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net6.0;net6.0-android;net6.0-ios</TargetFrameworks>
+        <TargetFrameworks>net8.0;net8.0-android;net8.0-ios</TargetFrameworks>
         <SingleProject>true</SingleProject>
         <ImplicitUsings>enable</ImplicitUsings>
 
@@ -64,11 +64,11 @@
         <Compile Include="Shared\**\*.cs" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
         <Compile Include="Platforms\Android\**\*.cs" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
         <Compile Include="Platforms\iOS\**\*.cs" />
     </ItemGroup>
 
@@ -78,11 +78,11 @@
     </ItemGroup>
 
     <!-- nuget packages -->
-    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
         <PackageReference Include="Xamarin.Firebase.Analytics" Version="121.3.0.3" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
         <PackageReference Include="AdamE.Firebase.iOS.Analytics" Version="10.24.0" />
     </ItemGroup>
     

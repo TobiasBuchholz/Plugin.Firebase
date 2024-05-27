@@ -37,21 +37,18 @@ The migration to `AdamE.Firebase.iOS.*` packages additionally bumps underlying n
 5. (iOS only) Check the Readme at [AdamEssenmacher/GoogleApisForiOSComponents](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents) for additional setup steps that may be required.
 
 ### .NET MAUI support
-The new plugin version 1.2.0 now supports .NET MAUI applications with .NET 6 🚀 
 
 To get started add the `GoogleService-Info.plist` and the `google-services.json` files to the root folder of your project and include them in the .csproj file like this:
 
 ```xml
-<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
+<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
     <GoogleServicesJson Include="google-services.json" />
 </ItemGroup>
 
-<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
+<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
     <BundleResource Include="GoogleService-Info.plist" />
 </ItemGroup>
 ```
-
-Be sure to change the `TargetFramework` condition to the correct value for your target versions (i.e. `net6.0-*`, `net7.0-*`, `net8.0-*`, etc.)
 
 Initialize the plugin in your `MauiProgram.cs` like this:
 
@@ -112,7 +109,7 @@ The plugin doesn't support Windows or Mac catalyst, so either remove their targe
 ### Android specifics
 - For package versions prior to `Plugin.Firebase 2.0.7`, `Plugin.Firebase.Auth 2.0.5`, `Plugin.Firebase.Firestore 2.0.5`, `Plugin.Firebase.Functions 2.0.2` or `Plugin.Firebase.Storage 2.0.2` add the following `ItemGroup` to your `.csproj` file to prevent build errors:
 ```xml
-<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
+<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
   <PackageReference Include="Xamarin.Kotlin.StdLib.Jdk7" Version="1.7.10" ExcludeAssets="build;buildTransitive" />
   <PackageReference Include="Xamarin.Kotlin.StdLib.Jdk8" Version="1.7.10" ExcludeAssets="build;buildTransitive" />
 </ItemGroup>

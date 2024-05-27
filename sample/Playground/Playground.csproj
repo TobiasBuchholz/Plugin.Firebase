@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net7.0-android;net7.0-ios</TargetFrameworks>
+		<TargetFrameworks>net8.0-android;net8.0-ios</TargetFrameworks>
 		<RootNamespace>Playground</RootNamespace>
 		<UseMaui>true</UseMaui>
 		<SingleProject>true</SingleProject>
@@ -20,7 +20,6 @@
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">14.2</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
-    <TargetPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">33</TargetPlatformVersion>
 		<OutputType>Exe</OutputType>
 	</PropertyGroup>
 
@@ -62,8 +61,10 @@
 
     <!-- nuget packages -->
     <ItemGroup>
-        <PackageReference Include="CommunityToolkit.Maui" Version="1.2.0" />
-        <PackageReference Include="CommunityToolkit.Maui.Markup" Version="1.0.1" />
+        <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.40" />
+  	    <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.40" />
+        <PackageReference Include="CommunityToolkit.Maui" Version="9.0.0" />
+        <PackageReference Include="CommunityToolkit.Maui.Markup" Version="4.0.0" />
         <PackageReference Include="Genesis.Observables" Version="3.0.0" />
         <PackageReference Include="Genesis.Logging" Version="3.0.0" />
         <PackageReference Include="ReactiveUI" Version="18.3.1" />
@@ -92,7 +93,7 @@
     </ItemGroup>
 
     <!-- needed for android build to work -->
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-android|AnyCPU'">
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-android|AnyCPU'">
       <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
     </PropertyGroup>
 

@@ -117,11 +117,11 @@ The plugin doesn't support Windows or Mac catalyst, so either remove their targe
 - For later versions add the following `ItemGroup` to your `.csproj` file to prevent build errors:
 ```xml
 <ItemGroup Condition="'$(TargetFramework)' == 'net7.0-android'">
-    <PackageReference Include="Xamarin.AndroidX.Core" Version="1.12.0.2" />
-    <PackageReference Include="Xamarin.AndroidX.Collection" Version="1.3.0.1" />
+    <PackageReference Include="Xamarin.AndroidX.Core" Version="1.12.0.3" />
+    <PackageReference Include="Xamarin.AndroidX.Collection" Version="1.3.0.2" />
     <PackageReference Include="Xamarin.AndroidX.Collection.Ktx" Version="1.3.0.1" />
     <PackageReference Include="Xamarin.AndroidX.Activity.Ktx" Version="1.8.0.1" />
-    <PackageReference Include="Xamarin.AndroidX.Browser" Version="1.6.0.2" />
+    <PackageReference Include="Xamarin.AndroidX.Browser" Version="1.7.0.1" />
 </ItemGroup>
 ```
 

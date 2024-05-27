@@ -79,7 +79,7 @@
 
     <!-- nuget packages -->
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
-        <PackageReference Include="Xamarin.Firebase.Firestore" Version="124.8.1.1" />
+        <PackageReference Include="Xamarin.Firebase.Firestore" Version="124.9.1.2" />
     </ItemGroup>
     
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">

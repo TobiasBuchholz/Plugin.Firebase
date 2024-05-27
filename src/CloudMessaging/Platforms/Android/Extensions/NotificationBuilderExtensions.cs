@@ -12,7 +12,7 @@ public static class NotificationBuilderExtensions
         try {
             if(Uri.IsWellFormedUriString(notification.ImageUrl, UriKind.Absolute)) {
                 var bitmap = DecodeBitmap(notification.ImageUrl);
-                return @this.SetLargeIcon(bitmap).SetStyle(new NotificationCompat.BigPictureStyle().BigPicture(bitmap).BigLargeIcon(null));
+                return @this.SetLargeIcon(bitmap).SetStyle(style: new NotificationCompat.BigPictureStyle().BigPicture(bitmap));
             } else {
                 return @this;
             }

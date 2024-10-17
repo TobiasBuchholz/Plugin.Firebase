@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net6.0;net6.0-android;net6.0-ios</TargetFrameworks>
+        <TargetFrameworks>net8.0;net8.0-android;net8.0-ios</TargetFrameworks>
         <UseMauiEssentials>true</UseMauiEssentials>
         <SingleProject>true</SingleProject>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -65,11 +65,11 @@
         <Compile Include="Shared\**\*.cs" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
+    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-android'">
         <Compile Include="Platforms\Android\**\*.cs" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
+    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-ios'">
         <Compile Include="Platforms\iOS\**\*.cs" />
     </ItemGroup>
     
@@ -80,11 +80,11 @@
     </ItemGroup>
 
     <!-- nuget packages -->
-    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-android'">
+    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-android'">
         <PackageReference Include="Xamarin.Facebook.Android" Version="11.2.0.1" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-ios'">
+    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-ios'">
         <PackageReference Include="Xamarin.Facebook.iOS" Version="12.2.0.1" />
     </ItemGroup>
 

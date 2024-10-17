@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net7.0-android;net7.0-ios</TargetFrameworks>
+		<TargetFrameworks>net8.0-android;net8.0-ios</TargetFrameworks>
 		<OutputType>Exe</OutputType>
 		<RootNamespace>Plugin.Firebase.IntegrationTests</RootNamespace>
 		<UseMaui>true</UseMaui>
@@ -67,7 +67,7 @@
     </ItemGroup>
 
     <!-- needed for android build to work -->
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net7.0-android|AnyCPU'">
+    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-android|AnyCPU'">
       <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
     </PropertyGroup>
 

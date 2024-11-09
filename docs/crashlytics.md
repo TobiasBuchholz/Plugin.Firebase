@@ -42,6 +42,8 @@ Since code should be documenting itself you can also take a look at the followin
 - [src/.../IFirebaseCrashlytics.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Crashlytics/IFirebaseCrashlytics.cs)
 
 ## Release notes
+- Version 3.1.0
+  - Update to .net8
 - Version 3.0.0
   - Swapped Xamarin.Firebase.iOS.Crashlytics (native SDK 8.10.0) for AdamE.Firebase.iOS.Crashlytics (native SDK 10.24.0)
 - Version 2.0.3

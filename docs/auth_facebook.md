@@ -42,6 +42,8 @@ You can use [Facebook Authentication](https://developers.facebook.com/docs/faceb
 - Call `FirebaseAuthFacebookImplementation.HandleActivityResultAsync(requestCode, resultCode, data);` from `MainActivity.OnActivityResult(...)`
 
 ## Release notes
+- Version 3.1.0
+  - Update to .net8
 - Version 2.0.1
   - Remove unnecessary UseMaui property from csproj files
   - Readd net6.0 tfm

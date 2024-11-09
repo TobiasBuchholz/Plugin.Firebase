@@ -46,6 +46,10 @@ using Plugin.Firebase.Bundled.Platforms.Android;
 #endif
 ```
 ## Release notes
+- Version 3.1.0
+  - Update to .net8
+- Version 3.0.0
+  - Swapped Xamarin.Firebase.iOS.* packages (native SDK 8.10.0) for AdamE.Firebase.iOS.* packages (native SDK 10.24.0)
 - Version 2.0.14
   - Plugin.Firebase.Functions 2.0.3
 - Version 2.0.13

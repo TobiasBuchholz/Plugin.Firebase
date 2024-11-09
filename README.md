@@ -117,7 +117,7 @@ The plugin doesn't support Windows or Mac catalyst, so either remove their targe
   <PackageReference Include="Xamarin.Kotlin.StdLib.Jdk8" Version="1.7.10" ExcludeAssets="build;buildTransitive" />
 </ItemGroup>
 ```
-- For later versions add the following `ItemGroup` to your `.csproj` file to prevent build errors:
+- For versions < 3.1.0 add the following `ItemGroup` to your `.csproj` file to prevent build errors:
 ```xml
 <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-android'">
     <PackageReference Include="Xamarin.AndroidX.Core" Version="1.12.0.2" />
@@ -125,6 +125,19 @@ The plugin doesn't support Windows or Mac catalyst, so either remove their targe
     <PackageReference Include="Xamarin.AndroidX.Collection.Ktx" Version="1.3.0.1" />
     <PackageReference Include="Xamarin.AndroidX.Activity.Ktx" Version="1.8.0.1" />
     <PackageReference Include="Xamarin.AndroidX.Browser" Version="1.6.0.2" />
+</ItemGroup>
+```
+
+- For versions >= 3.1.0 that use `Plugin.Firebase.Firestore` add:
+```xml
+<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+    <PackageReference Include="Xamarin.AndroidX.Core" Version="1.15.0.1" />
+    <PackageReference Include="Xamarin.AndroidX.Collection" Version="1.4.5.1" />
+    <PackageReference Include="Xamarin.AndroidX.Collection.Ktx" Version="1.4.5.1" />
+    <PackageReference Include="Xamarin.AndroidX.Activity.Ktx" Version="1.9.3.1" />
+    <PackageReference Include="Xamarin.AndroidX.Browser" Version="1.8.0.7" />
+    <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData.Core" Version="2.8.7.1" />
+    <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData.Core.Ktx" Version="2.8.7.1" />
 </ItemGroup>
 ```
 

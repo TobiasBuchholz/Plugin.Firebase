@@ -79,7 +79,7 @@
 
     <!-- nuget packages -->
     <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-android'">
-        <PackageReference Include="Xamarin.Firebase.Firestore" Version="124.8.1.1" />
+        <PackageReference Include="Xamarin.Firebase.Firestore" Version="125.0.0" />
     </ItemGroup>
     
     <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-ios'">

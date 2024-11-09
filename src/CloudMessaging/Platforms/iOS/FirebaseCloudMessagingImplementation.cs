@@ -68,9 +68,16 @@ public sealed class FirebaseCloudMessagingImplementation : NSObject, IFirebaseCl
     {
         var fcmNotification = notification.ToFCMNotification();
         OnNotificationReceived(fcmNotification);
-
         if(!fcmNotification.IsSilentInForeground) {
-            completionHandler(UNNotificationPresentationOptions.Alert);
+            if(OperatingSystem.IsIOSVersionAtLeast(14)) {
+                completionHandler(UNNotificationPresentationOptions.Banner
+                    | UNNotificationPresentationOptions.List
+                    | UNNotificationPresentationOptions.Sound);
+
+            } else {
+                completionHandler(UNNotificationPresentationOptions.Alert
+                    | UNNotificationPresentationOptions.Sound);
+            }
         }
     }
 

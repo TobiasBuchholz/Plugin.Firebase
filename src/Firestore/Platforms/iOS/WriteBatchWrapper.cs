@@ -53,7 +53,7 @@ public sealed class WriteBatchWrapper : IWriteBatch
 
     public IWriteBatch UpdateData(IDocumentReference document, Dictionary<object, object> data)
     {
-        return _wrapped.UpdateData(data, document.ToNative()).ToAbstract();
+        return _wrapped.UpdateData(data.ToNSObjectDictionary(), document.ToNative()).ToAbstract();
     }
 
     public IWriteBatch UpdateData(IDocumentReference document, params (string, object)[] data)

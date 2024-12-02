@@ -19,6 +19,8 @@ public static class JavaObjectExtensions
     public static Java.Lang.Object ToJavaObject(this object @this)
     {
         switch(@this) {
+            case null:
+                return null;
             case string x:
                 return x;
             case int x:

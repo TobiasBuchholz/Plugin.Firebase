@@ -3,6 +3,7 @@
     <PropertyGroup>
         <TargetFrameworks>net8.0;net8.0-android;net8.0-ios</TargetFrameworks>
         <UseMauiEssentials>true</UseMauiEssentials>
+        <MauiVersion>8.0.3</MauiVersion>
         <SingleProject>true</SingleProject>
         <ImplicitUsings>enable</ImplicitUsings>
 
@@ -80,6 +81,10 @@
     </ItemGroup>
 
     <!-- nuget packages -->
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Maui.Essentials" Version="$(MauiVersion)" />
+    </ItemGroup>
+
     <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-android'">
         <PackageReference Include="Xamarin.Facebook.Android" Version="11.2.0.1" />
     </ItemGroup>

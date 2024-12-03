@@ -80,6 +80,9 @@ Since code should be documenting itself you can also take a look at the followin
 - [tests/.../FirestoreFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Firestore/FirestoreFixture.cs)
 
 ## Release notes
+- Version 3.1.1
+  - ToNSObject and ToJavaObject handle null inputs (PR #352)
+  - Fixing IWriteBatch.UpdateData issue where .NET objects were not being converted to NSObjects (PR #351)
 - Version 3.1.0
   - Update to .net8
 - Version 3.0.0

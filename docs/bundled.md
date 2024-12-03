@@ -46,6 +46,8 @@ using Plugin.Firebase.Bundled.Platforms.Android;
 #endif
 ```
 ## Release notes
+- Version 3.1.2
+  - Plugin.Firebase.Firestore 3.1.1
 - Version 3.1.1
   - Plugin.Firebase.CloudMessaging 3.1.1
 - Version 3.1.0

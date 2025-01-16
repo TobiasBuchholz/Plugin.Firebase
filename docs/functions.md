@@ -26,6 +26,8 @@ Since code should be documenting itself you can also take a look at the followin
 - [tests/cloud-functions/.../index.ts](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/cloud-functions/functions/src/index.ts)
 
 ## Release notes
+- Version 3.1.1
+  - Using AdamE.Firebase.iOS.* minimum version 11
 - Version 3.1.0
   - Update to .net8
 - Version 3.0.0

@@ -36,6 +36,41 @@ The migration to `AdamE.Firebase.iOS.*` packages additionally bumps underlying n
 4. Set `[GoogleService-Info.plist|google-services.json]` **build action** behaviour to `[Bundle Resource|GoogleServicesJson]` by Right clicking/Build Action.
 5. (iOS only) Check the Readme at [AdamEssenmacher/GoogleApisForiOSComponents](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents) for additional setup steps that may be required.
 
+### Dependency Management
+This plugin is a wrapper around the iOS/Android Firebase platform bindings. As such, it takes dependencies on the *minimum* versions of the Firebase iOS/Android SDKs that are required to support the features of the plugin.
+
+Therefore, it is up to developers to manage the versions of the Firebase iOS/Android SDKs that are included in their projects. This is done by adding the appropriate `AdamE.Firebase.iOS.*` and `Xamarin.Firebase.*` NuGet packages to your project. This is not strictly required for the plugin to work, but it is recommended to ensure that you are using the latest versions of the Firebase SDKs.
+
+When new major versions of the native SDKs are released, Plugin.Firebase may or may not be compatible with them. It depends on whether or not the major version bumb includes breaking API changes. In such cases, report an issue and the plugin will be updated to support the new version.
+
+#### iOS Dependencies
+
+- AdamE.Firebase.iOS.Analytics
+- AdamE.Firebase.iOS.Auth
+- AdamE.Firebase.iOS.CloudMessaging
+- AdamE.Firebase.iOS.Core
+- AdamE.Firebase.iOS.Crashlytics
+- AdamE.Firebase.iOS.DynamicLinks
+- AdamE.Firebase.iOS.Firestore
+- AdamE.Firebase.iOS.Functions
+- AdamE.Firebase.iOS.RemoteConfig
+- AdamE.Firebase.iOS.Storage
+
+Note: It is recommended to use the same version number for all AdamE.Firebase.iOS.* packages (e.g. 11.6.0)
+
+#### Android Dependencies
+
+- Xamarin.Firebase.Analytics
+- Xamarin.Firebase.Auth
+- Xamarin.Firebase.Messaging
+- Xamarin.Firebase.Common
+- Xamarin.Firebase.Crashlytics
+- Xamarin.Firebase.DynamicLinks
+- Xamarin.Firebase.Firestore
+- Xamarin.Firebase.Functions
+- Xamarin.Firebase.Config
+- Xamarin.Firebase.Storage
+
 ### .NET MAUI support
 The new plugin version 1.2.0 now supports .NET MAUI applications with .NET 6 🚀 
 

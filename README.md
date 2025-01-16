@@ -234,7 +234,7 @@ Don't open or build the project in VS until you have done the next part.
 
 Navigate to your project folder and run in a command line:
 
-`dotnet add package Xamarin.Firebase.iOS.Core`
+`dotnet add package AdamE.Firebase.iOS.Core`
 
 ##### Additional hints:
 - The long path problem is caused by XCFramework format. These are just naturally going to have long file names.

@@ -1,5 +1,4 @@
 using System.Collections;
-using Foundation;
 
 namespace Plugin.Firebase.Auth.Platforms.iOS.Extensions;
 

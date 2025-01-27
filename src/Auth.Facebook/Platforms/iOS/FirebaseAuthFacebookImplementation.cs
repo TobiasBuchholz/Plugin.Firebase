@@ -1,11 +1,9 @@
 using Facebook.CoreKit;
 using Firebase.Auth;
-using Foundation;
 using Plugin.Firebase.Auth.Platforms.iOS.Extensions;
 using Plugin.Firebase.Auth.Platforms.iOS.Facebook;
 using Plugin.Firebase.Core;
 using Plugin.Firebase.Core.Exceptions;
-using UIKit;
 using FirebaseAuth = Firebase.Auth.Auth;
 
 namespace Plugin.Firebase.Auth.Facebook;

@@ -1,8 +1,6 @@
 using Firebase.Storage;
-using Foundation;
 using Plugin.Firebase.Core.Exceptions;
 using Plugin.Firebase.Storage.Platforms.iOS.Extensions;
-using NativeStorageTaskStatus = Firebase.Storage.StorageTaskStatus;
 using NativeStorageMetadata = Firebase.Storage.StorageMetadata;
 
 namespace Plugin.Firebase.Storage.Platforms.iOS;

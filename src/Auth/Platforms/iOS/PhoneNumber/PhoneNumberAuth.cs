@@ -1,6 +1,4 @@
 using Firebase.Auth;
-using Foundation;
-using UIKit;
 
 namespace Plugin.Firebase.Auth.Platforms.iOS.PhoneNumber;
 

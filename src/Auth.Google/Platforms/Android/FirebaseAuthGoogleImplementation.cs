@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Android.Content;
 using AndroidX.Fragment.App;
 using Firebase.Auth;

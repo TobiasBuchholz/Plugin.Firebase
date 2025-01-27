@@ -1,6 +1,5 @@
 using System.Text.Json;
 using Firebase.CloudFunctions;
-using Foundation;
 using Plugin.Firebase.Core.Exceptions;
 
 namespace Plugin.Firebase.Functions.Platforms.iOS;

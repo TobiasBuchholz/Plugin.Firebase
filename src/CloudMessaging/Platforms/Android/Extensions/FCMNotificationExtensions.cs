@@ -1,5 +1,4 @@
 using Android.Content;
-using Android.OS;
 using Firebase.Messaging;
 
 namespace Plugin.Firebase.CloudMessaging.Platforms.Android.Extensions;

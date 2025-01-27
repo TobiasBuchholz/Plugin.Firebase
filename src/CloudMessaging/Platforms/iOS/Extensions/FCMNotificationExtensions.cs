@@ -1,4 +1,3 @@
-using Foundation;
 using UserNotifications;
 
 namespace Plugin.Firebase.CloudMessaging.Platforms.iOS.Extensions;

@@ -1,4 +1,3 @@
-using Android.App;
 using Firebase;
 
 namespace Plugin.Firebase.Core.Platforms.Android;

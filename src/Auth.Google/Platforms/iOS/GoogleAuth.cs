@@ -3,29 +3,25 @@ using Google.SignIn;
 
 namespace Plugin.Firebase.Auth.Platforms.iOS.Google;
 
-public sealed class GoogleAuth : NSObject, ISignInDelegate
+public sealed class GoogleAuth : NSObject
 {
     private UIViewController _viewController;
     private TaskCompletionSource<AuthCredential> _tcs;
-
-    public GoogleAuth()
-    {
-        SignIn.SharedInstance.Delegate = this;
-    }
 
     public Task<AuthCredential> GetCredentialAsync(UIViewController viewController)
     {
         _viewController = viewController;
         _tcs = new TaskCompletionSource<AuthCredential>();
-        SignIn.SharedInstance.PresentingViewController = viewController;
-        SignIn.SharedInstance.SignInUser();
+        SignIn.SharedInstance.SignInWithPresentingViewController(viewController, DidSignIn);
         return _tcs.Task;
     }
 
-    public void DidSignIn(SignIn signIn, GoogleUser user, NSError error)
+    public void DidSignIn(SignInResult signIn, NSError error)
     {
+        var user = signIn.User;
+
         if(user != null && error == null) {
-            _tcs?.SetResult(GoogleAuthProvider.GetCredential(user.Authentication.IdToken, user.Authentication.AccessToken));
+            _tcs?.SetResult(GoogleAuthProvider.GetCredential(user.IdToken.TokenString, user.AccessToken.TokenString));
         } else {
             _tcs?.SetException(new NSErrorException(error));
         }

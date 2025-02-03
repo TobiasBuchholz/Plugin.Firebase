@@ -16,12 +16,12 @@ public sealed class FirebaseAuthGoogleImplementation : DisposableBase, IFirebase
         var clientId = googleServiceDictionary["CLIENT_ID"].ToString();
         SignIn.SharedInstance.Configuration = new Configuration(clientId);
     }
-
+    
     public static bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options)
     {
         return SignIn.SharedInstance.HandleUrl(url);
     }
-
+    
     private readonly FirebaseAuth _firebaseAuth;
     private static Lazy<GoogleAuth> _googleAuth;
 
@@ -30,7 +30,7 @@ public sealed class FirebaseAuthGoogleImplementation : DisposableBase, IFirebase
         _firebaseAuth = FirebaseAuth.DefaultInstance;
         _googleAuth = new Lazy<GoogleAuth>(() => new GoogleAuth());
     }
-
+    
     public async Task<IFirebaseUser> SignInWithGoogleAsync()
     {
         try {
@@ -40,13 +40,13 @@ public sealed class FirebaseAuthGoogleImplementation : DisposableBase, IFirebase
             throw GetFirebaseAuthException(e);
         }
     }
-
+    
     private async Task<IFirebaseUser> SignInWithCredentialAsync(AuthCredential credential)
     {
         var authResult = await _firebaseAuth.SignInWithCredentialAsync(credential);
         return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
     }
-
+    
     private static FirebaseAuthException GetFirebaseAuthException(NSErrorException ex)
     {
         AuthErrorCode errorCode;
@@ -59,7 +59,7 @@ public sealed class FirebaseAuthGoogleImplementation : DisposableBase, IFirebase
         Enum.TryParse(errorCode.ToString(), out FIRAuthError authError);
         return new FirebaseAuthException(authError, ex.Error.LocalizedDescription);
     }
-
+    
     public async Task<IFirebaseUser> LinkWithGoogleAsync()
     {
         try {
@@ -70,19 +70,19 @@ public sealed class FirebaseAuthGoogleImplementation : DisposableBase, IFirebase
             throw GetFirebaseAuthException(e);
         }
     }
-
+    
     private async Task<IFirebaseUser> LinkWithCredentialAsync(AuthCredential credential)
     {
         var authResult = await _firebaseAuth.CurrentUser.LinkAsync(credential);
         return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
     }
-
+    
     public Task SignOutAsync()
     {
         _googleAuth.Value.SignOut();
         return Task.CompletedTask;
     }
-
+    
     private static UIViewController ViewController {
         get {
             var rootViewController = UIApplication.SharedApplication.KeyWindow.RootViewController;

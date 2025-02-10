@@ -20,7 +20,7 @@
 
         <!--Assembly and Namespace info -->
         <PackageId>Plugin.Firebase.DynamicLinks</PackageId>
-        <PackageVersion>3.1.0</PackageVersion>
+        <PackageVersion>3.1.1</PackageVersion>
 
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/TobiasBuchholz/Plugin.Firebase</PackageProjectUrl>
@@ -78,7 +78,7 @@
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-ios'">
-        <PackageReference Include="AdamE.Firebase.iOS.DynamicLinks" Version="10.24.0-alpha1" />
+        <PackageReference Include="AdamE.Firebase.iOS.DynamicLinks" Version="[11.0.0,)" />
     </ItemGroup>
 
 </Project>

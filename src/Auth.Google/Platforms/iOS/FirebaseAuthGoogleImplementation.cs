@@ -1,10 +1,10 @@
 using Firebase.Auth;
+using Google.SignIn;
 using Plugin.Firebase.Auth.Platforms.iOS.Extensions;
+using Plugin.Firebase.Auth.Platforms.iOS.Google;
 using Plugin.Firebase.Core;
 using Plugin.Firebase.Core.Exceptions;
 using FirebaseAuth = Firebase.Auth.Auth;
-using Google.SignIn;
-using Plugin.Firebase.Auth.Platforms.iOS.Google;
 
 namespace Plugin.Firebase.Auth.Google;
 
@@ -12,8 +12,9 @@ public sealed class FirebaseAuthGoogleImplementation : DisposableBase, IFirebase
 {
     public static void Initialize()
     {
-        var googleServiceDictionary = NSDictionary.FromFile("GoogleService-Info.plist");
-        SignIn.SharedInstance.ClientId = googleServiceDictionary["CLIENT_ID"].ToString();
+        var googleServiceDictionary = NSMutableDictionary.FromFile("GoogleService-Info.plist");
+        var clientId = googleServiceDictionary["CLIENT_ID"].ToString();
+        SignIn.SharedInstance.Configuration = new Configuration(clientId);
     }
     
     public static bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options)

@@ -35,11 +35,13 @@ public static class ListExtensions
 
     public static JavaList ToJavaList(this IEnumerable @this)
     {
-        var list = new JavaList();
-        foreach(var item in @this) {
+        // Refactored to address https://github.com/TobiasBuchholz/Plugin.Firebase/issues/392
+        var list = new List<object>();
+        foreach (var item in @this)
+        {
             list.Add(item.ToJavaObject());
         }
-        return list;
+        return new JavaList(list);;
     }
 
 }

@@ -1,4 +1,4 @@
-using Firebase.CloudFirestore;
+using Firebase.Core;
 
 namespace Plugin.Firebase.Firestore.Platforms.iOS.Extensions;
 

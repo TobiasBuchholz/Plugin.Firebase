@@ -46,6 +46,8 @@ using Plugin.Firebase.Bundled.Platforms.Android;
 #endif
 ```
 ## Release notes
+- Version 3.1.3
+  - Using AdamE.Firebase.iOS.* minimum version 11
 - Version 3.1.2
   - Plugin.Firebase.Firestore 3.1.1
 - Version 3.1.1

@@ -1,4 +1,5 @@
 using Plugin.Firebase.Firestore;
+using System.Collections;
 
 namespace Plugin.Firebase.IntegrationTests.Firestore
 {
@@ -320,6 +321,15 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
 
             Assert.Equal(4, snapshot.Data.map_example["legs"]);
             Assert.Equal(3, snapshot.Data.map_example["colors"]);
+
+            var updates = new Dictionary<object, object> {
+                { "map_example.colors", FieldValue.IntegerIncrement(1) }
+            };
+
+            await document.UpdateDataAsync(updates);
+
+            snapshot = await document.GetDocumentSnapshotAsync<Pokemon>();
+            Assert.Equal(4, snapshot.Data.map_example["colors"]);
         }
 
         [Fact]

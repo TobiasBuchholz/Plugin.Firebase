@@ -77,6 +77,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 pokeType: PokeType.Fire,
                 moves: new List<string> { "Scratch", "Body-Slam", "Fire-Punch" },
                 firstSightingLocation: new SightingLocation(52.5042112, 13.5290173),
+                exampleMap: new Dictionary<string, long>() { { "legs", 4 },{ "colors", 3} },
                 items: CreateSimpleItems("Antidote"));
         }
 

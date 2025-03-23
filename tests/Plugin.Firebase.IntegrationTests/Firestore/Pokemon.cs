@@ -23,6 +23,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             IList<double> someNumbers = null,
             SightingLocation firstSightingLocation = null,
             IList<SimpleItem> items = null,
+            IDictionary<string, long> exampleMap = null,
             IDocumentReference originalReference = null)
         {
             Id = id;
@@ -38,6 +39,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             Items = items;
             CreationDate = DateTime.Now;
             OriginalReference = originalReference;
+            map_example = exampleMap;
         }
 
         /// <summary>
@@ -124,5 +126,8 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
 
         [FirestoreProperty("original_reference")]
         public IDocumentReference OriginalReference { get; private set; }
+
+        [FirestoreProperty("map_example")]
+        public IDictionary<string, long> map_example { get; set; }
     }
 }

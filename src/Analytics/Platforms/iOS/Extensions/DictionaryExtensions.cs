@@ -54,7 +54,10 @@ public static class DictionaryExtensions
             case NSObject x:
                 nsDictionary.Add((NSString) pair.Key, x);
                 break;
-            case IEnumerable<Dictionary<string, object>> x:
+            case IDictionary<string, object> x:
+                nsDictionary.Add((NSString) pair.Key, x.ToNSDictionary());
+                break;
+            case IEnumerable<IDictionary<string, object>> x:
                 nsDictionary.Add((NSString) pair.Key, NSArray.FromObjects(x.Select(d => d.ToNSDictionary()).ToArray()));
                 break;
             default:

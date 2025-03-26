@@ -19,7 +19,10 @@ namespace Plugin.Firebase.IntegrationTests.Analytics
                 ("some_long", 1337L),
                 ("some_double", 13.37),
                 ("some_float", 133.7f),
-                ("some_bool", true));
+                ("some_bool", true),
+                ("some_dictionary", new Dictionary<string, object> { { "some_string", "some_value" } } ),
+                ("some_dictionary_collection", new[] { new Dictionary<string, object> { { "dict_string", "dict_value" } } })
+            );
 
             sut.LogEvent("test_with_dictionary", new Dictionary<string, object> {
                 { "some_string", "some_value" },
@@ -27,7 +30,9 @@ namespace Plugin.Firebase.IntegrationTests.Analytics
                 { "some_long", 1337L },
                 { "some_double", 13.37 },
                 { "some_float", 133.7f },
-                { "some_bool", true }
+                { "some_bool", true },
+                { "some_dictionary", new Dictionary<string, object> { { "some_key", "some_value" } } },
+                { "some_dictionary_collection", new [] { new Dictionary<string, object> { { "some_key", "some_value" } } }}
             });
         }
 

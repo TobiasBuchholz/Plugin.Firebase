@@ -33,6 +33,8 @@ public static class JavaObjectExtensions
                 return x;
             case bool x:
                 return x;
+            case Java.Lang.ICharSequence x:
+                return x.ToString();
             case DateTime x:
                 return x.ToJavaDate();
             case DateTimeOffset x:
@@ -120,7 +122,7 @@ public static class JavaObjectExtensions
 
     private static object ToDictionaryObject(this IDictionary @this, Type targetType)
     {
-        if(targetType != null && targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) {
+        if(targetType is { IsGenericType: true } && (targetType.GetGenericTypeDefinition() == typeof(IDictionary<,>) || targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>))) {
             var types = targetType.GenericTypeArguments;
             return @this.ToDictionary(types[0], types[1]);
         } else {

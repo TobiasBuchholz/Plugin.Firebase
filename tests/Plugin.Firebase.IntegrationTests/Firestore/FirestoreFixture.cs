@@ -303,6 +303,35 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         }
 
         [Fact]
+        public async Task set_and_get_a_map()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var pokemon = PokemonFactory.CreateCharmeleon();
+            var path = $"testing/{pokemon.Id}";
+            var document = sut.GetDocument(path);
+
+            await document.SetDataAsync(pokemon);
+
+            var snapshot = await document.GetDocumentSnapshotAsync<Pokemon>();
+            Assert.False(snapshot.Metadata.HasPendingWrites);
+            Assert.Equal(pokemon.Id, snapshot.Reference.Id);
+            Assert.Equal(path, snapshot.Reference.Path);
+            Assert.Equal(pokemon, snapshot.Data);
+
+            Assert.Equal(4, snapshot.Data.OtherProperties["legs"]);
+            Assert.Equal(3, snapshot.Data.OtherProperties["colors"]);
+
+            var updates = new Dictionary<object, object> {
+                { "other_properties.colors", FieldValue.IntegerIncrement(1) }
+            };
+
+            await document.UpdateDataAsync(updates);
+
+            snapshot = await document.GetDocumentSnapshotAsync<Pokemon>();
+            Assert.Equal(4, snapshot.Data.OtherProperties["colors"]);
+        }
+
+        [Fact]
         public async Task gets_real_time_updates_on_multiple_documents()
         {
             var sut = CrossFirebaseFirestore.Current;

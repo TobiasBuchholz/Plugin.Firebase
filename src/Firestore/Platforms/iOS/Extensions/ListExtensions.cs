@@ -18,7 +18,10 @@ public static class ListExtensions
     {
         var list = (IList) Activator.CreateInstance(typeof(List<>).MakeGenericType(targetType));
         for(nuint i = 0; i < @this.Count; i++) {
-            list.Add(@this.GetItem<NSObject>(i).ToObject(targetType));
+
+            var item = @this.GetItem<NSObject>(i);
+            if(item != null)
+                list.Add(item.ToObject(targetType));
         }
         return list;
     }

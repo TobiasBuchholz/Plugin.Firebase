@@ -76,6 +76,9 @@ public static class DictionaryExtensions
             case IDictionary x:
                 @this.Put(key.ToString(), x.ToHashMapFromNonGenericDict());
                 break;
+            case FieldValue x:
+                @this.Put(key.ToString(), x.ToNative());
+                break;
             case IDocumentReference x:
                 @this.Put(key.ToString(), x.ToJavaObject());
                 break;

@@ -92,7 +92,7 @@ public static class DictionaryExtensions
     {
         if(targetType == null) {
             return @this.ToDictionary();
-        } else if(targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>)) {
+        } else if(targetType.IsGenericType && (targetType.GetGenericTypeDefinition() == typeof(IDictionary<,>) || targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>))) {
             var types = targetType.GenericTypeArguments;
             return @this.ToDictionary(types[0], types[1]);
         } else {

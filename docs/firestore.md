@@ -80,6 +80,8 @@ Since code should be documenting itself you can also take a look at the followin
 - [tests/.../FirestoreFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Firestore/FirestoreFixture.cs)
 
 ## Release notes
+- Version 3.1.3
+  - Added the handling of a FieldValue into a Hashmap correctly + Prevent crashing when a list on the server has a null as an entry (PR #437)
 - Version 3.1.2
   - Using AdamE.Firebase.iOS.* minimum version 11
   - Use JavaObject constructor instead of addding individual items

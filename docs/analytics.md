@@ -31,6 +31,8 @@ Since code should be documenting itself you can also take a look at the followin
 - [tests/.../AnalyticsFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Analytics/AnalyticsFixture.cs)
 
 ## Release notes
+- Version 3.1.2
+  - Add collections support for Analytics (PR #432)
 - Version 3.1.1
   - Using AdamE.Firebase.iOS.* minimum version 11
 - Version 3.1.0

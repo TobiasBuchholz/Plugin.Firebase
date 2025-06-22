@@ -18,7 +18,7 @@ public sealed class GoogleAuth : NSObject
 
     public void DidSignIn(SignInResult signIn, NSError error)
     {
-        var user = signIn.User;
+        var user = signIn?.User;
 
         if(user != null && error == null) {
             _tcs?.SetResult(GoogleAuthProvider.GetCredential(user.IdToken.TokenString, user.AccessToken.TokenString));

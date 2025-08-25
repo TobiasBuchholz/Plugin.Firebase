@@ -71,6 +71,8 @@ Since code should be documenting itself you can also take a look at the followin
 - [sample/.../AuthService.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/sample/Playground/Common/Services/Auth/AuthService.cs)
 
 ## Release notes
+- Version 3.1.2
+  - Fix NRE with Google Auth when cancelling sign in (#500)
 - Version 3.1.1
   - Using AdamE.Firebase.iOS.* minimum version 11
 - Version 3.1.0

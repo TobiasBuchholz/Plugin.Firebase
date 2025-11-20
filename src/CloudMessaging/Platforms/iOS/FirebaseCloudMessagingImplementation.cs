@@ -92,7 +92,13 @@ public sealed class FirebaseCloudMessagingImplementation : NSObject, IFirebaseCl
         if(_notificationTapped == null) {
             _missedTappedNotification = response.Notification.ToFCMNotification();
         } else {
-            _notificationTapped.Invoke(this, new FCMNotificationTappedEventArgs(response.Notification.ToFCMNotification()));
+            var notification = response.Notification.ToFCMNotification();
+            var actionId = response.ActionIdentifier.ToString();
+            if(!string.IsNullOrEmpty(actionId)) 
+            {
+                notification.Data[nameof(response.ActionIdentifier)] = actionId;
+            }
+            _notificationTapped.Invoke(this, new FCMNotificationTappedEventArgs(notification));
         }
 
         completionHandler();

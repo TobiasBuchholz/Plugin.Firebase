@@ -171,10 +171,11 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         }
     }
 
-    public async Task SignOutAsync()
+    public Task SignOutAsync()
     {
         try {
             _firebaseAuth.SignOut();
+            return Task.CompletedTask;
         } catch(Exception e) {
             throw GetFirebaseAuthException(e);
         }

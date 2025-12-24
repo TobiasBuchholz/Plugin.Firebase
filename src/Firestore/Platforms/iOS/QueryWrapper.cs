@@ -126,7 +126,7 @@ public class QueryWrapper : IQuery
 
     public IQuery EndingAt(params object[] fieldValues)
     {
-        return _wrapped.EndingAt(fieldValues.Select(x => x.ToNSObject()).ToArray()).ToAbstract(); ;
+        return _wrapped.EndingAt(fieldValues.Select(x => x.ToNSObject()).ToArray()).ToAbstract();
     }
 
     public IQuery EndingAt(IDocumentSnapshot snapshot)
@@ -146,7 +146,7 @@ public class QueryWrapper : IQuery
 
     public IQuery LimitedTo(int limit)
     {
-        return _wrapped.LimitedTo(limit).ToAbstract(); ;
+        return _wrapped.LimitedTo(limit).ToAbstract();
     }
 
     public IQuery LimitedToLast(int limit)

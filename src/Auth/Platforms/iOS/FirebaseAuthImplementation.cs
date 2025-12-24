@@ -124,7 +124,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
                 throw new PlatformNotSupportedException();
             }
 
-            if(appleAuthResult != null && !String.IsNullOrEmpty(appleAuthResult.IdToken)) {
+            if(!string.IsNullOrEmpty(appleAuthResult.IdToken)) {
                 credential = OAuthProvider.GetCredential("apple.com", appleAuthResult.IdToken, null);
             } else {
                 throw new ApplicationException("Cannot authenticate user with Native Apple Sign In API");

@@ -158,7 +158,12 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
 
     private async Task<IFirebaseUser> LinkWithCredentialAsync(AuthCredential credential)
     {
-        var authResult = await _firebaseAuth.CurrentUser.LinkAsync(credential);
+        var currentUser = _firebaseAuth.CurrentUser;
+        if(currentUser is null) {
+            throw new InvalidOperationException("User must be signed in to link with credential.");
+        }
+
+        var authResult = await currentUser.LinkAsync(credential);
         return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
     }
 

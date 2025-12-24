@@ -51,7 +51,7 @@ public sealed class FirebaseAuthGoogleImplementation : DisposableBase, IFirebase
     {
         AuthErrorCode errorCode;
         if(IntPtr.Size == 8) { // 64 bits devices
-            errorCode = (AuthErrorCode) (long) ex.Error.Code;
+            errorCode = (AuthErrorCode) ex.Error.Code;
         } else { // 32 bits devices
             errorCode = (AuthErrorCode) (int) ex.Error.Code;
         }

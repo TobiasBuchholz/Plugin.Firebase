@@ -24,7 +24,7 @@ public static class NotificationBuilderExtensions
 
     private static Bitmap DecodeBitmap(string url)
     {
-        var connection = (URLConnection) new URL(url).OpenConnection();
+        var connection = new URL(url).OpenConnection();
         return connection == null
             ? throw new FirebaseException($"Couldn't open connection to url: {url}")
             : DecodeBitmap(connection);

@@ -2,7 +2,7 @@ namespace Plugin.Firebase.Core;
 
 public class DisposableBase : IDisposable
 {
-    private bool disposed = false;
+    private bool _disposed;
 
     public void Dispose()
     {
@@ -17,12 +17,12 @@ public class DisposableBase : IDisposable
 
     public virtual void Dispose(bool disposing)
     {
-        if(!disposed) {
+        if(!_disposed) {
             if(disposing) {
                 //dispose only
             }
 
-            disposed = true;
+            _disposed = true;
         }
     }
 }

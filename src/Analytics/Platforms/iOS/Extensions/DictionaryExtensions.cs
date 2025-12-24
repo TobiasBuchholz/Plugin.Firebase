@@ -57,7 +57,8 @@ public static class DictionaryExtensions
                 nsDictionary.Add((NSString) pair.Key, x.ToNSDictionary());
                 break;
             case IEnumerable<IDictionary<string, object>> x:
-                nsDictionary.Add((NSString) pair.Key, NSArray.FromObjects(x.Select(d => d.ToNSDictionary()).ToArray()));
+                nsDictionary.Add((NSString) pair.Key,
+                    NSArray.FromObjects(x.Select(d => d.ToNSDictionary()).ToArray<object>()));
                 break;
             default:
                 if(pair.Value is Enum @enum) {

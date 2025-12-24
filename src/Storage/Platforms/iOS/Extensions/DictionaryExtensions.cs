@@ -13,6 +13,7 @@ public static class DictionaryExtensions
 
     public static NSDictionary<NSString, NSString> ToNSDictionary(this IDictionary<string, string> @this)
     {
-        return NSDictionary<NSString, NSString>.FromObjectsAndKeys(@this.Values.ToArray(), @this.Keys.ToArray());
+        return NSDictionary<NSString, NSString>.FromObjectsAndKeys(@this.Values.ToArray<object>(),
+            @this.Keys.ToArray<object>());
     }
 }

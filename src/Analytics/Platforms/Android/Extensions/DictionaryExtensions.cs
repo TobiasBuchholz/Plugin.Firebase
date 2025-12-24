@@ -1,3 +1,5 @@
+using Android.OS;
+
 namespace Plugin.Firebase.Analytics.Platforms.Android.Extensions;
 
 public static class DictionaryExtensions
@@ -40,7 +42,7 @@ public static class DictionaryExtensions
                 @this.PutBundle(key, x.ToBundle());
                 break;
             case IEnumerable<IDictionary<string, object>> x:
-                @this.PutParcelableArray(key, x.Select(d => d.ToBundle()).ToArray());
+                @this.PutParcelableArray(key, x.Select(d => d.ToBundle()).ToArray<IParcelable>());
                 break;
             default:
                 if(value == null) {

@@ -5,6 +5,7 @@
         <SingleProject>true</SingleProject>
         <ImplicitUsings>enable</ImplicitUsings>
 
+        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">23.0</SupportedOSPlatformVersion>
         
         <!--Assembly and Namespace info -->

@@ -7,6 +7,8 @@
         <SingleProject>true</SingleProject>
         <ImplicitUsings>enable</ImplicitUsings>
 
+        <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+
         <!--Assembly and Namespace info -->
         <AssemblyName>Plugin.Firebase.Auth</AssemblyName>
         <RootNamespace>Plugin.Firebase.Auth</RootNamespace>

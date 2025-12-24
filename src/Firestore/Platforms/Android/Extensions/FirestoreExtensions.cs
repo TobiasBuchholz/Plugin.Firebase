@@ -119,16 +119,14 @@ namespace Plugin.Firebase.Firestore.Platforms.Android.Extensions
 
         public static FirestoreSettings ToAbstract(this FirebaseFirestoreSettings @this)
         {
-            return new FirestoreSettings(@this.Host, @this.IsPersistenceEnabled, @this.IsSslEnabled, @this.CacheSizeBytes);
+            return new FirestoreSettings(@this.Host, @this.IsSslEnabled);
         }
 
         public static FirebaseFirestoreSettings ToNative(this FirestoreSettings @this)
         {
             return new FirebaseFirestoreSettings.Builder()
                 .SetHost(@this.Host)
-                .SetPersistenceEnabled(@this.IsPersistenceEnabled)
                 .SetSslEnabled(@this.IsSslEnabled)
-                .SetCacheSizeBytes(@this.CacheSizeBytes)
                 .Build();
         }
 

@@ -106,16 +106,14 @@ namespace Plugin.Firebase.Firestore.Platforms.iOS.Extensions
 
         public static FirestoreSettings ToAbstract(this NativeFirestoreSettings @this)
         {
-            return new FirestoreSettings(@this.Host, @this.PersistenceEnabled, @this.SslEnabled, @this.CacheSizeBytes);
+            return new FirestoreSettings(@this.Host, @this.SslEnabled);
         }
 
         public static NativeFirestoreSettings ToNative(this FirestoreSettings @this)
         {
             return new NativeFirestoreSettings {
                 Host = @this.Host,
-                PersistenceEnabled = @this.IsPersistenceEnabled,
-                SslEnabled = @this.IsSslEnabled,
-                CacheSizeBytes = @this.CacheSizeBytes
+                SslEnabled = @this.IsSslEnabled
             };
         }
 

@@ -87,7 +87,7 @@ public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseF
     public void UseEmulator(string host, int port)
     {
         _firestore.UseEmulatorWithHost(host, (uint) port);
-        Settings = new FirestoreSettings(Settings.Host, false, false, Settings.CacheSizeBytes);
+        Settings = new FirestoreSettings(Settings.Host);
     }
 
     public FirestoreSettings Settings {

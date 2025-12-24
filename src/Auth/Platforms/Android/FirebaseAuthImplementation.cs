@@ -1,6 +1,4 @@
-using Android.Content;
 using Android.Gms.Extensions;
-using AndroidX.Fragment.App;
 using Firebase.Auth;
 using Microsoft.Maui.ApplicationModel;
 using Plugin.Firebase.Auth.Platforms.Android.Email;
@@ -216,14 +214,8 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         return new DisposableWithAction(() => _firebaseAuth.RemoveAuthStateListener(authStateListener));
     }
 
-    private static FragmentActivity FragmentActivity =>
-        Activity as FragmentActivity ?? throw new NullReferenceException($"Current Activity is either null or not of type {nameof(FragmentActivity)}, which is mandatory for sign in with Google");
-
     private static Activity Activity =>
         Platform.CurrentActivity ?? throw new NullReferenceException("Platform.CurrentActivity is null");
-
-    private static Context AppContext =>
-        Platform.AppContext ?? throw new NullReferenceException("Platform.AppContext is null");
 
     public IFirebaseUser CurrentUser => _firebaseAuth.CurrentUser?.ToAbstract();
     

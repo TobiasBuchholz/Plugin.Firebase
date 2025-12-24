@@ -111,8 +111,8 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
     public async Task<IFirebaseUser> SignInWithAppleAsync()
     {
         try {
-            WebAuthenticatorResult appleAuthResult = null;
-            OAuthCredential credential = null;
+            WebAuthenticatorResult appleAuthResult;
+            OAuthCredential credential;
 
             if(DeviceInfo.Platform == DevicePlatform.iOS && DeviceInfo.Version.Major >= 13) {
                 var options = new AppleSignInAuthenticator.Options { IncludeEmailScope = true };

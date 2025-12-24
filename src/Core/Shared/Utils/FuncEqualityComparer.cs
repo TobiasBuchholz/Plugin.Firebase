@@ -6,7 +6,7 @@ public class FuncEqualityComparer<T> : IEqualityComparer<T>
     private readonly Func<T, int> _hash;
 
     public FuncEqualityComparer(Func<T, T, bool> comparer)
-        : this(comparer, t => 0)
+        : this(comparer, _ => 0)
     {
     }
 

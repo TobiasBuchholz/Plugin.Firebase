@@ -54,7 +54,7 @@ public sealed class FirebaseCloudMessagingImplementation : NSObject, IFirebaseCl
     {
         UNUserNotificationCenter.Current.RequestAuthorization(
             UNAuthorizationOptions.Alert | UNAuthorizationOptions.Badge | UNAuthorizationOptions.Sound,
-            (granted, error) => {
+            (granted, _) => {
                 if(!granted) {
                     Error?.Invoke(this, new FCMErrorEventArgs("User permission for remote notifications is not granted"));
                 }

@@ -15,7 +15,7 @@ public static class NSObjectExtensions
                 return x.ToDateTimeOffset();
             case NSArray x:
                 return x.ToList(GetGenericListType(targetType));
-            case NSNull x:
+            case NSNull:
                 return null;
             default:
                 throw new ArgumentException($"Could not convert NSObject of type {@this.GetType()} to object");

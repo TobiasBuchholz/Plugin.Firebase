@@ -189,8 +189,11 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
 
     public Task SignOutAsync()
     {
-        _firebaseAuth.SignOut(out var e);
-        return Task.CompletedTask;
+        _firebaseAuth.SignOut(out var error);
+
+        return error is null
+            ? Task.CompletedTask
+            : throw new FirebaseException("Errored signing out", new NSErrorException(error));
     }
 
     public bool IsSignInWithEmailLink(string link)

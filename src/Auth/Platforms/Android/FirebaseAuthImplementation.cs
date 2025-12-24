@@ -184,11 +184,17 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
 
     public Task SendPasswordResetEmailAsync()
     {
-        if(_firebaseAuth.CurrentUser == null) {
+        var currentUser = _firebaseAuth.CurrentUser;
+        if(currentUser is null) {
             throw new FirebaseException("CurrentUser is null. You need to be logged in to use this feature.");
-        } else {
-            return _firebaseAuth.SendPasswordResetEmailAsync(_firebaseAuth.CurrentUser.Email);
         }
+
+        var email = currentUser.Email;
+        if(email is null) {
+            throw new FirebaseException("CurrentUser.Email is null.");
+        }
+
+        return _firebaseAuth.SendPasswordResetEmailAsync(email);
     }
 
     public Task SendPasswordResetEmailAsync(string email)

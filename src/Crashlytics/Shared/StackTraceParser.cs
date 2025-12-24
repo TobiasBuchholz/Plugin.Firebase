@@ -4,7 +4,7 @@ namespace Plugin.Firebase.Crashlytics;
 
 internal static class StackTraceParser
 {
-    private static readonly Regex _regex = new(@"^\s*at (?<className>.+)\.(?<methodName>.+\(.*\))( in (?<fileName>.+):line (?<lineNumber>\d+))?\s*$",
+    private static readonly Regex Regex = new(@"^\s*at (?<className>.+)\.(?<methodName>.+\(.*\))( in (?<fileName>.+):line (?<lineNumber>\d+))?\s*$",
         RegexOptions.Multiline | RegexOptions.ExplicitCapture);
 
     public static IEnumerable<StackFrame> Parse(Exception exception)
@@ -56,7 +56,7 @@ internal static class StackTraceParser
     private static IEnumerable<StackFrame> ParseStackTrace(string stackTrace)
     {
         if(string.IsNullOrEmpty(stackTrace)) yield break;
-        foreach(Match match in _regex.Matches(stackTrace)) {
+        foreach(Match match in Regex.Matches(stackTrace)) {
             var className = match.Groups["className"].Value;
             var methodName = match.Groups["methodName"].Value;
             var lineNumberGroup = match.Groups["lineNumber"];

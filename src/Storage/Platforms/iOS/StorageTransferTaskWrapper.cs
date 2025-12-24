@@ -3,15 +3,15 @@ using Plugin.Firebase.Storage.Platforms.iOS.Extensions;
 
 namespace Plugin.Firebase.Storage.Platforms.iOS;
 
-public sealed class StorageTransferTaskWrapper<StorageTransferTask, CompletionResult> : IStorageTransferTask
-    where StorageTransferTask : StorageObservableTask, IStorageTaskManagement
+public sealed class StorageTransferTaskWrapper<TStorageTransferTask, TCompletionResult> : IStorageTransferTask
+    where TStorageTransferTask : StorageObservableTask, IStorageTaskManagement
 {
-    private readonly TaskCompletionSource<CompletionResult> _tcs;
+    private readonly TaskCompletionSource<TCompletionResult> _tcs;
     private readonly IDictionary<Action<IStorageTaskSnapshot>, string> _observerDict;
 
     public StorageTransferTaskWrapper()
     {
-        _tcs = new TaskCompletionSource<CompletionResult>();
+        _tcs = new TaskCompletionSource<TCompletionResult>();
         _observerDict = new Dictionary<Action<IStorageTaskSnapshot>, string>();
 
         CompletionHandler = (result, error) => {
@@ -61,7 +61,7 @@ public sealed class StorageTransferTaskWrapper<StorageTransferTask, CompletionRe
         TransferTask.Cancel();
     }
 
-    public delegate void StorageTransferCompletionHandler(CompletionResult result, NSError error);
+    public delegate void StorageTransferCompletionHandler(TCompletionResult result, NSError error);
     public StorageTransferCompletionHandler CompletionHandler { get; }
-    public StorageTransferTask TransferTask { private get; set; }
+    public TStorageTransferTask TransferTask { private get; set; }
 }

@@ -129,7 +129,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
 
             return await SignInWithCredentialAsync(credential);
         } catch(NSErrorException e) {
-            throw new FirebaseException(e.Error?.LocalizedDescription);
+            throw new FirebaseException(e.Error.LocalizedDescription);
         }
     }
 

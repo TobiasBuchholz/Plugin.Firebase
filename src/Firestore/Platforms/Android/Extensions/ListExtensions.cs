@@ -45,7 +45,7 @@ public static class ListExtensions
         {
             list.Add(item.ToJavaObject());
         }
-        return new JavaList(list);;
+        return new JavaList(list);
     }
 
 }

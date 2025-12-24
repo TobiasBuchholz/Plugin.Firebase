@@ -117,7 +117,7 @@ public static class NSObjectExtensions
 
     private static Type GetGenericListType(Type targetType)
     {
-        var genericType = targetType.GenericTypeArguments?.FirstOrDefault();
+        var genericType = targetType.GenericTypeArguments.FirstOrDefault();
         if(genericType == null) {
             throw new ArgumentException($"Couldn't get generic list type of targetType {targetType}. Make sure to use a list IList<T> instead of an array T[] as type in your FirestoreObject.");
         }

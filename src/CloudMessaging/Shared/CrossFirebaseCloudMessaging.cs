@@ -2,7 +2,7 @@ namespace Plugin.Firebase.CloudMessaging
 {
     public sealed class CrossFirebaseCloudMessaging
     {
-        private static Lazy<IFirebaseCloudMessaging> _implementation = new Lazy<IFirebaseCloudMessaging>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);
+        private static Lazy<IFirebaseCloudMessaging> _implementation = new Lazy<IFirebaseCloudMessaging>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
 
         private static IFirebaseCloudMessaging CreateInstance()
         {
@@ -43,7 +43,7 @@ namespace Plugin.Firebase.CloudMessaging
         {
             if(_implementation != null && _implementation.IsValueCreated) {
                 _implementation.Value.Dispose();
-                _implementation = new Lazy<IFirebaseCloudMessaging>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);
+                _implementation = new Lazy<IFirebaseCloudMessaging>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
             }
         }
     }

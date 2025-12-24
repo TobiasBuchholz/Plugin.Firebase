@@ -2,7 +2,7 @@ namespace Plugin.Firebase.Auth.Google;
 
 public sealed class CrossFirebaseAuthGoogle
 {
-    private static Lazy<IFirebaseAuthGoogle> _implementation = new Lazy<IFirebaseAuthGoogle>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);
+    private static Lazy<IFirebaseAuthGoogle> _implementation = new Lazy<IFirebaseAuthGoogle>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
 
     private static IFirebaseAuthGoogle CreateInstance()
     {
@@ -43,7 +43,7 @@ public sealed class CrossFirebaseAuthGoogle
     {
         if(_implementation != null && _implementation.IsValueCreated) {
             _implementation.Value.Dispose();
-            _implementation = new Lazy<IFirebaseAuthGoogle>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);
+            _implementation = new Lazy<IFirebaseAuthGoogle>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
         }
     }
 }

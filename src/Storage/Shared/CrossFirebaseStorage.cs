@@ -2,7 +2,7 @@ namespace Plugin.Firebase.Storage;
 
 public sealed class CrossFirebaseStorage
 {
-    private static Lazy<IFirebaseStorage> _implementation = new Lazy<IFirebaseStorage>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);
+    private static Lazy<IFirebaseStorage> _implementation = new Lazy<IFirebaseStorage>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
 
     private static IFirebaseStorage CreateInstance()
     {
@@ -43,7 +43,7 @@ public sealed class CrossFirebaseStorage
     {
         if(_implementation != null && _implementation.IsValueCreated) {
             _implementation.Value.Dispose();
-            _implementation = new Lazy<IFirebaseStorage>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);
+            _implementation = new Lazy<IFirebaseStorage>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
         }
     }
 }

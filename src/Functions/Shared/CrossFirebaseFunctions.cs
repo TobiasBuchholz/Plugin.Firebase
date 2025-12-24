@@ -3,7 +3,7 @@ namespace Plugin.Firebase.Functions;
 public sealed class CrossFirebaseFunctions
 {
     private static string _region;
-    private static Lazy<IFirebaseFunctions> _implementation = new Lazy<IFirebaseFunctions>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);
+    private static Lazy<IFirebaseFunctions> _implementation = new Lazy<IFirebaseFunctions>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
 
     private static IFirebaseFunctions CreateInstance()
     {
@@ -53,7 +53,7 @@ public sealed class CrossFirebaseFunctions
     {
         if(_implementation != null && _implementation.IsValueCreated) {
             _implementation.Value.Dispose();
-            _implementation = new Lazy<IFirebaseFunctions>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);
+            _implementation = new Lazy<IFirebaseFunctions>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
         }
     }
 }

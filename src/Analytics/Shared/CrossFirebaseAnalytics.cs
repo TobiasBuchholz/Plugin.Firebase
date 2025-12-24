@@ -2,7 +2,7 @@ namespace Plugin.Firebase.Analytics;
 
 public sealed class CrossFirebaseAnalytics
 {
-    private static Lazy<IFirebaseAnalytics> _implementation = new Lazy<IFirebaseAnalytics>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);
+    private static Lazy<IFirebaseAnalytics> _implementation = new Lazy<IFirebaseAnalytics>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
 
     private static IFirebaseAnalytics CreateInstance()
     {
@@ -43,7 +43,7 @@ public sealed class CrossFirebaseAnalytics
     {
         if(_implementation != null && _implementation.IsValueCreated) {
             _implementation.Value.Dispose();
-            _implementation = new Lazy<IFirebaseAnalytics>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);
+            _implementation = new Lazy<IFirebaseAnalytics>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
         }
     }
 }

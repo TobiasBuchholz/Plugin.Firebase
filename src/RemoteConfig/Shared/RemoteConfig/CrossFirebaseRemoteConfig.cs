@@ -2,7 +2,7 @@ namespace Plugin.Firebase.RemoteConfig;
 
 public sealed class CrossFirebaseRemoteConfig
 {
-    private static Lazy<IFirebaseRemoteConfig> _implementation = new Lazy<IFirebaseRemoteConfig>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);
+    private static Lazy<IFirebaseRemoteConfig> _implementation = new Lazy<IFirebaseRemoteConfig>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
 
     private static IFirebaseRemoteConfig CreateInstance()
     {
@@ -43,7 +43,7 @@ public sealed class CrossFirebaseRemoteConfig
     {
         if(_implementation != null && _implementation.IsValueCreated) {
             _implementation.Value.Dispose();
-            _implementation = new Lazy<IFirebaseRemoteConfig>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);
+            _implementation = new Lazy<IFirebaseRemoteConfig>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
         }
     }
 }

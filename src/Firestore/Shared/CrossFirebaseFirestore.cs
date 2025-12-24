@@ -2,7 +2,7 @@ namespace Plugin.Firebase.Firestore;
 
 public sealed class CrossFirebaseFirestore
 {
-    private static Lazy<IFirebaseFirestore> _implementation = new Lazy<IFirebaseFirestore>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);
+    private static Lazy<IFirebaseFirestore> _implementation = new Lazy<IFirebaseFirestore>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
 
     private static IFirebaseFirestore CreateInstance()
     {
@@ -43,7 +43,7 @@ public sealed class CrossFirebaseFirestore
     {
         if(_implementation != null && _implementation.IsValueCreated) {
             _implementation.Value.Dispose();
-            _implementation = new Lazy<IFirebaseFirestore>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);
+            _implementation = new Lazy<IFirebaseFirestore>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
         }
     }
 }

@@ -2,7 +2,7 @@ namespace Plugin.Firebase.Crashlytics;
 
 public sealed class CrossFirebaseCrashlytics
 {
-    private static Lazy<IFirebaseCrashlytics> _implementation = new Lazy<IFirebaseCrashlytics>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);
+    private static Lazy<IFirebaseCrashlytics> _implementation = new Lazy<IFirebaseCrashlytics>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
 
     private static IFirebaseCrashlytics CreateInstance()
     {
@@ -43,7 +43,7 @@ public sealed class CrossFirebaseCrashlytics
     {
         if(_implementation != null && _implementation.IsValueCreated) {
             _implementation.Value.Dispose();
-            _implementation = new Lazy<IFirebaseCrashlytics>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);
+            _implementation = new Lazy<IFirebaseCrashlytics>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
         }
     }
 }

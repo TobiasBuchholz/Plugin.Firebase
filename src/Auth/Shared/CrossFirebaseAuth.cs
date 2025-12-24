@@ -2,7 +2,7 @@ namespace Plugin.Firebase.Auth;
 
 public sealed class CrossFirebaseAuth
 {
-    private static Lazy<IFirebaseAuth> _implementation = new Lazy<IFirebaseAuth>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);
+    private static Lazy<IFirebaseAuth> _implementation = new Lazy<IFirebaseAuth>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
 
     private static IFirebaseAuth CreateInstance()
     {
@@ -43,7 +43,7 @@ public sealed class CrossFirebaseAuth
     {
         if(_implementation != null && _implementation.IsValueCreated) {
             _implementation.Value.Dispose();
-            _implementation = new Lazy<IFirebaseAuth>(CreateInstance, System.Threading.LazyThreadSafetyMode.PublicationOnly);
+            _implementation = new Lazy<IFirebaseAuth>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
         }
     }
 }

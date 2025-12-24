@@ -154,16 +154,6 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         }
     }
 
-    public async Task<string[]> FetchSignInMethodsAsync(string email)
-    {
-        try {
-            var result = await _firebaseAuth.FetchSignInMethodsForEmail(email).AsAsync<ISignInMethodQueryResult>();
-            return result?.SignInMethods?.ToArray();
-        } catch(Exception e) {
-            throw GetFirebaseAuthException(e);
-        }
-    }
-
     public async Task SendSignInLink(string toEmail, CrossActionCodeSettings actionCodeSettings)
     {
         try {

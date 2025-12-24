@@ -79,12 +79,6 @@ public interface IFirebaseAuth : IDisposable
     Task<IFirebaseUser> LinkWithEmailAndPasswordAsync(string email, string password);
 
     /// <summary>
-    /// Fetches the list of all sign-in methods previously used for the provided email address.
-    /// </summary>
-    /// <param name="email">The email address for which to obtain a list of sign-in methods.</param>
-    Task<string[]> FetchSignInMethodsAsync(string email);
-
-    /// <summary>
     /// Sends a sign in with email link to provided email address.
     /// </summary>
     /// <param name="toEmail">The email address of the user.</param>

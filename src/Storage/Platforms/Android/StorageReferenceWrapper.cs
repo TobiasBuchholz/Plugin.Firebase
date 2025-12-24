@@ -1,7 +1,6 @@
 using Android.Gms.Extensions;
 using Firebase.Storage;
 using AndroidUri = Android.Net.Uri;
-using AndroidTask = Android.Gms.Tasks.Task;
 using File = Java.IO.File;
 using NativeStorageMetadata = Firebase.Storage.StorageMetadata;
 

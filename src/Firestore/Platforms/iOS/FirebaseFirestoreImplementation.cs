@@ -1,5 +1,4 @@
 using Firebase.CloudFirestore;
-using Foundation;
 using Plugin.Firebase.Core;
 using Plugin.Firebase.Core.Exceptions;
 using Plugin.Firebase.Firestore.Platforms.iOS;

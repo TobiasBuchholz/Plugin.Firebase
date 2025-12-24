@@ -1,7 +1,5 @@
-using Foundation;
 using Plugin.Firebase.DynamicLinks.EventArgs;
 using Plugin.Firebase.DynamicLinks.Platforms.iOS;
-using UIKit;
 using FirebaseDynamicLinks = Firebase.DynamicLinks.DynamicLinks;
 using DynamicLink = Firebase.DynamicLinks.DynamicLink;
 

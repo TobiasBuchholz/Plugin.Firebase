@@ -1,5 +1,3 @@
-using Android.OS;
-
 namespace Plugin.Firebase.Analytics.Platforms.Android.Extensions;
 
 public static class DictionaryExtensions

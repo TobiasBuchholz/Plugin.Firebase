@@ -3,7 +3,6 @@ using Android.Gms.Auth.Api.SignIn;
 using Android.Gms.Extensions;
 using AndroidX.Fragment.App;
 using Firebase.Auth;
-using GoogleApi = Android.Gms.Auth.Api.Auth;
 using GmsTask = Android.Gms.Tasks.Task;
 
 namespace Plugin.Firebase.Auth.Google.Platforms.Android;

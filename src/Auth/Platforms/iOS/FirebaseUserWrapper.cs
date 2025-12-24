@@ -1,5 +1,4 @@
 using Firebase.Auth;
-using Foundation;
 using Plugin.Firebase.Auth.Platforms.iOS.Extensions;
 
 namespace Plugin.Firebase.Auth.Platforms.iOS;

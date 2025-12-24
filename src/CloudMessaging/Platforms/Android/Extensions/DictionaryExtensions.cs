@@ -1,5 +1,3 @@
-using Android.OS;
-
 namespace Plugin.Firebase.CloudMessaging.Platforms.Android.Extensions;
 
 public static class DictionaryExtensions

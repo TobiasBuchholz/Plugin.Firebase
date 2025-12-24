@@ -1,8 +1,6 @@
-using Android.App;
 using Firebase;
 using Firebase.Crashlytics;
 using Plugin.Firebase.Analytics;
-using Plugin.Firebase.Auth;
 using Plugin.Firebase.Bundled.Shared;
 
 namespace Plugin.Firebase.Bundled.Platforms.Android;

@@ -1,4 +1,3 @@
-using Android.App;
 using Firebase.Auth;
 using Java.Lang;
 using Java.Util.Concurrent;

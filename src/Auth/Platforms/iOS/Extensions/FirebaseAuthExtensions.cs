@@ -1,5 +1,4 @@
 using Firebase.Auth;
-using Foundation;
 using Plugin.Firebase.Core.Platforms.iOS.Extensions;
 using NativeActionCodeSettings = Firebase.Auth.ActionCodeSettings;
 using NativeUserMetadata = Firebase.Auth.UserMetadata;

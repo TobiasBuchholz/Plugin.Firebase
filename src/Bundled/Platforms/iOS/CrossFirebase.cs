@@ -1,6 +1,4 @@
 using Firebase.Core;
-using Plugin.Firebase.Analytics;
-using Plugin.Firebase.Auth;
 using Plugin.Firebase.CloudMessaging;
 using Plugin.Firebase.Crashlytics;
 using Plugin.Firebase.Bundled.Shared;

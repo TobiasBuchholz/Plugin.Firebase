@@ -1,4 +1,3 @@
-using Foundation;
 using Plugin.Firebase.Core;
 using Plugin.Firebase.Crashlytics.Platforms.iOS;
 using FirebaseCrashlytics = Firebase.Crashlytics.Crashlytics;

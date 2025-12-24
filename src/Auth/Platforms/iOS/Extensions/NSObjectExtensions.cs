@@ -1,4 +1,3 @@
-using Foundation;
 using Plugin.Firebase.Core.Platforms.iOS.Extensions;
 
 namespace Plugin.Firebase.Auth.Platforms.iOS.Extensions;

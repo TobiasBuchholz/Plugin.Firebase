@@ -34,7 +34,8 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
     public async Task VerifyPhoneNumberAsync(string phoneNumber)
     {
         try {
-            await _phoneNumberAuth.VerifyPhoneNumberAsync(ViewController, phoneNumber);
+            var viewController = GetViewController();
+            await _phoneNumberAuth.VerifyPhoneNumberAsync(viewController, phoneNumber);
         } catch(NSErrorException e) {
             throw GetFirebaseAuthException(e);
         }
@@ -242,14 +243,18 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         return new DisposableWithAction(() => _firebaseAuth.RemoveAuthStateDidChangeListener(handle));
     }
 
-    private static UIViewController ViewController {
-        get {
-            var rootViewController = UIApplication.SharedApplication.KeyWindow.RootViewController;
-            if(rootViewController == null) {
-                throw new NullReferenceException("RootViewController is null");
-            }
-            return rootViewController.PresentedViewController ?? rootViewController;
+    private static UIViewController GetViewController() {
+        var windowScene = UIApplication.SharedApplication.ConnectedScenes.ToArray()
+                .FirstOrDefault(static x => x.ActivationState == UISceneActivationState.ForegroundActive)
+            as UIWindowScene;
+        var window = windowScene?.Windows.FirstOrDefault(static x => x.IsKeyWindow);
+        var rootViewController = window?.RootViewController;
+
+        if(rootViewController is null) {
+            throw new InvalidOperationException("RootViewController is null");
         }
+
+        return rootViewController.PresentedViewController ?? rootViewController;
     }
 
     public IFirebaseUser CurrentUser => _firebaseAuth.CurrentUser?.ToAbstract();

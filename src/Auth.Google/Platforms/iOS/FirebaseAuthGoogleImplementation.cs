@@ -34,7 +34,8 @@ public sealed class FirebaseAuthGoogleImplementation : DisposableBase, IFirebase
     public async Task<IFirebaseUser> SignInWithGoogleAsync()
     {
         try {
-            var credential = await _googleAuth.Value.GetCredentialAsync(ViewController);
+            var viewController = GetViewController();
+            var credential = await _googleAuth.Value.GetCredentialAsync(viewController);
             return await SignInWithCredentialAsync(credential);
         } catch(NSErrorException e) {
             throw GetFirebaseAuthException(e);
@@ -63,7 +64,8 @@ public sealed class FirebaseAuthGoogleImplementation : DisposableBase, IFirebase
     public async Task<IFirebaseUser> LinkWithGoogleAsync()
     {
         try {
-            var credential = await _googleAuth.Value.GetCredentialAsync(ViewController);
+            var viewController = GetViewController();
+            var credential = await _googleAuth.Value.GetCredentialAsync(viewController);
             return await LinkWithCredentialAsync(credential);
         } catch(NSErrorException e) {
             _googleAuth.Value.SignOut();
@@ -88,13 +90,17 @@ public sealed class FirebaseAuthGoogleImplementation : DisposableBase, IFirebase
         return Task.CompletedTask;
     }
     
-    private static UIViewController ViewController {
-        get {
-            var rootViewController = UIApplication.SharedApplication.KeyWindow.RootViewController;
-            if(rootViewController == null) {
-                throw new NullReferenceException("RootViewController is null");
-            }
-            return rootViewController.PresentedViewController ?? rootViewController;
+    private static UIViewController GetViewController() {
+        var windowScene = UIApplication.SharedApplication.ConnectedScenes.ToArray()
+                .FirstOrDefault(static x => x.ActivationState == UISceneActivationState.ForegroundActive)
+            as UIWindowScene;
+        var window = windowScene?.Windows.FirstOrDefault(static x => x.IsKeyWindow);
+        var rootViewController = window?.RootViewController;
+
+        if(rootViewController is null) {
+            throw new InvalidOperationException("RootViewController is null");
         }
+
+        return rootViewController.PresentedViewController ?? rootViewController;
     }
 }

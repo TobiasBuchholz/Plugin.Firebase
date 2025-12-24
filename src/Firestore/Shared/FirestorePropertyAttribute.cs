@@ -12,12 +12,7 @@ public class FirestorePropertyAttribute : Attribute
 }
 
 [AttributeUsage(AttributeTargets.Property)]
-public class FirestoreDocumentIdAttribute : Attribute
-{
-    public FirestoreDocumentIdAttribute()
-    {
-    }
-}
+public class FirestoreDocumentIdAttribute : Attribute;
 
 [AttributeUsage(AttributeTargets.Property)]
 public class FirestoreServerTimestampAttribute : Attribute

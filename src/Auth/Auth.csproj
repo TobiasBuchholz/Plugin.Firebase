@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net8.0;net8.0-android;net8.0-ios</TargetFrameworks>
+        <TargetFrameworks>net9.0;net9.0-android;net9.0-ios</TargetFrameworks>
         <UseMauiEssentials>true</UseMauiEssentials>
-        <MauiVersion>8.0.3</MauiVersion>
+        <MauiVersion>9.0.0</MauiVersion>
         <SingleProject>true</SingleProject>
         <ImplicitUsings>enable</ImplicitUsings>
 
@@ -87,7 +87,7 @@
     </ItemGroup>
 
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
-        <PackageReference Include="Xamarin.Firebase.Auth" Version="122.2.0" />
+        <PackageReference Include="Xamarin.Firebase.Auth" Version="122.3.1.4" />
     </ItemGroup>
 
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">

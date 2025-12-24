@@ -14,7 +14,7 @@ public sealed class PhoneNumberAuth
         var options = PhoneAuthOptions
             .NewBuilder()
             .SetPhoneNumber(phoneNumber)
-            .SetTimeout(new Long(60), TimeUnit.Seconds)
+            .SetTimeout(Long.ValueOf(60), TimeUnit.Seconds)
             .SetActivity(activity)
             .SetCallbacks(callbacks)
             .Build();

@@ -21,6 +21,9 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
     public FirebaseAuthImplementation()
     {
         _firebaseAuth = FirebaseAuth.DefaultInstance;
+        if(_firebaseAuth is null) {
+            throw new FirebaseException("FirebaseAuth.DefaultInstance is null");
+        }
         _emailAuth = new EmailAuth();
         _phoneNumberAuth = new PhoneNumberAuth();
 

@@ -85,7 +85,7 @@
     </ItemGroup>
 
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
-        <PackageReference Include="AdamE.Firebase.iOS.Crashlytics" Version="[11.0.0,)" />
+        <PackageReference Include="AdamE.Firebase.iOS.Crashlytics" Version="[12.5.0.4,)" />
     </ItemGroup>
 
 </Project>

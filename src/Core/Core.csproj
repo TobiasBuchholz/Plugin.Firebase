@@ -74,7 +74,7 @@
 
     <!-- nuget packages -->
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
-      <PackageReference Include="AdamE.Firebase.iOS.Core" Version="[11.0.0,)" />
+      <PackageReference Include="AdamE.Firebase.iOS.Core" Version="[12.5.0.4,)" />
     </ItemGroup>
 
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">

@@ -20,7 +20,7 @@ public static class CrossFirebase
         FirebaseOptions firebaseOptions = null,
         string name = null)
     {
-        ActivityLocator = activityLocator;
+        RegisterActivityLocator(activityLocator);
 
         if(firebaseOptions == null) {
             FirebaseApp.InitializeApp(activity);
@@ -29,5 +29,10 @@ public static class CrossFirebase
         } else {
             FirebaseApp.InitializeApp(activity, firebaseOptions, name);
         }
+    }
+
+    public static void RegisterActivityLocator(Func<Activity> activityLocator)
+    {
+        ActivityLocator = activityLocator;
     }
 }

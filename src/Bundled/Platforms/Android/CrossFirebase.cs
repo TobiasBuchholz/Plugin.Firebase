@@ -9,10 +9,13 @@ public static class CrossFirebase
 {
     public static void Initialize(
         Activity activity,
+        Func<Activity> activityLocator,
         CrossFirebaseSettings settings,
         FirebaseOptions firebaseOptions = null,
         string name = null)
     {
+        Core.Platforms.Android.CrossFirebase.RegisterActivityLocator(activityLocator);
+
         if(firebaseOptions == null) {
             FirebaseApp.InitializeApp(activity);
         } else if(name == null) {

@@ -109,11 +109,6 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         }
     }
 
-    public Task<IFirebaseUser> SignInWithAppleAsync()
-    {
-        throw new PlatformNotSupportedException();
-    }
-
     public async Task<IFirebaseUser> SignInAnonymouslyAsync()
     {
         try {

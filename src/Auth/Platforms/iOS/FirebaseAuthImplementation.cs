@@ -1,6 +1,4 @@
 using Firebase.Auth;
-using Microsoft.Maui.Authentication;
-using Microsoft.Maui.Devices;
 using Plugin.Firebase.Auth.Platforms.iOS.Email;
 using Plugin.Firebase.Auth.Platforms.iOS.Extensions;
 using Plugin.Firebase.Auth.Platforms.iOS.PhoneNumber;
@@ -109,31 +107,6 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
         } catch(NSErrorException e) {
             throw GetFirebaseAuthException(e);
-        }
-    }
-
-    public async Task<IFirebaseUser> SignInWithAppleAsync()
-    {
-        try {
-            WebAuthenticatorResult appleAuthResult;
-            OAuthCredential credential;
-
-            if(DeviceInfo.Platform == DevicePlatform.iOS && DeviceInfo.Version.Major >= 13) {
-                var options = new AppleSignInAuthenticator.Options { IncludeEmailScope = true };
-                appleAuthResult = await AppleSignInAuthenticator.AuthenticateAsync(options);
-            } else {
-                throw new PlatformNotSupportedException();
-            }
-
-            if(!string.IsNullOrEmpty(appleAuthResult.IdToken)) {
-                credential = OAuthProvider.GetCredential("apple.com", appleAuthResult.IdToken, null);
-            } else {
-                throw new ApplicationException("Cannot authenticate user with Native Apple Sign In API");
-            }
-
-            return await SignInWithCredentialAsync(credential);
-        } catch(NSErrorException e) {
-            throw new FirebaseException(e.Error.LocalizedDescription);
         }
     }
 

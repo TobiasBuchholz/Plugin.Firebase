@@ -51,12 +51,6 @@ public interface IFirebaseAuth : IDisposable
     Task<IFirebaseUser> SignInWithEmailLinkAsync(string email, string link);
 
     /// <summary>
-    /// Signs in using a Apple account.
-    /// </summary>
-    /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
-    Task<IFirebaseUser> SignInWithAppleAsync();
-
-    /// <summary>
     /// Asynchronously creates and becomes an anonymous user. If there is already an anonymous user signed in, that user will
     /// be returned instead. If there is any other existing user signed in, that user will be signed out.
     /// </summary>

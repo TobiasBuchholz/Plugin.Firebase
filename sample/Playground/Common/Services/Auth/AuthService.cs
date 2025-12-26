@@ -1,28 +1,20 @@
 using System.Reactive.Subjects;
 using Plugin.Firebase.Auth;
-using Plugin.Firebase.Auth.Facebook;
-using Plugin.Firebase.Auth.Google;
 
 namespace Playground.Common.Services.Auth;
 
 public sealed class AuthService : IAuthService
 {
     private readonly IFirebaseAuth _firebaseAuth;
-    private readonly IFirebaseAuthFacebook _firebaseAuthFacebook;
-    private readonly IFirebaseAuthGoogle _firebaseAuthGoogle;
     private readonly IPreferencesService _preferencesService;
     private readonly BehaviorSubject<IFirebaseUser> _currentUserSubject;
     private readonly ISubject<bool> _isSignInRunningSubject;
 
     public AuthService(
         IFirebaseAuth firebaseAuth,
-        IFirebaseAuthFacebook firebaseAuthFacebook,
-        IFirebaseAuthGoogle firebaseAuthGoogle,
         IPreferencesService preferencesService)
     {
         _firebaseAuth = firebaseAuth;
-        _firebaseAuthFacebook = firebaseAuthFacebook;
-        _firebaseAuthGoogle = firebaseAuthGoogle;
         _preferencesService = preferencesService;
         _currentUserSubject = new BehaviorSubject<IFirebaseUser>(null);
         _isSignInRunningSubject = new BehaviorSubject<bool>(false);
@@ -60,27 +52,6 @@ public sealed class AuthService : IAuthService
             signOutWhenFailed: true);
     }
 
-    public IObservable<Unit> SignInWithGoogle()
-    {
-        return RunAuthTask(
-            _firebaseAuthGoogle.SignInWithGoogleAsync(),
-            signOutWhenFailed: true);
-    }
-
-    public IObservable<Unit> SignInWithFacebook()
-    {
-        return RunAuthTask(
-            _firebaseAuthFacebook.SignInWithFacebookAsync(),
-            signOutWhenFailed: true);
-    }
-
-    public IObservable<Unit> SignInWithApple()
-    {
-        return RunAuthTask(
-            _firebaseAuth.SignInWithAppleAsync(),
-            signOutWhenFailed: true);
-    }
-
     public IObservable<Unit> VerifyPhoneNumber(string phoneNumber)
     {
         return _firebaseAuth.VerifyPhoneNumberAsync(phoneNumber).ToObservable();
@@ -96,16 +67,6 @@ public sealed class AuthService : IAuthService
     public IObservable<Unit> LinkWithEmailAndPassword(string email, string password)
     {
         return RunAuthTask(_firebaseAuth.LinkWithEmailAndPasswordAsync(email, password));
-    }
-
-    public IObservable<Unit> LinkWithGoogle()
-    {
-        return RunAuthTask(_firebaseAuthGoogle.LinkWithGoogleAsync());
-    }
-
-    public IObservable<Unit> LinkWithFacebook()
-    {
-        return RunAuthTask(_firebaseAuthFacebook.LinkWithFacebookAsync());
     }
 
     public IObservable<Unit> LinkWithPhoneNumberVerificationCode(string verificationCode)
@@ -143,14 +104,9 @@ public sealed class AuthService : IAuthService
     public IObservable<Unit> SignOut()
     {
         return Task
-            .WhenAll(_firebaseAuth.SignOutAsync(), _firebaseAuthFacebook.SignOutAsync(), _firebaseAuthGoogle.SignOutAsync())
+            .WhenAll(_firebaseAuth.SignOutAsync())
             .ToObservable()
             .Do(_ => HandleUserSignedOut());
-    }
-
-    public IObservable<string[]> FetchSignInMethods(string email)
-    {
-        return _firebaseAuth.FetchSignInMethodsAsync(email).ToObservable();
     }
 
     public IObservable<Unit> SendPasswordResetEmail()

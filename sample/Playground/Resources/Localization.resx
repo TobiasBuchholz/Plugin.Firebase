@@ -44,15 +44,6 @@
 	<data name="ButtonSignInWithEmailLink">
 		<value>Sign in with email link</value>
 	</data>
-	<data name="ButtonSignInWithGoogle">
-		<value>Sign in with google</value>
-	</data>
-	<data name="ButtonSignInWithFacebook">
-		<value>Sign in with facebook</value>
-	</data>
-	<data name="ButtonSignInWithApple">
-		<value>Sign in with apple</value>
-	</data>
 	<data name="ButtonSignInWithPhoneNumber">
 		<value>Sign in with phone number</value>
 	</data>
@@ -61,12 +52,6 @@
 	</data>
 	<data name="ButtonLinkWithEmail">
 		<value>Link with email</value>
-	</data>
-	<data name="ButtonLinkWithGoogle">
-		<value>Link with google</value>
-	</data>
-	<data name="ButtonLinkWithFacebook">
-		<value>Link with facebook</value>
 	</data>
 	<data name="ButtonLinkWithPhoneNumber">
 		<value>Link with phone number</value>

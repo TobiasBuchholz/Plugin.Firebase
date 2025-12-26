@@ -6,10 +6,7 @@ using Android.OS;
 using Android.Runtime;
 using AndroidX.Core.App;
 using AndroidX.Core.Content;
-using Plugin.Firebase.Auth.Facebook;
-using Plugin.Firebase.Auth.Google;
 using Plugin.Firebase.CloudMessaging;
-using Plugin.Firebase.DynamicLinks;
 
 namespace Playground;
 
@@ -28,7 +25,6 @@ public class MainActivity : MauiAppCompatActivity
     private static void HandleIntent(Intent intent)
     {
         FirebaseCloudMessagingImplementation.OnNewIntent(intent);
-        FirebaseDynamicLinksImplementation.HandleDynamicLinkAsync(intent).Ignore();
     }
 
     private void RequestPushNotificationsPermission()
@@ -59,13 +55,6 @@ public class MainActivity : MauiAppCompatActivity
     {
         Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
         base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-
-    protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
-    {
-        base.OnActivityResult(requestCode, resultCode, data);
-        FirebaseAuthFacebookImplementation.HandleActivityResultAsync(requestCode, resultCode, data);
-        FirebaseAuthGoogleImplementation.HandleActivityResultAsync(requestCode, resultCode, data);
     }
 
     protected override void OnNewIntent(Intent intent)

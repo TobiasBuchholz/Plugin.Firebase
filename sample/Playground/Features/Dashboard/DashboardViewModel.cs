@@ -1,4 +1,3 @@
-using Playground.Common.Services.DynamicLink;
 using Playground.Common.Services.PushNotification;
 
 namespace Playground.Features.Dashboard;
@@ -11,7 +10,6 @@ public sealed class DashboardViewModel : ViewModelBase
     private readonly IUserInteractionService _userInteractionService;
 
     public DashboardViewModel(
-        IDynamicLinkService dynamicLinkService,
         INavigationService navigationService,
         IPushNotificationService pushNotificationService,
         IUserInteractionService userInteractionService)
@@ -22,7 +20,6 @@ public sealed class DashboardViewModel : ViewModelBase
 
         InitCommands();
         HandleTappedPushNotification();
-        dynamicLinkService.Register();
     }
 
     private void InitCommands()

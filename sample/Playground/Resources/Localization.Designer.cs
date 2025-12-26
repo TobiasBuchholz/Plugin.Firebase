@@ -99,24 +99,6 @@ namespace Playground.Resources {
             }
         }
         
-        internal static string ButtonSignInWithGoogle {
-            get {
-                return ResourceManager.GetString("ButtonSignInWithGoogle", resourceCulture);
-            }
-        }
-        
-        internal static string ButtonSignInWithFacebook {
-            get {
-                return ResourceManager.GetString("ButtonSignInWithFacebook", resourceCulture);
-            }
-        }
-        
-        internal static string ButtonSignInWithApple {
-            get {
-                return ResourceManager.GetString("ButtonSignInWithApple", resourceCulture);
-            }
-        }
-        
         internal static string ButtonSignInWithPhoneNumber {
             get {
                 return ResourceManager.GetString("ButtonSignInWithPhoneNumber", resourceCulture);
@@ -132,18 +114,6 @@ namespace Playground.Resources {
         internal static string ButtonLinkWithEmail {
             get {
                 return ResourceManager.GetString("ButtonLinkWithEmail", resourceCulture);
-            }
-        }
-        
-        internal static string ButtonLinkWithGoogle {
-            get {
-                return ResourceManager.GetString("ButtonLinkWithGoogle", resourceCulture);
-            }
-        }
-        
-        internal static string ButtonLinkWithFacebook {
-            get {
-                return ResourceManager.GetString("ButtonLinkWithFacebook", resourceCulture);
             }
         }
         

@@ -61,15 +61,6 @@ public sealed class AuthPage : ContentPageBase
                   new Button { Text = Localization.ButtonSignInWithEmailLink }
                       .FillHorizontal()
                       .Bind(nameof(Vm.SignInWithEmailLinkCommand)),
-                  new Button { Text = Localization.ButtonSignInWithGoogle }
-                      .FillHorizontal()
-                      .Bind(nameof(Vm.SignInWithGoogleCommand)),
-                  new Button { Text = Localization.ButtonSignInWithFacebook }
-                      .FillHorizontal()
-                      .Bind(nameof(Vm.SignInWithFacebookCommand)),
-                  new Button { Text = Localization.ButtonSignInWithApple }
-                      .FillHorizontal()
-                      .Bind(nameof(Vm.SignInWithAppleCommand)),
                   new Button { Text = Localization.ButtonSignInWithPhoneNumber }
                       .FillHorizontal()
                       .Bind(nameof(Vm.SignInWithPhoneNumberCommand))
@@ -86,12 +77,6 @@ public sealed class AuthPage : ContentPageBase
                 new Button { Text = Localization.ButtonLinkWithEmail }
                     .FillHorizontal()
                     .Bind(nameof(Vm.LinkWithEmailCommand)),
-                new Button { Text = Localization.ButtonLinkWithGoogle }
-                    .FillHorizontal()
-                    .Bind(nameof(Vm.LinkWithGoogleCommand)),
-                new Button { Text = Localization.ButtonLinkWithFacebook }
-                    .FillHorizontal()
-                    .Bind(nameof(Vm.LinkWithFacebookCommand)),
                 new Button { Text = Localization.ButtonLinkWithPhoneNumber }
                     .FillHorizontal()
                     .Bind(nameof(Vm.LinkWithPhoneNumberCommand))

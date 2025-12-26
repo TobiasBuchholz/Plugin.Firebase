@@ -32,13 +32,8 @@ public sealed class AuthViewModel : ViewModelBase
         SignInAnonymouslyCommand = ReactiveCommand.CreateFromObservable(SignInAnonymously, canSignIn);
         SignInWithEmailCommand = ReactiveCommand.CreateFromTask(SignInWithEmailAsync, canSignIn);
         SignInWithEmailLinkCommand = ReactiveCommand.CreateFromTask(SignInWithEmailLinkAsync, canSignIn);
-        SignInWithGoogleCommand = ReactiveCommand.CreateFromObservable(SignInWithGoogle, canSignIn);
-        SignInWithFacebookCommand = ReactiveCommand.CreateFromObservable(SignInWithFacebook, canSignIn);
-        SignInWithAppleCommand = ReactiveCommand.CreateFromObservable(SignInWithApple, canSignIn);
         SignInWithPhoneNumberCommand = ReactiveCommand.CreateFromObservable(SignInWithPhoneNumber, canSignIn);
         LinkWithEmailCommand = ReactiveCommand.CreateFromTask(LinkWithEmailAsync);
-        LinkWithGoogleCommand = ReactiveCommand.CreateFromObservable(LinkWithGoogle);
-        LinkWithFacebookCommand = ReactiveCommand.CreateFromObservable(LinkWithFacebook);
         LinkWithPhoneNumberCommand = ReactiveCommand.CreateFromObservable(LinkWithPhoneNumber);
         UnlinkProviderCommand = ReactiveCommand.CreateFromObservable(UnlinkProvider);
         SignOutCommand = ReactiveCommand.CreateFromObservable(SignOut, canSignOut);
@@ -49,13 +44,8 @@ public sealed class AuthViewModel : ViewModelBase
                 SignInAnonymouslyCommand.ThrownExceptions,
                 SignInWithEmailCommand.ThrownExceptions,
                 SignInWithEmailLinkCommand.ThrownExceptions,
-                SignInWithGoogleCommand.ThrownExceptions,
-                SignInWithFacebookCommand.ThrownExceptions,
-                SignInWithAppleCommand.ThrownExceptions,
                 SignInWithPhoneNumberCommand.ThrownExceptions,
                 LinkWithEmailCommand.ThrownExceptions,
-                LinkWithGoogleCommand.ThrownExceptions,
-                LinkWithFacebookCommand.ThrownExceptions,
                 LinkWithPhoneNumberCommand.ThrownExceptions,
                 UnlinkProviderCommand.ThrownExceptions,
                 SignOutCommand.ThrownExceptions,
@@ -118,21 +108,6 @@ public sealed class AuthViewModel : ViewModelBase
         await _userInteractionService.ShowDefaultDialogAsync(Localization.DialogTitleSignInLinkSent, Localization.DialogMessageSignInLinkSent);
     }
 
-    private IObservable<Unit> SignInWithGoogle()
-    {
-        return _authService.SignInWithGoogle();
-    }
-
-    private IObservable<Unit> SignInWithFacebook()
-    {
-        return _authService.SignInWithFacebook();
-    }
-
-    private IObservable<Unit> SignInWithApple()
-    {
-        return _authService.SignInWithApple();
-    }
-
     private IObservable<Unit> SignInWithPhoneNumber()
     {
         return AskForPhoneNumberAsync()
@@ -181,16 +156,6 @@ public sealed class AuthViewModel : ViewModelBase
         if(!string.IsNullOrEmpty(password)) {
             await _authService.LinkWithEmailAndPassword(email, password).ToTask();
         }
-    }
-
-    private IObservable<Unit> LinkWithGoogle()
-    {
-        return _authService.LinkWithGoogle();
-    }
-
-    private IObservable<Unit> LinkWithFacebook()
-    {
-        return _authService.LinkWithFacebook();
     }
 
     private IObservable<Unit> LinkWithPhoneNumber()
@@ -316,11 +281,9 @@ public sealed class AuthViewModel : ViewModelBase
             return Observable.Return(Localization.LabelUserIsSignedOut);
         } else if(string.IsNullOrEmpty(user.Email)) {
             return Observable.Return(Localization.LabelUserIsSignedInWithoutEmail);
-        } else {
-            return _authService
-                .FetchSignInMethods(user.Email)
-                .Select(x => Localization.LabelUserIsSignedIn.WithParams(user.Email, x?.FirstOrDefault()));
         }
+
+        return Observable.Return(string.Empty);
     }
 
     private extern IFirebaseUser User { [ObservableAsProperty] get; }
@@ -333,13 +296,8 @@ public sealed class AuthViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> SignInAnonymouslyCommand { get; set; }
     public ReactiveCommand<Unit, Unit> SignInWithEmailCommand { get; set; }
     public ReactiveCommand<Unit, Unit> SignInWithEmailLinkCommand { get; set; }
-    public ReactiveCommand<Unit, Unit> SignInWithGoogleCommand { get; set; }
-    public ReactiveCommand<Unit, Unit> SignInWithFacebookCommand { get; set; }
-    public ReactiveCommand<Unit, Unit> SignInWithAppleCommand { get; set; }
     public ReactiveCommand<Unit, Unit> SignInWithPhoneNumberCommand { get; set; }
     public ReactiveCommand<Unit, Unit> LinkWithEmailCommand { get; set; }
-    public ReactiveCommand<Unit, Unit> LinkWithGoogleCommand { get; set; }
-    public ReactiveCommand<Unit, Unit> LinkWithFacebookCommand { get; set; }
     public ReactiveCommand<Unit, Unit> LinkWithPhoneNumberCommand { get; set; }
     public ReactiveCommand<Unit, Unit> UnlinkProviderCommand { get; set; }
     public ReactiveCommand<Unit, Unit> SignOutCommand { get; set; }

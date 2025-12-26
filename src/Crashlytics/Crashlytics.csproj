@@ -81,7 +81,8 @@
 
     <!-- nuget packages -->
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
-        <PackageReference Include="Xamarin.Firebase.Crashlytics" Version="118.3.2" />
+        <PackageReference Include="Xamarin.AndroidX.DataStore" Version="1.1.1.8" />
+        <PackageReference Include="Xamarin.Firebase.Crashlytics" Version="119.0.0" />
     </ItemGroup>
 
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">

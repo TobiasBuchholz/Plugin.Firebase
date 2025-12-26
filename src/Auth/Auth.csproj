@@ -80,7 +80,7 @@
     </ItemGroup>
 
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
-        <PackageReference Include="Xamarin.Firebase.Auth" Version="122.3.1.4" />
+        <PackageReference Include="Xamarin.Firebase.Auth" Version="123.0.0" />
     </ItemGroup>
 
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">

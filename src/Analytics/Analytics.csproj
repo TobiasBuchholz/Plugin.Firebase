@@ -81,7 +81,7 @@
 
     <!-- nuget packages -->
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
-        <PackageReference Include="Xamarin.Firebase.Analytics" Version="121.3.0.3" />
+        <PackageReference Include="Xamarin.Firebase.Analytics" Version="122.0.2.1" />
     </ItemGroup>
 
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">

@@ -82,7 +82,7 @@
     
     <!-- nuget packages -->
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
-        <PackageReference Include="Xamarin.Firebase.Messaging" Version="123.0.8" />
+        <PackageReference Include="Xamarin.Firebase.Messaging" Version="124.0.0.2" />
     </ItemGroup>
 
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">

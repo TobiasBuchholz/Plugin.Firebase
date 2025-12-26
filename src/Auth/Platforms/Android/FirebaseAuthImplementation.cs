@@ -1,12 +1,11 @@
 using Android.Gms.Extensions;
 using Firebase.Auth;
-using Microsoft.Maui.ApplicationModel;
 using Plugin.Firebase.Auth.Platforms.Android.Email;
 using Plugin.Firebase.Auth.Platforms.Android.PhoneNumber;
 using Plugin.Firebase.Auth.Platforms.Android.Extensions;
 using Plugin.Firebase.Core;
 using Plugin.Firebase.Core.Exceptions;
-using Activity = Android.App.Activity;
+using Plugin.Firebase.Core.Platforms.Android;
 using CrossActionCodeSettings = Plugin.Firebase.Auth.ActionCodeSettings;
 using CrossFirebaseAuthException = Plugin.Firebase.Core.Exceptions.FirebaseAuthException;
 
@@ -31,7 +30,16 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
     public async Task VerifyPhoneNumberAsync(string phoneNumber)
     {
         try {
-            await _phoneNumberAuth.VerifyPhoneNumberAsync(Activity, phoneNumber);
+            var activityLocator = CrossFirebase.ActivityLocator;
+            if(activityLocator is null) {
+                throw new InvalidOperationException("ActivityLocator is null.");
+            }
+            var activity = activityLocator();
+            if(activity is null) {
+                throw new InvalidOperationException("Activity is null.");
+            }
+
+            await _phoneNumberAuth.VerifyPhoneNumberAsync(activity, phoneNumber);
         } catch(Exception e) {
             throw GetFirebaseAuthException(e);
         }
@@ -208,9 +216,6 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         _firebaseAuth.AddAuthStateListener(authStateListener);
         return new DisposableWithAction(() => _firebaseAuth.RemoveAuthStateListener(authStateListener));
     }
-
-    private static Activity Activity =>
-        Platform.CurrentActivity ?? throw new NullReferenceException("Platform.CurrentActivity is null");
 
     public IFirebaseUser CurrentUser => _firebaseAuth.CurrentUser?.ToAbstract();
     

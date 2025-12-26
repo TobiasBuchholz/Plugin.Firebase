@@ -2,8 +2,6 @@
 
     <PropertyGroup>
         <TargetFrameworks>net9.0;net9.0-android;net9.0-ios</TargetFrameworks>
-        <UseMauiEssentials>true</UseMauiEssentials>
-        <MauiVersion>9.0.0</MauiVersion>
         <SingleProject>true</SingleProject>
         <ImplicitUsings>enable</ImplicitUsings>
 
@@ -79,11 +77,6 @@
     <!-- project references -->
     <ItemGroup>
         <ProjectReference Include="..\Core\Core.csproj" />
-    </ItemGroup>
-
-    <!-- nuget packages -->
-    <ItemGroup>
-        <PackageReference Include="Microsoft.Maui.Essentials" Version="$(MauiVersion)" />
     </ItemGroup>
 
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">

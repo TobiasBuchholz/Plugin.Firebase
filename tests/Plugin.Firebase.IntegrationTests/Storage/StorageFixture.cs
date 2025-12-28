@@ -128,7 +128,7 @@ namespace Plugin.Firebase.IntegrationTests.Storage
                 .Current
                 .GetReferenceFromPath(path);
 
-            await reference.PutBytes(Encoding.UTF8.GetBytes("Some test text"), metadata).AwaitAsync();
+            await reference.PutBytes("Some test text"u8.ToArray(), metadata).AwaitAsync();
             var uploadedMetadata = await reference.GetMetadataAsync();
 
             Assert.Equal(path, uploadedMetadata.Path);

@@ -56,7 +56,6 @@ public static class StorageExtensions
             contentType: @this.ContentType,
             customMetadata: @this.CustomMetadata?.ToDictionary(),
             md5Hash: @this.Md5Hash,
-            storageReference: @this.StorageReference?.ToAbstract(),
             creationTime: @this.TimeCreated.ToDateTimeOffset(),
             updatedTime: @this.Updated.ToDateTimeOffset());
     }

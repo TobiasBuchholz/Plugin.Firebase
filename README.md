@@ -11,7 +11,20 @@ This is a wrapper library around the native Android and iOS Firebase SDKs which 
 - Minimum supported Android version has been increased to 23.
 - Minimum supported Firebase SDK versions have been increased to 12.5 (iOS) and BoM 33.0 (Android).
   - Due to this change, consumers should no longer need to explicitly manage AndroidX dependencies on latest MAUI 9 or 10. These could always be needed again in the future as MAUI dependencies shift, or due to conflicts with other plugins etc.
-- Auth provider implementations (Facebook, Apple, Google, Facebook) have been removed. The plugin remains compatible with these (and other) auth providers, but it is now the developers' responsibility to implement them by directly accessing the native SDKs per-platform.
+
+### Removed Auth provider implementations (Facebook, Apple, Google)
+The plugin remains compatible with these (and other) auth providers, but it is now the developers' responsibility to implement them by directly accessing the native SDKs per-platform.
+
+For Google and Facebook, the existing v3 provider packages may or may not still work. If not, you may examine the source code of this project (< v4.0) to migrate the implementations into your own project. In either case, you should be aware that both of these provider implementations use deprecated native APIs and it is strongly recommended to migrate to modern native APIs.
+
+For Apple, Android was never supported by this plugin, and platform code on the Apple side was just this [method](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/922389c49c223f190eba69509dda6a53a04b241a/src/Auth/Platforms/iOS/FirebaseAuthImplementation.cs#L116).
+
+To properly use these providers (and others) with this plugin, the general approach is:
+1) Acquire a Firebase Auth `AuthCredential` (`Firebase.Auth.AuthCredential` from `Xamarin.Firebase.Auth` (Android) or `AdamE.Firebase.Auth`(iOS)). This is the part that can differ wildly by platform / provider, and sometimes requires additional platform binding libraries which may or may not be available readily available on NuGet. Starting-point documentation for this is https://firebase.google.com/docs/auth
+2) Pass the `AuthCredential` to the `SignInWithCredential` or `LinkWithCredential` methods of the native auth implementations (i.e., `FirebaseAuth.DefaultInstance`)
+
+Since Plugin.Firebase uses the same `FirebaseAuth.DefaultInstance` objects internally, it will autmoatically pick up on the auth state changes from the native SDKs.
+
 
 View the [v4.0 pull request](https://github.com/TobiasBuchholz/Plugin.Firebase/pull/553) for more information.
 

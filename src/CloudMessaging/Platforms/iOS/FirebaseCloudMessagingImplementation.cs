@@ -11,24 +11,35 @@ public sealed class FirebaseCloudMessagingImplementation : NSObject, IFirebaseCl
 {
     private FCMNotification _missedTappedNotification;
 
-    public static void Initialize()
+    public static void Initialize(bool skipApnsDeviceTokenRequest = false)
     {
         var instance = (FirebaseCloudMessagingImplementation) CrossFirebaseCloudMessaging.Current;
-        instance.RegisterForRemoteNotifications();
-        instance.OnTokenRefreshAsync();
+        instance.RegisterForRemoteNotifications(skipApnsDeviceTokenRequest);
+        if(!skipApnsDeviceTokenRequest) {
+            instance.OnTokenRefreshAsync();
+        }
     }
 
-    private void RegisterForRemoteNotifications()
+    private void RegisterForRemoteNotifications(bool skipApnsDeviceTokenRequest)
     {
         if(UIDevice.CurrentDevice.CheckSystemVersion(10, 0)) {
             UNUserNotificationCenter.Current.Delegate = this;
             Messaging.SharedInstance.Delegate = this;
-            UIApplication.SharedApplication.RegisterForRemoteNotifications();
+            if(!skipApnsDeviceTokenRequest) {
+                UIApplication.SharedApplication.RegisterForRemoteNotifications();
+            }
         } else {
             var allNotificationTypes = UIUserNotificationType.Alert | UIUserNotificationType.Badge | UIUserNotificationType.Sound;
             var settings = UIUserNotificationSettings.GetSettingsForTypes(allNotificationTypes, null);
             UIApplication.SharedApplication.RegisterUserNotificationSettings(settings);
         }
+    }
+
+    public static void RequestApnsDeviceToken()
+    {
+        UIApplication.SharedApplication.RegisterForRemoteNotifications();
+        var instance = (FirebaseCloudMessagingImplementation) CrossFirebaseCloudMessaging.Current;
+        instance.OnTokenRefreshAsync();
     }
 
     public Task OnTokenRefreshAsync()

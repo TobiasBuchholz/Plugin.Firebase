@@ -244,11 +244,16 @@ public class FirebaseAuthException : FirebaseException
         }
 
         var normalized = NormalizeErrorCode(errorCode);
+        if(IsNumericCode(normalized)) {
+            return FIRAuthError.Undefined;
+        }
+
         if(string.Equals(normalized, "NetworkRequestFailed", StringComparison.OrdinalIgnoreCase)) {
             return FIRAuthError.NetworkError;
         }
 
-        if(Enum.TryParse(normalized, ignoreCase: true, out FIRAuthError reason)) {
+        if(Enum.TryParse(normalized, ignoreCase: true, out FIRAuthError reason)
+            && Enum.IsDefined(typeof(FIRAuthError), reason)) {
             return reason;
         }
 
@@ -276,6 +281,11 @@ public class FirebaseAuthException : FirebaseException
         }
 
         return code;
+    }
+
+    private static bool IsNumericCode(string code)
+    {
+        return long.TryParse(code, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out _);
     }
 
     private static string ToPascalCase(string code)

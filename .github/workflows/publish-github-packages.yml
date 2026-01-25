@@ -2,6 +2,9 @@ name: publish-github-packages
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - "v*"
 
 permissions:
   contents: read
@@ -10,6 +13,12 @@ permissions:
 jobs:
   pack-and-publish:
     runs-on: macos-latest
+    env:
+      DOTNET_MULTILEVEL_LOOKUP: 0
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_WORKLOAD_UPDATE_NOTIFICATION_LEVEL: Disable
     strategy:
       matrix:
         project:
@@ -25,14 +34,36 @@ jobs:
           - src/Bundled/Bundled.csproj
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine package version
+        id: version
+        shell: bash
+        run: |
+          if [[ "${{ github.ref }}" =~ ^refs/tags/v ]]; then
+            REF="${{ github.ref }}"
+            VERSION="${REF#refs/tags/v}"
+          else
+            CSPROJ="src/Core/Core.csproj"
+            BASE_VERSION=$(grep -oE '<PackageVersion>[^<]+' "$CSPROJ" | head -n 1 | sed 's/<PackageVersion>//' || echo "0.1.0")
+            COMMIT_SHORT=$(git rev-parse --short HEAD)
+            RUN_NUMBER="${{ github.run_number }}"
+            VERSION="${BASE_VERSION}-prerelease.${RUN_NUMBER}.${COMMIT_SHORT}"
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Package version: ${VERSION}"
+
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
       - name: Install workloads
-        run: dotnet workload install ios android
+        shell: bash
+        run: |
+          dotnet workload install ios android
       - name: Restore
         run: dotnet restore ${{ matrix.project }}
       - name: Pack
-        run: dotnet pack ${{ matrix.project }} -c Release -o artifacts --no-restore
+        run: dotnet pack ${{ matrix.project }} -c Release -o artifacts --no-restore /p:PackageVersion="${{ steps.version.outputs.version }}"
       - name: Push to GitHub Packages
         run: dotnet nuget push "artifacts/*.nupkg" --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key "${{ secrets.GITHUB_TOKEN }}" --skip-duplicate

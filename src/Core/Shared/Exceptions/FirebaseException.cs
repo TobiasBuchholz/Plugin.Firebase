@@ -11,7 +11,7 @@ public class FirebaseException : Exception
     {
     }
 
-    public FirebaseException(string message, Exception inner)
+    public FirebaseException(string message, Exception? inner)
         : base(message, inner)
     {
     }

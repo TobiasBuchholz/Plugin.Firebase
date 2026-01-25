@@ -16,8 +16,15 @@ public class FuncEqualityComparer<T> : IEqualityComparer<T>
         _hash = hash;
     }
 
-    public bool Equals(T x, T y)
+    public bool Equals(T? x, T? y)
     {
+        if(x is null && y is null) {
+            return true;
+        }
+        if(x is null || y is null) {
+            return false;
+        }
+
         return _comparer(x, y);
     }
 

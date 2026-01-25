@@ -11,7 +11,7 @@ Do **not** include private app details, proprietary business context, or secrets
 
 ## Guardrails
 - Follow `.editorconfig` formatting rules.
-- Run `dotnet format src/Plugin.Firebase.sln` before PRs.
+- Run `dotnet format Plugin.Firebase.sln` before PRs.
 - Avoid committing secrets (Firebase config files, signing keys, tokens).
 - Keep changes minimal and scoped; update docs when behavior changes.
 - Do not introduce app-specific assumptions.

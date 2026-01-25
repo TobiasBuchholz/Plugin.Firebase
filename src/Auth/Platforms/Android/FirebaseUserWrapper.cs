@@ -87,7 +87,7 @@ public sealed class FirebaseUserWrapper : IFirebaseUser
         }
     }
 
-    private static async Task WrapAsync(Android.Gms.Tasks.Task task)
+    private static async Task WrapAsync(global::Android.Gms.Tasks.Task task)
     {
         try {
             await task.AsAsync().ConfigureAwait(false);
@@ -96,7 +96,7 @@ public sealed class FirebaseUserWrapper : IFirebaseUser
         }
     }
 
-    private static async Task<T> WrapAsync<T>(Android.Gms.Tasks.Task task) where T : Java.Lang.Object
+    private static async Task<T> WrapAsync<T>(global::Android.Gms.Tasks.Task task) where T : Java.Lang.Object
     {
         try {
             return await task.AsAsync<T>().ConfigureAwait(false);

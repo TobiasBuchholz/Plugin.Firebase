@@ -17,8 +17,8 @@ dotnet build Plugin.Firebase.sln -c Release
 ```
 
 Note: building the full solution includes the sample and integration test apps.
-These require `GoogleService-Info.plist` and `google-services.json` files and may fail
-without them. If you don’t have local Firebase configs, use the `net9.0` build below.
+Running those apps requires `GoogleService-Info.plist` and `google-services.json` files (not committed).
+If you don’t have local Firebase configs, use the `net9.0` build below to validate the packages.
 
 ### Build without mobile workloads
 If you want to validate core code without Android/iOS toolchains:
@@ -39,5 +39,5 @@ dotnet test tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTe
 
 ## Formatting
 ```
-dotnet format src/Plugin.Firebase.sln
+dotnet format Plugin.Firebase.sln
 ```

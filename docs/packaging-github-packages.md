@@ -23,6 +23,11 @@ dotnet nuget push "artifacts/*.nupkg" \
   --skip-duplicate
 ```
 
+## CI publish (recommended)
+This repo includes a publish workflow that can be triggered by tags:
+- Push a tag like `v4.0.1` to publish packages with version `4.0.1`.
+- Use `workflow_dispatch` for manual prerelease runs.
+
 Notes:
 - Do **not** commit tokens or config files.
 - Use `--skip-duplicate` for reruns.

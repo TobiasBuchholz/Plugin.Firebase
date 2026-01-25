@@ -21,9 +21,9 @@
         <!-- Helper to add defines-->
         <DefineConstants>$(DefineConstants);</DefineConstants>
 
-        <!--Assembly and Namespace info -->
-        <PackageId>Plugin.Firebase.Core</PackageId>
-        <PackageVersion>4.0.0</PackageVersion>
+	        <!--Assembly and Namespace info -->
+	        <PackageId>Plugin.Firebase.Core</PackageId>
+	        <PackageVersion>4.0.1</PackageVersion>
 
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/TobiasBuchholz/Plugin.Firebase</PackageProjectUrl>

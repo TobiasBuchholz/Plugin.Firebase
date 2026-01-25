@@ -13,9 +13,13 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
-      - name: Restore unit tests
-        run: dotnet restore tests/Plugin.Firebase.UnitTests/Plugin.Firebase.UnitTests.csproj
+      - name: Restore Auth (net9.0 only)
+        run: dotnet restore src/Auth/Auth.csproj -p:TargetFramework=net9.0
+      - name: Restore unit tests (net9.0 only)
+        run: dotnet restore tests/Plugin.Firebase.UnitTests/Plugin.Firebase.UnitTests.csproj -p:TargetFramework=net9.0
       - name: Build Auth (net9.0 only)
         run: dotnet build src/Auth/Auth.csproj -c Release -f net9.0 --no-restore
+      - name: Build unit tests
+        run: dotnet build tests/Plugin.Firebase.UnitTests/Plugin.Firebase.UnitTests.csproj -c Release --no-restore
       - name: Run unit tests
-        run: dotnet test tests/Plugin.Firebase.UnitTests/Plugin.Firebase.UnitTests.csproj -c Release --no-build
+        run: dotnet test tests/Plugin.Firebase.UnitTests/Plugin.Firebase.UnitTests.csproj -c Release --no-build --no-restore

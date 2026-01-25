@@ -182,7 +182,7 @@ Visual Studio and Windows both have issues with long paths. The issue is explain
 
 ## Contributions
 
-You are welcome to contribute to this project by creating a [Pull Request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests). See `CONTRIBUTING.md` and `BUILDING.md` for contribution and build guidance. The project contains an .editorconfig file that handles the code formatting, so please apply the formatting rules by running `dotnet format src/Plugin.Firebase.sln` in the console before creating a Pull Request (see [dotnet-format docs](https://github.com/dotnet/format) or [this video](https://www.youtube.com/watch?v=lGvP9SZ98vM&t) for more information).
+You are welcome to contribute to this project by creating a [Pull Request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests). See `CONTRIBUTING.md` and `BUILDING.md` for contribution and build guidance. The project contains an .editorconfig file that handles the code formatting, so please apply the formatting rules by running `dotnet format Plugin.Firebase.sln` in the console before creating a Pull Request (see [dotnet-format docs](https://github.com/dotnet/format) or [this video](https://www.youtube.com/watch?v=lGvP9SZ98vM&t) for more information).
 
 ## License
 

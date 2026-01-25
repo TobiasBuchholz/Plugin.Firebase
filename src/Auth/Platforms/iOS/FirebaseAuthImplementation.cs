@@ -31,103 +31,63 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
 
     public async Task VerifyPhoneNumberAsync(string phoneNumber)
     {
-        try {
-            var viewController = GetViewController();
-            await _phoneNumberAuth.VerifyPhoneNumberAsync(viewController, phoneNumber);
-        } catch(NSErrorException e) {
-            throw GetFirebaseAuthException(e);
-        }
+        var viewController = GetViewController();
+        await WrapAsync(_phoneNumberAuth.VerifyPhoneNumberAsync(viewController, phoneNumber));
     }
 
-    private static FirebaseAuthException GetFirebaseAuthException(NSErrorException ex)
-    {
-        AuthErrorCode errorCode;
-        if(IntPtr.Size == 8) { // 64 bits devices
-            errorCode = (AuthErrorCode) ex.Error.Code;
-        } else { // 32 bits devices
-            errorCode = (AuthErrorCode) (int) ex.Error.Code;
-        }
-
-        Enum.TryParse(errorCode.ToString(), out FIRAuthError authError);
-        return new FirebaseAuthException(authError, ex.Error.LocalizedDescription);
-    }
+    private static FirebaseAuthException GetFirebaseAuthException(NSErrorException ex) =>
+        Plugin.Firebase.Auth.Platforms.iOS.FirebaseAuthExceptionFactory.Create(ex);
 
     public async Task<IFirebaseUser> SignInWithCustomTokenAsync(string token)
     {
-        try {
-            var user = await _firebaseAuth.SignInWithCustomTokenAsync(token);
-            return user.User.ToAbstract();
-        } catch(NSErrorException e) {
-            throw GetFirebaseAuthException(e);
-        }
+        var user = await WrapAsync(_firebaseAuth.SignInWithCustomTokenAsync(token));
+        return user.User.ToAbstract();
     }
 
     public async Task<IFirebaseUser> SignInWithPhoneNumberVerificationCodeAsync(string verificationCode)
     {
-        try {
-            var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
-            return await SignInWithCredentialAsync(credential);
-        } catch(NSErrorException e) {
-            throw GetFirebaseAuthException(e);
-        }
+        var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
+        return await SignInWithCredentialAsync(credential);
     }
 
     private async Task<IFirebaseUser> SignInWithCredentialAsync(AuthCredential credential)
     {
-        var authResult = await _firebaseAuth.SignInWithCredentialAsync(credential);
+        var authResult = await WrapAsync(_firebaseAuth.SignInWithCredentialAsync(credential));
         return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
     }
 
     public async Task<IFirebaseUser> SignInWithEmailAndPasswordAsync(string email, string password, bool createsUserAutomatically = true)
     {
+        var credential = await _emailAuth.GetCredentialAsync(email, password);
         try {
-            var credential = await _emailAuth.GetCredentialAsync(email, password);
             return await SignInWithCredentialAsync(credential);
-        } catch(NSErrorException e) {
-            if(e.Code == (long) AuthErrorCode.UserNotFound && createsUserAutomatically) {
-                return await CreateUserAsync(email, password);
-            }
-            throw GetFirebaseAuthException(e);
+        } catch(FirebaseAuthException e) when(
+            e.Reason == FIRAuthError.UserNotFound && createsUserAutomatically) {
+            return await CreateUserAsync(email, password);
         }
     }
 
     public async Task<IFirebaseUser> CreateUserAsync(string email, string password)
     {
-        try {
-            return await _emailAuth.CreateUserAsync(email, password);
-        } catch(NSErrorException e) {
-            throw GetFirebaseAuthException(e);
-        }
+        return await WrapAsync(_emailAuth.CreateUserAsync(email, password));
     }
 
     public async Task<IFirebaseUser> SignInWithEmailLinkAsync(string email, string link)
     {
-        try {
-            var authResult = await _firebaseAuth.SignInWithLinkAsync(email, link);
-            return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
-        } catch(NSErrorException e) {
-            throw GetFirebaseAuthException(e);
-        }
+        var authResult = await WrapAsync(_firebaseAuth.SignInWithLinkAsync(email, link));
+        return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
     }
 
     public async Task<IFirebaseUser> SignInAnonymouslyAsync()
     {
-        try {
-            var authResult = await _firebaseAuth.SignInAnonymouslyAsync();
-            return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
-        } catch(NSErrorException e) {
-            throw GetFirebaseAuthException(e);
-        }
+        var authResult = await WrapAsync(_firebaseAuth.SignInAnonymouslyAsync());
+        return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
     }
 
     public async Task<IFirebaseUser> LinkWithPhoneNumberVerificationCodeAsync(string verificationCode)
     {
-        try {
-            var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
-            return await LinkWithCredentialAsync(credential);
-        } catch(NSErrorException e) {
-            throw GetFirebaseAuthException(e);
-        }
+        var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
+        return await LinkWithCredentialAsync(credential);
     }
 
     private async Task<IFirebaseUser> LinkWithCredentialAsync(AuthCredential credential)
@@ -137,27 +97,19 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             throw new InvalidOperationException("User must be signed in to link with credential.");
         }
 
-        var authResult = await currentUser.LinkAsync(credential);
+        var authResult = await WrapAsync(currentUser.LinkAsync(credential));
         return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
     }
 
     public async Task<IFirebaseUser> LinkWithEmailAndPasswordAsync(string email, string password)
     {
-        try {
-            var credential = await _emailAuth.GetCredentialAsync(email, password);
-            return await LinkWithCredentialAsync(credential);
-        } catch(NSErrorException e) {
-            throw GetFirebaseAuthException(e);
-        }
+        var credential = await _emailAuth.GetCredentialAsync(email, password);
+        return await LinkWithCredentialAsync(credential);
     }
 
     public async Task SendSignInLink(string toEmail, CrossActionCodeSettings actionCodeSettings)
     {
-        try {
-            await _firebaseAuth.SendSignInLinkAsync(toEmail, actionCodeSettings.ToNative());
-        } catch(NSErrorException e) {
-            throw GetFirebaseAuthException(e);
-        }
+        await WrapAsync(_firebaseAuth.SendSignInLinkAsync(toEmail, actionCodeSettings.ToNative()));
     }
 
     public Task SignOutAsync()
@@ -166,7 +118,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
 
         return error is null
             ? Task.CompletedTask
-            : throw new FirebaseException("Errored signing out", new NSErrorException(error));
+            : throw GetFirebaseAuthException(new NSErrorException(error));
     }
 
     public bool IsSignInWithEmailLink(string link)
@@ -178,7 +130,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         }
     }
 
-    public Task SendPasswordResetEmailAsync()
+    public async Task SendPasswordResetEmailAsync()
     {
         var currentUser = _firebaseAuth.CurrentUser;
         if(currentUser is null) {
@@ -186,28 +138,31 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         }
 
         var email = currentUser.Email;
-        return email is null
-            ? throw new FirebaseException("CurrentUser.Email is null.")
-            : _firebaseAuth.SendPasswordResetAsync(email);
+        if(email is null) {
+            throw new FirebaseException("CurrentUser.Email is null.");
+        }
+
+        await WrapAsync(_firebaseAuth.SendPasswordResetAsync(email));
     }
 
-    public Task SendPasswordResetEmailAsync(string email)
+    public async Task SendPasswordResetEmailAsync(string email)
     {
-        return _firebaseAuth.SendPasswordResetAsync(email);
+        await WrapAsync(_firebaseAuth.SendPasswordResetAsync(email));
     }
 
     public void UseEmulator(string host, int port)
     {
         _firebaseAuth.UseEmulatorWithHost(host, port);
     }
-    
+
     public IDisposable AddAuthStateListener(Action<IFirebaseAuth> listener)
     {
-        var handle =_firebaseAuth.AddAuthStateDidChangeListener((_, _) => listener.Invoke(this));
+        var handle = _firebaseAuth.AddAuthStateDidChangeListener((_, _) => listener.Invoke(this));
         return new DisposableWithAction(() => _firebaseAuth.RemoveAuthStateDidChangeListener(handle));
     }
 
-    private static UIViewController GetViewController() {
+    private static UIViewController GetViewController()
+    {
         var windowScene = UIApplication.SharedApplication.ConnectedScenes.ToArray()
                 .FirstOrDefault(static x => x.ActivationState == UISceneActivationState.ForegroundActive)
             as UIWindowScene;
@@ -219,6 +174,24 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         }
 
         return rootViewController.PresentedViewController ?? rootViewController;
+    }
+
+    private static async Task WrapAsync(Task task)
+    {
+        try {
+            await task.ConfigureAwait(false);
+        } catch(NSErrorException e) {
+            throw GetFirebaseAuthException(e);
+        }
+    }
+
+    private static async Task<T> WrapAsync<T>(Task<T> task)
+    {
+        try {
+            return await task.ConfigureAwait(false);
+        } catch(NSErrorException e) {
+            throw GetFirebaseAuthException(e);
+        }
     }
 
     public IFirebaseUser CurrentUser => _firebaseAuth.CurrentUser?.ToAbstract();

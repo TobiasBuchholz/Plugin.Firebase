@@ -19,17 +19,18 @@ public sealed class FirebaseUserWrapper : IFirebaseUser
 
     public Task UpdateEmailAsync(string email)
     {
-        return _wrapped.UpdateEmailAsync(email);
+        return WrapAsync(_wrapped.UpdateEmailAsync(email));
     }
 
     public Task UpdatePasswordAsync(string password)
     {
-        return _wrapped.UpdatePasswordAsync(password);
+        return WrapAsync(_wrapped.UpdatePasswordAsync(password));
     }
 
     public Task UpdatePhoneNumberAsync(string verificationId, string smsCode)
     {
-        return _wrapped.UpdatePhoneNumberCredentialAsync(PhoneAuthProvider.DefaultInstance.GetCredential(verificationId, smsCode));
+        return WrapAsync(_wrapped.UpdatePhoneNumberCredentialAsync(
+            PhoneAuthProvider.DefaultInstance.GetCredential(verificationId, smsCode)));
     }
 
     public Task UpdateProfileAsync(string displayName = "", string photoUrl = "")
@@ -41,30 +42,49 @@ public sealed class FirebaseUserWrapper : IFirebaseUser
         if(photoUrl != "") {
             request.PhotoUrl = photoUrl == null ? null : new NSUrl(photoUrl);
         }
-        return request.CommitChangesAsync();
+        return WrapAsync(request.CommitChangesAsync());
     }
 
     public Task SendEmailVerificationAsync(ActionCodeSettings actionCodeSettings = null)
     {
-        return actionCodeSettings == null
-            ? _wrapped.SendEmailVerificationAsync()
-            : _wrapped.SendEmailVerificationAsync(actionCodeSettings.ToNative());
+        return WrapAsync(
+            actionCodeSettings == null
+                ? _wrapped.SendEmailVerificationAsync()
+                : _wrapped.SendEmailVerificationAsync(actionCodeSettings.ToNative()));
     }
 
     public Task UnlinkAsync(string providerId)
     {
-        return _wrapped.UnlinkAsync(providerId);
+        return WrapAsync(_wrapped.UnlinkAsync(providerId));
     }
 
     public Task DeleteAsync()
     {
-        return _wrapped.DeleteAsync();
+        return WrapAsync(_wrapped.DeleteAsync());
     }
 
     public async Task<IAuthTokenResult> GetIdTokenResultAsync(bool forceRefresh = false)
     {
-        var result = await _wrapped.GetIdTokenResultAsync(forceRefresh);
+        var result = await WrapAsync(_wrapped.GetIdTokenResultAsync(forceRefresh));
         return result.ToAbstract();
+    }
+
+    private static async Task WrapAsync(Task task)
+    {
+        try {
+            await task.ConfigureAwait(false);
+        } catch(NSErrorException ex) {
+            throw FirebaseAuthExceptionFactory.Create(ex);
+        }
+    }
+
+    private static async Task<T> WrapAsync<T>(Task<T> task)
+    {
+        try {
+            return await task.ConfigureAwait(false);
+        } catch(NSErrorException ex) {
+            throw FirebaseAuthExceptionFactory.Create(ex);
+        }
     }
 
     public string Uid => _wrapped.Uid;

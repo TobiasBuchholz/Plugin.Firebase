@@ -53,7 +53,7 @@ You can use [Firebase Authentication](https://firebase.google.com/docs/auth) to 
 
 ![firestore_poco.png](../art/project_settings_sha1.png)
 - Call `FirebaseAuthImplementation.HandleActivityResultAsync(requestCode, resultCode, data);` from `MainActivity.OnActivityResult(...)`
-- If you are on version 2.0.5 or later, add the following package to your project's `.csproj` file to prevent build errors:
+- If you are on version 2.0.5 or later, you may want add the following package to your project's `.csproj` file to prevent build errors:
 ```xml
   <PackageReference Include="Xamarin.AndroidX.Browser" Version="1.6.0.2" />
 ```
@@ -70,7 +70,24 @@ Since code should be documenting itself you can also take a look at the followin
 - [tests/.../AuthFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Auth/AuthFixture.cs)
 - [sample/.../AuthService.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/sample/Playground/Common/Services/Auth/AuthService.cs)
 
+## Error handling
+
+Most Auth operations can throw `FirebaseAuthException`.  
+The exception contains:
+- `Reason`: a normalized enum for common Auth error cases
+- `ErrorCode`: the raw Firebase error code (useful for platform-specific handling)
+- `Email`: populated for account-collision cases when available
+
 ## Release notes
+- Version 4.0.1
+  - Improve `FirebaseAuthException` mapping and expose raw error details (`ErrorCode`, `Email`, and native error metadata) to support robust UI handling.
+- Version 4.0.0
+  - Upgrade baseline to **.NET 9+**.
+  - Remove MAUI-specific dependencies (Auth remains usable from non-MAUI mobile .NET projects).
+    - Android initialization now requires an `ActivityLocator` function (e.g. `() => Platform.CurrentActivity`).
+  - Raise minimum platform versions (iOS 15+, Android 23+).
+  - Raise minimum Firebase SDK versions (iOS 12.5+, Android BoM 33.0+).
+  - Remove built-in Auth provider implementations (Facebook/Google/Apple); providers must be implemented directly via native SDKs per platform.
 - Version 3.1.2
   - Fix NRE with Google Auth when cancelling sign in (#500)
 - Version 3.1.1

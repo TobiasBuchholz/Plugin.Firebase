@@ -70,6 +70,14 @@ Since code should be documenting itself you can also take a look at the followin
 - [tests/.../AuthFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Auth/AuthFixture.cs)
 - [sample/.../AuthService.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/sample/Playground/Common/Services/Auth/AuthService.cs)
 
+## Error handling
+
+Most Auth operations can throw `FirebaseAuthException`.  
+The exception contains:
+- `Reason`: a normalized enum for common Auth error cases
+- `ErrorCode`: the raw Firebase error code (useful for platform-specific handling)
+- `Email`: populated for account-collision cases when available
+
 ## Release notes
 - Version 3.1.2
   - Fix NRE with Google Auth when cancelling sign in (#500)

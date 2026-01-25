@@ -37,14 +37,22 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         public async Task throws_error_if_credentials_are_invalid_when_signing_in_user_via_email_and_password()
         {
             var sut = CrossFirebaseAuth.Current;
-            await Assert.ThrowsAnyAsync<FirebaseAuthException>(() => sut.SignInWithEmailAndPasswordAsync("sign-in-with-pw@test.com", "000000", createsUserAutomatically: false));
+            var exception = await Assert.ThrowsAnyAsync<FirebaseAuthException>(() =>
+                sut.SignInWithEmailAndPasswordAsync("sign-in-with-pw@test.com", "000000", createsUserAutomatically: false));
+
+            Assert.Equal(FIRAuthError.WrongPassword, exception.Reason);
+            Assert.False(string.IsNullOrWhiteSpace(exception.ErrorCode));
         }
 
         [Fact]
         public async Task throws_error_if_user_does_not_exist_and_should_not_be_created_automatically_due_sign_in_via_email_and_password()
         {
             var sut = CrossFirebaseAuth.Current;
-            await Assert.ThrowsAnyAsync<FirebaseAuthException>(() => sut.SignInWithEmailAndPasswordAsync("does-not-exist@test.com", "123456", createsUserAutomatically: false));
+            var exception = await Assert.ThrowsAnyAsync<FirebaseAuthException>(() =>
+                sut.SignInWithEmailAndPasswordAsync("does-not-exist@test.com", "123456", createsUserAutomatically: false));
+
+            Assert.Equal(FIRAuthError.UserNotFound, exception.Reason);
+            Assert.False(string.IsNullOrWhiteSpace(exception.ErrorCode));
         }
 
         [Fact]

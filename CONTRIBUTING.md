@@ -23,5 +23,16 @@ If you change package APIs, ensure the version bump is consistent across affecte
 Integration tests require a real device and local Firebase config files.
 See `BUILDING.md` for setup and test commands.
 
+## Formatting only modified files
+Format all files changed on the current branch (compared to `origin/master`):
+```
+dotnet format Plugin.Firebase.sln --include $(git diff --name-only origin/master...HEAD)
+```
+
+Format only staged files (not yet committed):
+```
+dotnet format Plugin.Firebase.sln --include $(git diff --name-only --cached)
+```
+
 ## Documentation
 If you change behavior or APIs, update the relevant docs in `docs/` and/or `README.md`.

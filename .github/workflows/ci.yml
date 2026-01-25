@@ -1,0 +1,21 @@
+name: ci
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - name: Restore unit tests
+        run: dotnet restore tests/Plugin.Firebase.UnitTests/Plugin.Firebase.UnitTests.csproj
+      - name: Build Auth (net9.0 only)
+        run: dotnet build src/Auth/Auth.csproj -c Release -f net9.0 --no-restore
+      - name: Run unit tests
+        run: dotnet test tests/Plugin.Firebase.UnitTests/Plugin.Firebase.UnitTests.csproj -c Release --no-build

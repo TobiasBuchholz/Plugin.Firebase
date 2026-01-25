@@ -1,0 +1,38 @@
+name: publish-github-packages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  pack-and-publish:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        project:
+          - src/Analytics/Analytics.csproj
+          - src/Auth/Auth.csproj
+          - src/CloudMessaging/CloudMessaging.csproj
+          - src/Core/Core.csproj
+          - src/Crashlytics/Crashlytics.csproj
+          - src/Firestore/Firestore.csproj
+          - src/Functions/Functions.csproj
+          - src/RemoteConfig/RemoteConfig.csproj
+          - src/Storage/Storage.csproj
+          - src/Bundled/Bundled.csproj
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - name: Install workloads
+        run: dotnet workload install ios android
+      - name: Restore
+        run: dotnet restore ${{ matrix.project }}
+      - name: Pack
+        run: dotnet pack ${{ matrix.project }} -c Release -o artifacts --no-restore
+      - name: Push to GitHub Packages
+        run: dotnet nuget push "artifacts/*.nupkg" --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key "${{ secrets.GITHUB_TOKEN }}" --skip-duplicate

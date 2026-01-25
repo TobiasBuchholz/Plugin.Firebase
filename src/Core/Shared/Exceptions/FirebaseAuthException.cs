@@ -1,3 +1,4 @@
+#nullable enable
 namespace Plugin.Firebase.Core.Exceptions;
 
 public enum FIRAuthError
@@ -301,3 +302,4 @@ public class FirebaseAuthException : FirebaseException
         return buffer.ToString();
     }
 }
+#nullable restore

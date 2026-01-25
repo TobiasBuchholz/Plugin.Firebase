@@ -65,7 +65,7 @@ public sealed class FirebaseUserWrapper : IFirebaseUser
 
     public async Task<IAuthTokenResult> GetIdTokenResultAsync(bool forceRefresh = false)
     {
-        var result = await WrapAsync(_wrapped.GetIdToken(forceRefresh));
+        var result = await WrapAsync<GetTokenResult>(_wrapped.GetIdToken(forceRefresh));
         return result.JavaCast<GetTokenResult>().ToAbstract();
     }
 
@@ -82,6 +82,24 @@ public sealed class FirebaseUserWrapper : IFirebaseUser
     {
         try {
             return await task.ConfigureAwait(false);
+        } catch(Exception ex) {
+            throw FirebaseAuthExceptionFactory.Create(ex);
+        }
+    }
+
+    private static async Task WrapAsync(Android.Gms.Tasks.Task task)
+    {
+        try {
+            await task.AsAsync().ConfigureAwait(false);
+        } catch(Exception ex) {
+            throw FirebaseAuthExceptionFactory.Create(ex);
+        }
+    }
+
+    private static async Task<T> WrapAsync<T>(Android.Gms.Tasks.Task task) where T : Java.Lang.Object
+    {
+        try {
+            return await task.AsAsync<T>().ConfigureAwait(false);
         } catch(Exception ex) {
             throw FirebaseAuthExceptionFactory.Create(ex);
         }

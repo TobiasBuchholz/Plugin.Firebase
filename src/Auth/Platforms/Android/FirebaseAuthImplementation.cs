@@ -188,6 +188,24 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         }
     }
 
+    private static async Task WrapAsync(Android.Gms.Tasks.Task task)
+    {
+        try {
+            await task.AsAsync().ConfigureAwait(false);
+        } catch(Exception e) {
+            throw GetFirebaseAuthException(e);
+        }
+    }
+
+    private static async Task<T> WrapAsync<T>(Android.Gms.Tasks.Task task) where T : Java.Lang.Object
+    {
+        try {
+            return await task.AsAsync<T>().ConfigureAwait(false);
+        } catch(Exception e) {
+            throw GetFirebaseAuthException(e);
+        }
+    }
+
     private class AuthStateListener : Java.Lang.Object, FirebaseAuth.IAuthStateListener
     {
         private readonly Action<FirebaseAuth> _onAuthStateChanged;

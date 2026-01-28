@@ -102,6 +102,12 @@ public interface IFirebaseAuth : IDisposable
     Task SendPasswordResetEmailAsync(string email);
 
     /// <summary>
+    /// Reloads the currently signed in user from the backend.
+    /// </summary>
+    /// <exception cref="Plugin.Firebase.Core.Exceptions.FirebaseException">Thrown when no user is signed in.</exception>
+    Task ReloadCurrentUserAsync();
+
+    /// <summary>
     /// Modify this FirebaseAuth instance to communicate with the Firebase Authentication emulator.
     /// Note: this must be called before this instance has been used to do any operations.
     /// </summary>

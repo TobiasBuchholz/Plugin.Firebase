@@ -1,8 +1,14 @@
 namespace Plugin.Firebase.Analytics;
 
+/// <summary>
+/// Cross-platform entry point for Firebase Analytics.
+/// </summary>
 public sealed class CrossFirebaseAnalytics
 {
-    private static Lazy<IFirebaseAnalytics> _implementation = new Lazy<IFirebaseAnalytics>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
+    private static Lazy<IFirebaseAnalytics> _implementation = new Lazy<IFirebaseAnalytics>(
+        CreateInstance,
+        LazyThreadSafetyMode.PublicationOnly
+    );
 
     private static IFirebaseAnalytics CreateInstance()
     {
@@ -34,16 +40,21 @@ public sealed class CrossFirebaseAnalytics
     }
 
     private static Exception NotImplementedInReferenceAssembly() =>
-        new NotImplementedException("This functionality is not implemented in the portable version of this assembly. You should reference the NuGet package from your main application project in order to reference the platform-specific implementation.");
+        new NotImplementedException(
+            "This functionality is not implemented in the portable version of this assembly. You should reference the NuGet package from your main application project in order to reference the platform-specific implementation."
+        );
 
     /// <summary>
-    /// Dispose of everything 
+    /// Dispose of everything
     /// </summary>
     public static void Dispose()
     {
         if(_implementation != null && _implementation.IsValueCreated) {
             _implementation.Value.Dispose();
-            _implementation = new Lazy<IFirebaseAnalytics>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
+            _implementation = new Lazy<IFirebaseAnalytics>(
+                CreateInstance,
+                LazyThreadSafetyMode.PublicationOnly
+            );
         }
     }
 }

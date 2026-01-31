@@ -7,6 +7,7 @@ using Android.Runtime;
 using AndroidX.Core.App;
 using AndroidX.Core.Content;
 using Plugin.Firebase.CloudMessaging;
+using System.Runtime.Versioning;
 
 namespace Playground;
 
@@ -29,18 +30,27 @@ public class MainActivity : MauiAppCompatActivity
 
     private void RequestPushNotificationsPermission()
     {
-        if(Build.VERSION.SdkInt >= BuildVersionCodes.Tiramisu && ContextCompat.CheckSelfPermission(this, Manifest.Permission.PostNotifications) != Permission.Granted) {
-            ActivityCompat.RequestPermissions(this, new[] { Manifest.Permission.PostNotifications }, 0); ;
+        if(OperatingSystem.IsAndroidVersionAtLeast(33)) {
+            RequestPostNotificationsPermission();
+        }
+    }
+
+    [SupportedOSPlatform("android33.0")]
+    private void RequestPostNotificationsPermission()
+    {
+        if(ContextCompat.CheckSelfPermission(this, Manifest.Permission.PostNotifications) != Permission.Granted) {
+            ActivityCompat.RequestPermissions(this, new[] { Manifest.Permission.PostNotifications }, 0);
         }
     }
 
     private void CreateNotificationChannelIfNeeded()
     {
-        if(Build.VERSION.SdkInt >= BuildVersionCodes.O) {
+        if(OperatingSystem.IsAndroidVersionAtLeast(26)) {
             CreateNotificationChannel();
         }
     }
 
+    [SupportedOSPlatform("android26.0")]
     private void CreateNotificationChannel()
     {
         var channelId = $"{PackageName}.general";

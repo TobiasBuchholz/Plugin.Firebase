@@ -7,27 +7,34 @@ namespace Plugin.Firebase.Auth.Platforms.iOS.Extensions;
 
 public static class FirebaseAuthExtensions
 {
-    public static FirebaseUserWrapper ToAbstract(this User @this, AdditionalUserInfo additionalUserInfo = null)
+    public static FirebaseUserWrapper ToAbstract(
+        this User @this,
+        AdditionalUserInfo? additionalUserInfo = null
+    )
     {
         return new FirebaseUserWrapper(@this);
     }
 
-    public static ProviderInfo ToAbstract(this IUserInfo @this, AdditionalUserInfo additionalUserInfo = null)
+    public static ProviderInfo ToAbstract(
+        this IUserInfo @this,
+        AdditionalUserInfo? additionalUserInfo = null
+    )
     {
-        return new ProviderInfo
-            (@this.Uid,
+        return new ProviderInfo(
+            @this.Uid,
             @this.ProviderId,
             @this.DisplayName,
             @this.Email ?? GetEmailFromAdditionalUserInfo(additionalUserInfo),
             @this.PhoneNumber,
-            @this.PhotoUrl?.AbsoluteString);
+            @this.PhotoUrl?.AbsoluteString
+        );
     }
 
-    private static string GetEmailFromAdditionalUserInfo(AdditionalUserInfo additionalUserInfo)
+    private static string? GetEmailFromAdditionalUserInfo(AdditionalUserInfo? additionalUserInfo)
     {
         var profile = additionalUserInfo?.Profile;
         if(profile != null && profile.ContainsKey(new NSString("email"))) {
-            return profile["email"].ToString();
+            return profile["email"]?.ToString();
         }
         return null;
     }
@@ -35,18 +42,27 @@ public static class FirebaseAuthExtensions
     public static NativeActionCodeSettings ToNative(this ActionCodeSettings @this)
     {
         var settings = new NativeActionCodeSettings();
-        settings.Url = new NSUrl(@this.Url);
+        if(@this.Url is not null) {
+            settings.Url = new NSUrl(@this.Url);
+        }
         settings.HandleCodeInApp = @this.HandleCodeInApp;
         settings.IOSBundleId = @this.IOSBundleId;
-        settings.SetAndroidPackageName(@this.AndroidPackageName, @this.AndroidInstallIfNotAvailable, @this.AndroidMinimumVersion);
+        if(@this.AndroidPackageName is not null) {
+            settings.SetAndroidPackageName(
+                @this.AndroidPackageName,
+                @this.AndroidInstallIfNotAvailable,
+                @this.AndroidMinimumVersion
+            );
+        }
         return settings;
     }
 
     public static UserMetadata ToAbstract(this NativeUserMetadata @this)
     {
         return new UserMetadata(
-            @this.CreationDate.ToDateTimeOffset(),
-            @this.LastSignInDate.ToDateTimeOffset());
+            @this.CreationDate?.ToDateTimeOffset() ?? DateTimeOffset.MinValue,
+            @this.LastSignInDate?.ToDateTimeOffset() ?? DateTimeOffset.MinValue
+        );
     }
 
     public static IAuthTokenResult ToAbstract(this AuthTokenResult @this)

@@ -1,12 +1,12 @@
-using Java.Util;
 using Android.Runtime;
+using Java.Util;
 using IList = System.Collections.IList;
 
 namespace Plugin.Firebase.Auth.Platforms.Android.Extensions;
 
 public static class JavaObjectExtensions
 {
-    public static object ToObject(this Java.Lang.Object @this, Type targetType = null)
+    public static object ToObject(this Java.Lang.Object @this, Type? targetType = null)
     {
         switch(@this) {
             case Java.Lang.ICharSequence x:
@@ -26,15 +26,17 @@ public static class JavaObjectExtensions
             case JavaList x:
                 return x.ToList(targetType?.GenericTypeArguments[0]);
             default:
-                throw new ArgumentException($"Could not convert Java.Lang.Object of type {@this.GetType()} to object");
+                throw new ArgumentException(
+                    $"Could not convert Java.Lang.Object of type {@this.GetType()} to object"
+                );
         }
     }
 
-    public static Java.Lang.Object ToJavaObject(this object @this)
+    public static Java.Lang.Object? ToJavaObject(this object @this)
     {
         switch(@this) {
             case string x:
-                return x;
+                return new Java.Lang.String(x);
             case int x:
                 return x;
             case long x:
@@ -74,7 +76,9 @@ public static class JavaObjectExtensions
                         return (short) Convert.ToUInt16(@this);
                     }
                 }
-                throw new ArgumentException($"Could not convert object of type {@this.GetType()} to Java.Lang.Object");
+                throw new ArgumentException(
+                    $"Could not convert object of type {@this.GetType()} to Java.Lang.Object"
+                );
         }
     }
 }

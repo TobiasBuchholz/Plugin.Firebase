@@ -4,7 +4,7 @@ namespace Plugin.Firebase.Auth.Platforms.iOS.Extensions;
 
 public static class NSObjectExtensions
 {
-    public static object ToObject(this NSObject @this, Type targetType = null)
+    public static object? ToObject(this NSObject @this, Type? targetType = null)
     {
         switch(@this) {
             case NSNumber x:
@@ -14,15 +14,17 @@ public static class NSObjectExtensions
             case NSDate x:
                 return x.ToDateTimeOffset();
             case NSArray x:
-                return x.ToList(GetGenericListType(targetType));
+                return x.ToList(GetGenericListType(targetType)!);
             case NSNull:
                 return null;
             default:
-                throw new ArgumentException($"Could not convert NSObject of type {@this.GetType()} to object");
+                throw new ArgumentException(
+                    $"Could not convert NSObject of type {@this.GetType()} to object"
+                );
         }
     }
 
-    public static object ToObject(this NSNumber @this, Type targetType = null)
+    public static object? ToObject(this NSNumber @this, Type? targetType = null)
     {
         if(targetType == null) {
             return @this.Int32Value;
@@ -58,13 +60,14 @@ public static class NSObjectExtensions
         }
     }
 
-    private static Type GetGenericListType(Type targetType)
+    private static Type? GetGenericListType(Type? targetType)
     {
-        var genericType = targetType.GenericTypeArguments?.FirstOrDefault();
+        var genericType = targetType?.GenericTypeArguments?.FirstOrDefault();
         if(genericType == null) {
-            throw new ArgumentException($"Couldn't get generic list type of targetType {targetType}. Make sure to use a list IList<T> instead of an array T[] as type in your FirestoreObject.");
+            throw new ArgumentException(
+                $"Couldn't get generic list type of targetType {targetType}. Make sure to use a list IList<T> instead of an array T[] as type in your FirestoreObject."
+            );
         }
         return genericType;
     }
-
 }

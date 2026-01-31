@@ -42,12 +42,12 @@ public sealed class FirebaseUserWrapper : IFirebaseUser
             builder.SetDisplayName(displayName);
         }
         if(photoUrl != "") {
-            builder.SetPhotoUri(photoUrl == null ? null : Uri.Parse(photoUrl));
+            builder.SetPhotoUri(string.IsNullOrEmpty(photoUrl) ? null : Uri.Parse(photoUrl));
         }
         return _wrapped.UpdateProfileAsync(builder.Build());
     }
 
-    public Task SendEmailVerificationAsync(ActionCodeSettings actionCodeSettings = null)
+    public Task SendEmailVerificationAsync(ActionCodeSettings? actionCodeSettings = null)
     {
         return _wrapped.SendEmailVerificationAsync(actionCodeSettings?.ToNative());
     }
@@ -69,12 +69,13 @@ public sealed class FirebaseUserWrapper : IFirebaseUser
     }
 
     public string Uid => _wrapped.Uid;
-    public string DisplayName => _wrapped.DisplayName;
-    public string Email => _wrapped.Email;
-    public string PhotoUrl => _wrapped.PhotoUrl?.ToString();
+    public string? DisplayName => _wrapped.DisplayName;
+    public string? Email => _wrapped.Email;
+    public string? PhotoUrl => _wrapped.PhotoUrl?.ToString();
     public string ProviderId => _wrapped.ProviderId;
     public bool IsEmailVerified => _wrapped.IsEmailVerified;
     public bool IsAnonymous => _wrapped.IsAnonymous;
-    public IEnumerable<ProviderInfo> ProviderInfos => _wrapped.ProviderData?.Select(x => x.ToAbstract());
-    public UserMetadata Metadata => _wrapped.Metadata?.ToAbstract();
+    public IEnumerable<ProviderInfo>? ProviderInfos =>
+        _wrapped.ProviderData?.Select(x => x.ToAbstract());
+    public UserMetadata? Metadata => _wrapped.Metadata?.ToAbstract();
 }

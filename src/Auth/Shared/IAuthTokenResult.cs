@@ -18,7 +18,6 @@ public interface IAuthTokenResult
     /// </summary>
     DateTimeOffset AuthDate { get; }
 
-
     /// <summary>
     /// Stores the entire payload of claims found on the ID token. This includes the standard reserved claims as well as custom claims
     /// set by the developer via the Admin SDK.
@@ -38,15 +37,15 @@ public interface IAuthTokenResult
     /// <summary>
     /// Stores sign-in provider through which the token was obtained. This does not necessarily map to provider IDs.
     /// </summary>
-    string SignInProvider { get; }
+    string? SignInProvider { get; }
 
     /// <summary>
     /// Stores sign-in second factor through which the token was obtained.
     /// </summary>
-    string SignInSecondFactor { get; }
+    string? SignInSecondFactor { get; }
 
     /// <summary>
     /// Stores the JWT string of the ID token.
     /// </summary>
-    string Token { get; }
+    string? Token { get; }
 }

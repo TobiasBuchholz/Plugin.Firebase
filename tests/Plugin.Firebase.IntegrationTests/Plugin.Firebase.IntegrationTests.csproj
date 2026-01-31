@@ -73,11 +73,11 @@
 
     <!-- platform assets -->
     <ItemGroup>
-      <BundleResource Include="GoogleService-Info.plist" />
+      <BundleResource Include="GoogleService-Info.plist" Condition="Exists('GoogleService-Info.plist')" />
     </ItemGroup>
 
     <ItemGroup>
-      <GoogleServicesJson Include="google-services.json" />
+      <GoogleServicesJson Include="google-services.json" Condition="Exists('google-services.json')" />
     </ItemGroup>
 
     <!-- needed for android build to work -->

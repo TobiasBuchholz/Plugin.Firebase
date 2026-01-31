@@ -85,11 +85,11 @@
 
     <!-- platform assets -->
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
-        <GoogleServicesJson Include="google-services.json" />
+        <GoogleServicesJson Include="google-services.json" Condition="Exists('google-services.json')" />
     </ItemGroup>
 
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
-        <BundleResource Include="GoogleService-Info.plist" />
+        <BundleResource Include="GoogleService-Info.plist" Condition="Exists('GoogleService-Info.plist')" />
     </ItemGroup>
 
     <!-- needed for android build to work -->

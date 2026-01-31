@@ -4,18 +4,25 @@ using Plugin.Firebase.Auth.Platforms.iOS.Extensions;
 using Plugin.Firebase.Auth.Platforms.iOS.PhoneNumber;
 using Plugin.Firebase.Core;
 using Plugin.Firebase.Core.Exceptions;
+using CrossActionCodeSettings = Plugin.Firebase.Auth.ActionCodeSettings;
 using FirebaseAuth = Firebase.Auth.Auth;
 using Task = System.Threading.Tasks.Task;
-using CrossActionCodeSettings = Plugin.Firebase.Auth.ActionCodeSettings;
 
 namespace Plugin.Firebase.Auth;
 
+/// <summary>
+/// iOS implementation of Firebase Authentication that wraps the native Firebase Auth SDK.
+/// </summary>
 public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
 {
     private readonly FirebaseAuth _firebaseAuth;
     private readonly EmailAuth _emailAuth;
     private readonly PhoneNumberAuth _phoneNumberAuth;
 
+    /// <summary>
+    /// Initializes a new instance of the Firebase Auth implementation for iOS.
+    /// </summary>
+    /// <exception cref="FirebaseException">Thrown when FirebaseAuth.DefaultInstance is null.</exception>
     public FirebaseAuthImplementation()
     {
         _firebaseAuth = FirebaseAuth.DefaultInstance;
@@ -29,6 +36,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         _firebaseAuth.UseAppLanguage();
     }
 
+    /// <inheritdoc/>
     public async Task VerifyPhoneNumberAsync(string phoneNumber)
     {
         try {
@@ -52,6 +60,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         return new FirebaseAuthException(authError, ex.Error.LocalizedDescription);
     }
 
+    /// <inheritdoc/>
     public async Task<IFirebaseUser> SignInWithCustomTokenAsync(string token)
     {
         try {
@@ -62,7 +71,10 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         }
     }
 
-    public async Task<IFirebaseUser> SignInWithPhoneNumberVerificationCodeAsync(string verificationCode)
+    /// <inheritdoc/>
+    public async Task<IFirebaseUser> SignInWithPhoneNumberVerificationCodeAsync(
+        string verificationCode
+    )
     {
         try {
             var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
@@ -78,7 +90,12 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
     }
 
-    public async Task<IFirebaseUser> SignInWithEmailAndPasswordAsync(string email, string password, bool createsUserAutomatically = true)
+    /// <inheritdoc/>
+    public async Task<IFirebaseUser> SignInWithEmailAndPasswordAsync(
+        string email,
+        string password,
+        bool createsUserAutomatically = true
+    )
     {
         try {
             var credential = await _emailAuth.GetCredentialAsync(email, password);
@@ -91,6 +108,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         }
     }
 
+    /// <inheritdoc/>
     public async Task<IFirebaseUser> CreateUserAsync(string email, string password)
     {
         try {
@@ -100,6 +118,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         }
     }
 
+    /// <inheritdoc/>
     public async Task<IFirebaseUser> SignInWithEmailLinkAsync(string email, string link)
     {
         try {
@@ -110,6 +129,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         }
     }
 
+    /// <inheritdoc/>
     public async Task<IFirebaseUser> SignInAnonymouslyAsync()
     {
         try {
@@ -120,7 +140,10 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         }
     }
 
-    public async Task<IFirebaseUser> LinkWithPhoneNumberVerificationCodeAsync(string verificationCode)
+    /// <inheritdoc/>
+    public async Task<IFirebaseUser> LinkWithPhoneNumberVerificationCodeAsync(
+        string verificationCode
+    )
     {
         try {
             var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
@@ -140,7 +163,8 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         var authResult = await currentUser.LinkAsync(credential);
         return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
     }
-
+    
+    /// <inheritdoc/>
     public async Task<IFirebaseUser> LinkWithEmailAndPasswordAsync(string email, string password)
     {
         try {
@@ -151,6 +175,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         }
     }
 
+    /// <inheritdoc/>
     public async Task SendSignInLink(string toEmail, CrossActionCodeSettings actionCodeSettings)
     {
         try {
@@ -160,6 +185,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         }
     }
 
+    /// <inheritdoc/>
     public Task SignOutAsync()
     {
         _firebaseAuth.SignOut(out var error);
@@ -169,6 +195,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             : throw new FirebaseException("Errored signing out", new NSErrorException(error));
     }
 
+    /// <inheritdoc/>
     public bool IsSignInWithEmailLink(string link)
     {
         try {
@@ -178,11 +205,14 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         }
     }
 
+    /// <inheritdoc/>
     public Task SendPasswordResetEmailAsync()
     {
         var currentUser = _firebaseAuth.CurrentUser;
         if(currentUser is null) {
-            throw new FirebaseException("CurrentUser is null. You need to be logged in to use this feature.");
+            throw new FirebaseException(
+                "CurrentUser is null. You need to be logged in to use this feature."
+            );
         }
 
         var email = currentUser.Email;
@@ -191,26 +221,35 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             : _firebaseAuth.SendPasswordResetAsync(email);
     }
 
+    /// <inheritdoc/>
     public Task SendPasswordResetEmailAsync(string email)
     {
         return _firebaseAuth.SendPasswordResetAsync(email);
     }
 
+    /// <inheritdoc/>
     public void UseEmulator(string host, int port)
     {
         _firebaseAuth.UseEmulatorWithHost(host, port);
     }
-    
+
+    /// <inheritdoc/>
     public IDisposable AddAuthStateListener(Action<IFirebaseAuth> listener)
     {
-        var handle =_firebaseAuth.AddAuthStateDidChangeListener((_, _) => listener.Invoke(this));
-        return new DisposableWithAction(() => _firebaseAuth.RemoveAuthStateDidChangeListener(handle));
+        var handle = _firebaseAuth.AddAuthStateDidChangeListener((_, _) => listener.Invoke(this));
+        return new DisposableWithAction(() =>
+            _firebaseAuth.RemoveAuthStateDidChangeListener(handle)
+        );
     }
 
-    private static UIViewController GetViewController() {
-        var windowScene = UIApplication.SharedApplication.ConnectedScenes.ToArray()
-                .FirstOrDefault(static x => x.ActivationState == UISceneActivationState.ForegroundActive)
-            as UIWindowScene;
+    private static UIViewController GetViewController()
+    {
+        var windowScene =
+            UIApplication
+                .SharedApplication.ConnectedScenes.ToArray()
+                .FirstOrDefault(static x =>
+                    x.ActivationState == UISceneActivationState.ForegroundActive
+                ) as UIWindowScene;
         var window = windowScene?.Windows.FirstOrDefault(static x => x.IsKeyWindow);
         var rootViewController = window?.RootViewController;
 
@@ -221,5 +260,6 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         return rootViewController.PresentedViewController ?? rootViewController;
     }
 
+    /// <inheritdoc/>
     public IFirebaseUser CurrentUser => _firebaseAuth.CurrentUser?.ToAbstract();
 }

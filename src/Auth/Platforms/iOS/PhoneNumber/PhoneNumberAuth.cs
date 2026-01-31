@@ -8,8 +8,8 @@ namespace Plugin.Firebase.Auth.Platforms.iOS.PhoneNumber;
 /// </summary>
 public sealed class PhoneNumberAuth : NSObject, IAuthUIDelegate
 {
-    private UIViewController? _viewController;
-    private string? _verificationId;
+    private UIViewController _viewController;
+    private string _verificationId;
 
     /// <summary>
     /// Initiates phone number verification by sending an SMS code to the specified phone number.
@@ -53,7 +53,7 @@ public sealed class PhoneNumberAuth : NSObject, IAuthUIDelegate
     public void PresentViewController(
         UIViewController viewControllerToPresent,
         bool animated,
-        Action? completion
+        Action completion
     )
     {
         _viewController?.PresentViewController(viewControllerToPresent, animated, completion);
@@ -64,7 +64,7 @@ public sealed class PhoneNumberAuth : NSObject, IAuthUIDelegate
     /// </summary>
     /// <param name="animated">Whether to animate the dismissal.</param>
     /// <param name="completion">Optional completion handler called after dismissal.</param>
-    public void DismissViewController(bool animated, Action? completion)
+    public void DismissViewController(bool animated, Action completion)
     {
         _viewController?.DismissViewController(animated, completion);
     }

@@ -14,7 +14,7 @@ public static class NSObjectExtensions
     /// <param name="targetType">The optional target type for the conversion.</param>
     /// <returns>The converted .NET object, or null for NSNull values.</returns>
     /// <exception cref="ArgumentException">Thrown when the NSObject type is not supported for conversion.</exception>
-    public static object? ToObject(this NSObject @this, Type? targetType = null)
+    public static object ToObject(this NSObject @this, Type targetType = null)
     {
         switch(@this) {
             case NSNumber x:
@@ -40,7 +40,7 @@ public static class NSObjectExtensions
     /// <param name="this">The NSNumber to convert.</param>
     /// <param name="targetType">The optional target type for the conversion. Defaults to Int32 if not specified.</param>
     /// <returns>The converted .NET numeric value, or null if the type is not supported.</returns>
-    public static object? ToObject(this NSNumber @this, Type? targetType = null)
+    public static object ToObject(this NSNumber @this, Type targetType = null)
     {
         if(targetType == null) {
             return @this.Int32Value;
@@ -76,9 +76,9 @@ public static class NSObjectExtensions
         }
     }
 
-    private static Type? GetGenericListType(Type? targetType)
+    private static Type GetGenericListType(Type targetType)
     {
-        var genericType = targetType?.GenericTypeArguments?.FirstOrDefault();
+        var genericType = targetType.GenericTypeArguments?.FirstOrDefault();
         if(genericType == null) {
             throw new ArgumentException(
                 $"Couldn't get generic list type of targetType {targetType}. Make sure to use a list IList<T> instead of an array T[] as type in your FirestoreObject."

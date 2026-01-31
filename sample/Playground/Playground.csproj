@@ -58,6 +58,7 @@
     <!-- ios entitlements -->
     <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
         <CodesignEntitlements>Platforms\iOS\Entitlements.plist</CodesignEntitlements>
+        <FirebaseCrashlyticsUploadSymbolsEnabled>false</FirebaseCrashlyticsUploadSymbolsEnabled>
     </PropertyGroup>
 
     <!-- project references -->

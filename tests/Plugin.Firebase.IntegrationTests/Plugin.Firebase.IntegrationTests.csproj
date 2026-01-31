@@ -40,6 +40,7 @@
     <!-- ios entitlements -->
     <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
         <CodesignEntitlements>Platforms\iOS\Entitlements.plist</CodesignEntitlements>
+        <FirebaseCrashlyticsUploadSymbolsEnabled>false</FirebaseCrashlyticsUploadSymbolsEnabled>
     </PropertyGroup>
 
     <!-- project references -->
@@ -50,9 +51,6 @@
     <!-- nuget packages -->
     <ItemGroup>
         <PackageReference Include="Shiny.Xunit.Runners.Maui" Version="1.0.0" />
-    </ItemGroup>
-    
-    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
     </ItemGroup>
 
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">

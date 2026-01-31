@@ -42,6 +42,10 @@
         <!--Version of C# to use -->
         <LangVersion>default</LangVersion>
     </PropertyGroup>
+    
+    <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+        <FirebaseCrashlyticsUploadSymbolsEnabled>false</FirebaseCrashlyticsUploadSymbolsEnabled>
+    </PropertyGroup>
 
     <!-- Define what happens on build and release -->
     <PropertyGroup Condition=" '$(Configuration)'=='Debug' ">

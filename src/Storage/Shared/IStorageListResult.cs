@@ -1,5 +1,8 @@
 namespace Plugin.Firebase.Storage;
 
+/// <summary>
+/// Represents the result of a storage list operation.
+/// </summary>
 public interface IStorageListResult
 {
     /// <summary>

@@ -5,6 +5,10 @@ namespace Plugin.Firebase.Storage;
 /// </summary>
 public interface IStorageTransferTask
 {
+    /// <summary>
+    /// Waits for the transfer task to complete.
+    /// </summary>
+    /// <returns>A task that completes when the transfer is finished.</returns>
     Task AwaitAsync();
 
     /// <summary>
@@ -23,17 +27,17 @@ public interface IStorageTransferTask
     void RemoveObserver(Action<IStorageTaskSnapshot> observer);
 
     /// <summary>
-    /// Attempts to pause the task. 
+    /// Attempts to pause the task.
     /// </summary>
     void Pause();
 
     /// <summary>
-    /// Attempts to resume a paused task. 
+    /// Attempts to resume a paused task.
     /// </summary>
     void Resume();
 
     /// <summary>
-    /// Attempts to cancel the task. 
+    /// Attempts to cancel the task.
     /// </summary>
     void Cancel();
 }

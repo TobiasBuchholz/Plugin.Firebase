@@ -4,7 +4,7 @@ namespace Plugin.Firebase.Core.Platforms.iOS;
 
 public static class CrossFirebase
 {
-    public static void Initialize(string name = null, Options firebaseOptions = null)
+    public static void Initialize(string? name = null, Options? firebaseOptions = null)
     {
         if(firebaseOptions == null) {
             App.Configure();

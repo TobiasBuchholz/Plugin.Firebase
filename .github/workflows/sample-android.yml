@@ -1,0 +1,26 @@
+name: sample-android (manual)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build_sample_android:
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_MULTILEVEL_LOOKUP: 0
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_WORKLOAD_UPDATE_NOTIFICATION_LEVEL: Disable
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - name: Install Android workload
+        run: dotnet workload install android
+      - name: Build Playground (Android)
+        run: dotnet build sample/Playground/Playground.csproj -c Debug -f net9.0-android

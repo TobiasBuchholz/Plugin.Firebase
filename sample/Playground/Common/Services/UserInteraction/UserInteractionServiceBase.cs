@@ -1,4 +1,5 @@
 using Playground.Resources;
+using System.Linq;
 
 namespace Playground.Common.Services.UserInteraction;
 
@@ -148,7 +149,8 @@ public abstract class UserInteractionServiceBase : IUserInteractionService
         tcs.TrySetResult(DialogButtonIndex.Cancel);
     }
 
-    private static Page CurrentPage => Application.Current.MainPage;
+    private static Page CurrentPage => Application.Current?.Windows.FirstOrDefault()?.Page
+                                       ?? throw new InvalidOperationException("No active window is available.");
 }
 
 public static class DialogButtonIndex

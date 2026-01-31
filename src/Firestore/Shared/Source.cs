@@ -7,5 +7,18 @@ namespace Plugin.Firebase.Firestore;
 /// </summary>
 public enum Source
 {
-    Default, Cache, Server
+    /// <summary>
+    /// Attempt to fetch from the server first, falling back to the local cache if unavailable.
+    /// </summary>
+    Default,
+
+    /// <summary>
+    /// Fetch results only from the local cache.
+    /// </summary>
+    Cache,
+
+    /// <summary>
+    /// Fetch results only from the server.
+    /// </summary>
+    Server,
 }

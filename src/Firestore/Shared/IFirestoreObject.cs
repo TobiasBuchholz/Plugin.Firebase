@@ -1,5 +1,6 @@
 namespace Plugin.Firebase.Firestore;
 
-public interface IFirestoreObject
-{
-}
+/// <summary>
+/// Marker interface for objects that can be serialized to and from Firestore documents.
+/// </summary>
+public interface IFirestoreObject { }

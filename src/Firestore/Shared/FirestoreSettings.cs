@@ -5,9 +5,12 @@ namespace Plugin.Firebase.Firestore;
 /// </summary>
 public sealed class FirestoreSettings
 {
-    public FirestoreSettings(
-        string host = null,
-        bool isSslEnabled = false)
+    /// <summary>
+    /// Creates a new <c>FirestoreSettings</c> instance.
+    /// </summary>
+    /// <param name="host">The host of the Cloud Firestore backend.</param>
+    /// <param name="isSslEnabled">Whether to use SSL for communication.</param>
+    public FirestoreSettings(string host = null, bool isSslEnabled = false)
     {
         Host = host;
         IsSslEnabled = isSslEnabled;

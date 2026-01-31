@@ -20,7 +20,8 @@ public sealed class SetOptions
     /// the fields specified here in its to data argument.
     /// </summary>
     /// <param name="fieldPaths">The list of fields to merge.</param>
-    public static SetOptions MergeFieldPaths(IList<IList<string>> fieldPaths) => new SetOptions(TypeMergeFieldPaths, fieldPaths);
+    public static SetOptions MergeFieldPaths(IList<IList<string>> fieldPaths) =>
+        new SetOptions(TypeMergeFieldPaths, fieldPaths);
 
     /// <summary>
     /// Changes the behavior of <c>Set()</c> calls to only replace the given fields. Any field that is not specified in fields is ignored
@@ -28,7 +29,8 @@ public sealed class SetOptions
     /// fields specified here.
     /// </summary>
     /// <param name="fields">The list of fields to merge. Fields can contain dots to reference nested fields within the document.</param>
-    public static SetOptions MergeFields(params string[] fields) => new SetOptions(TypeMergeFields, fields: fields);
+    public static SetOptions MergeFields(params string[] fields) =>
+        new SetOptions(TypeMergeFields, fields: fields);
 
     /// <summary>
     /// Changes the behavior of <c>Set()</c> calls to only replace the given fields. Any field that is not specified in fields is ignored
@@ -36,12 +38,30 @@ public sealed class SetOptions
     /// fields specified here.
     /// </summary>
     /// <param name="fields">The list of fields to merge. Fields can contain dots to reference nested fields within the document.</param>
-    public static SetOptions MergeFields(IList<string> fields) => new SetOptions(TypeMergeFields, fields: fields);
+    public static SetOptions MergeFields(IList<string> fields) =>
+        new SetOptions(TypeMergeFields, fields: fields);
 
+    /// <summary>
+    /// Constant representing a merge-all operation.
+    /// </summary>
     public const int TypeMerge = 0;
+
+    /// <summary>
+    /// Constant representing a merge with field paths operation.
+    /// </summary>
     public const int TypeMergeFieldPaths = 1;
+
+    /// <summary>
+    /// Constant representing a merge with field names operation.
+    /// </summary>
     public const int TypeMergeFields = 2;
 
+    /// <summary>
+    /// Creates a new <c>SetOptions</c> instance.
+    /// </summary>
+    /// <param name="type">The type of merge operation.</param>
+    /// <param name="fieldPaths">The field paths to merge.</param>
+    /// <param name="fields">The field names to merge.</param>
     public SetOptions(int type, IList<IList<string>> fieldPaths = null, IList<string> fields = null)
     {
         Type = type;

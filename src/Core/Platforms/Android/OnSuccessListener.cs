@@ -12,8 +12,8 @@ public sealed class OnSuccessListener : Object, IOnSuccessListener
         _action = action;
     }
 
-    public void OnSuccess(Object result)
+    public void OnSuccess(Object? result)
     {
-        _action(result);
+        _action(result!);
     }
 }

@@ -5,12 +5,18 @@ namespace Plugin.Firebase.Auth.Platforms.Android.Extensions;
 
 public static class FirebaseAuthExtensions
 {
-    public static FirebaseUserWrapper ToAbstract(this FirebaseUser @this, IAdditionalUserInfo additionalUserInfo = null)
+    public static FirebaseUserWrapper ToAbstract(
+        this FirebaseUser @this,
+        IAdditionalUserInfo? additionalUserInfo = null
+    )
     {
         return new FirebaseUserWrapper(@this);
     }
 
-    public static ProviderInfo ToAbstract(this IUserInfo @this, IAdditionalUserInfo additionalUserInfo = null)
+    public static ProviderInfo ToAbstract(
+        this IUserInfo @this,
+        IAdditionalUserInfo? additionalUserInfo = null
+    )
     {
         return new ProviderInfo(
             @this.Uid,
@@ -18,34 +24,47 @@ public static class FirebaseAuthExtensions
             @this.DisplayName,
             @this.Email ?? GetEmailFromAdditionalUserInfo(additionalUserInfo),
             @this.PhoneNumber,
-            @this.PhotoUrl?.ToString());
+            @this.PhotoUrl?.ToString()
+        );
     }
 
-    private static string GetEmailFromAdditionalUserInfo(IAdditionalUserInfo additionalUserInfo)
+    private static string? GetEmailFromAdditionalUserInfo(IAdditionalUserInfo? additionalUserInfo)
     {
         var profile = additionalUserInfo?.Profile;
         if(profile != null && profile.ContainsKey("email")) {
-            return profile["email"].ToString();
+            return profile["email"]?.ToString();
         }
         return null;
     }
 
-    public static NativeActionCodeSettings ToNative(this ActionCodeSettings @this)
+    public static NativeActionCodeSettings? ToNative(this ActionCodeSettings @this)
     {
-        return NativeActionCodeSettings
-            .NewBuilder()
-            .SetUrl(@this.Url)
-            .SetHandleCodeInApp(@this.HandleCodeInApp)
-            .SetIOSBundleId(@this.IOSBundleId)
-            .SetAndroidPackageName(@this.AndroidPackageName, @this.AndroidInstallIfNotAvailable, @this.AndroidMinimumVersion)
-            .Build();
+        var builder = NativeActionCodeSettings.NewBuilder();
+
+        if(@this.Url is not null) {
+            builder.SetUrl(@this.Url);
+        }
+
+        builder.SetHandleCodeInApp(@this.HandleCodeInApp);
+        builder.SetIOSBundleId(@this.IOSBundleId);
+
+        if(@this.AndroidPackageName is not null) {
+            builder.SetAndroidPackageName(
+                @this.AndroidPackageName,
+                @this.AndroidInstallIfNotAvailable,
+                @this.AndroidMinimumVersion
+            );
+        }
+
+        return builder.Build();
     }
 
     public static UserMetadata ToAbstract(this IFirebaseUserMetadata @this)
     {
         return new UserMetadata(
             DateTimeOffset.FromUnixTimeMilliseconds(@this.CreationTimestamp),
-            DateTimeOffset.FromUnixTimeMilliseconds(@this.LastSignInTimestamp));
+            DateTimeOffset.FromUnixTimeMilliseconds(@this.LastSignInTimestamp)
+        );
     }
 
     public static IAuthTokenResult ToAbstract(this GetTokenResult @this)

@@ -11,7 +11,10 @@ public sealed class EmailAuth
 
     public async Task<IFirebaseUser> CreateUserAsync(string email, string password)
     {
-        var result = await FirebaseAuth.Instance.CreateUserWithEmailAndPasswordAsync(email, password);
-        return new FirebaseUserWrapper(result.User);
+        var result = await FirebaseAuth.Instance.CreateUserWithEmailAndPasswordAsync(
+            email,
+            password
+        );
+        return new FirebaseUserWrapper(result.User!);
     }
 }

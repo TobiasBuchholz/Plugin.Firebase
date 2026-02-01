@@ -6,7 +6,7 @@ namespace Plugin.Firebase.Auth.Platforms.iOS;
 public sealed class FirebaseUserWrapper : IFirebaseUser
 {
     private readonly User _wrapped;
-
+    
     public FirebaseUserWrapper(User firebaseUser)
     {
         _wrapped = firebaseUser;
@@ -44,7 +44,7 @@ public sealed class FirebaseUserWrapper : IFirebaseUser
         return request.CommitChangesAsync();
     }
 
-    public Task SendEmailVerificationAsync(ActionCodeSettings actionCodeSettings = null)
+    public Task SendEmailVerificationAsync(ActionCodeSettings? actionCodeSettings = null)
     {
         return actionCodeSettings == null
             ? _wrapped.SendEmailVerificationAsync()
@@ -68,12 +68,21 @@ public sealed class FirebaseUserWrapper : IFirebaseUser
     }
 
     public string Uid => _wrapped.Uid;
-    public string DisplayName => _wrapped.DisplayName;
-    public string Email => _wrapped.Email;
-    public string PhotoUrl => _wrapped.PhotoUrl?.AbsoluteString;
+
+    public string? DisplayName => _wrapped.DisplayName;
+
+    public string? Email => _wrapped.Email;
+
+    public string? PhotoUrl => _wrapped.PhotoUrl?.AbsoluteString;
+
     public string ProviderId => _wrapped.ProviderId;
+
     public bool IsEmailVerified => _wrapped.IsEmailVerified;
+
     public bool IsAnonymous => _wrapped.IsAnonymous;
-    public IEnumerable<ProviderInfo> ProviderInfos => _wrapped.ProviderData?.Select(x => x.ToAbstract());
-    public UserMetadata Metadata => _wrapped.Metadata?.ToAbstract();
+
+    public IEnumerable<ProviderInfo>? ProviderInfos =>
+        _wrapped.ProviderData?.Select(x => x.ToAbstract());
+
+    public UserMetadata? Metadata => _wrapped.Metadata?.ToAbstract();
 }

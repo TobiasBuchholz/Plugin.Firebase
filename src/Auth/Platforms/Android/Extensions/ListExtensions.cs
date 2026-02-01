@@ -5,18 +5,21 @@ namespace Plugin.Firebase.Auth.Platforms.Android.Extensions;
 
 public static class ListExtensions
 {
-    public static IList ToList(this JavaList @this, Type targetType = null)
+    public static IList ToList(this JavaList @this, Type? targetType = null)
     {
-        var list = targetType == null ? new List<object>() : (IList) Activator.CreateInstance(typeof(List<>).MakeGenericType(targetType));
+        var list =
+            targetType == null
+                ? new List<object>()
+                : (IList) Activator.CreateInstance(typeof(List<>).MakeGenericType(targetType))!;
         for(var i = 0; i < @this.Size(); i++) {
             var value = @this[i];
             if(value is Java.Lang.Object javaValue) {
-                list.Add(javaValue.ToObject(targetType));
+                list!.Add(javaValue.ToObject(targetType));
             } else {
-                list.Add(value);
+                list!.Add(value);
             }
         }
-        return list;
+        return list!;
     }
 
     public static JavaList ToJavaList(this IEnumerable @this)

@@ -12,13 +12,7 @@ public static class CrossFirebase
         Options firebaseOptions = null,
         string name = null)
     {
-        if(firebaseOptions == null) {
-            App.Configure();
-        } else if(name == null) {
-            App.Configure(firebaseOptions);
-        } else {
-            App.Configure(name, firebaseOptions);
-        }
+        Core.Platforms.iOS.CrossFirebase.Initialize(name, firebaseOptions);
 
         if(settings.IsCloudMessagingEnabled) {
             FirebaseCloudMessagingImplementation.Initialize();

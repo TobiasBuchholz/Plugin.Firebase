@@ -4,8 +4,7 @@ namespace Plugin.Firebase.Core.Platforms.Android;
 
 public static class CrossFirebase
 {
-    public static Func<Activity> ActivityLocator
-    {
+    public static Func<Activity> ActivityLocator {
         get;
         private set;
     }
@@ -29,6 +28,8 @@ public static class CrossFirebase
         } else {
             FirebaseApp.InitializeApp(activity, firebaseOptions, name);
         }
+
+        FirebaseInitializationHooks.InvokeAfterInitialize();
     }
 
     public static void RegisterActivityLocator(Func<Activity> activityLocator)

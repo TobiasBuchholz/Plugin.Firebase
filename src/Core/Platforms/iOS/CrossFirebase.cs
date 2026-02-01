@@ -6,6 +6,8 @@ public static class CrossFirebase
 {
     public static void Initialize(string name = null, Options firebaseOptions = null)
     {
+        FirebaseInitializationHooks.InvokeBeforeConfigure();
+
         if(firebaseOptions == null) {
             App.Configure();
         } else if(name == null) {

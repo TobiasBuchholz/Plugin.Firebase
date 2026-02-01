@@ -14,15 +14,11 @@ public static class CrossFirebase
         FirebaseOptions firebaseOptions = null,
         string name = null)
     {
-        Core.Platforms.Android.CrossFirebase.RegisterActivityLocator(activityLocator);
-
-        if(firebaseOptions == null) {
-            FirebaseApp.InitializeApp(activity);
-        } else if(name == null) {
-            FirebaseApp.InitializeApp(activity, firebaseOptions);
-        } else {
-            FirebaseApp.InitializeApp(activity, firebaseOptions, name);
-        }
+        Core.Platforms.Android.CrossFirebase.Initialize(
+            activity,
+            activityLocator,
+            firebaseOptions,
+            name);
 
         if(settings.IsAnalyticsEnabled) {
             FirebaseAnalyticsImplementation.Initialize(activity);

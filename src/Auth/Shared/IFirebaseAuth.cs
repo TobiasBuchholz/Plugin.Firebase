@@ -102,6 +102,13 @@ public interface IFirebaseAuth : IDisposable
     Task SendPasswordResetEmailAsync(string email);
 
     /// <summary>
+    /// Sets the language used by Firebase Auth for user-facing flows such as Auth-generated emails/SMS (password reset, email verification, phone auth).
+    /// Call this before invoking an API that triggers the flow, then reset by passing null/whitespace to use the app language.
+    /// </summary>
+    /// <param name="languageCode">A BCP-47 language code (e.g. "fr", "en-GB"), or null to use app language.</param>
+    void SetLanguageCode(string? languageCode);
+
+    /// <summary>
     /// Modify this FirebaseAuth instance to communicate with the Firebase Authentication emulator.
     /// Note: this must be called before this instance has been used to do any operations.
     /// </summary>

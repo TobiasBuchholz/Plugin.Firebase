@@ -145,6 +145,20 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         }
 
         [Fact]
+        public async Task sets_language_code()
+        {
+            var sut = CrossFirebaseAuth.Current;
+            await sut.SignInWithEmailAndPasswordAsync("set-language-code@test.com", "123456");
+
+            var ex = Record.Exception(() => {
+                sut.SetLanguageCode("fr");
+                sut.SetLanguageCode(null);
+                sut.SetLanguageCode("   ");
+            });
+            Assert.Null(ex);
+        }
+
+        [Fact]
         public async Task deletes_user()
         {
             var sut = CrossFirebaseAuth.Current;

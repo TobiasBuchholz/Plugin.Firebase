@@ -205,6 +205,16 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         return _firebaseAuth.SendPasswordResetEmailAsync(email);
     }
 
+    public void SetLanguageCode(string? languageCode)
+    {
+        if(string.IsNullOrWhiteSpace(languageCode)) {
+            _firebaseAuth.UseAppLanguage();
+            return;
+        }
+
+        _firebaseAuth.LanguageCode = languageCode;
+    }
+
     public void UseEmulator(string host, int port)
     {
         _firebaseAuth.UseEmulator(host, port);

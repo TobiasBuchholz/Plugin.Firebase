@@ -42,7 +42,6 @@
         <!--Version of C# to use -->
         <LangVersion>default</LangVersion>
 
-        <EnableFirebaseAppCheckIos Condition="'$(EnableFirebaseAppCheckIos)' == ''">false</EnableFirebaseAppCheckIos>
     </PropertyGroup>
 
     <!-- Define what happens on build and release -->
@@ -88,12 +87,8 @@
         <PackageReference Include="Xamarin.Firebase.AppCheck.PlayIntegrity" Version="118.0.0.2" />
     </ItemGroup>
 
-    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' and '$(EnableFirebaseAppCheckIos)' == 'true'">
-        <PackageReference Include="AdamE.Firebase.iOS.AppCheck" Version="[12.5.0.4,)" />
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+        <PackageReference Include="AdamE.Firebase.iOS.AppCheck" Version="12.5.0.4-fork" />
     </ItemGroup>
-
-    <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' and '$(EnableFirebaseAppCheckIos)' == 'true'">
-        <DefineConstants>$(DefineConstants);FIREBASE_APP_CHECK_IOS</DefineConstants>
-    </PropertyGroup>
 
 </Project>

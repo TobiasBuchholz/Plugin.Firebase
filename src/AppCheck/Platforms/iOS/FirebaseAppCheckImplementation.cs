@@ -1,4 +1,3 @@
-#if FIREBASE_APP_CHECK_IOS
 using Firebase.AppCheck;
 using Firebase.Core;
 using Foundation;
@@ -22,7 +21,7 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
             _options = options;
         }
 
-        if(options.Mode == AppCheckMode.Disabled) {
+        if(options.Provider == AppCheckProviderType.Disabled) {
             _beforeConfigureRegistration?.Dispose();
             _beforeConfigureRegistration = null;
             return;
@@ -38,19 +37,20 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
             options = _options;
         }
 
-        if(options.Mode == AppCheckMode.Disabled) {
+        if(options.Provider == AppCheckProviderType.Disabled) {
             return;
         }
 
-        AppCheckProviderFactory factory = options.Mode switch
-        {
-            AppCheckMode.Debug => new AppCheckDebugProviderFactory(),
-            AppCheckMode.Production => new AppAttestOrDeviceCheckProviderFactory(),
+        IAppCheckProviderFactory providerFactory = options.Provider switch {
+            AppCheckProviderType.Debug => (IAppCheckProviderFactory) new AppCheckDebugProviderFactory(),
+            AppCheckProviderType.DeviceCheck => (IAppCheckProviderFactory) new DeviceCheckProviderFactory(),
+            AppCheckProviderType.AppAttest => new AppAttestProviderFactoryAdapter(),
+            AppCheckProviderType.PlayIntegrity => throw new NotSupportedException("AppCheck Play Integrity provider is not supported on iOS."),
             _ => null
         };
 
-        if(factory != null) {
-            AppCheck.SetAppCheckProviderFactory(factory);
+        if(providerFactory != null) {
+            global::Firebase.AppCheck.AppCheck.SetAppCheckProviderFactory(providerFactory);
         }
     }
 
@@ -60,16 +60,15 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
         _beforeConfigureRegistration = null;
     }
 
-    private sealed class AppAttestOrDeviceCheckProviderFactory : NSObject, AppCheckProviderFactory
+    private sealed class AppAttestProviderFactoryAdapter : NSObject, IAppCheckProviderFactory
     {
-        public AppCheckProvider CreateProviderWithApp(App app)
+        public IAppCheckProvider CreateProviderWithApp(App app)
         {
-            if(OperatingSystem.IsIOSVersionAtLeast(14)) {
-                return new AppAttestProvider(app);
+            if(!OperatingSystem.IsIOSVersionAtLeast(14)) {
+                throw new NotSupportedException("AppCheck App Attest provider requires iOS 14 or newer.");
             }
 
-            return new DeviceCheckProvider(app);
+            return (IAppCheckProvider) new AppAttestProvider(app);
         }
     }
 }
-#endif

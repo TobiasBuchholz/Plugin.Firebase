@@ -17,10 +17,15 @@ using Plugin.Firebase.AppCheck;
 CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
 ```
 
-### Modes
+### Providers
 - `Disabled`: No App Check provider is installed.
-- `Debug`: Uses the platform debug provider.
-- `Production`: Uses App Attest (iOS, with DeviceCheck fallback) and Play Integrity (Android).
+- `Debug`: Debug provider (iOS / Android).
+- `DeviceCheck`: Apple DeviceCheck provider (iOS only).
+- `AppAttest`: Apple App Attest provider (iOS only, iOS 14+).
+- `PlayIntegrity`: Google Play Integrity provider (Android only).
 
 ### iOS enablement
-App Check for iOS is gated behind `EnableFirebaseAppCheckIos=true` until the `AdamE.Firebase.iOS.AppCheck` package is published for the current Firebase SDK line.
+App Check for iOS is enabled by default in `Plugin.Firebase.AppCheck` and uses `AdamE.Firebase.iOS.AppCheck` (`12.5.0.4-fork`).
+Make sure your NuGet sources include the feed where that forked package is published.
+
+Configuring a provider that is not supported on the current platform throws a `NotSupportedException`.

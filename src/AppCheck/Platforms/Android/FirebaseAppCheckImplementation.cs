@@ -21,7 +21,7 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
             _options = options;
         }
 
-        if(options.Mode == AppCheckMode.Disabled) {
+        if(options.Provider == AppCheckProviderType.Disabled) {
             _afterInitializeRegistration?.Dispose();
             _afterInitializeRegistration = null;
             return;
@@ -37,18 +37,21 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
             options = _options;
         }
 
-        if(options.Mode == AppCheckMode.Disabled) {
+        if(options.Provider == AppCheckProviderType.Disabled) {
             return;
         }
 
         IAppCheckProviderFactory factory = null;
-        switch(options.Mode) {
-            case AppCheckMode.Debug:
+        switch(options.Provider) {
+            case AppCheckProviderType.Debug:
                 factory = (IAppCheckProviderFactory) DebugAppCheckProviderFactory.Instance;
                 break;
-            case AppCheckMode.Production:
+            case AppCheckProviderType.PlayIntegrity:
                 factory = (IAppCheckProviderFactory) PlayIntegrityAppCheckProviderFactory.Instance;
                 break;
+            case AppCheckProviderType.DeviceCheck:
+            case AppCheckProviderType.AppAttest:
+                throw new NotSupportedException($"AppCheck provider '{options.Provider}' is not supported on Android.");
         }
 
         if(factory != null) {

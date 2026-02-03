@@ -1,16 +1,20 @@
 namespace Plugin.Firebase.AppCheck;
 
 /// <summary>
-/// Defines the AppCheck mode for the Firebase AppCheck service.
+/// Defines the native AppCheck provider to install.
 /// </summary>
-public enum AppCheckMode
+public enum AppCheckProviderType
 {
-    /// <summary>AppCheck is disabled.</summary>
+    /// <summary>Do not install an AppCheck provider.</summary>
     Disabled,
-    /// <summary>AppCheck is in debug mode.</summary>
+    /// <summary>Debug provider.</summary>
     Debug,
-    /// <summary>AppCheck is in production mode.</summary>
-    Production
+    /// <summary>Apple DeviceCheck provider (iOS only).</summary>
+    DeviceCheck,
+    /// <summary>Apple App Attest provider (iOS only).</summary>
+    AppAttest,
+    /// <summary>Play Integrity provider (Android only).</summary>
+    PlayIntegrity
 }
 
 /// <summary>
@@ -21,21 +25,25 @@ public sealed class AppCheckOptions
     /// <summary>
     /// Initializes a new instance of the <see cref="AppCheckOptions"/> class.
     /// </summary>
-    /// <param name="mode">The AppCheck mode to use.</param>
-    public AppCheckOptions(AppCheckMode mode)
+    /// <param name="provider">The AppCheck provider to use.</param>
+    public AppCheckOptions(AppCheckProviderType provider)
     {
-        Mode = mode;
+        Provider = provider;
     }
 
     /// <summary>
-    /// Gets the AppCheck mode.
+    /// Gets the AppCheck provider.
     /// </summary>
-    public AppCheckMode Mode { get; }
+    public AppCheckProviderType Provider { get; }
 
     /// <summary>Gets the disabled AppCheck options.</summary>
-    public static AppCheckOptions Disabled { get; } = new(AppCheckMode.Disabled);
+    public static AppCheckOptions Disabled { get; } = new(AppCheckProviderType.Disabled);
     /// <summary>Gets the debug AppCheck options.</summary>
-    public static AppCheckOptions Debug { get; } = new(AppCheckMode.Debug);
-    /// <summary>Gets the production AppCheck options.</summary>
-    public static AppCheckOptions Production { get; } = new(AppCheckMode.Production);
+    public static AppCheckOptions Debug { get; } = new(AppCheckProviderType.Debug);
+    /// <summary>Gets the DeviceCheck AppCheck options.</summary>
+    public static AppCheckOptions DeviceCheck { get; } = new(AppCheckProviderType.DeviceCheck);
+    /// <summary>Gets the AppAttest AppCheck options.</summary>
+    public static AppCheckOptions AppAttest { get; } = new(AppCheckProviderType.AppAttest);
+    /// <summary>Gets the PlayIntegrity AppCheck options.</summary>
+    public static AppCheckOptions PlayIntegrity { get; } = new(AppCheckProviderType.PlayIntegrity);
 }

@@ -1,4 +1,5 @@
 using Plugin.Firebase.Analytics;
+using Plugin.Firebase.AppCheck;
 using Plugin.Firebase.Auth;
 using Plugin.Firebase.CloudMessaging;
 using Plugin.Firebase.Firestore;
@@ -22,6 +23,17 @@ namespace Plugin.Firebase.IntegrationTests
             Assert.True(CrossFirebaseFunctions.IsSupported);
             Assert.True(CrossFirebaseStorage.IsSupported);
             Assert.True(CrossFirebaseRemoteConfig.IsSupported);
+            Assert.True(CrossFirebaseAppCheck.IsSupported);
+            CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled);
+            if(OperatingSystem.IsAndroid()) {
+                CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
+                CrossFirebaseAppCheck.Configure(AppCheckOptions.PlayIntegrity);
+            }
+
+            if(OperatingSystem.IsIOS()) {
+                CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
+                CrossFirebaseAppCheck.Configure(AppCheckOptions.DeviceCheck);
+            }
         }
     }
 }

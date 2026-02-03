@@ -12,7 +12,8 @@ public sealed class CrossFirebaseSettings
         bool isFunctionsEnabled = false,
         bool isRemoteConfigEnabled = false,
         bool isStorageEnabled = false,
-        string googleRequestIdToken = null)
+        string googleRequestIdToken = null,
+        Plugin.Firebase.AppCheck.AppCheckOptions appCheckOptions = null)
     {
         IsAnalyticsEnabled = isAnalyticsEnabled;
         IsAuthEnabled = isAuthEnabled;
@@ -24,6 +25,7 @@ public sealed class CrossFirebaseSettings
         IsRemoteConfigEnabled = isRemoteConfigEnabled;
         IsStorageEnabled = isStorageEnabled;
         GoogleRequestIdToken = googleRequestIdToken;
+        AppCheckOptions = appCheckOptions;
     }
 
     public override string ToString()
@@ -37,7 +39,8 @@ public sealed class CrossFirebaseSettings
                $"{nameof(IsFirestoreEnabled)}={IsFirestoreEnabled}," +
                $"{nameof(IsFunctionsEnabled)}={IsFunctionsEnabled}," +
                $"{nameof(IsRemoteConfigEnabled)}={IsRemoteConfigEnabled}," +
-               $"{nameof(IsStorageEnabled)}={IsStorageEnabled}]";
+               $"{nameof(IsStorageEnabled)}={IsStorageEnabled}," +
+               $"{nameof(AppCheckOptions)}={AppCheckOptions?.Provider}]";
     }
 
     public bool IsAnalyticsEnabled { get; }
@@ -51,4 +54,5 @@ public sealed class CrossFirebaseSettings
     public bool IsStorageEnabled { get; }
 
     public string GoogleRequestIdToken { get; }
+    public Plugin.Firebase.AppCheck.AppCheckOptions AppCheckOptions { get; }
 }

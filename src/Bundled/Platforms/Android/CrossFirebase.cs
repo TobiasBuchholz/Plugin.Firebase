@@ -1,5 +1,6 @@
 using Firebase;
 using Firebase.Crashlytics;
+using Plugin.Firebase.AppCheck;
 using Plugin.Firebase.Analytics;
 using Plugin.Firebase.Bundled.Shared;
 
@@ -14,6 +15,14 @@ public static class CrossFirebase
         FirebaseOptions firebaseOptions = null,
         string name = null)
     {
+        if(settings.AppCheckOptions != null) {
+            try {
+                CrossFirebaseAppCheck.Configure(settings.AppCheckOptions);
+            } catch(NotSupportedException) {
+                Console.WriteLine("Plugin.Firebase AppCheck is not supported for this build. Continuing without AppCheck.");
+            }
+        }
+
         Core.Platforms.Android.CrossFirebase.Initialize(
             activity,
             activityLocator,

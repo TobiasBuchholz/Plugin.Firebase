@@ -26,6 +26,7 @@ public sealed class DashboardViewModel : ViewModelBase
     {
         NavigateToAuthPageCommand = ReactiveCommand.CreateFromTask(() => _navigationService.GoToAsync(NavigationPaths.ToAuthPage()));
         NavigateToCloudMessagingPageCommand = ReactiveCommand.CreateFromTask(() => _navigationService.GoToAsync(NavigationPaths.ToCloudMessagingPage()));
+        NavigateToAppCheckPageCommand = ReactiveCommand.CreateFromTask(() => _navigationService.GoToAsync(NavigationPaths.ToAppCheckPage()));
         NavigateToRemoteConfigPageCommand = ReactiveCommand.CreateFromTask(() => _navigationService.GoToAsync(NavigationPaths.ToRemoteConfigPage()));
         NavigateToStoragePageCommand = ReactiveCommand.CreateFromTask(() => _navigationService.GoToAsync(NavigationPaths.ToStoragePage()));
     }
@@ -40,6 +41,7 @@ public sealed class DashboardViewModel : ViewModelBase
 
     public ReactiveCommand<Unit, Unit> NavigateToAuthPageCommand { get; private set; }
     public ReactiveCommand<Unit, Unit> NavigateToCloudMessagingPageCommand { get; private set; }
+    public ReactiveCommand<Unit, Unit> NavigateToAppCheckPageCommand { get; private set; }
     public ReactiveCommand<Unit, Unit> NavigateToRemoteConfigPageCommand { get; private set; }
     public ReactiveCommand<Unit, Unit> NavigateToStoragePageCommand { get; private set; }
 }

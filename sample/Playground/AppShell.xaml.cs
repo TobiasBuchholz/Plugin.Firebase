@@ -1,4 +1,5 @@
 using Playground.Features.Auth;
+using Playground.Features.AppCheck;
 using Playground.Features.CloudMessaging;
 using Playground.Features.RemoteConfig;
 using Playground.Features.Storage;
@@ -17,6 +18,7 @@ public partial class AppShell : Shell
     {
         Routing.RegisterRoute(NavigationPaths.PageAuth, typeof(AuthPage));
         Routing.RegisterRoute(NavigationPaths.PageCloudMessaging, typeof(CloudMessagingPage));
+        Routing.RegisterRoute(NavigationPaths.PageAppCheck, typeof(AppCheckPage));
         Routing.RegisterRoute(NavigationPaths.PageRemoteConfig, typeof(RemoteConfigPage));
         Routing.RegisterRoute(NavigationPaths.PageStorage, typeof(StoragePage));
     }

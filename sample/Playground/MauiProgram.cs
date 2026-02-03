@@ -5,10 +5,12 @@ using Playground.Common.Services.Auth;
 using Playground.Common.Services.Logging;
 using Playground.Common.Services.PushNotification;
 using Playground.Features.Auth;
+using Playground.Features.AppCheck;
 using Playground.Features.CloudMessaging;
 using Playground.Features.Dashboard;
 using Playground.Features.RemoteConfig;
 using Playground.Features.Storage;
+using Plugin.Firebase.AppCheck;
 using Plugin.Firebase.Auth;
 using Plugin.Firebase.CloudMessaging;
 using Plugin.Firebase.Functions;
@@ -87,6 +89,7 @@ public static class MauiProgram
     {
         builder.Services.AddSingleton<DashboardViewModel>();
         builder.Services.AddTransient<AuthViewModel>();
+        builder.Services.AddTransient<AppCheckViewModel>();
         builder.Services.AddTransient<CloudMessagingViewModel>();
         builder.Services.AddTransient<RemoteConfigViewModel>();
         builder.Services.AddTransient<StorageViewModel>();
@@ -97,6 +100,7 @@ public static class MauiProgram
     {
         builder.Services.AddSingleton<DashboardPage>();
         builder.Services.AddTransient<AuthPage>();
+        builder.Services.AddTransient<AppCheckPage>();
         builder.Services.AddTransient<CloudMessagingPage>();
         builder.Services.AddTransient<RemoteConfigPage>();
         builder.Services.AddTransient<StoragePage>();
@@ -114,6 +118,7 @@ public static class MauiProgram
             isFunctionsEnabled: true,
             isRemoteConfigEnabled: true,
             isStorageEnabled: true,
+            appCheckOptions: AppCheckOptions.Debug,
             googleRequestIdToken: "537235599720-723cgj10dtm47b4ilvuodtp206g0q0fg.apps.googleusercontent.com");
     }
 }

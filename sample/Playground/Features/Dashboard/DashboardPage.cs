@@ -21,6 +21,8 @@ public sealed class DashboardPage : ContentPageBase
                         .Bind(nameof(Vm.NavigateToAuthPageCommand)),
                     new Button { Text = Localization.ButtonCloudMessaging }
                         .Bind(nameof(Vm.NavigateToCloudMessagingPageCommand)),
+                    new Button { Text = "App Check" }
+                        .Bind(nameof(Vm.NavigateToAppCheckPageCommand)),
                     new Button { Text = Localization.ButtonRemoteConfig }
                         .Bind(nameof(Vm.NavigateToRemoteConfigPageCommand)),
                     new Button { Text = Localization.ButtonStorage }

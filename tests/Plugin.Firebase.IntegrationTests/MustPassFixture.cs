@@ -25,15 +25,34 @@ namespace Plugin.Firebase.IntegrationTests
             Assert.True(CrossFirebaseRemoteConfig.IsSupported);
             Assert.True(CrossFirebaseAppCheck.IsSupported);
             CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled);
+
             if(OperatingSystem.IsAndroid()) {
+                Assert.Throws<NotSupportedException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.DeviceCheck));
+                Assert.Throws<NotSupportedException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.AppAttest));
                 CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
                 CrossFirebaseAppCheck.Configure(AppCheckOptions.PlayIntegrity);
             }
 
             if(OperatingSystem.IsIOS()) {
+                Assert.Throws<NotSupportedException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.PlayIntegrity));
                 CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
                 CrossFirebaseAppCheck.Configure(AppCheckOptions.DeviceCheck);
+                CrossFirebaseAppCheck.Configure(AppCheckOptions.AppAttest);
             }
+        }
+
+        [Fact]
+        public async Task fetches_app_check_token_when_enabled_via_environment()
+        {
+            var shouldRunTokenTest = Environment.GetEnvironmentVariable("PLUGIN_FIREBASE_RUN_APPCHECK_TOKEN_TESTS") == "1";
+            if(!shouldRunTokenTest) {
+                return;
+            }
+
+            CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
+            var token = await CrossFirebaseAppCheck.GetTokenAsync(forceRefresh: true);
+
+            Assert.False(string.IsNullOrWhiteSpace(token));
         }
     }
 }

@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Core\Core.csproj" />
+    <ProjectReference Include="..\..\src\AppCheck\AppCheck.csproj" />
   </ItemGroup>
 
   <ItemGroup>

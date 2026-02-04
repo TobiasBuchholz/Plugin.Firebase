@@ -36,6 +36,22 @@ This script:
 
 **Note**: Your GitHub Personal Access Token must have the `read:packages` scope. See [GitHub docs](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic) for token creation.
 
+## Testing forked native-binding packages (`-local` / `-fork`)
+
+For short-cycle validation of binding fixes (for example AppCheck iOS):
+
+- Use `-local` suffix for packages produced on your machine and consumed from a local NuGet source.
+- Use `-fork` suffix for packages produced in fork CI and consumed from your GitHub Packages feed.
+
+Typical workflow:
+
+1. Publish binding package with temporary prerelease suffix (`-local` or `-fork`).
+2. Update `PackageReference` in `Plugin.Firebase` to that exact prerelease version.
+3. Run restore/build and validate on device/simulator.
+4. Revert temporary prerelease `PackageReference` values before preparing upstream PRs.
+
+Important: do not commit/push temporary local/fork-only package versions to upstream-facing branches unless maintainers explicitly ask for it.
+
 ## Build
 
 Build the solution:

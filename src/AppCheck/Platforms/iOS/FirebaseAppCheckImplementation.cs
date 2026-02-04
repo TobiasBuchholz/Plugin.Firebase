@@ -1,6 +1,7 @@
 using Firebase.AppCheck;
 using Firebase.Core;
 using Foundation;
+using ObjCRuntime;
 using Plugin.Firebase.Core;
 
 namespace Plugin.Firebase.AppCheck;
@@ -41,17 +42,50 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
             return;
         }
 
-        IAppCheckProviderFactory providerFactory = options.Provider switch {
-            AppCheckProviderType.Debug => (IAppCheckProviderFactory) new AppCheckDebugProviderFactory(),
-            AppCheckProviderType.DeviceCheck => (IAppCheckProviderFactory) new DeviceCheckProviderFactory(),
-            AppCheckProviderType.AppAttest => new AppAttestProviderFactoryAdapter(),
-            AppCheckProviderType.PlayIntegrity => throw new NotSupportedException("AppCheck Play Integrity provider is not supported on iOS."),
-            _ => null
-        };
+        switch(options.Provider) {
+            case AppCheckProviderType.Debug:
+                var debugFactory = new AppCheckDebugProviderFactory();
+                global::Firebase.AppCheck.AppCheck.SetAppCheckProviderFactory(debugFactory);
+                break;
 
-        if(providerFactory != null) {
-            global::Firebase.AppCheck.AppCheck.SetAppCheckProviderFactory(providerFactory);
+            case AppCheckProviderType.DeviceCheck:
+                var deviceCheckFactory = new DeviceCheckProviderFactory();
+                global::Firebase.AppCheck.AppCheck.SetAppCheckProviderFactory(deviceCheckFactory);
+                break;
+
+            case AppCheckProviderType.AppAttest:
+                var appAttestAdapter = new AppAttestProviderFactoryAdapter();
+                global::Firebase.AppCheck.AppCheck.SetAppCheckProviderFactory(appAttestAdapter);
+                break;
+
+            case AppCheckProviderType.PlayIntegrity:
+                throw new NotSupportedException("AppCheck Play Integrity provider is not supported on iOS.");
+
+            default:
+                break;
         }
+    }
+
+    public Task<string> GetTokenAsync(bool forceRefresh = false)
+    {
+        var taskCompletionSource = new TaskCompletionSource<string>();
+
+        global::Firebase.AppCheck.AppCheck.SharedInstance.TokenForcingRefresh(forceRefresh, (token, error) => {
+            if(error != null) {
+                taskCompletionSource.TrySetException(new NSErrorException(error));
+                return;
+            }
+
+            var rawToken = token?.Token;
+            if(string.IsNullOrWhiteSpace(rawToken)) {
+                taskCompletionSource.TrySetException(new InvalidOperationException("Firebase AppCheck returned an empty iOS token."));
+                return;
+            }
+
+            taskCompletionSource.TrySetResult(rawToken);
+        });
+
+        return taskCompletionSource.Task;
     }
 
     public void Dispose()
@@ -65,7 +99,7 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
         public IAppCheckProvider CreateProviderWithApp(App app)
         {
             if(!OperatingSystem.IsIOSVersionAtLeast(14)) {
-                throw new NotSupportedException("AppCheck App Attest provider requires iOS 14 or newer.");
+                return null;
             }
 
             return (IAppCheckProvider) new AppAttestProvider(app);

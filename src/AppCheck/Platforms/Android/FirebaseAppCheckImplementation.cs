@@ -1,6 +1,7 @@
 using Firebase.AppCheck;
 using Firebase.AppCheck.Debug;
 using Firebase.AppCheck.PlayIntegrity;
+using Android.Gms.Extensions;
 using Plugin.Firebase.Core;
 
 namespace Plugin.Firebase.AppCheck;
@@ -59,6 +60,19 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
             global::Firebase.AppCheck.FirebaseAppCheck.GetInstance(firebaseApp)
                 .InstallAppCheckProviderFactory(factory);
         }
+    }
+
+    public async Task<string> GetTokenAsync(bool forceRefresh = false)
+    {
+        var firebaseApp = global::Firebase.FirebaseApp.Instance;
+        var tokenResult = await global::Firebase.AppCheck.FirebaseAppCheck.GetInstance(firebaseApp).GetAppCheckToken(forceRefresh) as AppCheckToken;
+        var rawToken = tokenResult?.Token;
+
+        if(string.IsNullOrWhiteSpace(rawToken)) {
+            throw new InvalidOperationException("Firebase AppCheck returned an empty Android token.");
+        }
+
+        return rawToken;
     }
 
     public void Dispose()

@@ -45,6 +45,16 @@ public sealed class CrossFirebaseAppCheck
         Current.Configure(options);
     }
 
+    /// <summary>
+    /// Fetches an App Check token for the current Firebase app instance.
+    /// </summary>
+    /// <param name="forceRefresh">If true, bypasses cached tokens when possible.</param>
+    /// <returns>The App Check token string.</returns>
+    public static Task<string> GetTokenAsync(bool forceRefresh = false)
+    {
+        return Current.GetTokenAsync(forceRefresh);
+    }
+
     private static Exception NotImplementedInReferenceAssembly() =>
         new NotImplementedException("This functionality is not implemented in the portable version of this assembly. You should reference the NuGet package from your main application project in order to reference the platform-specific implementation.");
 

@@ -10,4 +10,11 @@ public interface IFirebaseAppCheck : IDisposable
     /// </summary>
     /// <param name="options">The AppCheck options to apply.</param>
     void Configure(AppCheckOptions options);
+
+    /// <summary>
+    /// Fetches an App Check token for the current Firebase app instance.
+    /// </summary>
+    /// <param name="forceRefresh">If true, bypasses cached tokens when possible.</param>
+    /// <returns>The App Check token string.</returns>
+    Task<string> GetTokenAsync(bool forceRefresh = false);
 }

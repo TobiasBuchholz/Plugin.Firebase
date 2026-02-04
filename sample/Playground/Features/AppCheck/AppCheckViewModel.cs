@@ -1,4 +1,5 @@
 using Plugin.Firebase.AppCheck;
+using Microsoft.Maui.ApplicationModel.DataTransfer;
 
 namespace Playground.Features.AppCheck;
 
@@ -6,50 +7,63 @@ namespace Playground.Features.AppCheck;
 public sealed class AppCheckViewModel : ViewModelBase
 {
     private readonly ISchedulerService _schedulerService;
+    private readonly IUserInteractionService _userInteractionService;
+    private readonly IFirebaseAppCheck _firebaseAppCheck;
 
-    public AppCheckViewModel(ISchedulerService schedulerService)
+    public AppCheckViewModel(
+        ISchedulerService schedulerService,
+        IUserInteractionService userInteractionService,
+        IFirebaseAppCheck firebaseAppCheck,
+        AppCheckOptions configuredOptions)
     {
         _schedulerService = schedulerService;
+        _userInteractionService = userInteractionService;
+        _firebaseAppCheck = firebaseAppCheck;
+        ConfiguredProvider = configuredOptions.Provider.ToString();
         InitCommands();
-        StatusMessage = "Tap a provider to configure Firebase AppCheck.";
+        StatusMessage = $"Configured provider: {ConfiguredProvider}";
+        CurrentToken = "No token fetched yet.";
     }
 
     private void InitCommands()
     {
-        ConfigureDisabledCommand = ReactiveCommand.CreateFromTask(() => ConfigureAsync(AppCheckOptions.Disabled));
-        ConfigureDebugCommand = ReactiveCommand.CreateFromTask(() => ConfigureAsync(AppCheckOptions.Debug));
-        ConfigureDeviceCheckCommand = ReactiveCommand.CreateFromTask(() => ConfigureAsync(AppCheckOptions.DeviceCheck));
-        ConfigureAppAttestCommand = ReactiveCommand.CreateFromTask(() => ConfigureAsync(AppCheckOptions.AppAttest));
-        ConfigurePlayIntegrityCommand = ReactiveCommand.CreateFromTask(() => ConfigureAsync(AppCheckOptions.PlayIntegrity));
+        FetchTokenCommand = ReactiveCommand.CreateFromTask(FetchTokenAsync);
+        var canCopyToken = this
+            .WhenAnyValue(x => x.CurrentToken)
+            .Select(token => !string.IsNullOrWhiteSpace(token) && token != "No token fetched yet.");
+        CopyTokenCommand = ReactiveCommand.CreateFromTask(CopyTokenAsync, canCopyToken);
 
         Observable
             .Merge(
-                ConfigureDisabledCommand.ThrownExceptions,
-                ConfigureDebugCommand.ThrownExceptions,
-                ConfigureDeviceCheckCommand.ThrownExceptions,
-                ConfigureAppAttestCommand.ThrownExceptions,
-                ConfigurePlayIntegrityCommand.ThrownExceptions)
+                FetchTokenCommand.ThrownExceptions,
+                CopyTokenCommand.ThrownExceptions)
             .LogThrownException()
-            .Select(ex => $"AppCheck configuration failed: {ex.Message}")
+            .Select(ex => $"AppCheck error: {ex.Message}")
             .ObserveOn(_schedulerService.Main)
             .Subscribe(message => StatusMessage = message)
             .DisposeWith(Disposables);
     }
 
-    private Task ConfigureAsync(AppCheckOptions options)
+    private async Task FetchTokenAsync()
     {
-        return Observable
-            .Start(() => CrossFirebaseAppCheck.Configure(options), _schedulerService.Main)
-            .Do(_ => StatusMessage = $"AppCheck configured: {options.Provider}")
-            .ToTask();
+        var token = await _firebaseAppCheck.GetTokenAsync(true);
+        CurrentToken = token;
+        StatusMessage = $"Token fetched ({token.Length} chars). Tap token text to copy.";
+    }
+
+    private async Task CopyTokenAsync()
+    {
+        await Clipboard.Default.SetTextAsync(CurrentToken);
+        await _userInteractionService.ShowDefaultSnackbarAsync("App Check token copied.");
     }
 
     [Reactive]
     public string StatusMessage { get; private set; }
+    [Reactive]
+    public string ConfiguredProvider { get; private set; }
+    [Reactive]
+    public string CurrentToken { get; private set; }
 
-    public ReactiveCommand<Unit, Unit> ConfigureDisabledCommand { get; private set; }
-    public ReactiveCommand<Unit, Unit> ConfigureDebugCommand { get; private set; }
-    public ReactiveCommand<Unit, Unit> ConfigureDeviceCheckCommand { get; private set; }
-    public ReactiveCommand<Unit, Unit> ConfigureAppAttestCommand { get; private set; }
-    public ReactiveCommand<Unit, Unit> ConfigurePlayIntegrityCommand { get; private set; }
+    public ReactiveCommand<Unit, Unit> FetchTokenCommand { get; private set; }
+    public ReactiveCommand<Unit, Unit> CopyTokenCommand { get; private set; }
 }

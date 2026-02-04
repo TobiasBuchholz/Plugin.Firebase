@@ -29,6 +29,8 @@ namespace Playground;
 
 public static class MauiProgram
 {
+    private static readonly AppCheckOptions ConfiguredAppCheckOptions = AppCheckOptions.Debug;
+
     public static MauiApp CreateMauiApp()
     {
         LogOutputService.Initialize();
@@ -82,6 +84,8 @@ public static class MauiProgram
         builder.Services.AddSingleton(_ => CrossFirebaseFunctions.Current);
         builder.Services.AddSingleton(_ => CrossFirebaseStorage.Current);
         builder.Services.AddSingleton(_ => CrossFirebaseRemoteConfig.Current);
+        builder.Services.AddSingleton(_ => CrossFirebaseAppCheck.Current);
+        builder.Services.AddSingleton(_ => ConfiguredAppCheckOptions);
         return builder;
     }
 
@@ -118,7 +122,7 @@ public static class MauiProgram
             isFunctionsEnabled: true,
             isRemoteConfigEnabled: true,
             isStorageEnabled: true,
-            appCheckOptions: AppCheckOptions.Debug,
+            appCheckOptions: ConfiguredAppCheckOptions,
             googleRequestIdToken: "537235599720-723cgj10dtm47b4ilvuodtp206g0q0fg.apps.googleusercontent.com");
     }
 }

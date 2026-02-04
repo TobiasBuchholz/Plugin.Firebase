@@ -13,36 +13,38 @@ public sealed class AppCheckPage : ContentPageBase
 
     private void Build()
     {
+        var tokenLabel = new Label {
+            FontFamily = "CourierNewPSMT",
+            LineBreakMode = LineBreakMode.CharacterWrap
+        }
+        .Bind(nameof(Vm.CurrentToken));
+
+        var copyTokenTapGestureRecognizer = new TapGestureRecognizer();
+        copyTokenTapGestureRecognizer.SetBinding(TapGestureRecognizer.CommandProperty, nameof(Vm.CopyTokenCommand));
+        tokenLabel.GestureRecognizers.Add(copyTokenTapGestureRecognizer);
+
         Content = new VerticalStackLayout {
             Spacing = 8,
             Children = {
                     new Label {
-                        Text = "Configure the native AppCheck provider for this Playground session."
+                        Text = "AppCheck provider configured in MauiProgram (CrossFirebaseSettings.AppCheckOptions):"
                     },
                     new Label {
                         FontAttributes = FontAttributes.Bold
                     }
+                    .Bind(nameof(Vm.ConfiguredProvider)),
+                    new Label {
+                        FontAttributes = FontAttributes.Bold
+                    }
                     .Bind(nameof(Vm.StatusMessage)),
+                    new Label {
+                        Text = "Tap the token text to copy it."
+                    },
+                    tokenLabel,
                     new Button {
-                        Text = "AppCheck: Disabled"
+                        Text = "Fetch AppCheck Token"
                     }
-                    .Bind(nameof(Vm.ConfigureDisabledCommand)),
-                    new Button {
-                        Text = "AppCheck: Debug"
-                    }
-                    .Bind(nameof(Vm.ConfigureDebugCommand)),
-                    new Button {
-                        Text = "AppCheck: DeviceCheck (iOS)"
-                    }
-                    .Bind(nameof(Vm.ConfigureDeviceCheckCommand)),
-                    new Button {
-                        Text = "AppCheck: AppAttest (iOS)"
-                    }
-                    .Bind(nameof(Vm.ConfigureAppAttestCommand)),
-                    new Button {
-                        Text = "AppCheck: PlayIntegrity (Android)"
-                    }
-                    .Bind(nameof(Vm.ConfigurePlayIntegrityCommand))
+                    .Bind(nameof(Vm.FetchTokenCommand))
                 }
         }
         .Margin(24);

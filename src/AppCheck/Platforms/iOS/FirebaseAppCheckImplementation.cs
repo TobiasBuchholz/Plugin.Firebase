@@ -6,12 +6,19 @@ using Plugin.Firebase.Core;
 
 namespace Plugin.Firebase.AppCheck;
 
+/// <summary>
+/// iOS implementation of the Firebase AppCheck service.
+/// </summary>
 public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
 {
     private readonly object _syncRoot = new();
     private AppCheckOptions _options = AppCheckOptions.Disabled;
     private IDisposable _beforeConfigureRegistration;
 
+    /// <summary>
+    /// Configures the Firebase AppCheck service with the specified options.
+    /// </summary>
+    /// <param name="options">The AppCheck configuration options.</param>
     public void Configure(AppCheckOptions options)
     {
         if(options == null) {
@@ -66,6 +73,11 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
         }
     }
 
+    /// <summary>
+    /// Gets a Firebase AppCheck token, optionally forcing a refresh.
+    /// </summary>
+    /// <param name="forceRefresh">Whether to force a refresh of the token.</param>
+    /// <returns>A task that resolves to the AppCheck token string.</returns>
     public Task<string> GetTokenAsync(bool forceRefresh = false)
     {
         var taskCompletionSource = new TaskCompletionSource<string>();
@@ -88,6 +100,9 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
         return taskCompletionSource.Task;
     }
 
+    /// <summary>
+    /// Disposes the AppCheck implementation and cleans up resources.
+    /// </summary>
     public void Dispose()
     {
         _beforeConfigureRegistration?.Dispose();

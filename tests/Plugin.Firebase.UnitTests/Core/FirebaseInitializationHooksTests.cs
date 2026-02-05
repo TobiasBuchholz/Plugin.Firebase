@@ -44,6 +44,17 @@ public class FirebaseInitializationHooksTests
     }
 
     [Fact]
+    public void register_after_initialize_after_invoke_calls_immediately()
+    {
+        InvokeInternal("InvokeAfterInitialize");
+
+        var callCount = 0;
+        using var registration = FirebaseInitializationHooks.RegisterAfterInitialize(() => callCount++);
+
+        Assert.Equal(1, callCount);
+    }
+
+    [Fact]
     public void disposed_after_initialize_callback_is_not_called()
     {
         var callCount = 0;

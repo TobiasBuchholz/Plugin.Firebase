@@ -6,6 +6,8 @@ public static class FirebaseInitializationHooks
     private static readonly List<Action> BeforeConfigureCallbacks = new();
     private static readonly List<Action> AfterInitializeCallbacks = new();
 
+    private static bool AfterInitializeInvoked;
+
     public static IDisposable RegisterBeforeConfigure(Action callback)
     {
         if(callback == null) {
@@ -25,7 +27,15 @@ public static class FirebaseInitializationHooks
             throw new ArgumentNullException(nameof(callback));
         }
 
+        // If initialization already happened, run immediately.
+        // This makes callers robust when they configure a feature (e.g., AppCheck)
+        // after CrossFirebase.Initialize() has already been called.
         lock(SyncRoot) {
+            if(AfterInitializeInvoked) {
+                callback();
+                return new NoopRegistration();
+            }
+
             AfterInitializeCallbacks.Add(callback);
         }
 
@@ -48,12 +58,18 @@ public static class FirebaseInitializationHooks
     {
         Action[] callbacks;
         lock(SyncRoot) {
+            AfterInitializeInvoked = true;
             callbacks = AfterInitializeCallbacks.ToArray();
         }
 
         foreach(var callback in callbacks) {
             callback();
         }
+    }
+
+    private sealed class NoopRegistration : IDisposable
+    {
+        public void Dispose() { }
     }
 
     private sealed class CallbackRegistration : IDisposable

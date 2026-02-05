@@ -36,6 +36,39 @@ This script:
 
 **Note**: Your GitHub Personal Access Token must have the `read:packages` scope. See [GitHub docs](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic) for token creation.
 
+## Publishing a local debug pack (`-local`)
+
+To quickly publish a local debug pack (with the `-local` suffix), you can use the following script:
+
+```sh
+rm -rf output && mkdir output
+VERSION=4.2.0-local
+
+for proj in \
+  src/Core/Core.csproj \
+  src/Analytics/Analytics.csproj \
+  src/Auth/Auth.csproj \
+  src/CloudMessaging/CloudMessaging.csproj \
+  src/Crashlytics/Crashlytics.csproj \
+  src/Firestore/Firestore.csproj \
+  src/Functions/Functions.csproj \
+  src/RemoteConfig/RemoteConfig.csproj \
+  src/Storage/Storage.csproj \
+  src/AppCheck/AppCheck.csproj \
+  src/Bundled/Bundled.csproj
+do
+  dotnet pack "$proj" -c Release -p:PackageVersion=$VERSION -o output
+done
+
+for pkg in output/*.nupkg; do
+  dotnet nuget push "$pkg" --source github-<username> --api-key "GH_Personal_Access_Token" --skip-duplicate
+done
+```
+
+Replace `<username>` with your GitHub username and `GH_Personal_Access_Token` with a personal access token that has both `read:packages` and `write:packages` scopes.
+
+---
+
 ## Testing forked native-binding packages (`-local` / `-fork`)
 
 For short-cycle validation of binding fixes (for example AppCheck iOS):

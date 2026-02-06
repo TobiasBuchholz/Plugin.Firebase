@@ -1,7 +1,6 @@
 using Firebase.AppCheck;
 using Firebase.Core;
 using Foundation;
-using ObjCRuntime;
 using Plugin.Firebase.Core;
 
 namespace Plugin.Firebase.AppCheck;
@@ -113,13 +112,13 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
 
     private sealed class AppAttestProviderFactoryAdapter : NSObject, IAppCheckProviderFactory
     {
-        public IAppCheckProvider CreateProviderWithApp(App app)
+        public NSObject CreateProviderWithApp(App app)
         {
             if(!OperatingSystem.IsIOSVersionAtLeast(14)) {
                 return null;
             }
 
-            return (IAppCheckProvider) new AppAttestProvider(app);
+            return new AppAttestProvider(app);
         }
     }
 }

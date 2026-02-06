@@ -49,6 +49,8 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
             return;
         }
 
+        Console.WriteLine($"Plugin.Firebase AppCheck: installing provider factory '{options.Provider}' (iOS).");
+
         switch(options.Provider) {
             case AppCheckProviderType.Debug:
                 var debugFactory = new AppCheckDebugProviderFactory();

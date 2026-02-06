@@ -1,7 +1,7 @@
+using Android.Gms.Extensions;
 using Firebase.AppCheck;
 using Firebase.AppCheck.Debug;
 using Firebase.AppCheck.PlayIntegrity;
-using Android.Gms.Extensions;
 using Plugin.Firebase.Core;
 
 namespace Plugin.Firebase.AppCheck;
@@ -28,7 +28,9 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
             return;
         }
 
-        _afterInitializeRegistration ??= FirebaseInitializationHooks.RegisterAfterInitialize(InstallProviderFactory);
+        _afterInitializeRegistration ??= FirebaseInitializationHooks.RegisterAfterInitialize(
+            InstallProviderFactory
+        );
     }
 
     private void InstallProviderFactory()
@@ -42,6 +44,21 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
             return;
         }
 
+        global::Firebase.FirebaseApp firebaseApp;
+        try {
+            firebaseApp = global::Firebase.FirebaseApp.Instance;
+        } catch(Java.Lang.IllegalStateException) {
+            Console.WriteLine(
+                "[Plugin.Firebase.AppCheck] Skipping provider installation: Firebase default app not initialized. "
+                    + "Check your google-services.json or provide explicit FirebaseOptions to CrossFirebase.Initialize()."
+            );
+            return;
+        }
+
+        Console.WriteLine(
+            $"Plugin.Firebase AppCheck: installing provider factory '{options.Provider}' (Android)."
+        );
+
         IAppCheckProviderFactory factory = null;
         switch(options.Provider) {
             case AppCheckProviderType.Debug:
@@ -52,12 +69,14 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
                 break;
             case AppCheckProviderType.DeviceCheck:
             case AppCheckProviderType.AppAttest:
-                throw new NotSupportedException($"AppCheck provider '{options.Provider}' is not supported on Android.");
+                throw new NotSupportedException(
+                    $"AppCheck provider '{options.Provider}' is not supported on Android."
+                );
         }
 
         if(factory != null) {
-            var firebaseApp = global::Firebase.FirebaseApp.Instance;
-            global::Firebase.AppCheck.FirebaseAppCheck.GetInstance(firebaseApp)
+            global::Firebase
+                .AppCheck.FirebaseAppCheck.GetInstance(firebaseApp)
                 .InstallAppCheckProviderFactory(factory);
         }
     }
@@ -65,11 +84,16 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
     public async Task<string> GetTokenAsync(bool forceRefresh = false)
     {
         var firebaseApp = global::Firebase.FirebaseApp.Instance;
-        var tokenResult = await global::Firebase.AppCheck.FirebaseAppCheck.GetInstance(firebaseApp).GetAppCheckToken(forceRefresh) as AppCheckToken;
+        var tokenResult =
+            await global::Firebase
+                .AppCheck.FirebaseAppCheck.GetInstance(firebaseApp)
+                .GetAppCheckToken(forceRefresh) as AppCheckToken;
         var rawToken = tokenResult?.Token;
 
         if(string.IsNullOrWhiteSpace(rawToken)) {
-            throw new InvalidOperationException("Firebase AppCheck returned an empty Android token.");
+            throw new InvalidOperationException(
+                "Firebase AppCheck returned an empty Android token."
+            );
         }
 
         return rawToken;

@@ -4,18 +4,19 @@ using Microsoft.Maui.LifecycleEvents;
 using Playground.Common.Services.Auth;
 using Playground.Common.Services.Logging;
 using Playground.Common.Services.PushNotification;
-using Playground.Features.Auth;
 using Playground.Features.AppCheck;
+using Playground.Features.Auth;
 using Playground.Features.CloudMessaging;
 using Playground.Features.Dashboard;
 using Playground.Features.RemoteConfig;
 using Playground.Features.Storage;
 using Plugin.Firebase.AppCheck;
 using Plugin.Firebase.Auth;
+using Plugin.Firebase.Bundled.Shared;
 using Plugin.Firebase.CloudMessaging;
 using Plugin.Firebase.Functions;
 using Plugin.Firebase.RemoteConfig;
-using Plugin.Firebase.Bundled.Shared;
+using Plugin.Firebase.Storage;
 #if IOS
 using Plugin.Firebase.Bundled.Platforms.iOS;
 using Playground.Platforms.iOS.Services.UserInteraction;
@@ -23,7 +24,6 @@ using Playground.Platforms.iOS.Services.UserInteraction;
 using Plugin.Firebase.Bundled.Platforms.Android;
 using Playground.Platforms.Android.Services.UserInteraction;
 #endif
-using Plugin.Firebase.Storage;
 
 namespace Playground;
 
@@ -67,15 +67,28 @@ public static class MauiProgram
     {
         builder.ConfigureLifecycleEvents(events => {
 #if IOS
-            events.AddiOS(iOS => iOS.WillFinishLaunching((app, launchOptions) => {
-                CrossFirebase.Initialize(CreateCrossFirebaseSettings());
-                return false;
-            }));
+            events.AddiOS(iOS =>
+                iOS.WillFinishLaunching(
+                    (app, launchOptions) =>
+                    {
+                        CrossFirebase.Initialize(CreateCrossFirebaseSettings());
+                        return false;
+                    }
+                )
+            );
 #elif ANDROID
-            events.AddAndroid(android => android.OnCreate((activity, _) => {
-                var settings = CreateCrossFirebaseSettings();
-                CrossFirebase.Initialize(activity, () => Platform.CurrentActivity, settings);
-            }));
+            events.AddAndroid(android =>
+                android.OnCreate(
+                    (activity, _) => {
+                        var settings = CreateCrossFirebaseSettings();
+                        CrossFirebase.Initialize(
+                            activity,
+                            () => Platform.CurrentActivity,
+                            settings
+                        );
+                    }
+                )
+            );
 #endif
         });
 
@@ -123,6 +136,7 @@ public static class MauiProgram
             isRemoteConfigEnabled: true,
             isStorageEnabled: true,
             appCheckOptions: ConfiguredAppCheckOptions,
-            googleRequestIdToken: "537235599720-723cgj10dtm47b4ilvuodtp206g0q0fg.apps.googleusercontent.com");
+            googleRequestIdToken: "537235599720-723cgj10dtm47b4ilvuodtp206g0q0fg.apps.googleusercontent.com"
+        );
     }
 }

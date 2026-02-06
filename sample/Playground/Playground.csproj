@@ -1,70 +1,87 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-	<PropertyGroup>
-		<TargetFrameworks>net9.0-android;net9.0-ios</TargetFrameworks>
-		<RootNamespace>Playground</RootNamespace>
-		<UseMaui>true</UseMaui>
+    <PropertyGroup>
+        <TargetFrameworks>net9.0-android;net9.0-ios</TargetFrameworks>
+        <RootNamespace>Playground</RootNamespace>
+        <UseMaui>true</UseMaui>
         <MauiVersion>9.0.120</MauiVersion>
-		<SingleProject>true</SingleProject>
-		<ImplicitUsings>enable</ImplicitUsings>
+        <SingleProject>true</SingleProject>
+        <ImplicitUsings>enable</ImplicitUsings>
         <OutputType>Exe</OutputType>
         <ForceSimulatorX64ArchitectureInIDE>true</ForceSimulatorX64ArchitectureInIDE>
-
-		<!-- Display name -->
-		<ApplicationTitle>Playground</ApplicationTitle>
-
-		<!-- App Identifier -->
-		<ApplicationId>com.tobishiba.playground</ApplicationId>
-		<ApplicationIdGuid>8C7351FF-90F1-489B-B344-9F710B368816</ApplicationIdGuid>
-
-		<!-- Versions -->
-		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-		<ApplicationVersion>1</ApplicationVersion>
-
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">23.0</SupportedOSPlatformVersion>
-	</PropertyGroup>
-
-	<ItemGroup>
-		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
-		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
-		<MauiImage Include="Resources\Images\*" />
-		<MauiFont Include="Resources\Fonts\*" />
-		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
-	</ItemGroup>
-
+        <!-- Display name -->
+        <ApplicationTitle>Playground</ApplicationTitle>
+        <!-- App Identifier -->
+        <ApplicationIdGuid>8C7351FF-90F1-489B-B344-9F710B368816</ApplicationIdGuid>
+        <!-- Versions -->
+        <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+        <ApplicationVersion>1</ApplicationVersion>
+        <SupportedOSPlatformVersion
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'"
+            >15.0</SupportedOSPlatformVersion
+        >
+        <SupportedOSPlatformVersion
+            Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'"
+            >23.0</SupportedOSPlatformVersion
+        >
+    </PropertyGroup>
+    <!-- IMPORTANT: These bundle IDs are temporary placeholders.
+	    Firebase config files in this sample are scoped to these bundle/package identifiers.
+	    Each developer MUST replace these with their own app bundle/package identifiers AND provide the corresponding
+	    google-services.json (Android) or GoogleService-Info.plist (iOS) files. -->
+    <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+        <ApplicationId>com.tobishiba.playground</ApplicationId>
+    </PropertyGroup>
+    <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+        <ApplicationId>com.tobishiba.playground</ApplicationId>
+    </PropertyGroup>
+    <ItemGroup>
+        <MauiIcon
+            Include="Resources\AppIcon\appicon.svg"
+            ForegroundFile="Resources\AppIcon\appiconfg.svg"
+            Color="#512BD4"
+        />
+        <MauiSplashScreen
+            Include="Resources\Splash\splash.svg"
+            Color="#512BD4"
+            BaseSize="128,128"
+        />
+        <MauiImage Include="Resources\Images\*" />
+        <MauiFont Include="Resources\Fonts\*" />
+        <MauiAsset
+            Include="Resources\Raw\**"
+            LogicalName="%(RecursiveDir)%(Filename)%(Extension)"
+        />
+    </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
-        <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
+        <PackageReference
+            Include="Microsoft.Maui.Controls.Compatibility"
+            Version="$(MauiVersion)"
+        />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
     </ItemGroup>
-
     <!-- localization -->
     <ItemGroup>
-      <EmbeddedResource Update="Resources\Localization.resx">
-        <Generator>ResXFileCodeGenerator</Generator>
-        <LastGenOutput>Localization.Designer.cs</LastGenOutput>
-      </EmbeddedResource>
+        <EmbeddedResource Update="Resources\Localization.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>Localization.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
     </ItemGroup>
-
     <ItemGroup>
-      <Compile Update="Resources\Localization.Designer.cs">
-        <DesignTime>True</DesignTime>
-        <AutoGen>True</AutoGen>
-        <DependentUpon>Localization.resx</DependentUpon>
-      </Compile>
+        <Compile Update="Resources\Localization.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>Localization.resx</DependentUpon>
+        </Compile>
     </ItemGroup>
-
     <!-- ios entitlements -->
     <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
         <CodesignEntitlements>Platforms\iOS\Entitlements.plist</CodesignEntitlements>
     </PropertyGroup>
-
     <!-- project references -->
     <ItemGroup>
         <ProjectReference Include="..\..\src\Bundled\Bundled.csproj" />
     </ItemGroup>
-
     <!-- nuget packages -->
     <ItemGroup>
         <PackageReference Include="CommunityToolkit.Maui" Version="1.2.0" />
@@ -75,24 +92,36 @@
         <PackageReference Include="ReactiveUI.Fody" Version="18.3.1" />
         <PackageReference Include="ReactiveUI.Maui" Version="18.3.1" />
     </ItemGroup>
-
-    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
-    </ItemGroup>
-
-    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
-    </ItemGroup>
-
+    <ItemGroup
+        Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'"
+    ></ItemGroup>
+    <ItemGroup
+        Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'"
+    ></ItemGroup>
     <!-- platform assets -->
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
         <GoogleServicesJson Include="google-services.json" />
     </ItemGroup>
-
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
         <BundleResource Include="GoogleService-Info.plist" />
     </ItemGroup>
-
-    <!-- needed for android build to work -->
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-android|AnyCPU'">
-      <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+    <!-- Android build configuration -->
+    <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+        <!-- CRITICAL: Prevent compression of native libraries in the APK/AAB.
+            Without this, monodroid fails at startup with:
+            "ALL entries in APK named `lib/arm64-v8a/` MUST be STORED" -->
+        <AndroidStoreUncompressedFileExtensions>so;dll</AndroidStoreUncompressedFileExtensions>
+        <AndroidUseAapt2>true</AndroidUseAapt2>
+    </PropertyGroup>
+    <!-- Debug: APK + fast deploy (push assemblies via adb, avoid slow re-embedding). -->
+    <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android' and '$(Configuration)' == 'Debug'">
+        <AndroidPackageFormat>apk</AndroidPackageFormat>
+        <EmbedAssembliesIntoApk>false</EmbedAssembliesIntoApk>
+        <!-- Default to a single RID for fast iterative builds.
+            Override with /p:RuntimeIdentifier=android-arm64 for a physical device. -->
+        <RuntimeIdentifier
+            Condition="'$(RuntimeIdentifier)' == '' and '$(RuntimeIdentifiers)' == ''"
+            >android-x64</RuntimeIdentifier
+        >
     </PropertyGroup>
 </Project>

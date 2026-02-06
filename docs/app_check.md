@@ -40,6 +40,24 @@ Configuring a provider that is not supported on the current platform throws a `N
 App Check for iOS uses `AdamE.Firebase.iOS.AppCheck`.
 Make sure your NuGet sources include the feed where that package is published (see [GoogleApisForiOSComponents](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents)).
 
+### iOS App Attest: capability + entitlements (and sandbox gotcha)
+
+If you use `AppCheckOptions.AppAttest`, iOS requires:
+
+1. Apple Developer capability enabled for your Bundle ID:
+   - Enable **App Attest** for the app identifier, then regenerate the provisioning profile.
+   - If you see two checkboxes (App Attest / App Attest Opt-In), pick **App Attest** for the normal Firebase App Check flow.
+2. Entitlements include the App Attest environment:
+   - `com.apple.developer.devicecheck.appattest-environment` = `production` (for TestFlight / App Store builds)
+   - For DEV testing with a Development provisioning profile you may need `development`.
+
+Firebase note (important during beta / rollout phases):
+- Some App Check configurations only accept tokens generated in the **production** App Attest environment, and will reject sandbox tokens with `403 PERMISSION_DENIED / App attestation failed`.
+  - Firebase doc excerpt: "App Check does not currently accept tokens generated in the App Attest sandbox environment."
+
+Playground note:
+- Ensure `GoogleService-Info.plist` matches the Playground Bundle ID and the Firebase project where App Check is configured. A mismatch commonly looks like 403 errors (or Firebase configure errors if the plist is missing).
+
 ### Android — native library packaging
 
 .NET Android apps embed native `.so` files in the APK/AAB. If these files are compressed during packaging, the monodroid runtime crashes at startup with:

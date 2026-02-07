@@ -151,9 +151,9 @@ namespace Plugin.Firebase.IntegrationTests.Auth
             await sut.SignInWithEmailAndPasswordAsync("set-language-code@test.com", "123456");
 
             var ex = Record.Exception(() => {
-                sut.SetLanguageCode("fr");
-                sut.SetLanguageCode(null);
-                sut.SetLanguageCode("   ");
+                sut.LanguageCode = "fr";
+                sut.UseAppLanguage();
+                sut.LanguageCode = null;
             });
             Assert.Null(ex);
         }

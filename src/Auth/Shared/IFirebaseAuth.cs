@@ -103,10 +103,15 @@ public interface IFirebaseAuth : IDisposable
 
     /// <summary>
     /// Sets the language used by Firebase Auth for user-facing flows such as Auth-generated emails/SMS (password reset, email verification, phone auth).
-    /// Call this before invoking an API that triggers the flow, then reset by passing null/whitespace to use the app language.
+    /// Call this before invoking an API that triggers the flow, then reset by calling <see cref="UseAppLanguage"/>.
     /// </summary>
-    /// <param name="languageCode">A BCP-47 language code (e.g. "fr", "en-GB"), or null to use app language.</param>
-    void SetLanguageCode(string? languageCode);
+    /// <param name="value">A BCP-47 language code (e.g. "fr", "en-GB"), or null to clear.</param>
+    string? LanguageCode { set; }
+
+    /// <summary>
+    /// Uses the app language for Firebase Auth user-facing flows.
+    /// </summary>
+    void UseAppLanguage();
 
     /// <summary>
     /// Modify this FirebaseAuth instance to communicate with the Firebase Authentication emulator.
@@ -115,7 +120,7 @@ public interface IFirebaseAuth : IDisposable
     /// <param name="host">The emulator host (for example, 10.0.2.2 on android and localhost on iOS)</param>
     /// <param name="port">The emulator port (for example, 9099)</param>
     void UseEmulator(string host, int port);
-    
+
     /// <summary>
     /// Registers a listener for authentication state changes.
     /// </summary>

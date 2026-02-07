@@ -196,28 +196,28 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         return _firebaseAuth.SendPasswordResetAsync(email);
     }
 
-    public void SetLanguageCode(string? languageCode)
-    {
-        if(string.IsNullOrWhiteSpace(languageCode)) {
-            _firebaseAuth.UseAppLanguage();
-            return;
-        }
-
-        _firebaseAuth.LanguageCode = languageCode;
+    public string? LanguageCode {
+        set => _firebaseAuth.LanguageCode = value;
     }
-    
+
+    public void UseAppLanguage()
+    {
+        _firebaseAuth.UseAppLanguage();
+    }
+
     public void UseEmulator(string host, int port)
     {
         _firebaseAuth.UseEmulatorWithHost(host, port);
     }
-    
+
     public IDisposable AddAuthStateListener(Action<IFirebaseAuth> listener)
     {
-        var handle =_firebaseAuth.AddAuthStateDidChangeListener((_, _) => listener.Invoke(this));
+        var handle = _firebaseAuth.AddAuthStateDidChangeListener((_, _) => listener.Invoke(this));
         return new DisposableWithAction(() => _firebaseAuth.RemoveAuthStateDidChangeListener(handle));
     }
 
-    private static UIViewController GetViewController() {
+    private static UIViewController GetViewController()
+    {
         var windowScene = UIApplication.SharedApplication.ConnectedScenes.ToArray()
                 .FirstOrDefault(static x => x.ActivationState == UISceneActivationState.ForegroundActive)
             as UIWindowScene;

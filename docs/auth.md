@@ -72,12 +72,12 @@ Since code should be documenting itself you can also take a look at the followin
 
 ## Language
 
-Use `SetLanguageCode("fr")` (or any BCP-47 code) before invoking an Auth flow that triggers user-facing content such as password-reset emails, email-verification emails, or phone-auth SMS.
-Pass `null` or whitespace to reset to the app language (`UseAppLanguage`).
+Set `LanguageCode = "fr"` (or any BCP-47 code) before invoking an Auth flow that triggers user-facing content such as password-reset emails, email-verification emails, or phone-auth SMS.
+Call `UseAppLanguage()` to reset to the app language.
 
 ## Release notes
 - Version 4.x.x
-  - Add `SetLanguageCode(string?)` to control the language used for Auth-generated user-facing flows (reset/verification emails, SMS).
+  - Add `LanguageCode` and `UseAppLanguage()` to control the language used for Auth-generated user-facing flows (reset/verification emails, SMS).
 - Version 4.0.0
   - Upgrade baseline to **.NET 9+**.
   - Remove MAUI-specific dependencies (Auth remains usable from non-MAUI mobile .NET projects).

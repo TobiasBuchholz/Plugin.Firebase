@@ -1,5 +1,8 @@
 namespace Plugin.Firebase.Core;
 
+/// <summary>
+/// Provides hooks for registering callbacks that execute at different stages of Firebase initialization.
+/// </summary>
 public static class FirebaseInitializationHooks
 {
     private static readonly object SyncRoot = new();
@@ -8,6 +11,11 @@ public static class FirebaseInitializationHooks
 
     private static bool AfterInitializeInvoked;
 
+    /// <summary>
+    /// Registers a callback to be executed before Firebase configuration.
+    /// </summary>
+    /// <param name="callback">The callback action to execute before configuration.</param>
+    /// <returns>An <see cref="IDisposable"/> that unregisters the callback when disposed.</returns>
     public static IDisposable RegisterBeforeConfigure(Action callback)
     {
         if(callback == null) {
@@ -21,6 +29,12 @@ public static class FirebaseInitializationHooks
         return new CallbackRegistration(BeforeConfigureCallbacks, callback, SyncRoot);
     }
 
+    /// <summary>
+    /// Registers a callback to be executed after Firebase initialization.
+    /// If initialization has already occurred, the callback is executed immediately.
+    /// </summary>
+    /// <param name="callback">The callback action to execute after initialization.</param>
+    /// <returns>An <see cref="IDisposable"/> that unregisters the callback when disposed.</returns>
     public static IDisposable RegisterAfterInitialize(Action callback)
     {
         if(callback == null) {

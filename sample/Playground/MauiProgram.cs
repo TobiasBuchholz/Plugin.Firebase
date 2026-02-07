@@ -1,9 +1,11 @@
 using CommunityToolkit.Maui;
 using Genesis.Logging;
 using Microsoft.Maui.LifecycleEvents;
+using Microsoft.Maui.Storage;
 using Playground.Common.Services.Auth;
 using Playground.Common.Services.Logging;
 using Playground.Common.Services.PushNotification;
+using Playground.Common.Services.Preferences;
 using Playground.Features.AppCheck;
 using Playground.Features.Auth;
 using Playground.Features.CloudMessaging;
@@ -29,8 +31,6 @@ namespace Playground;
 
 public static class MauiProgram
 {
-    private static readonly AppCheckOptions ConfiguredAppCheckOptions = AppCheckOptions.Debug;
-
     public static MauiApp CreateMauiApp()
     {
         LogOutputService.Initialize();
@@ -98,7 +98,7 @@ public static class MauiProgram
         builder.Services.AddSingleton(_ => CrossFirebaseStorage.Current);
         builder.Services.AddSingleton(_ => CrossFirebaseRemoteConfig.Current);
         builder.Services.AddSingleton(_ => CrossFirebaseAppCheck.Current);
-        builder.Services.AddSingleton(_ => ConfiguredAppCheckOptions);
+        builder.Services.AddSingleton(_ => GetConfiguredAppCheckOptions());
         return builder;
     }
 
@@ -107,6 +107,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<DashboardViewModel>();
         builder.Services.AddTransient<AuthViewModel>();
         builder.Services.AddTransient<AppCheckViewModel>();
+        builder.Services.AddTransient<AppCheckModeSelectionViewModel>();
         builder.Services.AddTransient<CloudMessagingViewModel>();
         builder.Services.AddTransient<RemoteConfigViewModel>();
         builder.Services.AddTransient<StorageViewModel>();
@@ -118,14 +119,27 @@ public static class MauiProgram
         builder.Services.AddSingleton<DashboardPage>();
         builder.Services.AddTransient<AuthPage>();
         builder.Services.AddTransient<AppCheckPage>();
+        builder.Services.AddTransient<AppCheckModeSelectionPage>();
         builder.Services.AddTransient<CloudMessagingPage>();
         builder.Services.AddTransient<RemoteConfigPage>();
         builder.Services.AddTransient<StoragePage>();
         return builder;
     }
 
+    private static AppCheckOptions GetConfiguredAppCheckOptions()
+    {
+        var modeString = Preferences.Get(PreferenceKeys.AppCheckMode, "Debug");
+        return modeString switch {
+            "Disabled" => AppCheckOptions.Disabled,
+            "Device Check" => AppCheckOptions.DeviceCheck,
+            "App Attest" => AppCheckOptions.AppAttest,
+            _ => AppCheckOptions.Debug // Default to Debug
+        };
+    }
+
     private static CrossFirebaseSettings CreateCrossFirebaseSettings()
     {
+        var appCheckOptions = GetConfiguredAppCheckOptions();
         return new CrossFirebaseSettings(
             isAnalyticsEnabled: true,
             isAuthEnabled: true,
@@ -135,7 +149,7 @@ public static class MauiProgram
             isFunctionsEnabled: true,
             isRemoteConfigEnabled: true,
             isStorageEnabled: true,
-            appCheckOptions: ConfiguredAppCheckOptions,
+            appCheckOptions: appCheckOptions,
             googleRequestIdToken: "537235599720-723cgj10dtm47b4ilvuodtp206g0q0fg.apps.googleusercontent.com"
         );
     }

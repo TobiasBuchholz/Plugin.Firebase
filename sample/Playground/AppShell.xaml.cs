@@ -19,6 +19,7 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(NavigationPaths.PageAuth, typeof(AuthPage));
         Routing.RegisterRoute(NavigationPaths.PageCloudMessaging, typeof(CloudMessagingPage));
         Routing.RegisterRoute(NavigationPaths.PageAppCheck, typeof(AppCheckPage));
+        Routing.RegisterRoute(NavigationPaths.PageAppCheckModeSelection, typeof(AppCheckModeSelectionPage));
         Routing.RegisterRoute(NavigationPaths.PageRemoteConfig, typeof(RemoteConfigPage));
         Routing.RegisterRoute(NavigationPaths.PageStorage, typeof(StoragePage));
     }

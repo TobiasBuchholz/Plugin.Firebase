@@ -41,3 +41,5 @@ dotnet test tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTe
 ```
 dotnet format Plugin.Firebase.sln
 ```
+
+For more options (e.g., formatting only modified files), see [CONTRIBUTING.md / Formatting modified files](CONTRIBUTING.md#formatting-modified-files).

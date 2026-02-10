@@ -17,11 +17,11 @@ public static class DictionaryExtensions
     public static IDictionary ToDictionary(this NSDictionary @this, Type keyType, Type valueType)
     {
         var dict = (IDictionary)
-            Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(keyType, valueType));
+            Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(keyType, valueType))!;
         foreach(var pair in @this) {
-            dict[pair.Key.ToObject(keyType)] = pair.Value.ToObject(valueType);
+            dict![pair.Key.ToObject(keyType)!] = pair.Value.ToObject(valueType);
         }
-        return dict;
+        return dict!;
     }
 
     /// <summary>
@@ -35,7 +35,7 @@ public static class DictionaryExtensions
     {
         var dict = new Dictionary<string, object>();
         foreach(var (key, value) in @this) {
-            dict[key.ToString()] = value.ToObject();
+            dict[key.ToString()] = value.ToObject()!;
         }
         return dict;
     }

@@ -172,24 +172,14 @@ public static class DictionaryExtensions
             return bdl;
         }
 
-        if(bundle.GetParcelable(key) is { } parcelable) {
-            return parcelable;
-        }
+        // Prefer Bundle.Get(key) for “unknown / mixed” extras.
+        // This avoids relying on APIs that are obsoleted on newer Android versions (API 33+).
+        if(bundle.Get(key) is { } raw) {
+            if(raw is Java.Lang.Boolean) {
+                return bundle.GetBoolean(key);
+            }
 
-        if(bundle.GetParcelableArray(key) is { } parcelableArray) {
-            return parcelableArray;
-        }
-
-        if(bundle.GetParcelableArrayList(key) is { } parcelableArrayList) {
-            return parcelableArrayList;
-        }
-
-        if(bundle.GetSparseParcelableArray(key) is { } sparseParcelableArray) {
-            return sparseParcelableArray;
-        }
-
-        if(bundle.GetSerializable(key) is { } serializable) {
-            return serializable;
+            return raw;
         }
 
         return bundle.GetBoolean(key);

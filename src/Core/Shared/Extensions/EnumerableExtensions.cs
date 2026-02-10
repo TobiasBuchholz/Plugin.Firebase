@@ -15,11 +15,7 @@ public static class EnumerableExtensions
     /// <param name="other">Second sequence.</param>
     /// <param name="comparer">Optional element equality comparer (pass <c>null</c> to use the default comparer).</param>
     /// <returns><c>true</c> if both sequences are equal; otherwise <c>false</c>.</returns>
-    public static bool SequenceEqualSafe<T>(
-        this IEnumerable<T> @this,
-        IEnumerable<T> other,
-        Func<T, T, bool> comparer = null
-    )
+    public static bool SequenceEqualSafe<T>(this IEnumerable<T>? @this, IEnumerable<T>? other, Func<T, T, bool>? comparer = null)
     {
         if(@this == null && other == null) {
             return true;
@@ -40,11 +36,7 @@ public static class EnumerableExtensions
     /// <param name="other">Second sequence.</param>
     /// <param name="comparer">Optional element equality comparer (pass <c>null</c> to use the default comparer).</param>
     /// <returns><c>true</c> if both sequences are equal; otherwise <c>false</c>.</returns>
-    public static bool SequenceEqual<T>(
-        this IEnumerable<T> source,
-        IEnumerable<T> other,
-        Func<T, T, bool> comparer
-    )
+    public static bool SequenceEqual<T>(this IEnumerable<T> source, IEnumerable<T> other, Func<T, T, bool>? comparer)
     {
         return comparer == null
             ? source.SequenceEqual(other)

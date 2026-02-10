@@ -38,7 +38,7 @@ public interface IFirebaseUser
     /// Initiates email verification for the user.
     /// </summary>
     /// <param name="actionCodeSettings">An <c>ActionCodeSettings</c> object containing settings related to handling action codes.</param>
-    Task SendEmailVerificationAsync(ActionCodeSettings actionCodeSettings = null);
+    Task SendEmailVerificationAsync(ActionCodeSettings? actionCodeSettings = null);
 
     /// <summary>
     /// Disassociates a user account from a third-party identity provider with this user.
@@ -61,24 +61,24 @@ public interface IFirebaseUser
     Task<IAuthTokenResult> GetIdTokenResultAsync(bool forceRefresh = false);
 
     /// <summary>
-    /// Returns a string used to uniquely identify your user in your Firebase project's user database. 
+    /// Returns a string used to uniquely identify your user in your Firebase project's user database.
     /// </summary>
     string Uid { get; }
 
     /// <summary>
-    /// Returns the main display name of this user from the Firebase project's user database. 
+    /// Returns the main display name of this user from the Firebase project's user database.
     /// </summary>
-    string DisplayName { get; }
+    string? DisplayName { get; }
 
     /// <summary>
     /// Returns the main email address of the user, as stored in the Firebase project's user database.
     /// </summary>
-    string Email { get; }
+    string? Email { get; }
 
     /// <summary>
-    /// Returns the URL of this user's main profile picture, as stored in the Firebase project's user database. 
+    /// Returns the URL of this user's main profile picture, as stored in the Firebase project's user database.
     /// </summary>
-    string PhotoUrl { get; }
+    string? PhotoUrl { get; }
 
     /// <summary>
     /// Always returns <c>FirebaseAuthProvider.PROVIDER_ID</c>.
@@ -98,10 +98,10 @@ public interface IFirebaseUser
     /// <summary>
     /// Profile data for each identity provider, if any. This data is cached on sign-in and updated when linking or unlinking.
     /// </summary>
-    IEnumerable<ProviderInfo> ProviderInfos { get; }
+    IEnumerable<ProviderInfo>? ProviderInfos { get; }
 
     /// <summary>
     /// Metadata associated with the Firebase user in question.
     /// </summary>
-    UserMetadata Metadata { get; }
+    UserMetadata? Metadata { get; }
 }

@@ -3,18 +3,23 @@ using Firebase.Auth;
 
 namespace Plugin.Firebase.Auth.Platforms.Android.PhoneNumber;
 
-public sealed class PhoneVerificationStateChangeCallbacks : PhoneAuthProvider.OnVerificationStateChangedCallbacks
+public sealed class PhoneVerificationStateChangeCallbacks
+    : PhoneAuthProvider.OnVerificationStateChangedCallbacks
 {
-    private readonly Action<(string, PhoneAuthProvider.ForceResendingToken)> _onCodeSent;
-    private readonly Action<PhoneAuthCredential> _onVerificationCompleted;
-    private readonly Action<FirebaseException> _onVerificationFailed;
-    private readonly Action<string> _onCodeAutoRetrievalTimeOut;
+    private readonly Action<(string, PhoneAuthProvider.ForceResendingToken)>? _onCodeSent;
+    private readonly Action<PhoneAuthCredential>? _onVerificationCompleted;
+    private readonly Action<FirebaseException>? _onVerificationFailed;
+    private readonly Action<string>? _onCodeAutoRetrievalTimeOut;
 
     public PhoneVerificationStateChangeCallbacks(
-        Action<(string VerificationId, PhoneAuthProvider.ForceResendingToken forceResendingToken)> onCodeSent = null,
-        Action<PhoneAuthCredential> onVerificationCompleted = null,
-        Action<FirebaseException> onVerificationFailed = null,
-        Action<string> onCodeAutoRetrievalTimeOut = null)
+        Action<(
+            string VerificationId,
+            PhoneAuthProvider.ForceResendingToken forceResendingToken
+        )>? onCodeSent = null,
+        Action<PhoneAuthCredential>? onVerificationCompleted = null,
+        Action<FirebaseException>? onVerificationFailed = null,
+        Action<string>? onCodeAutoRetrievalTimeOut = null
+    )
     {
         _onCodeSent = onCodeSent;
         _onVerificationCompleted = onVerificationCompleted;
@@ -32,7 +37,10 @@ public sealed class PhoneVerificationStateChangeCallbacks : PhoneAuthProvider.On
         _onVerificationFailed?.Invoke(exception);
     }
 
-    public override void OnCodeSent(string verificationId, PhoneAuthProvider.ForceResendingToken forceResendingToken)
+    public override void OnCodeSent(
+        string verificationId,
+        PhoneAuthProvider.ForceResendingToken forceResendingToken
+    )
     {
         base.OnCodeSent(verificationId, forceResendingToken);
         _onCodeSent?.Invoke((verificationId, forceResendingToken));

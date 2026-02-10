@@ -27,8 +27,8 @@ namespace Plugin.Firebase.Auth.Platforms.iOS.Email
         /// <returns>A task containing the created Firebase user.</returns>
         public async Task<IFirebaseUser> CreateUserAsync(string email, string password)
         {
-            var result = await FirebaseAuth.DefaultInstance.CreateUserAsync(email, password);
-            return new FirebaseUserWrapper(result.User);
+            var result = await FirebaseAuth.DefaultInstance!.CreateUserAsync(email, password);
+            return new FirebaseUserWrapper(result.User!);
         }
     }
 }

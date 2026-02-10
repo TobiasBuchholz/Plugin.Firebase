@@ -40,7 +40,11 @@ public interface IFirebaseAuth : IDisposable
     /// <param name="password">The user’s password.</param>
     /// <param name="createsUserAutomatically">If the user doesn't exist, it will be created automatically and signed in afterwards if the value is true.</param>
     /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
-    Task<IFirebaseUser> SignInWithEmailAndPasswordAsync(string email, string password, bool createsUserAutomatically = true);
+    Task<IFirebaseUser> SignInWithEmailAndPasswordAsync(
+        string email,
+        string password,
+        bool createsUserAutomatically = true
+    );
 
     /// <summary>
     /// Signs in using an email address and email sign-in link.
@@ -108,7 +112,7 @@ public interface IFirebaseAuth : IDisposable
     /// <param name="host">The emulator host (for example, 10.0.2.2 on android and localhost on iOS)</param>
     /// <param name="port">The emulator port (for example, 9099)</param>
     void UseEmulator(string host, int port);
-    
+
     /// <summary>
     /// Registers a listener for authentication state changes.
     /// </summary>
@@ -119,5 +123,5 @@ public interface IFirebaseAuth : IDisposable
     /// <summary>
     /// The currently signed in <c>IFirebaseUser</c> object or <c>null</c> if the user is signed out.
     /// </summary>
-    IFirebaseUser CurrentUser { get; }
+    IFirebaseUser? CurrentUser { get; }
 }

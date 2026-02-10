@@ -24,7 +24,7 @@ public class FirebaseException : Exception
     /// </summary>
     /// <param name="message">Error message.</param>
     /// <param name="inner">Inner exception.</param>
-    public FirebaseException(string message, Exception inner)
+    public FirebaseException(string message, Exception? inner)
         : base(message, inner)
     {
     }

@@ -18,7 +18,7 @@ public static class FirebaseAuthExtensions
     /// <returns>A cross-platform FirebaseUserWrapper instance.</returns>
     public static FirebaseUserWrapper ToAbstract(
         this User @this,
-        AdditionalUserInfo additionalUserInfo = null
+        AdditionalUserInfo? additionalUserInfo = null
     )
     {
         return new FirebaseUserWrapper(@this);
@@ -32,7 +32,7 @@ public static class FirebaseAuthExtensions
     /// <returns>A cross-platform ProviderInfo instance.</returns>
     public static ProviderInfo ToAbstract(
         this IUserInfo @this,
-        AdditionalUserInfo additionalUserInfo = null
+        AdditionalUserInfo? additionalUserInfo = null
     )
     {
         return new ProviderInfo(
@@ -45,11 +45,11 @@ public static class FirebaseAuthExtensions
         );
     }
 
-    private static string GetEmailFromAdditionalUserInfo(AdditionalUserInfo additionalUserInfo)
+    private static string? GetEmailFromAdditionalUserInfo(AdditionalUserInfo? additionalUserInfo)
     {
         var profile = additionalUserInfo?.Profile;
         if(profile != null && profile.ContainsKey(new NSString("email"))) {
-            return profile["email"].ToString();
+            return profile["email"]?.ToString();
         }
         return null;
     }
@@ -85,8 +85,8 @@ public static class FirebaseAuthExtensions
     public static UserMetadata ToAbstract(this NativeUserMetadata @this)
     {
         return new UserMetadata(
-            @this.CreationDate.ToDateTimeOffset(),
-            @this.LastSignInDate.ToDateTimeOffset()
+            @this.CreationDate?.ToDateTimeOffset() ?? DateTimeOffset.MinValue,
+            @this.LastSignInDate?.ToDateTimeOffset() ?? DateTimeOffset.MinValue
         );
     }
 

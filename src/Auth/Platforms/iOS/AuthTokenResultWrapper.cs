@@ -23,7 +23,7 @@ public sealed class AuthTokenResultWrapper : IAuthTokenResult
     /// <inheritdoc/>
     public T GetClaim<T>(string key)
     {
-        return (T) _wrapped.Claims[key].ToObject(typeof(T));
+        return (T) _wrapped.Claims[key].ToObject(typeof(T))!;
     }
 
     /// <inheritdoc/>
@@ -39,11 +39,11 @@ public sealed class AuthTokenResultWrapper : IAuthTokenResult
     public DateTimeOffset IssuedAtDate => _wrapped.IssuedAtDate.ToDateTimeOffset();
 
     /// <inheritdoc/>
-    public string SignInProvider => _wrapped.SignInProvider;
+    public string? SignInProvider => _wrapped.SignInProvider;
 
     /// <inheritdoc/>
-    public string SignInSecondFactor => _wrapped.SignInSecondFactor;
+    public string? SignInSecondFactor => _wrapped.SignInSecondFactor;
 
     /// <inheritdoc/>
-    public string Token => _wrapped.Token;
+    public string? Token => _wrapped.Token;
 }

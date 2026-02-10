@@ -23,8 +23,8 @@ public sealed class OnSuccessListener : Object, IOnSuccessListener
     /// Called when the task completes successfully.
     /// </summary>
     /// <param name="result">The result of the completed task.</param>
-    public void OnSuccess(Object result)
+    public void OnSuccess(Object? result)
     {
-        _action(result);
+        _action(result!);
     }
 }

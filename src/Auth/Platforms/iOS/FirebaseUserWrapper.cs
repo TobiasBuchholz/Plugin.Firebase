@@ -59,7 +59,7 @@ public sealed class FirebaseUserWrapper : IFirebaseUser
     }
 
     /// <inheritdoc/>
-    public Task SendEmailVerificationAsync(ActionCodeSettings actionCodeSettings = null)
+    public Task SendEmailVerificationAsync(ActionCodeSettings? actionCodeSettings = null)
     {
         return actionCodeSettings == null
             ? _wrapped.SendEmailVerificationAsync()
@@ -89,13 +89,13 @@ public sealed class FirebaseUserWrapper : IFirebaseUser
     public string Uid => _wrapped.Uid;
 
     /// <inheritdoc/>
-    public string DisplayName => _wrapped.DisplayName;
+    public string? DisplayName => _wrapped.DisplayName;
 
     /// <inheritdoc/>
-    public string Email => _wrapped.Email;
+    public string? Email => _wrapped.Email;
 
     /// <inheritdoc/>
-    public string PhotoUrl => _wrapped.PhotoUrl?.AbsoluteString;
+    public string? PhotoUrl => _wrapped.PhotoUrl?.AbsoluteString;
 
     /// <inheritdoc/>
     public string ProviderId => _wrapped.ProviderId;
@@ -107,9 +107,9 @@ public sealed class FirebaseUserWrapper : IFirebaseUser
     public bool IsAnonymous => _wrapped.IsAnonymous;
 
     /// <inheritdoc/>
-    public IEnumerable<ProviderInfo> ProviderInfos =>
+    public IEnumerable<ProviderInfo>? ProviderInfos =>
         _wrapped.ProviderData?.Select(x => x.ToAbstract());
 
     /// <inheritdoc/>
-    public UserMetadata Metadata => _wrapped.Metadata?.ToAbstract();
+    public UserMetadata? Metadata => _wrapped.Metadata?.ToAbstract();
 }

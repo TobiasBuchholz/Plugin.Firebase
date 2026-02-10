@@ -10,7 +10,11 @@ public static class CrossFirebase
     /// <summary>
     /// Gets the activity locator delegate used to obtain the current Android activity.
     /// </summary>
-    public static Func<Activity> ActivityLocator { get; private set; }
+    public static Func<Activity>? ActivityLocator
+    {
+        get;
+        private set;
+    }
 
     /// <summary>
     /// Initializes Firebase on Android.
@@ -22,9 +26,8 @@ public static class CrossFirebase
     public static void Initialize(
         Activity activity,
         Func<Activity> activityLocator,
-        FirebaseOptions firebaseOptions = null,
-        string name = null
-    )
+        FirebaseOptions? firebaseOptions = null,
+        string? name = null)
     {
         RegisterActivityLocator(activityLocator);
 

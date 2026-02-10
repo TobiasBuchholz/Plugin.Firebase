@@ -241,6 +241,17 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
     }
 
     /// <inheritdoc/>
+    public string? LanguageCode {
+        set => _firebaseAuth.LanguageCode = value;
+    }
+
+    /// <inheritdoc/>
+    public void UseAppLanguage()
+    {
+        _firebaseAuth.UseAppLanguage();
+    }
+
+    /// <inheritdoc/>
     public void UseEmulator(string host, int port)
     {
         _firebaseAuth.UseEmulatorWithHost(host, port);
@@ -250,19 +261,14 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
     public IDisposable AddAuthStateListener(Action<IFirebaseAuth> listener)
     {
         var handle = _firebaseAuth.AddAuthStateDidChangeListener((_, _) => listener.Invoke(this));
-        return new DisposableWithAction(() =>
-            _firebaseAuth.RemoveAuthStateDidChangeListener(handle)
-        );
+        return new DisposableWithAction(() => _firebaseAuth.RemoveAuthStateDidChangeListener(handle));
     }
 
     private static UIViewController GetViewController()
     {
-        var windowScene =
-            UIApplication
-                .SharedApplication.ConnectedScenes.ToArray()
-                .FirstOrDefault(static x =>
-                    x.ActivationState == UISceneActivationState.ForegroundActive
-                ) as UIWindowScene;
+        var windowScene = UIApplication.SharedApplication.ConnectedScenes.ToArray()
+                .FirstOrDefault(static x => x.ActivationState == UISceneActivationState.ForegroundActive)
+            as UIWindowScene;
         var window = windowScene?.Windows.FirstOrDefault(static x => x.IsKeyWindow);
         var rootViewController = window?.RootViewController;
 

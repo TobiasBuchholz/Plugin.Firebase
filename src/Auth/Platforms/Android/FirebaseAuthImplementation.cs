@@ -217,11 +217,20 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         await currentUser.ReloadAsync();
     }
 
+    public string? LanguageCode {
+        set => _firebaseAuth.LanguageCode = value;
+    }
+
+    public void UseAppLanguage()
+    {
+        _firebaseAuth.UseAppLanguage();
+    }
+
     public void UseEmulator(string host, int port)
     {
         _firebaseAuth.UseEmulator(host, port);
     }
-    
+
     public IDisposable AddAuthStateListener(Action<IFirebaseAuth> listener)
     {
         var authStateListener = new AuthStateListener(_ => listener.Invoke(this));
@@ -230,7 +239,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
     }
 
     public IFirebaseUser CurrentUser => _firebaseAuth.CurrentUser?.ToAbstract();
-    
+
     private class AuthStateListener : Java.Lang.Object, FirebaseAuth.IAuthStateListener
     {
         private readonly Action<FirebaseAuth> _onAuthStateChanged;
@@ -239,7 +248,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         {
             _onAuthStateChanged = onAuthStateChanged;
         }
-        
+
         public void OnAuthStateChanged(FirebaseAuth auth)
         {
             _onAuthStateChanged.Invoke(auth);

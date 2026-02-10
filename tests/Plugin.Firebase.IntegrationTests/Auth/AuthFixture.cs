@@ -145,6 +145,20 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         }
 
         [Fact]
+        public async Task reloads_current_user()
+        {
+            var sut = CrossFirebaseAuth.Current;
+            await sut.SignInWithEmailAndPasswordAsync("reload-current-user@test.com", "123456");
+            Assert.NotNull(sut.CurrentUser);
+
+            var uid = sut.CurrentUser.Uid;
+            await sut.ReloadCurrentUserAsync();
+
+            Assert.NotNull(sut.CurrentUser);
+            Assert.Equal(uid, sut.CurrentUser.Uid);
+        }
+
+        [Fact]
         public async Task deletes_user()
         {
             var sut = CrossFirebaseAuth.Current;

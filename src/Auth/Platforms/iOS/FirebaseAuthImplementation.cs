@@ -227,6 +227,18 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         return _firebaseAuth.SendPasswordResetAsync(email);
     }
 
+    public async Task ReloadCurrentUserAsync()
+    {
+        var currentUser = _firebaseAuth.CurrentUser;
+        if(currentUser is null) {
+            throw new FirebaseException(
+                "CurrentUser is null. You need to be logged in to use this feature."
+            );
+        }
+
+        await WrapAsync(currentUser.ReloadAsync());
+    }
+
     /// <inheritdoc/>
     public void UseEmulator(string host, int port)
     {

@@ -214,7 +214,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             );
         }
 
-        await WrapAsync(currentUser.ReloadAsync());
+        await currentUser.ReloadAsync();
     }
 
     public void UseEmulator(string host, int port)

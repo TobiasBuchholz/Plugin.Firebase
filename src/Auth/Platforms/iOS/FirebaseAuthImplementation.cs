@@ -227,6 +227,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         return _firebaseAuth.SendPasswordResetAsync(email);
     }
 
+    /// <inheritdoc/>
     public async Task ReloadCurrentUserAsync()
     {
         var currentUser = _firebaseAuth.CurrentUser;
@@ -236,7 +237,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             );
         }
 
-        await WrapAsync(currentUser.ReloadAsync());
+        await currentUser.ReloadAsync();
     }
 
     /// <inheritdoc/>

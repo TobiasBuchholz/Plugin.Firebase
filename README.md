@@ -34,6 +34,7 @@ View the [v4.0 pull request](https://github.com/TobiasBuchholz/Plugin.Firebase/p
 |---------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [Analytics](https://firebase.google.com/docs/analytics)             | [Plugin.Firebase.Analytics](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/analytics.md)            | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.analytics.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Analytics/)           |
 | [Auth](https://firebase.google.com/docs/auth)                       | [Plugin.Firebase.Auth](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/auth.md)                      | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.auth.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Auth/)                     |
+| [App Check](https://firebase.google.com/docs/app-check)             | [Plugin.Firebase.AppCheck](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/app_check.md)             | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.appcheck.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.AppCheck/)             |
 | [Cloud Messaging](https://firebase.google.com/docs/cloud-messaging) | [Plugin.Firebase.CloudMessaging](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/cloud_messaging.md) | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.cloudmessaging.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.CloudMessaging/) |
 | [Crashlytics](https://firebase.google.com/docs/crashlytics)         | [Plugin.Firebase.Crashlytics](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/crashlytics.md)        | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.crashlytics.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Crashlytics/)       |
 | [Firestore](https://firebase.google.com/docs/firestore)             | [Plugin.Firebase.Firestore](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/firestore.md)            | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.firestore.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Firestore/)           |
@@ -65,6 +66,7 @@ When selecting package versions for iOS, best practice is to make sure that the 
 
 - AdamE.Firebase.iOS.Analytics
 - AdamE.Firebase.iOS.Auth
+- AdamE.Firebase.iOS.AppCheck
 - AdamE.Firebase.iOS.CloudMessaging
 - AdamE.Firebase.iOS.Core
 - AdamE.Firebase.iOS.Crashlytics
@@ -79,6 +81,7 @@ When selecting package versions for Android, best practice is to [choose a Fireb
 
 - Xamarin.Firebase.Analytics
 - Xamarin.Firebase.Auth
+- Xamarin.Firebase.AppCheck
 - Xamarin.Firebase.Messaging
 - Xamarin.Firebase.Common
 - Xamarin.Firebase.Crashlytics

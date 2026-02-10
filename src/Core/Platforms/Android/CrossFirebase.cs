@@ -38,6 +38,33 @@ public static class CrossFirebase
         } else {
             FirebaseApp.InitializeApp(activity, firebaseOptions, name);
         }
+
+        // Only invoke after-initialize hooks if the default Firebase app was successfully created.
+        if(TryGetDefaultApp(out _)) {
+            FirebaseInitializationHooks.InvokeAfterInitialize();
+        } else {
+            Console.WriteLine(
+                "[Plugin.Firebase.Core] Warning: FirebaseApp.Initialize() did not create a default Firebase app instance. "
+                    + "Likely cause: google-services.json is missing, corrupt, or has a package_name that doesn't match ApplicationId. "
+                    + "Provide explicit FirebaseOptions to CrossFirebase.Initialize() to fix. "
+                    + "AppCheck and other lifecycle-dependent services will not be initialized."
+            );
+        }
+    }
+
+    /// <summary>
+    /// Safely checks whether a default FirebaseApp exists.
+    /// FirebaseApp.Instance (getInstance()) throws IllegalStateException when no default app is configured.
+    /// </summary>
+    public static bool TryGetDefaultApp(out FirebaseApp app)
+    {
+        try {
+            app = FirebaseApp.Instance;
+            return app != null;
+        } catch(Java.Lang.IllegalStateException) {
+            app = null;
+            return false;
+        }
     }
 
     /// <summary>

@@ -18,6 +18,7 @@ public sealed class CrossFirebaseSettings
     /// <param name="isRemoteConfigEnabled">Whether Firebase Remote Config is enabled.</param>
     /// <param name="isStorageEnabled">Whether Firebase Storage is enabled.</param>
     /// <param name="googleRequestIdToken">The Google request ID token for Google Sign-In.</param>
+    /// <param name="appCheckOptions">Optional App Check options to configure App Check.</param>
     public CrossFirebaseSettings(
         bool isAnalyticsEnabled = false,
         bool isAuthEnabled = false,
@@ -28,8 +29,8 @@ public sealed class CrossFirebaseSettings
         bool isFunctionsEnabled = false,
         bool isRemoteConfigEnabled = false,
         bool isStorageEnabled = false,
-        string googleRequestIdToken = null
-    )
+        string googleRequestIdToken = null,
+        Plugin.Firebase.AppCheck.AppCheckOptions appCheckOptions = null)
     {
         IsAnalyticsEnabled = isAnalyticsEnabled;
         IsAuthEnabled = isAuthEnabled;
@@ -41,21 +42,23 @@ public sealed class CrossFirebaseSettings
         IsRemoteConfigEnabled = isRemoteConfigEnabled;
         IsStorageEnabled = isStorageEnabled;
         GoogleRequestIdToken = googleRequestIdToken;
+        AppCheckOptions = appCheckOptions;
     }
 
     /// <inheritdoc />
     public override string ToString()
     {
-        return $"[{nameof(CrossFirebaseSettings)}: "
-            + $"{nameof(IsAnalyticsEnabled)}={IsAnalyticsEnabled},"
-            + $"{nameof(IsAuthEnabled)}={IsAuthEnabled},"
-            + $"{nameof(IsCloudMessagingEnabled)}={IsCloudMessagingEnabled},"
-            + $"{nameof(IsCrashlyticsEnabled)}={IsCrashlyticsEnabled},"
-            + $"{nameof(IsDynamicLinksEnabled)}={IsDynamicLinksEnabled},"
-            + $"{nameof(IsFirestoreEnabled)}={IsFirestoreEnabled},"
-            + $"{nameof(IsFunctionsEnabled)}={IsFunctionsEnabled},"
-            + $"{nameof(IsRemoteConfigEnabled)}={IsRemoteConfigEnabled},"
-            + $"{nameof(IsStorageEnabled)}={IsStorageEnabled}]";
+        return $"[{nameof(CrossFirebaseSettings)}: " +
+               $"{nameof(IsAnalyticsEnabled)}={IsAnalyticsEnabled}," +
+               $"{nameof(IsAuthEnabled)}={IsAuthEnabled}," +
+               $"{nameof(IsCloudMessagingEnabled)}={IsCloudMessagingEnabled}," +
+               $"{nameof(IsCrashlyticsEnabled)}={IsCrashlyticsEnabled}," +
+               $"{nameof(IsDynamicLinksEnabled)}={IsDynamicLinksEnabled}," +
+               $"{nameof(IsFirestoreEnabled)}={IsFirestoreEnabled}," +
+               $"{nameof(IsFunctionsEnabled)}={IsFunctionsEnabled}," +
+               $"{nameof(IsRemoteConfigEnabled)}={IsRemoteConfigEnabled}," +
+               $"{nameof(IsStorageEnabled)}={IsStorageEnabled}," +
+               $"{nameof(AppCheckOptions)}={AppCheckOptions?.Provider}]";
     }
 
     /// <summary>
@@ -107,4 +110,9 @@ public sealed class CrossFirebaseSettings
     /// Gets the Google request ID token for Google Sign-In.
     /// </summary>
     public string GoogleRequestIdToken { get; }
+
+    /// <summary>
+    /// Gets the App Check options used to configure App Check behavior.
+    /// </summary>
+    public Plugin.Firebase.AppCheck.AppCheckOptions AppCheckOptions { get; }
 }

@@ -1,5 +1,6 @@
 using Firebase.Core;
 using Plugin.Firebase.Bundled.Shared;
+using Plugin.Firebase.AppCheck;
 using Plugin.Firebase.CloudMessaging;
 using Plugin.Firebase.Crashlytics;
 
@@ -22,13 +23,15 @@ public static class CrossFirebase
         string name = null
     )
     {
-        if(firebaseOptions == null) {
-            App.Configure();
-        } else if(name == null) {
-            App.Configure(firebaseOptions);
-        } else {
-            App.Configure(name, firebaseOptions);
+        if(settings.AppCheckOptions != null) {
+            try {
+                CrossFirebaseAppCheck.Configure(settings.AppCheckOptions);
+            } catch(NotSupportedException) {
+                Console.WriteLine("Plugin.Firebase AppCheck is not supported for this iOS build. Continuing without AppCheck.");
+            }
         }
+
+        Core.Platforms.iOS.CrossFirebase.Initialize(name, firebaseOptions);
 
         if(settings.IsCloudMessagingEnabled) {
             FirebaseCloudMessagingImplementation.Initialize();

@@ -8,8 +8,8 @@
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
 
         <!--Assembly and Namespace info -->
-        <AssemblyName>Plugin.Firebase</AssemblyName>
-        <RootNamespace>Plugin.Firebase</RootNamespace>
+        <AssemblyName>Plugin.Firebase.AppCheck</AssemblyName>
+        <RootNamespace>Plugin.Firebase.AppCheck</RootNamespace>
 
         <Product>$(AssemblyName) ($(TargetFramework))</Product>
         <NeutralLanguage>en</NeutralLanguage>
@@ -21,7 +21,7 @@
         <DefineConstants>$(DefineConstants);</DefineConstants>
 
         <!--Assembly and Namespace info -->
-        <PackageId>Plugin.Firebase</PackageId>
+        <PackageId>Plugin.Firebase.AppCheck</PackageId>
         <PackageVersion>4.0.0</PackageVersion>
 
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -29,18 +29,19 @@
         <RepositoryUrl>https://github.com/TobiasBuchholz/Plugin.Firebase</RepositoryUrl>
         <PackageIcon>icon.png</PackageIcon>
         <PackageTags>xamarin, ios, android</PackageTags>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageReadmeFile>app_check.md</PackageReadmeFile>
 
         <Title>Plugin.Firebase</Title>
         <Summary>Xamarin wrapper around the native Android and iOS Firebase SDKs.</Summary>
-        <Description>The plugin includes cross-platform APIs for Firebase Analytics, Auth, Cloud Messaging, Crashlytics, Dynamic Links, Firestore, Cloud Functions, Remote Config and Storage.</Description>
+        <Description>The plugin includes cross-platform APIs for Firebase App Check.</Description>
 
-        <Owners>Tobias Buchholz</Owners>
-        <Authors>Tobias Buchholz</Authors>
-        <Copyright>Copyright 2023</Copyright>
+        <Owners>Tobias Buchholz, Adam Essenmacher</Owners>
+        <Authors>Tobias Buchholz, Adam Essenmacher, Jean-Emmanuel Baillat</Authors>
+        <Copyright>Copyright 2026</Copyright>
 
         <!--Version of C# to use -->
         <LangVersion>default</LangVersion>
+
     </PropertyGroup>
 
     <!-- Define what happens on build and release -->
@@ -54,10 +55,6 @@
         <DebugType>pdbonly</DebugType>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
-    
-    <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
-        <FirebaseCrashlyticsUploadSymbolsEnabled>false</FirebaseCrashlyticsUploadSymbolsEnabled>
-    </PropertyGroup>
 
     <ItemGroup>
         <!-- This None is here so the conditionally included files show up in the Solution Explorer -->
@@ -65,7 +62,7 @@
         <None Remove=".vs\**" />
         <None Remove=".idea\**" />
         <None Include="..\..\art\icon.png" Pack="true" PackagePath="" />
-        <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
+        <None Include="..\..\docs\app_check.md" Pack="true" PackagePath="\"/>
 
         <Compile Include="Shared\**\*.cs" />
     </ItemGroup>
@@ -80,15 +77,18 @@
 
     <!-- project references -->
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Analytics\Analytics.csproj" />
-        <ProjectReference Include="..\..\src\AppCheck\AppCheck.csproj" />
-        <ProjectReference Include="..\..\src\Auth\Auth.csproj" />
-        <ProjectReference Include="..\..\src\CloudMessaging\CloudMessaging.csproj" />
-        <ProjectReference Include="..\..\src\Core\Core.csproj" />
-        <ProjectReference Include="..\..\src\Crashlytics\Crashlytics.csproj" />
-        <ProjectReference Include="..\..\src\Firestore\Firestore.csproj" />
-        <ProjectReference Include="..\..\src\Functions\Functions.csproj" />
-        <ProjectReference Include="..\..\src\RemoteConfig\RemoteConfig.csproj" />
-        <ProjectReference Include="..\..\src\Storage\Storage.csproj" />
+        <ProjectReference Include="..\Core\Core.csproj" />
     </ItemGroup>
+
+    <!-- nuget packages -->
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+        <PackageReference Include="Xamarin.Firebase.AppCheck" Version="118.0.0.2" />
+        <PackageReference Include="Xamarin.Firebase.AppCheck.Debug" Version="118.0.0.2" />
+        <PackageReference Include="Xamarin.Firebase.AppCheck.PlayIntegrity" Version="118.0.0.2" />
+    </ItemGroup>
+
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+        <PackageReference Include="AdamE.Firebase.iOS.AppCheck" Version="12.5.0.4" />
+    </ItemGroup>
+
 </Project>

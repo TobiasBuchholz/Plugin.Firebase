@@ -1,4 +1,5 @@
 using Microsoft.Maui.LifecycleEvents;
+using Plugin.Firebase.AppCheck;
 using Plugin.Firebase.Bundled.Shared;
 #if IOS
 using Plugin.Firebase.Bundled.Platforms.iOS;
@@ -49,6 +50,7 @@ public static class MauiProgram
             isFunctionsEnabled: true,
             isRemoteConfigEnabled: true,
             isStorageEnabled: true,
-            googleRequestIdToken: "316652897245-lbddc4dc4v87nv3n19thi032n3dvrcvu.apps.googleusercontent.com");
+            googleRequestIdToken: "316652897245-lbddc4dc4v87nv3n19thi032n3dvrcvu.apps.googleusercontent.com",
+            appCheckOptions: AppCheckOptions.Disabled);
     }
 }

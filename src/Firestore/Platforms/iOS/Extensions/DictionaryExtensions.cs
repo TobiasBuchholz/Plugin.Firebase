@@ -3,26 +3,43 @@ using NativeFieldValue = Firebase.CloudFirestore.FieldValue;
 
 namespace Plugin.Firebase.Firestore.Platforms.iOS.Extensions;
 
+/// <summary>
+/// Extension methods for converting between .NET dictionaries and native iOS NSDictionary types.
+/// </summary>
 public static class DictionaryExtensions
 {
-    public static NSDictionary<NSString, NSObject> ToNSDictionaryFromNonGeneric(this IDictionary dictionary)
+    /// <summary>
+    /// Converts a non-generic <see cref="IDictionary"/> to a native iOS NSDictionary.
+    /// </summary>
+    /// <param name="dictionary">The dictionary to convert.</param>
+    /// <returns>A native iOS NSDictionary containing the converted key-value pairs.</returns>
+    public static NSDictionary<NSString, NSObject> ToNSDictionaryFromNonGeneric(
+        this IDictionary dictionary
+    )
     {
         if(dictionary.Count > 0) {
             var nsDictionary = new NSMutableDictionary<NSString, NSObject>();
 
             foreach(DictionaryEntry entry in dictionary) {
-                PutIntoNSDictionary(new KeyValuePair<string, object>(entry.Key.ToString(), entry.Value), ref nsDictionary);
+                PutIntoNSDictionary(
+                    new KeyValuePair<string, object>(entry.Key.ToString(), entry.Value),
+                    ref nsDictionary
+                );
             }
             return NSDictionary<NSString, NSObject>.FromObjectsAndKeys(
                 nsDictionary.Values.ToArray(),
                 nsDictionary.Keys.ToArray(),
-                (nint) nsDictionary.Count);
+                (nint) nsDictionary.Count
+            );
         } else {
             return new NSDictionary<NSString, NSObject>();
         }
     }
 
-    private static void PutIntoNSDictionary(KeyValuePair<string, object> pair, ref NSMutableDictionary<NSString, NSObject> nsDictionary)
+    private static void PutIntoNSDictionary(
+        KeyValuePair<string, object> pair,
+        ref NSMutableDictionary<NSString, NSObject> nsDictionary
+    )
     {
         switch(pair.Value) {
             case bool x:
@@ -57,11 +74,18 @@ public static class DictionaryExtensions
                     nsDictionary.Add((NSString) pair.Key, new NSNull());
                     break;
                 } else {
-                    throw new ArgumentException($"Couldn't put object of type {pair.Value.GetType()} into NSDictionary");
+                    throw new ArgumentException(
+                        $"Couldn't put object of type {pair.Value.GetType()} into NSDictionary"
+                    );
                 }
         }
     }
 
+    /// <summary>
+    /// Converts an object to a dictionary using Firestore property attributes.
+    /// </summary>
+    /// <param name="this">The object to convert.</param>
+    /// <returns>A dictionary with property names as keys and their values.</returns>
     public static Dictionary<object, object> ToDictionary(this object @this)
     {
         var dict = new Dictionary<object, object>();
@@ -78,7 +102,10 @@ public static class DictionaryExtensions
                 }
             }
 
-            var timestampAttributes = property.GetCustomAttributes(typeof(FirestoreServerTimestampAttribute), true);
+            var timestampAttributes = property.GetCustomAttributes(
+                typeof(FirestoreServerTimestampAttribute),
+                true
+            );
             if(timestampAttributes.Any()) {
                 var attribute = (FirestoreServerTimestampAttribute) timestampAttributes[0];
                 dict[attribute.PropertyName] = NativeFieldValue.ServerTimestamp;
@@ -87,11 +114,23 @@ public static class DictionaryExtensions
         return dict;
     }
 
+    /// <summary>
+    /// Converts a native iOS NSDictionary to a .NET object of the specified type.
+    /// </summary>
+    /// <param name="this">The NSDictionary to convert.</param>
+    /// <param name="targetType">The target type to convert to.</param>
+    /// <returns>The converted object.</returns>
     public static object ToDictionaryObject(this NSDictionary @this, Type targetType)
     {
         if(targetType == null) {
             return @this.ToDictionary();
-        } else if(targetType.IsGenericType && (targetType.GetGenericTypeDefinition() == typeof(IDictionary<,>) || targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>))) {
+        } else if(
+              targetType.IsGenericType
+              && (
+                  targetType.GetGenericTypeDefinition() == typeof(IDictionary<,>)
+                  || targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>)
+              )
+          ) {
             var types = targetType.GenericTypeArguments;
             return @this.ToDictionary(types[0], types[1]);
         } else {
@@ -99,21 +138,43 @@ public static class DictionaryExtensions
         }
     }
 
+    /// <summary>
+    /// Converts a native iOS NSDictionary to a typed .NET dictionary.
+    /// </summary>
+    /// <param name="this">The NSDictionary to convert.</param>
+    /// <param name="keyType">The type for dictionary keys.</param>
+    /// <param name="valueType">The type for dictionary values.</param>
+    /// <returns>A typed dictionary containing the converted key-value pairs.</returns>
     public static IDictionary ToDictionary(this NSDictionary @this, Type keyType, Type valueType)
     {
-        var dict = (IDictionary) Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(keyType, valueType));
+        var dict = (IDictionary)
+            Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(keyType, valueType));
         foreach(var pair in @this) {
             dict[pair.Key.ToObject(keyType)] = pair.Value.ToObject(valueType);
         }
         return dict;
     }
 
-    public static Dictionary<object, object> ToNSObjectDictionary(this Dictionary<object, object> @this)
+    /// <summary>
+    /// Converts dictionary values to native iOS NSObject types.
+    /// </summary>
+    /// <param name="this">The dictionary to convert.</param>
+    /// <returns>A dictionary with values converted to NSObject types.</returns>
+    public static Dictionary<object, object> ToNSObjectDictionary(
+        this Dictionary<object, object> @this
+    )
     {
         return @this.ToDictionary(x => x.Key, x => (object) x.Value.ToNSObject());
     }
 
-    public static Dictionary<object, object> ToNSObjectDictionary(this IEnumerable<(string, object)> @this)
+    /// <summary>
+    /// Converts a collection of key-value tuples to a dictionary with NSObject values.
+    /// </summary>
+    /// <param name="this">The collection of tuples to convert.</param>
+    /// <returns>A dictionary with NSObject values.</returns>
+    public static Dictionary<object, object> ToNSObjectDictionary(
+        this IEnumerable<(string, object)> @this
+    )
     {
         var dict = new Dictionary<object, object>();
         foreach(var (key, value) in @this) {

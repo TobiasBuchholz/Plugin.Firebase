@@ -3,7 +3,7 @@ namespace Plugin.Firebase.Firestore;
 /// <summary>
 /// Sentinel values that can be used when writing document fields with <c>Set()</c> or <c>Update()</c>.
 /// </summary>
-/// 
+///
 public sealed class FieldValue
 {
     /// <summary>
@@ -44,15 +44,13 @@ public sealed class FieldValue
     /// <summary>
     /// Returns a sentinel for use with <c>Update()</c> to mark a field for deletion.
     /// </summary>
-    public static FieldValue Delete() =>
-        new FieldValue(FieldValueType.Delete);
+    public static FieldValue Delete() => new FieldValue(FieldValueType.Delete);
 
     /// <summary>
     /// Returns a sentinel for use with <c>Set()</c> or <c>Update()</c> to include a server-generated timestamp in the written data.
     /// </summary>
     /// <returns></returns>
-    public static FieldValue ServerTimestamp() =>
-        new FieldValue(FieldValueType.ServerTimestamp);
+    public static FieldValue ServerTimestamp() => new FieldValue(FieldValueType.ServerTimestamp);
 
     private FieldValue(FieldValueType type, double incrementValue = 0, object[] elements = null)
     {
@@ -61,7 +59,18 @@ public sealed class FieldValue
         IncrementValue = incrementValue;
     }
 
+    /// <summary>
+    /// Gets the type of this <c>FieldValue</c> operation.
+    /// </summary>
     public FieldValueType Type { get; }
+
+    /// <summary>
+    /// Gets the elements for array operations (ArrayUnion, ArrayRemove).
+    /// </summary>
     public object[] Elements { get; }
+
+    /// <summary>
+    /// Gets the increment value for numeric increment operations.
+    /// </summary>
     public double IncrementValue { get; }
 }

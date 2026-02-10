@@ -2,31 +2,55 @@ using System.Collections;
 
 namespace Plugin.Firebase.Analytics.Platforms.iOS.Extensions;
 
+/// <summary>
+/// Provides extension methods for converting .NET dictionaries to native iOS NSDictionary types.
+/// </summary>
 public static class DictionaryExtensions
 {
-    public static NSDictionary<NSString, NSObject> ToNSDictionary(this IDictionary<string, object> dictionary)
+    /// <summary>
+    /// Converts a generic dictionary to a native iOS NSDictionary.
+    /// </summary>
+    /// <param name="dictionary">The dictionary to convert.</param>
+    /// <returns>A native NSDictionary containing the converted key-value pairs.</returns>
+    public static NSDictionary<NSString, NSObject> ToNSDictionary(
+        this IDictionary<string, object> dictionary
+    )
     {
         return ((IDictionary) dictionary).ToNSDictionaryFromNonGeneric();
     }
 
-    public static NSDictionary<NSString, NSObject> ToNSDictionaryFromNonGeneric(this IDictionary dictionary)
+    /// <summary>
+    /// Converts a non-generic dictionary to a native iOS NSDictionary.
+    /// </summary>
+    /// <param name="dictionary">The non-generic dictionary to convert.</param>
+    /// <returns>A native NSDictionary containing the converted key-value pairs.</returns>
+    public static NSDictionary<NSString, NSObject> ToNSDictionaryFromNonGeneric(
+        this IDictionary dictionary
+    )
     {
         if(dictionary.Count > 0) {
             var nsDictionary = new NSMutableDictionary<NSString, NSObject>();
 
             foreach(DictionaryEntry entry in dictionary) {
-                PutIntoNSDictionary(new KeyValuePair<string, object>(entry.Key.ToString(), entry.Value), ref nsDictionary);
+                PutIntoNSDictionary(
+                    new KeyValuePair<string, object>(entry.Key.ToString(), entry.Value),
+                    ref nsDictionary
+                );
             }
             return NSDictionary<NSString, NSObject>.FromObjectsAndKeys(
                 nsDictionary.Values.ToArray(),
                 nsDictionary.Keys.ToArray(),
-                (nint) nsDictionary.Count);
+                (nint) nsDictionary.Count
+            );
         } else {
             return new NSDictionary<NSString, NSObject>();
         }
     }
 
-    private static void PutIntoNSDictionary(KeyValuePair<string, object> pair, ref NSMutableDictionary<NSString, NSObject> nsDictionary)
+    private static void PutIntoNSDictionary(
+        KeyValuePair<string, object> pair,
+        ref NSMutableDictionary<NSString, NSObject> nsDictionary
+    )
     {
         switch(pair.Value) {
             case bool x:
@@ -57,8 +81,10 @@ public static class DictionaryExtensions
                 nsDictionary.Add((NSString) pair.Key, x.ToNSDictionary());
                 break;
             case IEnumerable<IDictionary<string, object>> x:
-                nsDictionary.Add((NSString) pair.Key,
-                    NSArray.FromObjects(x.Select(d => d.ToNSDictionary()).ToArray<object>()));
+                nsDictionary.Add(
+                    (NSString) pair.Key,
+                    NSArray.FromObjects(x.Select(d => d.ToNSDictionary()).ToArray<object>())
+                );
                 break;
             default:
                 if(pair.Value is Enum @enum) {
@@ -68,7 +94,9 @@ public static class DictionaryExtensions
                     nsDictionary.Add((NSString) pair.Key, new NSNull());
                     break;
                 } else {
-                    throw new ArgumentException($"Couldn't put object of type {pair.Value.GetType()} into NSDictionary");
+                    throw new ArgumentException(
+                        $"Couldn't put object of type {pair.Value.GetType()} into NSDictionary"
+                    );
                 }
         }
     }

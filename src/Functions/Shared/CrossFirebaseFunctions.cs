@@ -1,14 +1,22 @@
 namespace Plugin.Firebase.Functions;
 
+/// <summary>
+/// Cross-platform entry point for Firebase Functions.
+/// </summary>
 public sealed class CrossFirebaseFunctions
 {
     private static string _region;
-    private static Lazy<IFirebaseFunctions> _implementation = new Lazy<IFirebaseFunctions>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
+    private static Lazy<IFirebaseFunctions> _implementation = new Lazy<IFirebaseFunctions>(
+        CreateInstance,
+        LazyThreadSafetyMode.PublicationOnly
+    );
 
     private static IFirebaseFunctions CreateInstance()
     {
 #if IOS || ANDROID
-        return _region == null ? new FirebaseFunctionsImplementation() : new FirebaseFunctionsImplementation(_region);
+        return _region == null
+            ? new FirebaseFunctionsImplementation()
+            : new FirebaseFunctionsImplementation(_region);
 #else
 #pragma warning disable IDE0022 // Use expression body for methods
         return null;
@@ -44,16 +52,21 @@ public sealed class CrossFirebaseFunctions
     }
 
     private static Exception NotImplementedInReferenceAssembly() =>
-        new NotImplementedException("This functionality is not implemented in the portable version of this assembly. You should reference the NuGet package from your main application project in order to reference the platform-specific implementation.");
+        new NotImplementedException(
+            "This functionality is not implemented in the portable version of this assembly. You should reference the NuGet package from your main application project in order to reference the platform-specific implementation."
+        );
 
     /// <summary>
-    /// Dispose of everything 
+    /// Dispose of everything
     /// </summary>
     public static void Dispose()
     {
         if(_implementation != null && _implementation.IsValueCreated) {
             _implementation.Value.Dispose();
-            _implementation = new Lazy<IFirebaseFunctions>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
+            _implementation = new Lazy<IFirebaseFunctions>(
+                CreateInstance,
+                LazyThreadSafetyMode.PublicationOnly
+            );
         }
     }
 }

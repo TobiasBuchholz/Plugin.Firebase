@@ -1,8 +1,14 @@
 namespace Plugin.Firebase.Storage;
 
+/// <summary>
+/// Cross-platform entry point for Firebase Storage.
+/// </summary>
 public sealed class CrossFirebaseStorage
 {
-    private static Lazy<IFirebaseStorage> _implementation = new Lazy<IFirebaseStorage>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
+    private static Lazy<IFirebaseStorage> _implementation = new Lazy<IFirebaseStorage>(
+        CreateInstance,
+        LazyThreadSafetyMode.PublicationOnly
+    );
 
     private static IFirebaseStorage CreateInstance()
     {
@@ -34,16 +40,21 @@ public sealed class CrossFirebaseStorage
     }
 
     private static Exception NotImplementedInReferenceAssembly() =>
-        new NotImplementedException("This functionality is not implemented in the portable version of this assembly. You should reference the NuGet package from your main application project in order to reference the platform-specific implementation.");
+        new NotImplementedException(
+            "This functionality is not implemented in the portable version of this assembly. You should reference the NuGet package from your main application project in order to reference the platform-specific implementation."
+        );
 
     /// <summary>
-    /// Dispose of everything 
+    /// Dispose of everything
     /// </summary>
     public static void Dispose()
     {
         if(_implementation != null && _implementation.IsValueCreated) {
             _implementation.Value.Dispose();
-            _implementation = new Lazy<IFirebaseStorage>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
+            _implementation = new Lazy<IFirebaseStorage>(
+                CreateInstance,
+                LazyThreadSafetyMode.PublicationOnly
+            );
         }
     }
 }

@@ -24,6 +24,7 @@ public interface IDocumentSnapshot<out T> : IDocumentSnapshot
     IDocumentReference Reference { get; }
 }
 
-public interface IDocumentSnapshot
-{
-}
+/// <summary>
+/// Base interface for document snapshots.
+/// </summary>
+public interface IDocumentSnapshot { }

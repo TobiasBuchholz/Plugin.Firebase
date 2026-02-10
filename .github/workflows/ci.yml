@@ -1,0 +1,31 @@
+name: ci
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Build packages (net9.0 only)
+        run: |
+          dotnet build src/Core/Core.csproj -c Release -f net9.0
+          dotnet build src/Analytics/Analytics.csproj -c Release -f net9.0
+          dotnet build src/Auth/Auth.csproj -c Release -f net9.0
+          dotnet build src/CloudMessaging/CloudMessaging.csproj -c Release -f net9.0
+          dotnet build src/Crashlytics/Crashlytics.csproj -c Release -f net9.0
+          dotnet build src/Firestore/Firestore.csproj -c Release -f net9.0
+          dotnet build src/Functions/Functions.csproj -c Release -f net9.0
+          dotnet build src/RemoteConfig/RemoteConfig.csproj -c Release -f net9.0
+          dotnet build src/Storage/Storage.csproj -c Release -f net9.0
+          dotnet build src/Bundled/Bundled.csproj -c Release -f net9.0
+
+      - name: Run unit tests
+        run: dotnet test tests/Plugin.Firebase.UnitTests/Plugin.Firebase.UnitTests.csproj -c Release

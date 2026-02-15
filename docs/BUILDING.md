@@ -130,3 +130,35 @@ Then retry restore:
 ```sh
 dotnet restore
 ```
+
+### CS1705: Assembly version mismatch (iOS SDK compatibility)
+
+If you see errors like:
+```
+error CS1705: Assembly 'Firebase.Core' with identity 'Firebase.Core, Version=12.5.0.4, Culture=neutral, PublicKeyToken=null' 
+uses 'Microsoft.iOS, Version=26.0.0.0, Culture=neutral, PublicKeyToken=84e04ff9cfb79065' which has a higher version than 
+referenced assembly 'Microsoft.iOS' with identity 'Microsoft.iOS, Version=18.4.0.0, Culture=neutral, PublicKeyToken=84e04ff9cfb79065'
+```
+
+This typically occurs due to a mismatch between your .NET workload version and installed Xcode:
+
+- **Rationale**: Different .NET workload sets ship different iOS SDK pack versions. For example, workload set `10.0.100` ships iOS SDK 26.0 (compatible with Xcode 26.0.x), while earlier workloads ship older SDK versions. A native binding compiled against a newer iOS SDK cannot be used with an older one.
+
+- **Solution**: Align your .NET workload version to match your Xcode version. First, ensure you have the corresponding .NET SDK installed:
+
+```sh
+# Install the required .NET SDK version (e.g., 9.0.306 for earlier Xcode)
+# Download from https://dotnet.microsoft.com/download or use a version manager
+
+# Update workloads to the matching version
+sudo dotnet workload update --version 9.0.306
+sudo dotnet workload restore
+```
+
+- **Verification**: Confirm the workload version matches your expectation:
+
+```sh
+dotnet workload --version
+```
+
+Ensure the workload version is compatible with your Xcode version before retrying the build.

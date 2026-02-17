@@ -5,6 +5,12 @@ namespace Plugin.Firebase.UnitTests;
 
 public class FirebaseInitializationHooksTests
 {
+    public FirebaseInitializationHooksTests()
+    {
+        // Reset the static state before each test to ensure test isolation
+        FirebaseInitializationHooks.Reset();
+    }
+
     [Fact]
     public void register_before_configure_invokes_callbacks_in_order()
     {

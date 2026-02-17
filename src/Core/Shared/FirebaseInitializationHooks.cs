@@ -81,6 +81,15 @@ public static class FirebaseInitializationHooks
         }
     }
 
+    internal static void Reset()
+    {
+        lock(SyncRoot) {
+            BeforeConfigureCallbacks.Clear();
+            AfterInitializeCallbacks.Clear();
+            AfterInitializeInvoked = false;
+        }
+    }
+
     private sealed class NoopRegistration : IDisposable
     {
         public void Dispose() { }

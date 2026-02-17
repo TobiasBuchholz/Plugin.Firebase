@@ -17,10 +17,10 @@ public class ProviderInfo
     public ProviderInfo(
         string uid,
         string providerId,
-        string displayName,
-        string email,
-        string phoneNumber,
-        string photoUrl
+        string? displayName,
+        string? email,
+        string? phoneNumber,
+        string? photoUrl
     )
     {
         Uid = uid;
@@ -44,20 +44,20 @@ public class ProviderInfo
     /// <summary>
     /// Gets the user's display name from the provider.
     /// </summary>
-    public string DisplayName { get; }
+    public string? DisplayName { get; }
 
     /// <summary>
     /// Gets the user's email address from the provider.
     /// </summary>
-    public string Email { get; }
+    public string? Email { get; }
 
     /// <summary>
     /// Gets the user's phone number from the provider.
     /// </summary>
-    public string PhoneNumber { get; }
+    public string? PhoneNumber { get; }
 
     /// <summary>
     /// Gets the URL of the user's profile photo from the provider.
     /// </summary>
-    public string PhotoUrl { get; }
+    public string? PhotoUrl { get; }
 }

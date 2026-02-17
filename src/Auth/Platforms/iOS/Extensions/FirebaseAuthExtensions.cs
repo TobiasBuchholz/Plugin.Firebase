@@ -66,7 +66,9 @@ public static class FirebaseAuthExtensions
             settings.Url = new NSUrl(@this.Url);
         }
         settings.HandleCodeInApp = @this.HandleCodeInApp;
-        settings.IOSBundleId = @this.IOSBundleId;
+        if(@this.IOSBundleId is not null) {
+            settings.IOSBundleId = @this.IOSBundleId;
+        }
         if(@this.AndroidPackageName is not null) {
             settings.SetAndroidPackageName(
                 @this.AndroidPackageName,

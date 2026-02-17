@@ -25,10 +25,11 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
     /// <exception cref="FirebaseException">Thrown when FirebaseAuth.DefaultInstance is null.</exception>
     public FirebaseAuthImplementation()
     {
-        _firebaseAuth = FirebaseAuth.DefaultInstance;
-        if(_firebaseAuth is null) {
+        var firebaseAuth = FirebaseAuth.DefaultInstance;
+        if(firebaseAuth is null) {
             throw new FirebaseException("FirebaseAuth.DefaultInstance is null");
         }
+        _firebaseAuth = firebaseAuth;
         _emailAuth = new EmailAuth();
         _phoneNumberAuth = new PhoneNumberAuth();
 
@@ -280,5 +281,5 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
     }
 
     /// <inheritdoc/>
-    public IFirebaseUser CurrentUser => _firebaseAuth.CurrentUser?.ToAbstract();
+    public IFirebaseUser? CurrentUser => _firebaseAuth.CurrentUser?.ToAbstract();
 }

@@ -25,22 +25,22 @@ public sealed class ActionCodeSettings
     /// <summary>
     /// Gets or sets the URL to continue to after the action code is handled.
     /// </summary>
-    public string Url { get; set; }
+    public string? Url { get; set; }
 
     /// <summary>
     /// Gets or sets the iOS bundle ID associated with the app.
     /// </summary>
-    public string IOSBundleId { get; set; }
+    public string? IOSBundleId { get; set; }
 
     /// <summary>
     /// Gets the Android package name of the app.
     /// </summary>
-    public string AndroidPackageName { get; private set; }
+    public string? AndroidPackageName { get; private set; }
 
     /// <summary>
     /// Gets the minimum app version required.
     /// </summary>
-    public string AndroidMinimumVersion { get; private set; }
+    public string? AndroidMinimumVersion { get; private set; }
 
     /// <summary>
     /// Gets whether to install the Android app if not available.

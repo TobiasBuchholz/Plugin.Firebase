@@ -91,8 +91,19 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             var credential = await _emailAuth.GetCredentialAsync(email, password);
             return await SignInWithCredentialAsync(credential);
         } catch(Exception e) {
-            if(e is FirebaseAuthInvalidUserException && createsUserAutomatically) {
-                return await CreateUserAsync(email, password);
+            // Firebase Android SDK with Email Enumeration Protection enabled (default)
+            // may return FirebaseAuthInvalidCredentialsException instead of
+            // FirebaseAuthInvalidUserException when the user does not exist.
+            // We attempt user creation for both; if the user actually exists
+            // (wrong password scenario), creation fails and we re-throw the original error.
+            if(createsUserAutomatically &&
+                (e is FirebaseAuthInvalidUserException ||
+                 e is FirebaseAuthInvalidCredentialsException)) {
+                try {
+                    return await CreateUserAsync(email, password);
+                } catch {
+                    throw GetFirebaseAuthException(e);
+                }
             }
             throw GetFirebaseAuthException(e);
         }

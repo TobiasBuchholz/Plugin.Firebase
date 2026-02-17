@@ -28,12 +28,16 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
             _options = options;
         }
 
-        if(options.Provider == AppCheckProviderType.Disabled) {
-            _beforeConfigureRegistration?.Dispose();
-            _beforeConfigureRegistration = null;
-            return;
-        }
-
+        // Always register the BeforeConfigure hook, even for Disabled.
+        // When the native FirebaseAppCheck framework is linked into the app binary,
+        // its component auto-registers with Firebase using eager instantiation.
+        // Without an explicit call to SetAppCheckProviderFactory(null), the SDK may
+        // use a default DeviceCheckProviderFactory which produces placeholder tokens
+        // on failure. Auth/Functions then attach these invalid tokens to every request,
+        // causing server-side rejection ("The supplied auth credential is malformed
+        // or has expired"). Calling SetAppCheckProviderFactory(null) before
+        // FirebaseApp.configure() ensures initWithApp: returns nil and no App Check
+        // tokens are attached to requests.
         _beforeConfigureRegistration ??= FirebaseInitializationHooks.RegisterBeforeConfigure(InstallProviderFactory);
     }
 
@@ -44,13 +48,16 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
             options = _options;
         }
 
-        if(options.Provider == AppCheckProviderType.Disabled) {
-            return;
-        }
-
-        Console.WriteLine($"Plugin.Firebase AppCheck: installing provider factory '{options.Provider}' (iOS).");
+        Console.WriteLine($"Plugin.Firebase AppCheck: installing provider '{options.Provider}' (iOS).");
 
         switch(options.Provider) {
+            case AppCheckProviderType.Disabled:
+                // Explicitly clear the native factory so that FIRAppCheck.initWithApp:
+                // returns nil. This prevents Auth/Functions from attaching invalid
+                // placeholder App Check tokens to requests.
+                global::Firebase.AppCheck.AppCheck.SetAppCheckProviderFactory(null);
+                break;
+
             case AppCheckProviderType.Debug:
                 var debugFactory = new AppCheckDebugProviderFactory();
                 global::Firebase.AppCheck.AppCheck.SetAppCheckProviderFactory(debugFactory);

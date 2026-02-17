@@ -36,6 +36,18 @@ CrossFirebase.Initialize(activity, activityProvider);      // hook fires here
 
 Configuring a provider that is not supported on the current platform throws a `NotSupportedException`.
 
+### iOS — `Cannot instantiate FIRAppCheck` log message
+
+When App Check is configured with `AppCheckOptions.Disabled`, the plugin explicitly clears the native provider factory by calling `SetAppCheckProviderFactory(null)` before `FirebaseApp.Configure()`. The native Firebase iOS SDK then logs:
+
+```
+[FirebaseAppCheck][I-FAA002001] Cannot instantiate `FIRAppCheck` for app: __FIRAPP_DEFAULT
+without a provider factory. Please register a provider factory using
+`AppCheck.setAppCheckProviderFactory(_ ,forAppName:)` method.
+```
+
+**This is expected and harmless.** It confirms that App Check is properly disabled — no provider factory is installed, so no App Check tokens are generated or attached to requests. Without this explicit clearing, the native SDK may auto-register a default `DeviceCheckProviderFactory` when the `FirebaseAppCheck.framework` is linked, which would produce invalid placeholder tokens on simulators and cause `FirebaseAuthException: The supplied auth credential is malformed or has expired` errors on Auth and Functions requests.
+
 ### iOS enablement
 App Check for iOS uses `AdamE.Firebase.iOS.AppCheck`.
 Make sure your NuGet sources include the feed where that package is published (see [GoogleApisForiOSComponents](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents)).

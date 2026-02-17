@@ -99,6 +99,101 @@ dotnet build Plugin.Firebase.sln
 dotnet test tests/
 ```
 
+## Firebase project setup for integration tests
+
+Integration tests (`tests/Plugin.Firebase.IntegrationTests`) run on a real device or simulator and require a dedicated Firebase project. Below is the full configuration needed.
+
+### Firebase config files
+
+Place your Firebase config files (not committed to the repo) in the integration test project root:
+
+- `GoogleService-Info.plist` (iOS)
+- `google-services.json` (Android)
+
+### Authentication
+
+1. Enable **Email/Password** sign-in provider.
+2. Create the following user manually (or via Firebase Admin SDK):
+
+   | Email | Password | Custom Claims |
+   |---|---|---|
+   | `custom-claims@test.com` | `123456` | `{ "is_awesome": true }` |
+
+   Custom claims must be set via the Firebase Admin SDK or a Cloud Function — they cannot be set from the Firebase Console UI. Example using the Admin SDK:
+   ```js
+   admin.auth().getUserByEmail('custom-claims@test.com')
+     .then(user => admin.auth().setCustomUserClaims(user.uid, { is_awesome: true }));
+   ```
+
+3. All other test users (`sign-in-with-pw@test.com`, `to-delete@test.com`, etc.) are created and cleaned up automatically by the test suite via `createsUserAutomatically`.
+
+### Cloud Functions
+
+Deploy the test functions from `tests/cloud-functions/`:
+
+```sh
+cd tests/cloud-functions
+firebase deploy --only functions
+```
+
+Required functions:
+
+| Function | Type | Purpose |
+|---|---|---|
+| `convertToLeet` | `https.onCall` | Called by `FunctionsFixture` |
+| `addMessage` | `https.onRequest` | Writes to Firestore `messages` collection |
+| `makeUppercase` | `firestore.onCreate` | Triggered on `/messages/{documentId}` |
+| `echo` | `https.onRequest` | Echoes request body |
+
+### Firestore
+
+1. Create a **Firestore database** in Native mode.
+2. Set permissive security rules for testing (do not use in production):
+   ```
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       match /{document=**} {
+         allow read, write: if true;
+       }
+     }
+   }
+   ```
+3. Create the following **composite indexes** on the `pokemons` collection:
+   - `poke_type` ASC, `height_in_cm` ASC
+   - `poke_type` ASC, `name` ASC
+
+   The test suite seeds the `pokemons` collection automatically via `PokemonFactory.CreateBasePokemonsAtFirestoreAsync()`.
+
+### Remote Config
+
+Set the following parameters in **Remote Config** in the Firebase Console:
+
+| Key | Type | Value |
+|---|---|---|
+| `remote_string` | String | `remote_value` |
+| `remote_long` | Number | `1337` |
+| `remote_double` | Number | `13.37` |
+| `remote_bool` | Boolean | `true` |
+
+Publish the Remote Config after adding the parameters.
+
+### Storage
+
+Use the default Storage bucket. Create the following files:
+
+| Path | Content |
+|---|---|
+| `files_to_keep/text_1.txt` | Any text (tests expect 34 bytes) |
+| `files_to_keep/text_2.txt` | Any text |
+| `files_to_keep/text_3.txt` | Any text |
+
+The `files_to_keep/` directory must contain exactly **3 files** (asserted by `lists_all_files`). All other storage paths (`texts/*`, `files_to_delete/*`) are created and cleaned up by the tests.
+
+### App Check (optional)
+
+App Check is disabled by default in the integration tests (`AppCheckOptions.Disabled`). To run the optional App Check token test, set the environment variable `PLUGIN_FIREBASE_RUN_APPCHECK_TOKEN_TESTS=1` and configure `AppCheckOptions.Debug`.
+
 ## Troubleshooting
 
 ### NU1101: Unable to find package

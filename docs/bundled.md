@@ -46,6 +46,13 @@ using Plugin.Firebase.Bundled.Platforms.Android;
 #endif
 ```
 ## Release notes
+- Version 4.1.0
+  - Plugin.Firebase.Auth 4.0.1
+  - Plugin.Firebase.AppCheck 4.0.0
+  - Plugin.Firebase.CloudMessaging 4.0.1
+  - Plugin.Firebase.Core 4.1.0
+- Version 4.0.0
+  - Upgrade baseline to **.NET 9+**.
 - Version 3.1.4
   - Plugin.Firebase.Analytics 3.1.3
   - Plugin.Firebase.Firestore 3.1.3

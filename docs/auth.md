@@ -76,7 +76,7 @@ Set `LanguageCode = "fr"` (or any BCP-47 code) before invoking an Auth flow that
 Call `UseAppLanguage()` to reset to the app language.
 
 ## Release notes
-- Version 4.x.x
+- Version 4.0.1
   - Add `ReloadCurrentUserAsync()` to refresh the currently signed in user from the backend.
   - Add `LanguageCode` and `UseAppLanguage()` to control the language used for Auth-generated user-facing flows (reset/verification emails, SMS).
 - Version 4.0.0

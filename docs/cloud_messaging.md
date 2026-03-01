@@ -145,6 +145,10 @@ Note: this is a Plugin.Firebase custom field and hence not documented with googl
 If you are having trouble receiving push notifications on your device, take a look at this helpful https://github.com/TobiasBuchholz/Plugin.Firebase/issues/145#issuecomment-1455182588 by @andyzukunft. Additionally he has created a dedicated project to simplify the demonstration on how Firebase Cloud Messaging works: https://github.com/andyzukunft/Plugin.Firebase/tree/fcm-demo/sample/Fcm
 
 ## Release notes
+- Version 4.0.1
+  - Add iOS action identifier to notification body (PR #547)
+- Version 4.0.0
+  - Upgrade baseline to **.NET 9+**.
 - Version 3.1.2
   - Using AdamE.Firebase.iOS.* minimum version 11
 - Version 3.1.1

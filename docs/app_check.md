@@ -46,7 +46,7 @@ without a provider factory. Please register a provider factory using
 `AppCheck.setAppCheckProviderFactory(_ ,forAppName:)` method.
 ```
 
-**This is expected and harmless.** It confirms that App Check is properly disabled — no provider factory is installed, so no App Check tokens are generated or attached to requests. Without this explicit clearing, the native SDK may auto-register a default `DeviceCheckProviderFactory` when the `FirebaseAppCheck.framework` is linked, which would produce invalid placeholder tokens on simulators and cause `FirebaseAuthException: The supplied auth credential is malformed or has expired` errors on Auth and Functions requests.
+**This is expected and harmless.** It confirms that App Check is properly disabled — no provider factory is installed, so no App Check tokens are generated or attached to requests. Without this explicit clearing, the native SDK may auto-register a default `DeviceCheckProviderFactory` when the `FirebaseAppCheck.framework` is linked, which would produce invalid placeholder tokens on simulators and cause `CrossPlatformFirebaseAuthException: The supplied auth credential is malformed or has expired` errors on Auth and Functions requests.
 
 ### iOS enablement
 App Check for iOS uses `AdamE.Firebase.iOS.AppCheck`.

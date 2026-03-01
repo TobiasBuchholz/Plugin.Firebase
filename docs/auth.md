@@ -75,7 +75,37 @@ Since code should be documenting itself you can also take a look at the followin
 Set `LanguageCode = "fr"` (or any BCP-47 code) before invoking an Auth flow that triggers user-facing content such as password-reset emails, email-verification emails, or phone-auth SMS.
 Call `UseAppLanguage()` to reset to the app language.
 
+## Error handling
+
+Native Firebase Auth failures are wrapped in `CrossPlatformFirebaseAuthException`. The wrapper preserves the original native exception in `InnerException` and exposes stable inspection fields for platform, native type, domain, code, and message.
+
+`FirebaseAuthErrorClassifier.TryClassify(...)` provides an optional, best-effort classification for common failures such as invalid credentials, user collisions, weak passwords, recent-login requirements, and throttling. When classification returns `null`, fall back to the native metadata or `InnerException`.
+
+```csharp
+try
+{
+    await CrossFirebaseAuth.Current.SignInWithEmailAndPasswordAsync(email, password);
+}
+catch (CrossPlatformFirebaseAuthException ex)
+{
+    var failure = FirebaseAuthErrorClassifier.TryClassify(ex);
+
+    if (failure is FirebaseAuthFailure.UserCollision)
+    {
+        // Cross-platform handling
+    }
+
+    Console.WriteLine(
+        $"Auth failed on {ex.Platform}: " +
+        $"{ex.NativeExceptionTypeName} {ex.NativeErrorDomain} {ex.NativeErrorCode} {ex.NativeErrorMessage}");
+}
+```
+
 ## Release notes
+- Version 5.0.0
+  - Replace the normalized `FirebaseAuthException` / `FIRAuthError` model with `CrossPlatformFirebaseAuthException`.
+  - Preserve native Firebase Auth exceptions in `InnerException` and expose platform-specific metadata for inspection.
+  - Add `FirebaseAuthErrorClassifier` for best-effort, non-exhaustive classification of common Auth failures.
 - Version 4.0.1
   - Add `ReloadCurrentUserAsync()` to refresh the currently signed in user from the backend.
   - Add `LanguageCode` and `UseAppLanguage()` to control the language used for Auth-generated user-facing flows (reset/verification emails, SMS).

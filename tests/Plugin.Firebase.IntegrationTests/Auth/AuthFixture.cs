@@ -37,14 +37,14 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         public async Task throws_error_if_credentials_are_invalid_when_signing_in_user_via_email_and_password()
         {
             var sut = CrossFirebaseAuth.Current;
-            await Assert.ThrowsAnyAsync<FirebaseAuthException>(() => sut.SignInWithEmailAndPasswordAsync("sign-in-with-pw@test.com", "000000", createsUserAutomatically: false));
+            await Assert.ThrowsAnyAsync<CrossPlatformFirebaseAuthException>(() => sut.SignInWithEmailAndPasswordAsync("sign-in-with-pw@test.com", "000000", createsUserAutomatically: false));
         }
 
         [Fact]
         public async Task throws_error_if_user_does_not_exist_and_should_not_be_created_automatically_due_sign_in_via_email_and_password()
         {
             var sut = CrossFirebaseAuth.Current;
-            await Assert.ThrowsAnyAsync<FirebaseAuthException>(() => sut.SignInWithEmailAndPasswordAsync("does-not-exist@test.com", "123456", createsUserAutomatically: false));
+            await Assert.ThrowsAnyAsync<CrossPlatformFirebaseAuthException>(() => sut.SignInWithEmailAndPasswordAsync("does-not-exist@test.com", "123456", createsUserAutomatically: false));
         }
 
         [Fact]

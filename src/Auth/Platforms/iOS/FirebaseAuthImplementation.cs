@@ -44,21 +44,8 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             var viewController = GetViewController();
             await _phoneNumberAuth.VerifyPhoneNumberAsync(viewController, phoneNumber);
         } catch(NSErrorException e) {
-            throw GetFirebaseAuthException(e);
+            throw FirebaseAuthExceptionFactory.Create(e);
         }
-    }
-
-    private static FirebaseAuthException GetFirebaseAuthException(NSErrorException ex)
-    {
-        AuthErrorCode errorCode;
-        if(IntPtr.Size == 8) { // 64 bits devices
-            errorCode = (AuthErrorCode) ex.Error.Code;
-        } else { // 32 bits devices
-            errorCode = (AuthErrorCode) (int) ex.Error.Code;
-        }
-
-        Enum.TryParse(errorCode.ToString(), out FIRAuthError authError);
-        return new FirebaseAuthException(authError, ex.Error.LocalizedDescription);
     }
 
     /// <inheritdoc/>
@@ -68,7 +55,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             var user = await _firebaseAuth.SignInWithCustomTokenAsync(token);
             return user.User.ToAbstract();
         } catch(NSErrorException e) {
-            throw GetFirebaseAuthException(e);
+            throw FirebaseAuthExceptionFactory.Create(e);
         }
     }
 
@@ -81,7 +68,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
             return await SignInWithCredentialAsync(credential);
         } catch(NSErrorException e) {
-            throw GetFirebaseAuthException(e);
+            throw FirebaseAuthExceptionFactory.Create(e);
         }
     }
 
@@ -111,11 +98,11 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
                  e.Code == (long) AuthErrorCode.InvalidCredential)) {
                 try {
                     return await CreateUserAsync(email, password);
-                } catch {
-                    throw GetFirebaseAuthException(e);
+                } catch(CrossPlatformFirebaseAuthException) {
+                    throw FirebaseAuthExceptionFactory.Create(e);
                 }
             }
-            throw GetFirebaseAuthException(e);
+            throw FirebaseAuthExceptionFactory.Create(e);
         }
     }
 
@@ -125,7 +112,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         try {
             return await _emailAuth.CreateUserAsync(email, password);
         } catch(NSErrorException e) {
-            throw GetFirebaseAuthException(e);
+            throw FirebaseAuthExceptionFactory.Create(e);
         }
     }
 
@@ -136,7 +123,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             var authResult = await _firebaseAuth.SignInWithLinkAsync(email, link);
             return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
         } catch(NSErrorException e) {
-            throw GetFirebaseAuthException(e);
+            throw FirebaseAuthExceptionFactory.Create(e);
         }
     }
 
@@ -147,7 +134,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             var authResult = await _firebaseAuth.SignInAnonymouslyAsync();
             return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
         } catch(NSErrorException e) {
-            throw GetFirebaseAuthException(e);
+            throw FirebaseAuthExceptionFactory.Create(e);
         }
     }
 
@@ -160,7 +147,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
             return await LinkWithCredentialAsync(credential);
         } catch(NSErrorException e) {
-            throw GetFirebaseAuthException(e);
+            throw FirebaseAuthExceptionFactory.Create(e);
         }
     }
 
@@ -182,7 +169,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             var credential = await _emailAuth.GetCredentialAsync(email, password);
             return await LinkWithCredentialAsync(credential);
         } catch(NSErrorException e) {
-            throw GetFirebaseAuthException(e);
+            throw FirebaseAuthExceptionFactory.Create(e);
         }
     }
 
@@ -192,7 +179,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         try {
             await _firebaseAuth.SendSignInLinkAsync(toEmail, actionCodeSettings.ToNative());
         } catch(NSErrorException e) {
-            throw GetFirebaseAuthException(e);
+            throw FirebaseAuthExceptionFactory.Create(e);
         }
     }
 
@@ -203,7 +190,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
 
         return error is null
             ? Task.CompletedTask
-            : throw new FirebaseException("Errored signing out", new NSErrorException(error));
+            : throw FirebaseAuthExceptionFactory.Create(new NSErrorException(error));
     }
 
     /// <inheritdoc/>
@@ -212,7 +199,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         try {
             return _firebaseAuth.IsSignIn(link);
         } catch(NSErrorException e) {
-            throw GetFirebaseAuthException(e);
+            throw FirebaseAuthExceptionFactory.Create(e);
         }
     }
 
@@ -229,13 +216,13 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         var email = currentUser.Email;
         return email is null
             ? throw new FirebaseException("CurrentUser.Email is null.")
-            : _firebaseAuth.SendPasswordResetAsync(email);
+            : FirebaseAuthExceptionFactory.Wrap(() => _firebaseAuth.SendPasswordResetAsync(email));
     }
 
     /// <inheritdoc/>
     public Task SendPasswordResetEmailAsync(string email)
     {
-        return _firebaseAuth.SendPasswordResetAsync(email);
+        return FirebaseAuthExceptionFactory.Wrap(() => _firebaseAuth.SendPasswordResetAsync(email));
     }
 
     /// <inheritdoc/>
@@ -248,7 +235,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             );
         }
 
-        await currentUser.ReloadAsync();
+        await FirebaseAuthExceptionFactory.Wrap(() => currentUser.ReloadAsync());
     }
 
     /// <inheritdoc/>

@@ -1,13 +1,12 @@
 using Android.Gms.Extensions;
 using Firebase.Auth;
 using Plugin.Firebase.Auth.Platforms.Android.Email;
-using Plugin.Firebase.Auth.Platforms.Android.PhoneNumber;
 using Plugin.Firebase.Auth.Platforms.Android.Extensions;
+using Plugin.Firebase.Auth.Platforms.Android.PhoneNumber;
 using Plugin.Firebase.Core;
 using Plugin.Firebase.Core.Exceptions;
 using Plugin.Firebase.Core.Platforms.Android;
 using CrossActionCodeSettings = Plugin.Firebase.Auth.ActionCodeSettings;
-using CrossFirebaseAuthException = Plugin.Firebase.Core.Exceptions.FirebaseAuthException;
 
 namespace Plugin.Firebase.Auth;
 
@@ -29,34 +28,20 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
 
     public async Task VerifyPhoneNumberAsync(string phoneNumber)
     {
-        try {
-            var activityLocator = CrossFirebase.ActivityLocator;
-            if(activityLocator is null) {
-                throw new InvalidOperationException("ActivityLocator is null.");
-            }
-            var activity = activityLocator();
-            if(activity is null) {
-                throw new InvalidOperationException("Activity is null.");
-            }
-
-            await _phoneNumberAuth.VerifyPhoneNumberAsync(activity, phoneNumber);
-        } catch(Exception e) {
-            throw GetFirebaseAuthException(e);
+        var activityLocator = CrossFirebase.ActivityLocator;
+        if(activityLocator is null) {
+            throw new InvalidOperationException("ActivityLocator is null.");
         }
-    }
+        var activity = activityLocator();
+        if(activity is null) {
+            throw new InvalidOperationException("Activity is null.");
+        }
 
-    private static CrossFirebaseAuthException GetFirebaseAuthException(Exception ex)
-    {
-        return ex switch {
-            FirebaseAuthEmailException => new CrossFirebaseAuthException(FIRAuthError.InvalidEmail, ex.Message),
-            FirebaseAuthInvalidUserException => new CrossFirebaseAuthException(FIRAuthError.UserNotFound, ex.Message),
-            FirebaseAuthWeakPasswordException => new CrossFirebaseAuthException(FIRAuthError.WeakPassword, ex.Message),
-            FirebaseAuthInvalidCredentialsException { ErrorCode: "ERROR_WRONG_PASSWORD" } => new CrossFirebaseAuthException(FIRAuthError.WrongPassword, ex.Message),
-            FirebaseAuthInvalidCredentialsException => new CrossFirebaseAuthException(FIRAuthError.InvalidCredential, ex.Message),
-            FirebaseAuthUserCollisionException { ErrorCode: "ERROR_EMAIL_ALREADY_IN_USE" } => new CrossFirebaseAuthException(FIRAuthError.EmailAlreadyInUse, ex.Message),
-            FirebaseAuthUserCollisionException { ErrorCode: "ERROR_ACCOUNT_EXISTS_WITH_DIFFERENT_CREDENTIAL" } => new CrossFirebaseAuthException(FIRAuthError.AccountExistsWithDifferentCredential, ex.Message),
-            _ => new CrossFirebaseAuthException(FIRAuthError.Undefined, ex.Message)
-        };
+        try {
+            await _phoneNumberAuth.VerifyPhoneNumberAsync(activity, phoneNumber);
+        } catch(Exception e) when (FirebaseAuthExceptionFactory.IsNativeAuthException(e)) {
+            throw FirebaseAuthExceptionFactory.Create(e);
+        }
     }
 
     public async Task<IFirebaseUser> SignInWithCustomTokenAsync(string token)
@@ -64,8 +49,8 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         try {
             var authResult = await _firebaseAuth.SignInWithCustomTokenAsync(token);
             return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
-        } catch(Exception e) {
-            throw GetFirebaseAuthException(e);
+        } catch(Exception e) when (FirebaseAuthExceptionFactory.IsNativeAuthException(e)) {
+            throw FirebaseAuthExceptionFactory.Create(e);
         }
     }
 
@@ -74,8 +59,8 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         try {
             var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
             return await SignInWithCredentialAsync(credential);
-        } catch(Exception e) {
-            throw GetFirebaseAuthException(e);
+        } catch(Exception e) when (FirebaseAuthExceptionFactory.IsNativeAuthException(e)) {
+            throw FirebaseAuthExceptionFactory.Create(e);
         }
     }
 
@@ -90,7 +75,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         try {
             var credential = await _emailAuth.GetCredentialAsync(email, password);
             return await SignInWithCredentialAsync(credential);
-        } catch(Exception e) {
+        } catch(Exception e) when (FirebaseAuthExceptionFactory.IsNativeAuthException(e)) {
             // Firebase Android SDK with Email Enumeration Protection enabled (default)
             // may return FirebaseAuthInvalidCredentialsException instead of
             // FirebaseAuthInvalidUserException when the user does not exist.
@@ -101,11 +86,11 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
                  e is FirebaseAuthInvalidCredentialsException)) {
                 try {
                     return await CreateUserAsync(email, password);
-                } catch {
-                    throw GetFirebaseAuthException(e);
+                } catch(CrossPlatformFirebaseAuthException) {
+                    throw FirebaseAuthExceptionFactory.Create(e);
                 }
             }
-            throw GetFirebaseAuthException(e);
+            throw FirebaseAuthExceptionFactory.Create(e);
         }
     }
 
@@ -113,8 +98,8 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
     {
         try {
             return await _emailAuth.CreateUserAsync(email, password);
-        } catch(Exception e) {
-            throw GetFirebaseAuthException(e);
+        } catch(Exception e) when (FirebaseAuthExceptionFactory.IsNativeAuthException(e)) {
+            throw FirebaseAuthExceptionFactory.Create(e);
         }
     }
 
@@ -123,8 +108,8 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         try {
             await _firebaseAuth.SignInWithEmailLink(email, link);
             return _firebaseAuth.CurrentUser.ToAbstract();
-        } catch(Exception e) {
-            throw GetFirebaseAuthException(e);
+        } catch(Exception e) when (FirebaseAuthExceptionFactory.IsNativeAuthException(e)) {
+            throw FirebaseAuthExceptionFactory.Create(e);
         }
     }
 
@@ -133,8 +118,8 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         try {
             var authResult = await _firebaseAuth.SignInAnonymouslyAsync();
             return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
-        } catch(Exception e) {
-            throw GetFirebaseAuthException(e);
+        } catch(Exception e) when (FirebaseAuthExceptionFactory.IsNativeAuthException(e)) {
+            throw FirebaseAuthExceptionFactory.Create(e);
         }
     }
 
@@ -143,8 +128,8 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         try {
             var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
             return await LinkWithCredentialAsync(credential);
-        } catch(Exception e) {
-            throw GetFirebaseAuthException(e);
+        } catch(Exception e) when (FirebaseAuthExceptionFactory.IsNativeAuthException(e)) {
+            throw FirebaseAuthExceptionFactory.Create(e);
         }
     }
 
@@ -163,17 +148,22 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         try {
             var credential = await _emailAuth.GetCredentialAsync(email, password);
             return await LinkWithCredentialAsync(credential);
-        } catch(Exception e) {
-            throw GetFirebaseAuthException(e);
+        } catch(Exception e) when (FirebaseAuthExceptionFactory.IsNativeAuthException(e)) {
+            throw FirebaseAuthExceptionFactory.Create(e);
         }
     }
 
     public async Task SendSignInLink(string toEmail, CrossActionCodeSettings actionCodeSettings)
     {
+        var nativeActionCodeSettings = actionCodeSettings.ToNative();
+        if(nativeActionCodeSettings is null) {
+            throw new InvalidOperationException("ActionCodeSettings.ToNative() returned null.");
+        }
+
         try {
-            await _firebaseAuth.SendSignInLinkToEmail(toEmail, actionCodeSettings.ToNative());
-        } catch(Exception e) {
-            throw GetFirebaseAuthException(e);
+            await _firebaseAuth.SendSignInLinkToEmail(toEmail, nativeActionCodeSettings);
+        } catch(Exception e) when (FirebaseAuthExceptionFactory.IsNativeAuthException(e)) {
+            throw FirebaseAuthExceptionFactory.Create(e);
         }
     }
 
@@ -182,8 +172,8 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         try {
             _firebaseAuth.SignOut();
             return Task.CompletedTask;
-        } catch(Exception e) {
-            throw GetFirebaseAuthException(e);
+        } catch(Exception e) when (FirebaseAuthExceptionFactory.IsNativeAuthException(e)) {
+            throw FirebaseAuthExceptionFactory.Create(e);
         }
     }
 
@@ -191,8 +181,8 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
     {
         try {
             return _firebaseAuth.IsSignInWithEmailLink(link);
-        } catch(Exception e) {
-            throw GetFirebaseAuthException(e);
+        } catch(Exception e) when (FirebaseAuthExceptionFactory.IsNativeAuthException(e)) {
+            throw FirebaseAuthExceptionFactory.Create(e);
         }
     }
 
@@ -208,12 +198,12 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             throw new FirebaseException("CurrentUser.Email is null.");
         }
 
-        return _firebaseAuth.SendPasswordResetEmailAsync(email);
+        return FirebaseAuthExceptionFactory.Wrap(() => _firebaseAuth.SendPasswordResetEmailAsync(email));
     }
 
     public Task SendPasswordResetEmailAsync(string email)
     {
-        return _firebaseAuth.SendPasswordResetEmailAsync(email);
+        return FirebaseAuthExceptionFactory.Wrap(() => _firebaseAuth.SendPasswordResetEmailAsync(email));
     }
 
     public async Task ReloadCurrentUserAsync()
@@ -225,7 +215,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             );
         }
 
-        await currentUser.ReloadAsync();
+        await FirebaseAuthExceptionFactory.Wrap(() => currentUser.ReloadAsync());
     }
 
     public string? LanguageCode {

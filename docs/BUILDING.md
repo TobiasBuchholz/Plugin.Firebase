@@ -129,10 +129,22 @@ Place your Firebase config files (not committed to the repo) in the integration 
 
 ### Cloud Functions
 
-Deploy the test functions from `tests/cloud-functions/`:
+Before deploying, make sure `tests/cloud-functions/.firebaserc` targets the same Firebase project as your `GoogleService-Info.plist` / `google-services.json`. Open the file and update the `default` project if needed:
+
+```json
+{
+  "projects": {
+    "default": "<your-firebase-project-id>"
+  }
+}
+```
+
+Then install dependencies and deploy:
 
 ```sh
-cd tests/cloud-functions
+cd tests/cloud-functions/functions
+npm install
+cd ..
 firebase deploy --only functions
 ```
 

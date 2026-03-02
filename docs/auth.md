@@ -77,35 +77,43 @@ Call `UseAppLanguage()` to reset to the app language.
 
 ## Error handling
 
-Native Firebase Auth failures are wrapped in `CrossPlatformFirebaseAuthException`. The wrapper preserves the original native exception in `InnerException` and exposes stable inspection fields for platform, native type, domain, code, and message.
+Native Firebase Auth failures are wrapped in `CrossPlatformFirebaseAuthException`. The wrapper preserves the original native exception in `InnerException` and exposes stable inspection fields for the native exception type, domain, code, and message.
 
-`FirebaseAuthErrorClassifier.TryClassify(...)` provides an optional, best-effort classification for common failures such as invalid credentials, user collisions, weak passwords, recent-login requirements, and throttling. When classification returns `null`, fall back to the native metadata or `InnerException`.
+`FirebaseAuthErrorClassifier.TryClassify(...)` is an optional, best-effort helper for common failures such as invalid credentials, missing users, user collisions, weak passwords, recent-login requirements, and throttling. Call it explicitly in your app code when you want a simple cross-platform branch. When classification returns `null`, fall back to `NativeExceptionTypeName`, `NativeErrorDomain`, `NativeErrorCode`, `NativeErrorMessage`, or `InnerException`.
 
 ```csharp
-try
+public async Task<string?> SignInAsync(string email, string password)
 {
-    await CrossFirebaseAuth.Current.SignInWithEmailAndPasswordAsync(email, password);
-}
-catch (CrossPlatformFirebaseAuthException ex)
-{
-    var failure = FirebaseAuthErrorClassifier.TryClassify(ex);
-
-    if (failure is FirebaseAuthFailure.UserCollision)
-    {
-        // Cross-platform handling
+    try {
+        await CrossFirebaseAuth.Current.SignInWithEmailAndPasswordAsync(email, password);
+        return null;
+    } catch(CrossPlatformFirebaseAuthException ex) {
+        return FirebaseAuthErrorClassifier.TryClassify(ex) switch {
+            FirebaseAuthFailure.InvalidCredentials => "Invalid email or password.",
+            FirebaseAuthFailure.UserNotFound => "No account exists for that email address.",
+            FirebaseAuthFailure.TooManyRequests => "Too many attempts. Try again later.",
+            _ => ex.NativeErrorMessage
+        };
     }
-
-    Console.WriteLine(
-        $"Auth failed on {ex.Platform}: " +
-        $"{ex.NativeExceptionTypeName} {ex.NativeErrorDomain} {ex.NativeErrorCode} {ex.NativeErrorMessage}");
 }
 ```
+
+## Migration from v4
+
+Before v5, Auth failures were typically handled by catching `FirebaseAuthException` and inspecting its normalized `Reason` value.
+
+In v5:
+- Catch `CrossPlatformFirebaseAuthException`.
+- Call `FirebaseAuthErrorClassifier.TryClassify(ex)` only if you want a simple cross-platform classification.
+- Inspect `NativeExceptionTypeName`, `NativeErrorDomain`, `NativeErrorCode`, `NativeErrorMessage`, or `InnerException` when you need precise native details.
+- `SignOutAsync()` now follows the same unified exception model when the underlying native Auth SDK reports a failure.
 
 ## Release notes
 - Version 5.0.0
   - Replace the normalized `FirebaseAuthException` / `FIRAuthError` model with `CrossPlatformFirebaseAuthException`.
   - Preserve native Firebase Auth exceptions in `InnerException` and expose platform-specific metadata for inspection.
   - Add `FirebaseAuthErrorClassifier` for best-effort, non-exhaustive classification of common Auth failures.
+  - Migrate by catching `CrossPlatformFirebaseAuthException`, optionally calling `FirebaseAuthErrorClassifier.TryClassify(ex)`, and using native metadata for precise handling.
 - Version 4.0.1
   - Add `ReloadCurrentUserAsync()` to refresh the currently signed in user from the backend.
   - Add `LanguageCode` and `UseAppLanguage()` to control the language used for Auth-generated user-facing flows (reset/verification emails, SMS).

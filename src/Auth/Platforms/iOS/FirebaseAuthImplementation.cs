@@ -40,23 +40,19 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
     /// <inheritdoc/>
     public async Task VerifyPhoneNumberAsync(string phoneNumber)
     {
-        try {
-            var viewController = GetViewController();
-            await _phoneNumberAuth.VerifyPhoneNumberAsync(viewController, phoneNumber);
-        } catch(NSErrorException e) {
-            throw FirebaseAuthExceptionFactory.Create(e);
-        }
+        var viewController = GetViewController();
+        await FirebaseAuthExceptionFactory.Wrap(
+            () => _phoneNumberAuth.VerifyPhoneNumberAsync(viewController, phoneNumber)
+        );
     }
 
     /// <inheritdoc/>
     public async Task<IFirebaseUser> SignInWithCustomTokenAsync(string token)
     {
-        try {
-            var user = await _firebaseAuth.SignInWithCustomTokenAsync(token);
-            return user.User.ToAbstract();
-        } catch(NSErrorException e) {
-            throw FirebaseAuthExceptionFactory.Create(e);
-        }
+        var user = await FirebaseAuthExceptionFactory.Wrap(
+            () => _firebaseAuth.SignInWithCustomTokenAsync(token)
+        );
+        return user.User.ToAbstract();
     }
 
     /// <inheritdoc/>
@@ -64,17 +60,15 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         string verificationCode
     )
     {
-        try {
-            var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
-            return await SignInWithCredentialAsync(credential);
-        } catch(NSErrorException e) {
-            throw FirebaseAuthExceptionFactory.Create(e);
-        }
+        var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
+        return await SignInWithCredentialAsync(credential);
     }
 
     private async Task<IFirebaseUser> SignInWithCredentialAsync(AuthCredential credential)
     {
-        var authResult = await _firebaseAuth.SignInWithCredentialAsync(credential);
+        var authResult = await FirebaseAuthExceptionFactory.Wrap(
+            () => _firebaseAuth.SignInWithCredentialAsync(credential)
+        );
         return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
     }
 
@@ -88,54 +82,42 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         try {
             var credential = await _emailAuth.GetCredentialAsync(email, password);
             return await SignInWithCredentialAsync(credential);
-        } catch(NSErrorException e) {
+        } catch(CrossPlatformFirebaseAuthException e)
+            when (createsUserAutomatically && ShouldAttemptCreateUser(e)) {
             // Firebase iOS SDK 10.18+ returns InvalidCredential (INVALID_LOGIN_CREDENTIALS)
             // instead of UserNotFound when Email Enumeration Protection is enabled (default).
             // We attempt user creation for both error codes; if the user actually exists
             // (wrong password scenario), creation fails and we re-throw the original error.
-            if(createsUserAutomatically &&
-                (e.Code == (long) AuthErrorCode.UserNotFound ||
-                 e.Code == (long) AuthErrorCode.InvalidCredential)) {
-                try {
-                    return await CreateUserAsync(email, password);
-                } catch(CrossPlatformFirebaseAuthException) {
-                    throw FirebaseAuthExceptionFactory.Create(e);
-                }
+            try {
+                return await CreateUserAsync(email, password);
+            } catch(CrossPlatformFirebaseAuthException) {
+                throw e;
             }
-            throw FirebaseAuthExceptionFactory.Create(e);
         }
     }
 
     /// <inheritdoc/>
-    public async Task<IFirebaseUser> CreateUserAsync(string email, string password)
+    public Task<IFirebaseUser> CreateUserAsync(string email, string password)
     {
-        try {
-            return await _emailAuth.CreateUserAsync(email, password);
-        } catch(NSErrorException e) {
-            throw FirebaseAuthExceptionFactory.Create(e);
-        }
+        return FirebaseAuthExceptionFactory.Wrap(() => _emailAuth.CreateUserAsync(email, password));
     }
 
     /// <inheritdoc/>
     public async Task<IFirebaseUser> SignInWithEmailLinkAsync(string email, string link)
     {
-        try {
-            var authResult = await _firebaseAuth.SignInWithLinkAsync(email, link);
-            return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
-        } catch(NSErrorException e) {
-            throw FirebaseAuthExceptionFactory.Create(e);
-        }
+        var authResult = await FirebaseAuthExceptionFactory.Wrap(
+            () => _firebaseAuth.SignInWithLinkAsync(email, link)
+        );
+        return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
     }
 
     /// <inheritdoc/>
     public async Task<IFirebaseUser> SignInAnonymouslyAsync()
     {
-        try {
-            var authResult = await _firebaseAuth.SignInAnonymouslyAsync();
-            return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
-        } catch(NSErrorException e) {
-            throw FirebaseAuthExceptionFactory.Create(e);
-        }
+        var authResult = await FirebaseAuthExceptionFactory.Wrap(
+            () => _firebaseAuth.SignInAnonymouslyAsync()
+        );
+        return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
     }
 
     /// <inheritdoc/>
@@ -143,12 +125,8 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         string verificationCode
     )
     {
-        try {
-            var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
-            return await LinkWithCredentialAsync(credential);
-        } catch(NSErrorException e) {
-            throw FirebaseAuthExceptionFactory.Create(e);
-        }
+        var credential = await _phoneNumberAuth.GetCredentialAsync(verificationCode);
+        return await LinkWithCredentialAsync(credential);
     }
 
     private async Task<IFirebaseUser> LinkWithCredentialAsync(AuthCredential credential)
@@ -158,29 +136,28 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             throw new InvalidOperationException("User must be signed in to link with credential.");
         }
 
-        var authResult = await currentUser.LinkAsync(credential);
+        var authResult = await FirebaseAuthExceptionFactory.Wrap(() => currentUser.LinkAsync(credential));
         return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
     }
     
     /// <inheritdoc/>
     public async Task<IFirebaseUser> LinkWithEmailAndPasswordAsync(string email, string password)
     {
-        try {
-            var credential = await _emailAuth.GetCredentialAsync(email, password);
-            return await LinkWithCredentialAsync(credential);
-        } catch(NSErrorException e) {
-            throw FirebaseAuthExceptionFactory.Create(e);
-        }
+        var credential = await _emailAuth.GetCredentialAsync(email, password);
+        return await LinkWithCredentialAsync(credential);
     }
 
     /// <inheritdoc/>
     public async Task SendSignInLink(string toEmail, CrossActionCodeSettings actionCodeSettings)
     {
-        try {
-            await _firebaseAuth.SendSignInLinkAsync(toEmail, actionCodeSettings.ToNative());
-        } catch(NSErrorException e) {
-            throw FirebaseAuthExceptionFactory.Create(e);
+        var nativeActionCodeSettings = actionCodeSettings.ToNative();
+        if(nativeActionCodeSettings is null) {
+            throw new InvalidOperationException("ActionCodeSettings.ToNative() returned null.");
         }
+
+        await FirebaseAuthExceptionFactory.Wrap(
+            () => _firebaseAuth.SendSignInLinkAsync(toEmail, nativeActionCodeSettings)
+        );
     }
 
     /// <inheritdoc/>
@@ -260,6 +237,13 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
     {
         var handle = _firebaseAuth.AddAuthStateDidChangeListener((_, _) => listener.Invoke(this));
         return new DisposableWithAction(() => _firebaseAuth.RemoveAuthStateDidChangeListener(handle));
+    }
+
+    private static bool ShouldAttemptCreateUser(CrossPlatformFirebaseAuthException exception)
+    {
+        return exception.NativeErrorCode is
+            nameof(AuthErrorCode.UserNotFound) or
+            nameof(AuthErrorCode.InvalidCredential);
     }
 
     private static UIViewController GetViewController()

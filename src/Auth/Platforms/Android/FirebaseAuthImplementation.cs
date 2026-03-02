@@ -68,7 +68,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             var credential = await _emailAuth.GetCredentialAsync(email, password);
             return await SignInWithCredentialAsync(credential);
         } catch(CrossPlatformFirebaseAuthException e)
-            when (createsUserAutomatically && ShouldAttemptCreateUser(e)) {
+            when(createsUserAutomatically && ShouldAttemptCreateUser(e)) {
             // Firebase Android SDK with Email Enumeration Protection enabled (default)
             // may return FirebaseAuthInvalidCredentialsException instead of
             // FirebaseAuthInvalidUserException when the user does not exist.
@@ -145,7 +145,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         try {
             _firebaseAuth.SignOut();
             return Task.CompletedTask;
-        } catch(Exception e) when (FirebaseAuthExceptionFactory.IsNativeAuthException(e)) {
+        } catch(Exception e) when(FirebaseAuthExceptionFactory.IsNativeAuthException(e)) {
             throw FirebaseAuthExceptionFactory.Create(e);
         }
     }
@@ -154,7 +154,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
     {
         try {
             return _firebaseAuth.IsSignInWithEmailLink(link);
-        } catch(Exception e) when (FirebaseAuthExceptionFactory.IsNativeAuthException(e)) {
+        } catch(Exception e) when(FirebaseAuthExceptionFactory.IsNativeAuthException(e)) {
             throw FirebaseAuthExceptionFactory.Create(e);
         }
     }

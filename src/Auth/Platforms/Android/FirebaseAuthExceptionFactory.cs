@@ -31,7 +31,7 @@ internal static class FirebaseAuthExceptionFactory
     {
         try {
             await operation();
-        } catch(Exception exception) when (IsNativeAuthException(exception)) {
+        } catch(Exception exception) when(IsNativeAuthException(exception)) {
             throw Create(exception);
         }
     }
@@ -40,7 +40,7 @@ internal static class FirebaseAuthExceptionFactory
     {
         try {
             return await operation();
-        } catch(Exception exception) when (IsNativeAuthException(exception)) {
+        } catch(Exception exception) when(IsNativeAuthException(exception)) {
             throw Create(exception);
         }
     }

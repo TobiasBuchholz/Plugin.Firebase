@@ -83,7 +83,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             var credential = await _emailAuth.GetCredentialAsync(email, password);
             return await SignInWithCredentialAsync(credential);
         } catch(CrossPlatformFirebaseAuthException e)
-            when (createsUserAutomatically && ShouldAttemptCreateUser(e)) {
+            when(createsUserAutomatically && ShouldAttemptCreateUser(e)) {
             // Firebase iOS SDK 10.18+ returns InvalidCredential (INVALID_LOGIN_CREDENTIALS)
             // instead of UserNotFound when Email Enumeration Protection is enabled (default).
             // We attempt user creation for both error codes; if the user actually exists
@@ -139,7 +139,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         var authResult = await FirebaseAuthExceptionFactory.Wrap(() => currentUser.LinkAsync(credential));
         return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
     }
-    
+
     /// <inheritdoc/>
     public async Task<IFirebaseUser> LinkWithEmailAndPasswordAsync(string email, string password)
     {

@@ -10,6 +10,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Core\Core.csproj" />
     <ProjectReference Include="..\..\src\AppCheck\AppCheck.csproj" />
+    <ProjectReference Include="..\..\src\Auth\Auth.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -52,7 +52,10 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         var user = await FirebaseAuthExceptionFactory.Wrap(
             () => _firebaseAuth.SignInWithCustomTokenAsync(token)
         );
-        return user.User.ToAbstract();
+        return FirebaseAuthInvariant.EnsureNotNull(
+            user.User,
+            "Firebase Auth returned a null user after sign-in with a custom token."
+        ).ToAbstract();
     }
 
     /// <inheritdoc/>
@@ -69,7 +72,10 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         var authResult = await FirebaseAuthExceptionFactory.Wrap(
             () => _firebaseAuth.SignInWithCredentialAsync(credential)
         );
-        return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
+        return FirebaseAuthInvariant.EnsureNotNull(
+            authResult.User,
+            "Firebase Auth returned a null user after sign-in with a credential."
+        ).ToAbstract(authResult.AdditionalUserInfo);
     }
 
     /// <inheritdoc/>
@@ -108,7 +114,10 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         var authResult = await FirebaseAuthExceptionFactory.Wrap(
             () => _firebaseAuth.SignInWithLinkAsync(email, link)
         );
-        return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
+        return FirebaseAuthInvariant.EnsureNotNull(
+            authResult.User,
+            "Firebase Auth returned a null user after email-link sign-in."
+        ).ToAbstract(authResult.AdditionalUserInfo);
     }
 
     /// <inheritdoc/>
@@ -117,7 +126,10 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         var authResult = await FirebaseAuthExceptionFactory.Wrap(
             () => _firebaseAuth.SignInAnonymouslyAsync()
         );
-        return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
+        return FirebaseAuthInvariant.EnsureNotNull(
+            authResult.User,
+            "Firebase Auth returned a null user after anonymous sign-in."
+        ).ToAbstract(authResult.AdditionalUserInfo);
     }
 
     /// <inheritdoc/>
@@ -137,7 +149,10 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         }
 
         var authResult = await FirebaseAuthExceptionFactory.Wrap(() => currentUser.LinkAsync(credential));
-        return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
+        return FirebaseAuthInvariant.EnsureNotNull(
+            authResult.User,
+            "Firebase Auth returned a null user after linking a credential."
+        ).ToAbstract(authResult.AdditionalUserInfo);
     }
 
     /// <inheritdoc/>

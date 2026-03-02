@@ -45,7 +45,10 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         var authResult = await FirebaseAuthExceptionFactory.Wrap(
             () => _firebaseAuth.SignInWithCustomTokenAsync(token)
         );
-        return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
+        return FirebaseAuthInvariant.EnsureNotNull(
+            authResult.User,
+            "Firebase Auth returned a null user after sign-in with a custom token."
+        ).ToAbstract(authResult.AdditionalUserInfo);
     }
 
     public async Task<IFirebaseUser> SignInWithPhoneNumberVerificationCodeAsync(string verificationCode)
@@ -59,7 +62,10 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         var authResult = await FirebaseAuthExceptionFactory.Wrap(
             () => _firebaseAuth.SignInWithCredentialAsync(credential)
         );
-        return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
+        return FirebaseAuthInvariant.EnsureNotNull(
+            authResult.User,
+            "Firebase Auth returned a null user after sign-in with a credential."
+        ).ToAbstract(authResult.AdditionalUserInfo);
     }
 
     public async Task<IFirebaseUser> SignInWithEmailAndPasswordAsync(string email, string password, bool createsUserAutomatically = true)
@@ -92,7 +98,10 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         await FirebaseAuthExceptionFactory.Wrap(async () => {
             await _firebaseAuth.SignInWithEmailLink(email, link);
         });
-        return _firebaseAuth.CurrentUser.ToAbstract();
+        return FirebaseAuthInvariant.EnsureNotNull(
+            _firebaseAuth.CurrentUser,
+            "Firebase Auth returned a null current user after email-link sign-in."
+        ).ToAbstract();
     }
 
     public async Task<IFirebaseUser> SignInAnonymouslyAsync()
@@ -100,7 +109,10 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         var authResult = await FirebaseAuthExceptionFactory.Wrap(
             () => _firebaseAuth.SignInAnonymouslyAsync()
         );
-        return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
+        return FirebaseAuthInvariant.EnsureNotNull(
+            authResult.User,
+            "Firebase Auth returned a null user after anonymous sign-in."
+        ).ToAbstract(authResult.AdditionalUserInfo);
     }
 
     public async Task<IFirebaseUser> LinkWithPhoneNumberVerificationCodeAsync(string verificationCode)
@@ -119,7 +131,10 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         var authResult = await FirebaseAuthExceptionFactory.Wrap(
             () => currentUser.LinkWithCredentialAsync(credential)
         );
-        return authResult.User.ToAbstract(authResult.AdditionalUserInfo);
+        return FirebaseAuthInvariant.EnsureNotNull(
+            authResult.User,
+            "Firebase Auth returned a null user after linking a credential."
+        ).ToAbstract(authResult.AdditionalUserInfo);
     }
 
     public async Task<IFirebaseUser> LinkWithEmailAndPasswordAsync(string email, string password)

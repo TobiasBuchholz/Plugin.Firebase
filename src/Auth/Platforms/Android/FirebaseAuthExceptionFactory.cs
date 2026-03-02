@@ -1,4 +1,5 @@
 using JavaThrowable = Java.Lang.Throwable;
+using NativeFirebaseException = Firebase.FirebaseException;
 using Plugin.Firebase.Core.Exceptions;
 
 namespace Plugin.Firebase.Auth;
@@ -7,8 +8,7 @@ internal static class FirebaseAuthExceptionFactory
 {
     public static bool IsNativeAuthException(Exception exception)
     {
-        return exception is JavaThrowable throwable &&
-            GetNativeExceptionTypeName(throwable).StartsWith("com.google.firebase", StringComparison.Ordinal);
+        return exception is NativeFirebaseException;
     }
 
     public static CrossPlatformFirebaseAuthException Create(Exception exception)
@@ -20,7 +20,6 @@ internal static class FirebaseAuthExceptionFactory
         }
 
         return new CrossPlatformFirebaseAuthException(
-            FirebaseAuthPlatform.Android,
             GetNativeExceptionTypeName(throwable),
             exception.Message,
             exception,

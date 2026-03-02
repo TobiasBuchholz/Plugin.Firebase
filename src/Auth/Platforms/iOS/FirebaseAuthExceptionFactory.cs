@@ -20,7 +20,6 @@ internal static class FirebaseAuthExceptionFactory
         }
 
         return new CrossPlatformFirebaseAuthException(
-            FirebaseAuthPlatform.iOS,
             nameof(NSError),
             nsErrorException.Error.LocalizedDescription ?? nsErrorException.Message,
             nsErrorException,

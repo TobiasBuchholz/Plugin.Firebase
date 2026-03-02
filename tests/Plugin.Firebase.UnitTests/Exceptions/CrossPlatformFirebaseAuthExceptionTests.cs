@@ -10,14 +10,12 @@ public class CrossPlatformFirebaseAuthExceptionTests
         var inner = new InvalidOperationException("inner");
 
         var ex = new CrossPlatformFirebaseAuthException(
-            FirebaseAuthPlatform.Android,
             FirebaseAuthAndroidExceptionTypeNames.InvalidCredentialsException,
             "Bad credentials",
             inner,
             nativeErrorCode: "ERROR_WRONG_PASSWORD"
         );
 
-        Assert.Equal(FirebaseAuthPlatform.Android, ex.Platform);
         Assert.Equal(
             FirebaseAuthAndroidExceptionTypeNames.InvalidCredentialsException,
             ex.NativeExceptionTypeName
@@ -34,7 +32,6 @@ public class CrossPlatformFirebaseAuthExceptionTests
         var inner = new InvalidOperationException("inner");
 
         var ex = new CrossPlatformFirebaseAuthException(
-            FirebaseAuthPlatform.iOS,
             "NSError",
             nativeErrorMessage: null,
             inner,
@@ -60,7 +57,6 @@ public class CrossPlatformFirebaseAuthExceptionTests
     )
     {
         var ex = new CrossPlatformFirebaseAuthException(
-            FirebaseAuthPlatform.Android,
             nativeExceptionTypeName,
             "message",
             new Exception("inner")
@@ -85,7 +81,6 @@ public class CrossPlatformFirebaseAuthExceptionTests
     )
     {
         var ex = new CrossPlatformFirebaseAuthException(
-            FirebaseAuthPlatform.iOS,
             "NSError",
             "message",
             new Exception("inner"),
@@ -102,7 +97,6 @@ public class CrossPlatformFirebaseAuthExceptionTests
     public void TryClassify_UnknownFailure_ReturnsNull()
     {
         var ex = new CrossPlatformFirebaseAuthException(
-            FirebaseAuthPlatform.Android,
             "com.google.firebase.auth.SomeNewException",
             "message",
             new Exception("inner")
@@ -111,5 +105,21 @@ public class CrossPlatformFirebaseAuthExceptionTests
         var failure = FirebaseAuthErrorClassifier.TryClassify(ex);
 
         Assert.Null(failure);
+    }
+
+    [Fact]
+    public void TryClassify_AndroidExceptionWithDomain_PrefersNativeDomainDispatch()
+    {
+        var ex = new CrossPlatformFirebaseAuthException(
+            FirebaseAuthAndroidExceptionTypeNames.InvalidCredentialsException,
+            "message",
+            new Exception("inner"),
+            nativeErrorDomain: "FIRAuthErrorDomain",
+            nativeErrorCode: "WeakPassword"
+        );
+
+        var failure = FirebaseAuthErrorClassifier.TryClassify(ex);
+
+        Assert.Equal(FirebaseAuthFailure.WeakPassword, failure);
     }
 }

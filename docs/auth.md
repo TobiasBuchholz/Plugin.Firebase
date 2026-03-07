@@ -109,6 +109,8 @@ In v5:
 - `SignOutAsync()` now follows the same unified exception model when the underlying native Auth SDK reports a failure.
 
 ## Release notes
+- Version 5.0.1
+  - Fix for wrong Core project version dependency at nuget.org
 - Version 5.0.0
   - Replace the normalized `FirebaseAuthException` / `FIRAuthError` model with `CrossPlatformFirebaseAuthException`.
   - Preserve native Firebase Auth exceptions in `InnerException` and expose platform-specific metadata for inspection.

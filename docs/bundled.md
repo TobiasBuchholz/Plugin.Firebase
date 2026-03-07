@@ -46,6 +46,8 @@ using Plugin.Firebase.Bundled.Platforms.Android;
 #endif
 ```
 ## Release notes
+- Version 4.2.1
+  - Plugin.Firebase.Auth 5.0.1
 - Version 4.2.0
   - Plugin.Firebase.Auth 5.0.0
   - Plugin.Firebase.Core 4.2.0

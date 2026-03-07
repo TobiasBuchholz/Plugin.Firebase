@@ -23,7 +23,7 @@
 
         <!--Assembly and Namespace info -->
         <PackageId>Plugin.Firebase.Auth</PackageId>
-        <PackageVersion>5.0.0</PackageVersion>
+        <PackageVersion>5.0.1</PackageVersion>
 
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/TobiasBuchholz/Plugin.Firebase</PackageProjectUrl>

@@ -1,5 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+    <Import Project="Plugin.Firebase.IntegrationTests.props.user" Condition="Exists('Plugin.Firebase.IntegrationTests.props.user')" />
+
 	<PropertyGroup>
 		<TargetFrameworks>net9.0-android;net9.0-ios</TargetFrameworks>
 		<OutputType>Exe</OutputType>
@@ -13,7 +15,8 @@
 		<ApplicationTitle>Plugin Firebase Integration Tests</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>plugin.firebase.integrationtests</ApplicationId>
+		<IntegrationTestsIosApplicationId Condition="'$(IntegrationTestsIosApplicationId)' == ''">plugin.firebase.integrationtests</IntegrationTestsIosApplicationId>
+		<IntegrationTestsAndroidApplicationId Condition="'$(IntegrationTestsAndroidApplicationId)' == ''">plugin.firebase.integrationtests</IntegrationTestsAndroidApplicationId>
 		<ApplicationIdGuid>06C3A02E-0965-4D7F-9E22-1902C6448F87</ApplicationIdGuid>
 
 		<!-- Versions -->
@@ -39,8 +42,13 @@
     
     <!-- ios entitlements -->
     <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
-        <CodesignEntitlements>Platforms\iOS\Entitlements.plist</CodesignEntitlements>
+        <ApplicationId>$(IntegrationTestsIosApplicationId)</ApplicationId>
+        <CodesignEntitlements Condition="'$(CodesignEntitlements)' == ''">Platforms\iOS\Entitlements.plist</CodesignEntitlements>
         <FirebaseCrashlyticsUploadSymbolsEnabled>false</FirebaseCrashlyticsUploadSymbolsEnabled>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+        <ApplicationId>$(IntegrationTestsAndroidApplicationId)</ApplicationId>
     </PropertyGroup>
 
     <!-- project references -->

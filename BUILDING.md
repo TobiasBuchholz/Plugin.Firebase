@@ -32,6 +32,22 @@ You must supply your own Firebase config files (not committed):
 - `GoogleService-Info.plist` (iOS)
 - `google-services.json` (Android)
 
+By default the integration test app uses the identifier `plugin.firebase.integrationtests`.
+You can override it per-platform via MSBuild properties or a local ignored file at `tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.props.user`:
+
+```xml
+<Project>
+  <PropertyGroup>
+    <IntegrationTestsIosApplicationId>com.example.integrationtests</IntegrationTestsIosApplicationId>
+    <CodesignEntitlements>Platforms\iOS\Entitlements.plist.user</CodesignEntitlements>
+  </PropertyGroup>
+</Project>
+```
+
+If you override the iOS application id for Firebase Auth, create the matching ignored entitlements file and set its keychain access group to `$(AppIdentifierPrefix)com.example.integrationtests`.
+
+Make sure your Firebase app registrations and generated config files match the identifier you actually build with.
+
 Build the iOS test app for a simulator:
 ```
 dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \

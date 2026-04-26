@@ -77,11 +77,54 @@ namespace Plugin.Firebase.IntegrationTests.Storage
 
         private static void AssertDownloadUrl(string pathToFile, string downloadUrl)
         {
-            var port = DeviceInfo.Platform == DevicePlatform.iOS ? ":443" : "";
+            var bucket = GetExpectedBucket();
+            var decodedUrl = WebUtility.UrlDecode(downloadUrl);
+            if(UsesStorageEmulator()) {
+                var uri = new Uri(decodedUrl);
+                var expectedHost = GetStorageEmulatorHost();
+                var expectedPort = GetStorageEmulatorPort();
 
+                Assert.Equal("http", uri.Scheme);
+                Assert.True(
+                    string.Equals(uri.Host, expectedHost, StringComparison.OrdinalIgnoreCase)
+                        || (string.Equals(expectedHost, "localhost", StringComparison.OrdinalIgnoreCase)
+                            && string.Equals(uri.Host, "127.0.0.1", StringComparison.OrdinalIgnoreCase)),
+                    $"Expected storage emulator host '{expectedHost}' but got '{uri.Host}'.");
+                Assert.Equal(expectedPort, uri.Port);
+                Assert.StartsWith($"/v0/b/{bucket}/o/{pathToFile}", uri.AbsolutePath);
+                Assert.Contains("alt=media", uri.Query, StringComparison.Ordinal);
+                Assert.Contains("token=", uri.Query, StringComparison.Ordinal);
+                return;
+            }
+
+            var port = DeviceInfo.Platform == DevicePlatform.iOS ? ":443" : "";
             Assert.StartsWith(
-                $"https://firebasestorage.googleapis.com{port}/v0/b/pluginfirebase-integrationtest.appspot.com/o/{pathToFile}?alt=media&token=",
-                WebUtility.UrlDecode(downloadUrl));
+                $"https://firebasestorage.googleapis.com{port}/v0/b/{bucket}/o/{pathToFile}?alt=media&token=",
+                decodedUrl);
+        }
+
+        private static string GetExpectedBucket()
+        {
+            return CrossFirebaseStorage.Current.GetRootReference().Bucket;
+        }
+
+        private static bool UsesStorageEmulator()
+        {
+            return Environment.GetEnvironmentVariable("PLUGIN_FIREBASE_USE_STORAGE_EMULATOR") == "1";
+        }
+
+        private static string GetStorageEmulatorHost()
+        {
+            var host = Environment.GetEnvironmentVariable("PLUGIN_FIREBASE_STORAGE_EMULATOR_HOST");
+            return string.IsNullOrWhiteSpace(host)
+                ? OperatingSystem.IsAndroid() ? "10.0.2.2" : "localhost"
+                : host;
+        }
+
+        private static int GetStorageEmulatorPort()
+        {
+            var portValue = Environment.GetEnvironmentVariable("PLUGIN_FIREBASE_STORAGE_EMULATOR_PORT");
+            return string.IsNullOrWhiteSpace(portValue) ? 9199 : int.Parse(portValue);
         }
 
         [Fact]

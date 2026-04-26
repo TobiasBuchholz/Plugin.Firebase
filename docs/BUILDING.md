@@ -261,6 +261,22 @@ Use the default Storage bucket. Create the following files:
 
 The `files_to_keep/` directory must contain exactly **3 files** (asserted by `lists_all_files`). All other storage paths (`texts/*`, `files_to_delete/*`) are created and cleaned up by the tests.
 
+If your Firebase project does not have a provisioned default bucket, you can run `StorageFixture` locally against the Storage emulator instead. The repository includes permissive emulator rules in `tests/cloud-functions/storage.rules`:
+
+```sh
+cd tests/cloud-functions
+firebase emulators:start --only storage
+```
+
+For iOS simulators, relaunch the app with:
+
+```sh
+SIMCTL_CHILD_PLUGIN_FIREBASE_USE_STORAGE_EMULATOR=1 \
+SIMCTL_CHILD_PLUGIN_FIREBASE_STORAGE_EMULATOR_HOST=localhost \
+SIMCTL_CHILD_PLUGIN_FIREBASE_STORAGE_EMULATOR_PORT=9199 \
+xcrun simctl launch --terminate-running-process <simulator-udid> <bundle-id>
+```
+
 ### App Check (optional)
 
 App Check is disabled by default in the integration tests (`AppCheckOptions.Disabled`). To run the optional App Check token test, set the environment variable `PLUGIN_FIREBASE_RUN_APPCHECK_TOKEN_TESTS=1` and configure `AppCheckOptions.Debug`.

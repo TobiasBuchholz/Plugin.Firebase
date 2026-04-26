@@ -2,6 +2,7 @@ using Microsoft.Maui.LifecycleEvents;
 using Plugin.Firebase.AppCheck;
 using Plugin.Firebase.Bundled.Shared;
 using Plugin.Firebase.Functions;
+using Plugin.Firebase.Storage;
 #if IOS
 using Foundation;
 using Plugin.Firebase.Bundled.Platforms.iOS;
@@ -32,12 +33,14 @@ public static class MauiProgram
                 EnsureFirebaseConfigPresent();
                 CrossFirebase.Initialize(CreateCrossFirebaseSettings());
                 ConfigureFunctionsEmulatorIfRequested();
+                ConfigureStorageEmulatorIfRequested();
                 return false;
             }));
 #elif ANDROID
             events.AddAndroid(android => android.OnCreate((activity, _) => {
                 CrossFirebase.Initialize(activity, () => Platform.CurrentActivity, CreateCrossFirebaseSettings());
                 ConfigureFunctionsEmulatorIfRequested();
+                ConfigureStorageEmulatorIfRequested();
             }));
 #endif
         });
@@ -102,6 +105,18 @@ public static class MauiProgram
         var host = GetEmulatorHost("PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_HOST");
         var port = GetEmulatorPort("PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_PORT", 5001);
         CrossFirebaseFunctions.Current.UseEmulator(host, port);
+    }
+
+    private static void ConfigureStorageEmulatorIfRequested()
+    {
+        var shouldUseStorageEmulator = Environment.GetEnvironmentVariable("PLUGIN_FIREBASE_USE_STORAGE_EMULATOR") == "1";
+        if(!shouldUseStorageEmulator) {
+            return;
+        }
+
+        var host = GetEmulatorHost("PLUGIN_FIREBASE_STORAGE_EMULATOR_HOST");
+        var port = GetEmulatorPort("PLUGIN_FIREBASE_STORAGE_EMULATOR_PORT", 9199);
+        CrossFirebaseStorage.Current.UseEmulator(host, port);
     }
 
     private static string GetEmulatorHost(string environmentVariableName)

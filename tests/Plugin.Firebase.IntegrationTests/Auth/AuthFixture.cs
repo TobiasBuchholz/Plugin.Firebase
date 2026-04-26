@@ -4,6 +4,7 @@ using Plugin.Firebase.Core.Exceptions;
 namespace Plugin.Firebase.IntegrationTests.Auth
 {
     [Collection("Sequential")]
+    [TestLogging]
     [Preserve(AllMembers = true)]
     public sealed class AuthFixture : IAsyncLifetime
     {

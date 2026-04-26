@@ -7,6 +7,8 @@ using Plugin.Firebase.Functions;
 using Plugin.Firebase.RemoteConfig;
 using Plugin.Firebase.Storage;
 
+    [Collection("Sequential")]
+    [TestLogging]
 namespace Plugin.Firebase.IntegrationTests
 {
     [Preserve(AllMembers = true)]

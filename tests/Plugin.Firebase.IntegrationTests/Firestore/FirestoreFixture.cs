@@ -3,6 +3,7 @@ using Plugin.Firebase.Firestore;
 namespace Plugin.Firebase.IntegrationTests.Firestore
 {
     [Collection("Sequential")]
+    [TestLogging]
     [Preserve(AllMembers = true)]
     public sealed class FirestoreFixture : IAsyncLifetime
     {

@@ -1,5 +1,7 @@
 using Plugin.Firebase.Functions;
 
+    [Collection("Sequential")]
+    [TestLogging]
 namespace Plugin.Firebase.IntegrationTests.Functions
 {
     [Preserve(AllMembers = true)]

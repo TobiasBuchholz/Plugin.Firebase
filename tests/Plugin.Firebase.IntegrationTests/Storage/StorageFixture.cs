@@ -4,6 +4,8 @@ using Plugin.Firebase.Storage;
 
 namespace Plugin.Firebase.IntegrationTests.Storage
 {
+    [Collection("Sequential")]
+    [TestLogging]
     [Preserve(AllMembers = true)]
     public sealed class StorageFixture : IDisposable
     {

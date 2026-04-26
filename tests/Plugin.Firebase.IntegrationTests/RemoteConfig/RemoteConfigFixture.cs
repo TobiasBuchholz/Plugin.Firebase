@@ -1,5 +1,7 @@
 using Plugin.Firebase.RemoteConfig;
 
+    [Collection("Sequential")]
+    [TestLogging]
 namespace Plugin.Firebase.IntegrationTests.RemoteConfig
 {
     [Preserve(AllMembers = true)]

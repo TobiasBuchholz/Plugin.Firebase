@@ -154,7 +154,7 @@ Make sure your Firebase app registrations and generated config files match the i
 
 ### Authentication
 
-1. Enable **Email/Password** sign-in provider.
+1. Enable the **Email/Password** and **Anonymous** sign-in providers.
 2. Create the following user manually (or via Firebase Admin SDK):
 
    | Email | Password | Custom Claims |
@@ -168,6 +168,7 @@ Make sure your Firebase app registrations and generated config files match the i
    ```
 
 3. All other test users (`sign-in-with-pw@test.com`, `to-delete@test.com`, etc.) are created and cleaned up automatically by the test suite via `createsUserAutomatically`.
+4. On iOS, `updates_user_email` is intentionally skipped. Firebase's direct email update flow now depends on deprecated project configuration, so the test is not portable to newly configured projects.
 
 ### Cloud Functions
 

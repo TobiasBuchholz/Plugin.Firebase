@@ -48,6 +48,11 @@ If you override the iOS application id for Firebase Auth, create the matching ig
 
 Make sure your Firebase app registrations and generated config files match the identifier you actually build with.
 
+For Firebase Auth integration tests, also:
+- Enable the `Email/Password` and `Anonymous` sign-in providers.
+- Create `custom-claims@test.com` with password `123456` and custom claims `{ "is_awesome": true }`.
+- Expect `updates_user_email` to be skipped on iOS because Firebase's direct email update flow now depends on deprecated project configuration.
+
 Build the iOS test app for a simulator:
 ```
 dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \

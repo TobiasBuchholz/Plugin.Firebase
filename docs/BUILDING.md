@@ -95,9 +95,35 @@ dotnet build Plugin.Firebase.sln
 
 ## Run tests
 
+Unit tests:
+
 ```sh
-dotnet test tests/
+dotnet test tests/Plugin.Firebase.UnitTests/Plugin.Firebase.UnitTests.csproj
 ```
+
+iOS integration tests build for simulator:
+
+```sh
+dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
+  -c Debug \
+  -f net9.0-ios \
+  -p:RuntimeIdentifier=iossimulator-arm64 \
+  -p:EnableCodeSigning=false
+```
+
+iOS integration tests launch on a specific simulator:
+
+```sh
+dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
+  -t:Run \
+  -c Debug \
+  -f net9.0-ios \
+  -p:RuntimeIdentifier=iossimulator-arm64 \
+  -p:_DeviceName=:v2:udid=<simulator-udid> \
+  -p:EnableCodeSigning=false
+```
+
+Use `xcrun simctl list devices available` to discover simulator UDIDs. The integration app uses the xUnit MAUI visual runner, so once the app launches you run the suite from the app UI.
 
 ## Firebase project setup for integration tests
 

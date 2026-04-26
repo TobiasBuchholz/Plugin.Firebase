@@ -65,7 +65,7 @@ dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationT
 ```
 
 ### Integration testing
-Integration tests require a real device and local Firebase config files. See `BUILDING.md` for setup and test commands.
+Integration tests require local Firebase config files and a real device or simulator. See `BUILDING.md` for setup and test commands.
 
 ### Manual testing with Playground sample
 Use the [Playground](sample/Playground) sample app for manual integration testing and exploratory validation on device/simulator. The app demonstrates real-world Firebase API usage and serves as a live integration test ground. See `sample/README.md` and `BUILDING.md` for setup and deployment instructions.

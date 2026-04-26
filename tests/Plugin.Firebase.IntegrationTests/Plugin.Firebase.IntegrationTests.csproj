@@ -84,4 +84,32 @@
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-android|AnyCPU'">
       <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
     </PropertyGroup>
+
+    <Target
+      Name="ResignSimulatorRuntimeLibraries"
+      AfterTargets="Build"
+      Condition="
+        $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'
+        and !$([System.String]::IsNullOrEmpty('$(RuntimeIdentifier)'))
+        and $([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('iossimulator'))
+      ">
+      <PropertyGroup>
+        <_SimulatorAppBundlePath>$(OutputPath)$(AssemblyName).app</_SimulatorAppBundlePath>
+      </PropertyGroup>
+
+      <!--
+        Xcode 26 / macOS 26 rejects the Microsoft-signed simulator runtime dylibs
+        with "Code Signature Invalid" before the test runner starts. Re-sign them
+        ad hoc to match the generated simulator app bundle.
+      -->
+      <Exec
+        Condition="Exists('$(_SimulatorAppBundlePath)/libxamarin-dotnet.dylib')"
+        Command="codesign --force --sign - &quot;$(_SimulatorAppBundlePath)/libxamarin-dotnet.dylib&quot;" />
+      <Exec
+        Condition="Exists('$(_SimulatorAppBundlePath)/libxamarin-dotnet-debug.dylib')"
+        Command="codesign --force --sign - &quot;$(_SimulatorAppBundlePath)/libxamarin-dotnet-debug.dylib&quot;" />
+      <Exec
+        Condition="Exists('$(_SimulatorAppBundlePath)')"
+        Command="codesign --force --sign - --deep &quot;$(_SimulatorAppBundlePath)&quot;" />
+    </Target>
 </Project>

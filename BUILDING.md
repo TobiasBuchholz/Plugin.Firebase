@@ -27,15 +27,34 @@ dotnet build src/Auth/Auth.csproj -c Release -f net9.0
 ```
 
 ## Tests (integration)
-Tests live under `tests/Plugin.Firebase.IntegrationTests` and run on a real device.
+Tests live under `tests/Plugin.Firebase.IntegrationTests` and run on a real device or simulator.
 You must supply your own Firebase config files (not committed):
 - `GoogleService-Info.plist` (iOS)
 - `google-services.json` (Android)
 
-Run:
+Build the iOS test app for a simulator:
 ```
-dotnet test tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj --no-build
+dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
+  -c Debug \
+  -f net9.0-ios \
+  -p:RuntimeIdentifier=iossimulator-arm64 \
+  -p:EnableCodeSigning=false
 ```
+
+Launch it on a specific simulator:
+```
+dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
+  -t:Run \
+  -c Debug \
+  -f net9.0-ios \
+  -p:RuntimeIdentifier=iossimulator-arm64 \
+  -p:_DeviceName=:v2:udid=<simulator-udid> \
+  -p:EnableCodeSigning=false
+```
+
+Use `xcrun simctl list devices available` to find a simulator UDID. The test app uses the xUnit MAUI visual runner, so once the app launches in the simulator, run the suite from the app UI.
+
+If you have multiple Xcode versions installed, make sure the selected Xcode matches the installed .NET iOS workload. You can either switch globally with `xcode-select --switch ...` or scope a single command with `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`.
 
 ## Formatting
 ```

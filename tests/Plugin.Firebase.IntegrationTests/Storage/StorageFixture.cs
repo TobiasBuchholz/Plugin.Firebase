@@ -7,8 +7,13 @@ namespace Plugin.Firebase.IntegrationTests.Storage
     [Collection("Sequential")]
     [TestLogging]
     [Preserve(AllMembers = true)]
-    public sealed class StorageFixture : IDisposable
+    public sealed class StorageFixture : IAsyncLifetime
     {
+        public Task InitializeAsync()
+        {
+            return Task.CompletedTask;
+        }
+
         [Fact]
         public void gets_root_reference()
         {
@@ -18,21 +23,22 @@ namespace Plugin.Firebase.IntegrationTests.Storage
             Assert.Null(reference.Parent);
             Assert.Equal("/", reference.FullPath);
             Assert.Equal("", reference.Name);
-            Assert.Equal("pluginfirebase-integrationtest.appspot.com", reference.Bucket);
+            Assert.Equal(GetExpectedBucket(), reference.Bucket);
         }
 
         [Fact]
         public void gets_reference_from_url()
         {
+            var bucket = GetExpectedBucket();
             var reference = CrossFirebaseStorage
                 .Current
-                .GetReferenceFromUrl("gs://pluginfirebase-integrationtest.appspot.com/files_to_keep/text_1.txt");
+                .GetReferenceFromUrl($"gs://{bucket}/files_to_keep/text_1.txt");
 
             Assert.NotNull(reference.Root);
             Assert.NotNull(reference.Parent);
             Assert.Equal("/files_to_keep/text_1.txt", reference.FullPath);
             Assert.Equal("text_1.txt", reference.Name);
-            Assert.Equal("pluginfirebase-integrationtest.appspot.com", reference.Bucket);
+            Assert.Equal(bucket, reference.Bucket);
         }
 
         [Fact]
@@ -46,7 +52,7 @@ namespace Plugin.Firebase.IntegrationTests.Storage
             Assert.NotNull(reference.Parent);
             Assert.Equal("/files_to_keep/text_1.txt", reference.FullPath);
             Assert.Equal("text_1.txt", reference.Name);
-            Assert.Equal("pluginfirebase-integrationtest.appspot.com", reference.Bucket);
+            Assert.Equal(GetExpectedBucket(), reference.Bucket);
         }
 
         [Fact]
@@ -60,7 +66,7 @@ namespace Plugin.Firebase.IntegrationTests.Storage
             Assert.NotNull(reference.Parent);
             Assert.Equal("/files_to_keep/text_1.txt", reference.FullPath);
             Assert.Equal("text_1.txt", reference.Name);
-            Assert.Equal("pluginfirebase-integrationtest.appspot.com", reference.Bucket);
+            Assert.Equal(GetExpectedBucket(), reference.Bucket);
         }
 
         [Fact]
@@ -285,12 +291,24 @@ namespace Plugin.Firebase.IntegrationTests.Storage
             Assert.Empty((await reference.ListAllAsync()).Items);
         }
 
-        public async void Dispose()
+        public async Task DisposeAsync()
         {
+            TestLog.Write("[STORAGE CLEANUP START]");
             var rootReference = CrossFirebaseStorage.Current.GetRootReference();
-            var filesToDelete = (await rootReference.GetChild("files_to_delete").ListAllAsync()).Items;
-            var texts = (await rootReference.GetChild("texts").ListAllAsync()).Items;
+            var filesToDelete = await ListItemsIfExistsAsync(rootReference.GetChild("files_to_delete"));
+            var texts = await ListItemsIfExistsAsync(rootReference.GetChild("texts"));
             await Task.WhenAll(filesToDelete.Select(TryDeleteAsync).Concat(texts.Select(TryDeleteAsync)));
+            TestLog.Write("[STORAGE CLEANUP END]");
+        }
+
+        private static async Task<IEnumerable<IStorageReference>> ListItemsIfExistsAsync(IStorageReference reference)
+        {
+            try {
+                return (await reference.ListAllAsync()).Items;
+            } catch(Exception e) when (e.Message.Contains("does not exist", StringComparison.OrdinalIgnoreCase)) {
+                TestLog.Write($"[STORAGE CLEANUP SKIP] {reference.FullPath}: {e.Message}");
+                return Array.Empty<IStorageReference>();
+            }
         }
 
         private static async Task TryDeleteAsync(IStorageReference reference)
@@ -298,7 +316,7 @@ namespace Plugin.Firebase.IntegrationTests.Storage
             try {
                 await reference.DeleteAsync();
             } catch(Exception e) {
-                Console.WriteLine(e);
+                TestLog.Write($"[STORAGE CLEANUP ERROR] {reference.FullPath}: {e}");
             }
         }
     }

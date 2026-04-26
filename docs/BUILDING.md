@@ -191,6 +191,22 @@ cd ..
 firebase deploy --only functions
 ```
 
+If your Firebase project stays on the Spark plan, you can still run `FunctionsFixture` locally against the Functions emulator instead of deploying:
+
+```sh
+cd tests/cloud-functions
+firebase emulators:start --only functions
+```
+
+For iOS simulators, relaunch the app with:
+
+```sh
+SIMCTL_CHILD_PLUGIN_FIREBASE_USE_FUNCTIONS_EMULATOR=1 \
+SIMCTL_CHILD_PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_HOST=localhost \
+SIMCTL_CHILD_PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_PORT=5001 \
+xcrun simctl launch --terminate-running-process <simulator-udid> <bundle-id>
+```
+
 Required functions:
 
 | Function | Type | Purpose |

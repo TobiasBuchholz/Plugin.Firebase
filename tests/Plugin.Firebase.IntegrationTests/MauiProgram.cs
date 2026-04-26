@@ -1,6 +1,7 @@
 using Microsoft.Maui.LifecycleEvents;
 using Plugin.Firebase.AppCheck;
 using Plugin.Firebase.Bundled.Shared;
+using Plugin.Firebase.Functions;
 #if IOS
 using Foundation;
 using Plugin.Firebase.Bundled.Platforms.iOS;
@@ -30,11 +31,14 @@ public static class MauiProgram
             events.AddiOS(iOS => iOS.WillFinishLaunching((_,__) => {
                 EnsureFirebaseConfigPresent();
                 CrossFirebase.Initialize(CreateCrossFirebaseSettings());
+                ConfigureFunctionsEmulatorIfRequested();
                 return false;
             }));
 #elif ANDROID
-            events.AddAndroid(android => android.OnCreate((activity, _) =>
-                CrossFirebase.Initialize(activity, () => Platform.CurrentActivity, CreateCrossFirebaseSettings())));
+            events.AddAndroid(android => android.OnCreate((activity, _) => {
+                CrossFirebase.Initialize(activity, () => Platform.CurrentActivity, CreateCrossFirebaseSettings());
+                ConfigureFunctionsEmulatorIfRequested();
+            }));
 #endif
         });
         return builder;
@@ -86,5 +90,40 @@ public static class MauiProgram
             isRemoteConfigEnabled: true,
             isStorageEnabled: true,
             appCheckOptions: AppCheckOptions.Disabled);
+    }
+
+    private static void ConfigureFunctionsEmulatorIfRequested()
+    {
+        var shouldUseFunctionsEmulator = Environment.GetEnvironmentVariable("PLUGIN_FIREBASE_USE_FUNCTIONS_EMULATOR") == "1";
+        if(!shouldUseFunctionsEmulator) {
+            return;
+        }
+
+        var host = GetEmulatorHost("PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_HOST");
+        var port = GetEmulatorPort("PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_PORT", 5001);
+        CrossFirebaseFunctions.Current.UseEmulator(host, port);
+    }
+
+    private static string GetEmulatorHost(string environmentVariableName)
+    {
+        var host = Environment.GetEnvironmentVariable(environmentVariableName);
+        return string.IsNullOrWhiteSpace(host)
+            ? OperatingSystem.IsAndroid() ? "10.0.2.2" : "localhost"
+            : host;
+    }
+
+    private static int GetEmulatorPort(string environmentVariableName, int defaultPort)
+    {
+        var portValue = Environment.GetEnvironmentVariable(environmentVariableName);
+        if(string.IsNullOrWhiteSpace(portValue)) {
+            return defaultPort;
+        }
+
+        if(!int.TryParse(portValue, out var port)) {
+            throw new InvalidOperationException(
+                $"{environmentVariableName} must be an integer, but was '{portValue}'.");
+        }
+
+        return port;
     }
 }

@@ -75,6 +75,22 @@ dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationT
 
 Use `xcrun simctl list devices available` to find a simulator UDID. The test app uses the xUnit MAUI visual runner, so once the app launches in the simulator, run the suite from the app UI.
 
+To route Cloud Functions calls to the local emulator on an iOS simulator, start the emulator:
+```
+cd tests/cloud-functions
+firebase emulators:start --only functions
+```
+
+Then launch the installed app through `simctl` with child environment variables:
+```
+SIMCTL_CHILD_PLUGIN_FIREBASE_USE_FUNCTIONS_EMULATOR=1 \
+SIMCTL_CHILD_PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_HOST=localhost \
+SIMCTL_CHILD_PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_PORT=5001 \
+xcrun simctl launch --terminate-running-process <simulator-udid> <bundle-id>
+```
+
+If `PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_HOST` is omitted, the integration app defaults to `localhost` on iOS and `10.0.2.2` on Android. If `PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_PORT` is omitted, it defaults to `5001`.
+
 If you have multiple Xcode versions installed, make sure the selected Xcode matches the installed .NET iOS workload. You can either switch globally with `xcode-select --switch ...` or scope a single command with `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`.
 
 ## Formatting

@@ -7,9 +7,13 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
     [Preserve(AllMembers = true)]
     public sealed class FirestoreFixture : IAsyncLifetime
     {
-        public Task InitializeAsync()
+        private static readonly SemaphoreSlim SeedLock = new(1, 1);
+        private static bool _basePokemonsSeeded;
+        private readonly string _testingCollectionPath = $"testing_{Guid.NewGuid():N}";
+
+        public async Task InitializeAsync()
         {
-            return Task.CompletedTask;
+            await EnsureBasePokemonsSeededAsync();
         }
 
         [Fact]
@@ -17,8 +21,8 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         {
             var sut = CrossFirebaseFirestore.Current;
             var pokemon = PokemonFactory.CreateBulbasur();
-            var path = $"testing/{pokemon.Id}";
-            var document = sut.GetDocument(path);
+            var path = TestingDocumentPath(pokemon.Id);
+            var document = GetTestingDocument(sut, pokemon.Id);
 
             await document.SetDataAsync(pokemon);
 
@@ -34,12 +38,13 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         {
             var sut = CrossFirebaseFirestore.Current;
             var pokemon = PokemonFactory.CreateBulbasur();
-            var path = $"testing/{pokemon.Id}";
+            var path = TestingDocumentPath(pokemon.Id);
 
-            var document = sut.GetDocument(path);
+            var document = GetTestingDocument(sut, pokemon.Id);
             await document.SetDataAsync(pokemon);
 
-            var snapshot = await sut.GetDocument(path).GetDocumentSnapshotAsync<Pokemon>(Source.Server);
+            var snapshot = await GetTestingDocument(sut, pokemon.Id)
+                .GetDocumentSnapshotAsync<Pokemon>(Source.Server);
             Assert.NotEqual(snapshot.Data.ServerTimestamp, DateTimeOffset.MinValue);
             Assert.NotEqual(snapshot.Data.ServerTimestamp, DateTimeOffset.Now);
         }
@@ -49,8 +54,8 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         {
             var sut = CrossFirebaseFirestore.Current;
             var pokemon = PokemonFactory.CreateSquirtle();
-            var path = $"testing/{pokemon.Id}";
-            var document = sut.GetDocument(path);
+            var path = TestingDocumentPath(pokemon.Id);
+            var document = GetTestingDocument(sut, pokemon.Id);
 
             await document.SetDataAsync(pokemon);
             Assert.Equal(pokemon, (await document.GetDocumentSnapshotAsync<Pokemon>()).Data);
@@ -76,9 +81,9 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             var bulbasur = PokemonFactory.CreateBulbasur();
             var charmander = PokemonFactory.CreateCharmander();
             var squirtle = PokemonFactory.CreateSquirtle();
-            var documentBulbasur = sut.GetDocument("testing/1");
-            var documentCharmander = sut.GetDocument("testing/4");
-            var documentSquirtle = sut.GetDocument("testing/7");
+            var documentBulbasur = GetTestingDocument(sut, "1");
+            var documentCharmander = GetTestingDocument(sut, "4");
+            var documentSquirtle = GetTestingDocument(sut, "7");
             var otherMoves = new[] { "other_move", "another_move" };
             await documentBulbasur.SetDataAsync(bulbasur);
             await documentCharmander.SetDataAsync(charmander);
@@ -109,9 +114,9 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             var bulbasur = PokemonFactory.CreateBulbasur();
             var charmander = PokemonFactory.CreateCharmander();
             var squirtle = PokemonFactory.CreateSquirtle();
-            var documentBulbasur = sut.GetDocument("testing/1");
-            var documentCharmander = sut.GetDocument("testing/4");
-            var documentSquirtle = sut.GetDocument("testing/7");
+            var documentBulbasur = GetTestingDocument(sut, "1");
+            var documentCharmander = GetTestingDocument(sut, "4");
+            var documentSquirtle = GetTestingDocument(sut, "7");
             await documentBulbasur.SetDataAsync(bulbasur);
             await documentCharmander.SetDataAsync(charmander);
 
@@ -284,7 +289,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         public async Task gets_real_time_updates_on_single_document()
         {
             var sut = CrossFirebaseFirestore.Current;
-            var document = sut.GetDocument("testing/1");
+            var document = GetTestingDocument(sut, "1");
             await document.SetDataAsync(PokemonFactory.CreateBulbasur());
 
             var sightingCounts = new List<long>();
@@ -308,8 +313,8 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         {
             var sut = CrossFirebaseFirestore.Current;
             var pokemon = PokemonFactory.CreateCharmeleon();
-            var path = $"testing/{pokemon.Id}";
-            var document = sut.GetDocument(path);
+            var path = TestingDocumentPath(pokemon.Id);
+            var document = GetTestingDocument(sut, pokemon.Id);
 
             await document.SetDataAsync(pokemon);
 
@@ -333,10 +338,40 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         }
 
         [Fact]
+        public async Task updates_nested_map_and_datetime_values()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var pokemon = PokemonFactory.CreateSquirtle();
+            var path = TestingDocumentPath(pokemon.Id);
+            var document = GetTestingDocument(sut, pokemon.Id);
+            var expectedCreationDate = new DateTime(2024, 1, 2, 3, 4, 5, 678, DateTimeKind.Utc);
+            var expectedLocation = new SightingLocation(13.37, 42.24);
+
+            await document.SetDataAsync(pokemon);
+            await document.UpdateDataAsync(
+                ("creation_date", expectedCreationDate),
+                ("first_sighting_location", new Dictionary<object, object> {
+                    { "latitude", expectedLocation.Latitude },
+                    { "longitude", expectedLocation.Longitude }
+                }),
+                ("other_properties", new Dictionary<object, object> {
+                    { "legs", 4L },
+                    { "colors", 3L }
+                })
+            );
+
+            var snapshot = await document.GetDocumentSnapshotAsync<Pokemon>();
+            Assert.InRange(Math.Abs(snapshot.Data.CreationDate.Ticks - expectedCreationDate.Ticks), 0, 10);
+            Assert.Equal(expectedLocation, snapshot.Data.FirstSightingLocation);
+            Assert.Equal(4L, snapshot.Data.OtherProperties["legs"]);
+            Assert.Equal(3L, snapshot.Data.OtherProperties["colors"]);
+        }
+
+        [Fact]
         public async Task gets_real_time_updates_on_multiple_documents()
         {
             var sut = CrossFirebaseFirestore.Current;
-            var collection = sut.GetCollection("testing");
+            var collection = GetTestingCollection(sut);
 
             var changes = new List<IEnumerable<(DocumentChangeType, string)>>();
             var disposable = collection
@@ -380,14 +415,14 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         {
             var sut = CrossFirebaseFirestore.Current;
             var pokemon = PokemonFactory.CreateCharmander();
-            var path = $"testing/{pokemon.Id}";
-            var document = sut.GetDocument(path);
+            var path = TestingDocumentPath(pokemon.Id);
+            var document = GetTestingDocument(sut, pokemon.Id);
 
             await document.SetDataAsync(pokemon);
-            Assert.NotNull((await sut.GetDocument(path).GetDocumentSnapshotAsync<Pokemon>()).Data);
+            Assert.NotNull((await GetTestingDocument(sut, pokemon.Id).GetDocumentSnapshotAsync<Pokemon>()).Data);
 
             await document.DeleteDocumentAsync();
-            Assert.Null((await sut.GetDocument(path).GetDocumentSnapshotAsync<Pokemon>()).Data);
+            Assert.Null((await GetTestingDocument(sut, pokemon.Id).GetDocumentSnapshotAsync<Pokemon>()).Data);
         }
 
         [Fact]
@@ -395,8 +430,8 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         {
             var sut = CrossFirebaseFirestore.Current;
             var pokemon = PokemonFactory.CreateCharmander();
-            var path = $"testing/{pokemon.Id}";
-            var document = sut.GetDocument(path);
+            var path = TestingDocumentPath(pokemon.Id);
+            var document = GetTestingDocument(sut, pokemon.Id);
             await document.SetDataAsync(pokemon);
 
             await document.UpdateDataAsync(
@@ -417,8 +452,8 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         {
             var sut = CrossFirebaseFirestore.Current;
             var item = new SimpleItem(title: "test");
-            var path = $"testing/1337";
-            var document = sut.GetDocument(path);
+            var path = TestingDocumentPath("1337");
+            var document = GetTestingDocument(sut, "1337");
 
             await document.SetDataAsync(item);
 
@@ -434,8 +469,8 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             var bulbasurReference = sut.GetDocument($"pokemons/1");
             var bulbasur = (await bulbasurReference.GetDocumentSnapshotAsync<Pokemon>()).Data;
             var copy = bulbasur.Clone(bulbasurReference);
-            var copyPath = $"testing/{copy.Id}";
-            var copyDocument = sut.GetDocument(copyPath);
+            var copyPath = TestingDocumentPath(copy.Id);
+            var copyDocument = GetTestingDocument(sut, copy.Id);
             await copyDocument.SetDataAsync(copy);
 
             var copySnapshot = await copyDocument.GetDocumentSnapshotAsync<Pokemon>();
@@ -450,10 +485,10 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         {
             var sut = CrossFirebaseFirestore.Current;
             var pokemon = PokemonFactory.CreateBulbasur();
-            var path = $"testing/{pokemon.Id}";
+            var path = TestingDocumentPath(pokemon.Id);
             var subCollectionName = "sub_items";
             var subCollectionPath = $"{path}/{subCollectionName}";
-            var document = sut.GetDocument(path);
+            var document = GetTestingDocument(sut, pokemon.Id);
             var subDocument = sut.GetDocument($"{subCollectionPath}/123");
 
             await document.SetDataAsync(pokemon);
@@ -469,7 +504,54 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
 
         public async Task DisposeAsync()
         {
-            await CrossFirebaseFirestore.Current.DeleteCollectionAsync<Pokemon>("testing", batchSize: 10);
+            TestLog.Write($"[FIRESTORE CLEANUP START] {_testingCollectionPath}");
+
+            try {
+                await CrossFirebaseFirestore.Current
+                    .DeleteCollectionAsync<Pokemon>(_testingCollectionPath, batchSize: 10)
+                    .WaitAsync(TimeSpan.FromSeconds(15));
+                TestLog.Write($"[FIRESTORE CLEANUP END] {_testingCollectionPath}");
+            } catch(TimeoutException) {
+                TestLog.Write($"[FIRESTORE CLEANUP TIMEOUT] {_testingCollectionPath}");
+            } catch(Exception e) {
+                TestLog.Write($"[FIRESTORE CLEANUP ERROR] {_testingCollectionPath}: {e}");
+            }
+        }
+
+        private string TestingDocumentPath(string documentId)
+        {
+            return $"{_testingCollectionPath}/{documentId}";
+        }
+
+        private IDocumentReference GetTestingDocument(IFirebaseFirestore firestore, string documentId)
+        {
+            return firestore.GetDocument(TestingDocumentPath(documentId));
+        }
+
+        private ICollectionReference GetTestingCollection(IFirebaseFirestore firestore)
+        {
+            return firestore.GetCollection(_testingCollectionPath);
+        }
+
+        private static async Task EnsureBasePokemonsSeededAsync()
+        {
+            if(_basePokemonsSeeded) {
+                return;
+            }
+
+            await SeedLock.WaitAsync();
+            try {
+                if(_basePokemonsSeeded) {
+                    return;
+                }
+
+                TestLog.Write("[FIRESTORE SEED START] pokemons");
+                await PokemonFactory.CreateBasePokemonsAtFirestoreAsync();
+                _basePokemonsSeeded = true;
+                TestLog.Write("[FIRESTORE SEED END] pokemons");
+            } finally {
+                SeedLock.Release();
+            }
         }
     }
 }

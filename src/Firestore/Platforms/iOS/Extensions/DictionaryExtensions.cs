@@ -18,7 +18,12 @@ public static class DictionaryExtensions
     )
     {
         if(dictionary.Count > 0) {
-            var nsDictionary = new NSMutableDictionary<NSString, NSObject>();
+            if(dictionary is NSDictionary nsDictionary) {
+                // NSDictionary implements IDictionary, but doesn't enumerate as DictionaryEntries, so we have to treat it special.
+                return nsDictionary.ToNSStringDictionary();
+            }
+
+            var nsMutableDictionary = new NSMutableDictionary<NSString, NSObject>();
 
             foreach(DictionaryEntry entry in dictionary) {
                 PutIntoNSDictionary(
@@ -26,17 +31,33 @@ public static class DictionaryExtensions
                         entry.Key.ToString() ?? throw new ArgumentException("Dictionary contains a null key."),
                         entry.Value
                     ),
-                    ref nsDictionary
+                    ref nsMutableDictionary
                 );
             }
             return NSDictionary<NSString, NSObject>.FromObjectsAndKeys(
-                nsDictionary.Values.ToArray(),
-                nsDictionary.Keys.ToArray(),
-                (nint) nsDictionary.Count
+                nsMutableDictionary.Values.ToArray(),
+                nsMutableDictionary.Keys.ToArray(),
+                (nint) nsMutableDictionary.Count
             );
         } else {
             return new NSDictionary<NSString, NSObject>();
         }
+    }
+
+    private static NSDictionary<NSString, NSObject> ToNSStringDictionary(this NSDictionary dictionary)
+    {
+        var mutableDictionary = new NSMutableDictionary<NSString, NSObject>();
+        foreach(var key in dictionary.Keys) {
+            var value = dictionary.ObjectForKey(key);
+            mutableDictionary.Add(
+                (NSString) (key.ToString() ?? throw new ArgumentException("Dictionary contains a null key.")),
+                value ?? throw new ArgumentException("Dictionary contains a null value.")
+            );
+        }
+        return NSDictionary<NSString, NSObject>.FromObjectsAndKeys(
+            mutableDictionary.Values.ToArray(),
+            mutableDictionary.Keys.ToArray(),
+            (nint) mutableDictionary.Count);
     }
 
     private static void PutIntoNSDictionary(

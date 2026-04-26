@@ -1,9 +1,9 @@
 using Plugin.Firebase.Functions;
 
-    [Collection("Sequential")]
-    [TestLogging]
 namespace Plugin.Firebase.IntegrationTests.Functions
 {
+    [Collection("Sequential")]
+    [TestLogging]
     [Preserve(AllMembers = true)]
     public sealed class FunctionsFixture
     {

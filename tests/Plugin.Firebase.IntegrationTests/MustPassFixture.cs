@@ -7,10 +7,10 @@ using Plugin.Firebase.Functions;
 using Plugin.Firebase.RemoteConfig;
 using Plugin.Firebase.Storage;
 
-    [Collection("Sequential")]
-    [TestLogging]
 namespace Plugin.Firebase.IntegrationTests
 {
+    [Collection("Sequential")]
+    [TestLogging]
     [Preserve(AllMembers = true)]
     public class MustPassFixture
     {

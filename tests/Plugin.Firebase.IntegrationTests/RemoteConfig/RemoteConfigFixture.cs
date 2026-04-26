@@ -1,9 +1,9 @@
 using Plugin.Firebase.RemoteConfig;
 
-    [Collection("Sequential")]
-    [TestLogging]
 namespace Plugin.Firebase.IntegrationTests.RemoteConfig
 {
+    [Collection("Sequential")]
+    [TestLogging]
     [Preserve(AllMembers = true)]
     public sealed class RemoteConfigFixture
     {

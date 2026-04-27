@@ -1,6 +1,9 @@
 using System.Net;
 using System.Text;
 using Plugin.Firebase.Storage;
+#if ANDROID
+using AndroidRuntime = Android.Runtime;
+#endif
 
 namespace Plugin.Firebase.IntegrationTests.Storage
 {
@@ -9,9 +12,12 @@ namespace Plugin.Firebase.IntegrationTests.Storage
     [Preserve(AllMembers = true)]
     public sealed class StorageFixture : IAsyncLifetime
     {
-        public Task InitializeAsync()
+        private static readonly SemaphoreSlim SeedLock = new(1, 1);
+        private static bool _storageEmulatorSeeded;
+
+        public async Task InitializeAsync()
         {
-            return Task.CompletedTask;
+            await EnsureStorageEmulatorSeedDataAsync();
         }
 
         [Fact]
@@ -116,12 +122,17 @@ namespace Plugin.Firebase.IntegrationTests.Storage
 
         private static bool UsesStorageEmulator()
         {
-            return Environment.GetEnvironmentVariable("PLUGIN_FIREBASE_USE_STORAGE_EMULATOR") == "1";
+            return string.Equals(
+                GetConfigurationValue("PLUGIN_FIREBASE_USE_STORAGE_EMULATOR", "debug.pluginfirebase.storage.use"),
+                "1",
+                StringComparison.Ordinal);
         }
 
         private static string GetStorageEmulatorHost()
         {
-            var host = Environment.GetEnvironmentVariable("PLUGIN_FIREBASE_STORAGE_EMULATOR_HOST");
+            var host = GetConfigurationValue(
+                "PLUGIN_FIREBASE_STORAGE_EMULATOR_HOST",
+                "debug.pluginfirebase.storage.host");
             return string.IsNullOrWhiteSpace(host)
                 ? OperatingSystem.IsAndroid() ? "10.0.2.2" : "localhost"
                 : host;
@@ -129,9 +140,58 @@ namespace Plugin.Firebase.IntegrationTests.Storage
 
         private static int GetStorageEmulatorPort()
         {
-            var portValue = Environment.GetEnvironmentVariable("PLUGIN_FIREBASE_STORAGE_EMULATOR_PORT");
+            var portValue = GetConfigurationValue(
+                "PLUGIN_FIREBASE_STORAGE_EMULATOR_PORT",
+                "debug.pluginfirebase.storage.port");
             return string.IsNullOrWhiteSpace(portValue) ? 9199 : int.Parse(portValue);
         }
+
+        private static string GetConfigurationValue(string environmentVariableName, string androidSystemPropertyName)
+        {
+            var environmentVariableValue = Environment.GetEnvironmentVariable(environmentVariableName);
+            if(!string.IsNullOrWhiteSpace(environmentVariableValue)) {
+                return environmentVariableValue;
+            }
+
+#if ANDROID
+            return GetAndroidSystemProperty(androidSystemPropertyName);
+#else
+            return null;
+#endif
+        }
+
+#if ANDROID
+        private static string GetAndroidSystemProperty(string propertyName)
+        {
+            IntPtr? propertyValuePointer = null;
+
+            try {
+                var systemPropertiesClass = AndroidRuntime.JNIEnv.FindClass("android/os/SystemProperties");
+                var getMethodId = AndroidRuntime.JNIEnv.GetStaticMethodID(
+                    systemPropertiesClass,
+                    "get",
+                    "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;");
+
+                using var propertyNameValue = new Java.Lang.String(propertyName);
+                using var defaultValue = new Java.Lang.String(string.Empty);
+                propertyValuePointer = AndroidRuntime.JNIEnv.CallStaticObjectMethod(
+                    systemPropertiesClass,
+                    getMethodId,
+                    new AndroidRuntime.JValue(propertyNameValue),
+                    new AndroidRuntime.JValue(defaultValue));
+
+                return AndroidRuntime.JNIEnv.GetString(
+                    propertyValuePointer.Value,
+                    AndroidRuntime.JniHandleOwnership.DoNotTransfer);
+            } catch {
+                return null;
+            } finally {
+                if(propertyValuePointer.HasValue && propertyValuePointer.Value != IntPtr.Zero) {
+                    AndroidRuntime.JNIEnv.DeleteLocalRef(propertyValuePointer.Value);
+                }
+            }
+        }
+#endif
 
         [Fact]
         public async Task uploads_via_byte_array()
@@ -318,6 +378,50 @@ namespace Plugin.Firebase.IntegrationTests.Storage
             } catch(Exception e) {
                 TestLog.Write($"[STORAGE CLEANUP ERROR] {reference.FullPath}: {e}");
             }
+        }
+
+        private static async Task EnsureStorageEmulatorSeedDataAsync()
+        {
+            if(!UsesStorageEmulator() || _storageEmulatorSeeded) {
+                return;
+            }
+
+            await SeedLock.WaitAsync();
+            try {
+                if(_storageEmulatorSeeded) {
+                    return;
+                }
+
+                var rootReference = CrossFirebaseStorage.Current.GetRootReference();
+                var filesToKeep = rootReference.GetChild("files_to_keep");
+                var existingItems = await ListItemsIfExistsAsync(filesToKeep);
+                await Task.WhenAll(existingItems.Select(x => x.DeleteAsync()));
+
+                await EnsureSeedFileAsync(
+                    filesToKeep,
+                    "text_1.txt",
+                    "0123456789012345678901234567890123"u8.ToArray());
+                await EnsureSeedFileAsync(
+                    filesToKeep,
+                    "text_2.txt",
+                    Encoding.UTF8.GetBytes("text-file-two"));
+                await EnsureSeedFileAsync(
+                    filesToKeep,
+                    "text_3.txt",
+                    Encoding.UTF8.GetBytes("text-file-three"));
+
+                _storageEmulatorSeeded = true;
+            } finally {
+                SeedLock.Release();
+            }
+        }
+
+        private static async Task EnsureSeedFileAsync(
+            IStorageReference parentReference,
+            string fileName,
+            byte[] contents)
+        {
+            await parentReference.GetChild(fileName).PutBytes(contents).AwaitAsync();
         }
     }
 }

@@ -56,8 +56,8 @@ var settings = new CrossFirebaseSettings(isAnalyticsEnabled: true);
 Take a look at the [documentation](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents/blob/master/docs/Firebase/Analytics/GettingStarted.md) for the AdamE.Firebase.iOS.Analytics packages, because Plugin.Firebase's code is abstracted but still very similar.
 
 Since code should be documenting itself you can also take a look at the following classes:
-- [src/.../IFirebaseAnalytics.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/src/Analytics/Shared/IFirebaseAnalytics.cs)
-- [tests/.../AnalyticsFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/tests/Plugin.Firebase.IntegrationTests/Analytics/AnalyticsFixture.cs)
+- [src/.../IFirebaseAnalytics.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Analytics/Shared/IFirebaseAnalytics.cs)
+- [tests/.../AnalyticsFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Analytics/AnalyticsFixture.cs)
 
 ## Release notes
 - Version 3.1.2

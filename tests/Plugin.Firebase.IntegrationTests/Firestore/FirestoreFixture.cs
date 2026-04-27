@@ -34,6 +34,40 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         }
 
         [Fact]
+        public async Task creates_document_with_auto_generated_reference()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var collection = GetTestingCollection(sut);
+            var document = collection.CreateDocument();
+            var item = new SimpleItem("generated-item");
+
+            await document.SetDataAsync(item);
+
+            var snapshot = await document.GetDocumentSnapshotAsync<SimpleItem>();
+            Assert.False(string.IsNullOrWhiteSpace(document.Id));
+            Assert.False(string.IsNullOrWhiteSpace(document.Path));
+            Assert.Equal(document.Id, snapshot.Reference.Id);
+            Assert.Equal(document.Id, snapshot.Data.Id);
+            Assert.Equal("generated-item", snapshot.Data.Title);
+        }
+
+        [Fact]
+        public async Task adds_document_with_auto_generated_id()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var collection = GetTestingCollection(sut);
+
+            var document = await collection.AddDocumentAsync(new SimpleItem("added-item"));
+
+            var snapshot = await document.GetDocumentSnapshotAsync<SimpleItem>();
+            Assert.False(string.IsNullOrWhiteSpace(document.Id));
+            Assert.False(string.IsNullOrWhiteSpace(document.Path));
+            Assert.Equal(document.Id, snapshot.Reference.Id);
+            Assert.Equal(document.Id, snapshot.Data.Id);
+            Assert.Equal("added-item", snapshot.Data.Title);
+        }
+
+        [Fact]
         public async Task sets_server_timestamp_via_property_attribute()
         {
             var sut = CrossFirebaseFirestore.Current;
@@ -197,6 +231,28 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         }
 
         [Fact]
+        public async Task uses_field_path_overloads()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var nestedFieldPath = FieldPath.Of(new[] { "first_sighting_location", "latitude" });
+
+            var nestedPathResults = await sut
+                .GetCollection("pokemons")
+                .WhereEqualsTo(nestedFieldPath, 52.5042112)
+                .GetDocumentsAsync<Pokemon>();
+
+            var documentIdResults = await sut
+                .GetCollection("pokemons")
+                .OrderBy(FieldPath.DocumentId())
+                .StartingAt("2")
+                .EndingAt("4")
+                .GetDocumentsAsync<Pokemon>();
+
+            Assert.Equal(9, nestedPathResults.Count);
+            Assert.Equal(new[] { "2", "3", "4" }, documentIdResults.Documents.Select(x => x.Data.Id));
+        }
+
+        [Fact]
         public async Task orders_and_limits_data()
         {
             var sut = CrossFirebaseFirestore.Current;
@@ -208,6 +264,20 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 .GetDocumentsAsync<Pokemon>();
 
             Assert.Equal(new[] { "Wartortle", "Venusaur", "Squirtle" }, pokemons.Documents.Select(x => x.Data.Name));
+        }
+
+        [Fact]
+        public async Task uses_limited_to_last()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+
+            var pokemons = await sut
+                .GetCollection("pokemons")
+                .OrderBy("name")
+                .LimitedToLast(3)
+                .GetDocumentsAsync<Pokemon>();
+
+            Assert.Equal(new[] { "Squirtle", "Venusaur", "Wartortle" }, pokemons.Documents.Select(x => x.Data.Name));
         }
 
         [Fact]
@@ -252,6 +322,34 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         }
 
         [Fact]
+        public async Task uses_snapshot_end_cursors()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var snapshot = await sut
+                .GetDocument("pokemons/7")
+                .GetDocumentSnapshotAsync<Pokemon>();
+
+            var endingAt = await sut
+                .GetCollection("pokemons")
+                .OrderBy("name")
+                .EndingAt(snapshot)
+                .GetDocumentsAsync<Pokemon>();
+
+            var endingBefore = await sut
+                .GetCollection("pokemons")
+                .OrderBy("name")
+                .EndingBefore(snapshot)
+                .GetDocumentsAsync<Pokemon>();
+
+            Assert.Equal(
+                new[] { "Blastoise", "Bulbasaur", "Charizard", "Charmander", "Charmeleon", "Ivysaur", "Squirtle" },
+                endingAt.Documents.Select(x => x.Data.Name));
+            Assert.Equal(
+                new[] { "Blastoise", "Bulbasaur", "Charizard", "Charmander", "Charmeleon", "Ivysaur" },
+                endingBefore.Documents.Select(x => x.Data.Name));
+        }
+
+        [Fact]
         public async Task sets_multiple_cursor_conditions()
         {
             var sut = CrossFirebaseFirestore.Current;
@@ -283,6 +381,23 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
 
             Assert.Equal(new[] { "1", "2", "3", "4", "5" }, firstPageSnapshot.Documents.Select(x => x.Data.Id));
             Assert.Equal(new[] { "6", "7", "8", "9" }, nextPageSnapshot.Documents.Select(x => x.Data.Id));
+        }
+
+        [Fact]
+        public async Task covers_query_snapshot_properties()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var snapshot = await sut
+                .GetCollection("pokemons")
+                .WhereEqualsTo("poke_type", PokeType.Fire)
+                .GetDocumentsAsync<Pokemon>();
+
+            Assert.False(snapshot.IsEmpty);
+            Assert.Equal(snapshot.Documents.Count(), snapshot.Count);
+            Assert.NotNull(snapshot.Query);
+            Assert.NotNull(snapshot.Metadata);
+            Assert.NotEmpty(snapshot.DocumentChanges);
+            Assert.NotEmpty(snapshot.GetDocumentChanges(includeMetadataChanges: false));
         }
 
         [Fact]
@@ -335,6 +450,119 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
 
             snapshot = await document.GetDocumentSnapshotAsync<Pokemon>();
             Assert.Equal(4, snapshot.Data.OtherProperties["colors"]);
+        }
+
+        [Fact]
+        public async Task covers_document_set_overloads_with_merge()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var mergedDictionaryDocument = GetTestingDocument(sut, "merge-dictionary");
+            var tupleDocument = GetTestingDocument(sut, "tuple-set");
+            var mergedTupleDocument = GetTestingDocument(sut, "merge-tuple");
+
+            await mergedDictionaryDocument.SetDataAsync(PokemonFactory.CreateCharmander());
+            await mergedDictionaryDocument.SetDataAsync(
+                new Dictionary<object, object> {
+                    { "name", "Merged Charmander" }
+                },
+                SetOptions.Merge());
+
+            await tupleDocument.SetDataAsync(
+                ("name", "Tuple Pokemon"),
+                ("sighting_count", 12L));
+
+            await mergedTupleDocument.SetDataAsync(PokemonFactory.CreateSquirtle());
+            await mergedTupleDocument.SetDataAsync(
+                SetOptions.Merge(),
+                ("name", "Merged Squirtle"));
+
+            var mergedDictionarySnapshot = await mergedDictionaryDocument.GetDocumentSnapshotAsync<Pokemon>();
+            var tupleSnapshot = await tupleDocument.GetDocumentSnapshotAsync<Pokemon>();
+            var mergedTupleSnapshot = await mergedTupleDocument.GetDocumentSnapshotAsync<Pokemon>();
+
+            Assert.Equal("Merged Charmander", mergedDictionarySnapshot.Data.Name);
+            Assert.Equal(60, mergedDictionarySnapshot.Data.HeightInCm);
+            Assert.Equal("Tuple Pokemon", tupleSnapshot.Data.Name);
+            Assert.Equal(12L, tupleSnapshot.Data.SightingCount);
+            Assert.Equal("Merged Squirtle", mergedTupleSnapshot.Data.Name);
+            Assert.Equal(50, mergedTupleSnapshot.Data.HeightInCm);
+        }
+
+        [Fact]
+        public async Task covers_batch_set_overloads_and_commit_local()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var mergedDictionaryDocument = GetTestingDocument(sut, "batch-merge-dictionary");
+            var tupleDocument = GetTestingDocument(sut, "batch-tuple");
+            var mergedTupleDocument = GetTestingDocument(sut, "batch-merge-tuple");
+
+            await mergedDictionaryDocument.SetDataAsync(PokemonFactory.CreateCharmander());
+            await mergedTupleDocument.SetDataAsync(PokemonFactory.CreateSquirtle());
+
+            var batch = sut.CreateBatch();
+            batch.SetData(
+                mergedDictionaryDocument,
+                new Dictionary<object, object> {
+                    { "name", "Batch Merged Charmander" }
+                },
+                SetOptions.Merge());
+            batch.SetData(
+                tupleDocument,
+                ("name", "Batch Tuple Pokemon"),
+                ("sighting_count", 33L));
+            batch.SetData(
+                mergedTupleDocument,
+                SetOptions.Merge(),
+                ("name", "Batch Merged Squirtle"));
+            batch.CommitLocal();
+
+            await sut.WaitForPendingWritesAsync();
+
+            var mergedDictionarySnapshot = await mergedDictionaryDocument.GetDocumentSnapshotAsync<Pokemon>();
+            var tupleSnapshot = await tupleDocument.GetDocumentSnapshotAsync<Pokemon>();
+            var mergedTupleSnapshot = await mergedTupleDocument.GetDocumentSnapshotAsync<Pokemon>();
+
+            Assert.Equal("Batch Merged Charmander", mergedDictionarySnapshot.Data.Name);
+            Assert.Equal(60, mergedDictionarySnapshot.Data.HeightInCm);
+            Assert.Equal("Batch Tuple Pokemon", tupleSnapshot.Data.Name);
+            Assert.Equal(33L, tupleSnapshot.Data.SightingCount);
+            Assert.Equal("Batch Merged Squirtle", mergedTupleSnapshot.Data.Name);
+            Assert.Equal(50, mergedTupleSnapshot.Data.HeightInCm);
+        }
+
+        [Fact]
+        public async Task covers_transaction_set_overloads()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var mergedDictionaryDocument = GetTestingDocument(sut, "transaction-merge-dictionary");
+            var mergedTupleDocument = GetTestingDocument(sut, "transaction-merge-tuple");
+
+            await mergedDictionaryDocument.SetDataAsync(PokemonFactory.CreateCharmander());
+            await mergedTupleDocument.SetDataAsync(PokemonFactory.CreateSquirtle());
+
+            await sut.RunTransactionAsync(transaction => {
+                transaction.SetData(
+                    mergedDictionaryDocument,
+                    new Dictionary<object, object> {
+                        { "name", "Transaction Merged Charmander" }
+                    },
+                    SetOptions.Merge());
+                transaction.SetData(
+                    mergedTupleDocument,
+                    SetOptions.Merge(),
+                    ("name", "Transaction Merged Squirtle"),
+                    ("sighting_count", 91L));
+                return true;
+            });
+
+            var mergedDictionarySnapshot = await mergedDictionaryDocument.GetDocumentSnapshotAsync<Pokemon>();
+            var mergedTupleSnapshot = await mergedTupleDocument.GetDocumentSnapshotAsync<Pokemon>();
+
+            Assert.Equal("Transaction Merged Charmander", mergedDictionarySnapshot.Data.Name);
+            Assert.Equal(60, mergedDictionarySnapshot.Data.HeightInCm);
+            Assert.Equal("Transaction Merged Squirtle", mergedTupleSnapshot.Data.Name);
+            Assert.Equal(91L, mergedTupleSnapshot.Data.SightingCount);
+            Assert.Equal(50, mergedTupleSnapshot.Data.HeightInCm);
         }
 
         [Fact]
@@ -787,6 +1015,51 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             Assert.Equal("transaction-merge", transactionMergeResult.Writer);
             Assert.Equal(50L, transactionMergeResult.Count);
             Assert.Equal("kept-by-transaction-merge", transactionMergeResult.Untouched);
+        }
+
+        [Fact]
+        public async Task exposes_parent_relationships()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var parentDocument = GetTestingDocument(sut, "parent");
+            var subCollection = parentDocument.GetCollection("sub_items");
+            var childDocument = subCollection.GetDocument("child");
+
+            await parentDocument.SetDataAsync(new SimpleItem("parent"));
+            await childDocument.SetDataAsync(new SimpleItem("child"));
+
+            Assert.Equal(parentDocument.Path, subCollection.Parent.Path);
+            Assert.Equal(parentDocument.Path, childDocument.Parent.Parent.Path);
+            Assert.Equal(childDocument.Path, childDocument.Parent.GetDocument(childDocument.Id).Path);
+        }
+
+        [Fact]
+        public async Task queries_collection_group()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var marker = Guid.NewGuid().ToString("N");
+            var firstDocument = GetTestingDocument(sut, "group-parent-1")
+                .GetCollection("sub_items")
+                .GetDocument("first");
+            var secondDocument = GetTestingDocument(sut, "group-parent-2")
+                .GetCollection("sub_items")
+                .GetDocument("second");
+
+            await firstDocument.SetDataAsync(new SimpleItem($"{marker}-one"));
+            await secondDocument.SetDataAsync(new SimpleItem($"{marker}-two"));
+
+            var snapshot = await sut
+                .GetCollectionGroup("sub_items")
+                .GetDocumentsAsync<SimpleItem>();
+
+            var matchingTitles = snapshot.Documents
+                .Select(x => x.Data.Title)
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Where(x => x.StartsWith(marker, StringComparison.Ordinal))
+                .OrderBy(x => x, StringComparer.Ordinal)
+                .ToArray();
+
+            Assert.Equal(new[] { $"{marker}-one", $"{marker}-two" }, matchingTitles);
         }
 
         public async Task DisposeAsync()

@@ -1,4 +1,5 @@
 using Android.Runtime;
+using AndroidX.Collection;
 using Java.Util;
 using IList = System.Collections.IList;
 
@@ -23,6 +24,8 @@ public static class JavaObjectExtensions
                 return x.LongValue();
             case Date x:
                 return x.ToDateTimeOffset();
+            case ArrayMap x:
+                return x.ToDictionary();
             case JavaList x:
                 return x.ToList(targetType?.GenericTypeArguments[0]);
             default:
@@ -80,5 +83,25 @@ public static class JavaObjectExtensions
                     $"Could not convert object of type {@this.GetType()} to Java.Lang.Object"
                 );
         }
+    }
+
+    public static IDictionary<string, object> ToDictionary(this ArrayMap @this)
+    {
+        var dict = new Dictionary<string, object>();
+        var keys = @this.KeySet()!;
+        foreach(var key in keys) {
+            var keyString = key.ToString();
+            if(keyString is null) {
+                throw new ArgumentException("Dictionary contains a null key.");
+            }
+
+            var value = @this.Get(keyString);
+            if(value is null) {
+                throw new ArgumentException("Dictionary contains a null value.");
+            }
+
+            dict[keyString] = value.ToObject();
+        }
+        return dict;
     }
 }

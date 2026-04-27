@@ -38,14 +38,12 @@ public sealed class TransactionWrapper : ITransaction
 
     public ITransaction SetData(IDocumentReference document, params (object, object?)[] data)
     {
-        return _wrapped.Set(document.ToNative(), data.ToHashMap()).ToAbstract();
+        return SetData(document, data.ToDictionary(x => x.Item1, x => x.Item2));
     }
 
     public ITransaction SetData(IDocumentReference document, SetOptions options, params (object, object?)[] data)
     {
-        return options == null
-            ? _wrapped.Set(document.ToNative(), data.ToHashMap()).ToAbstract()
-            : _wrapped.Set(document.ToNative(), data.ToHashMap(), options.ToNative()).ToAbstract();
+        return SetData(document, data.ToDictionary(x => x.Item1, x => x.Item2), options);
     }
 
     public ITransaction UpdateData(IDocumentReference document, Dictionary<object, object?> data)

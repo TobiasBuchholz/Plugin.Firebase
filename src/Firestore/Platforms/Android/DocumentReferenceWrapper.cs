@@ -38,16 +38,12 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
 
     public async Task SetDataAsync(params (object, object?)[] data)
     {
-        await Wrapped.Set(data.ToHashMap());
+        await SetDataAsync(data.ToDictionary(x => x.Item1, x => x.Item2));
     }
 
     public async Task SetDataAsync(SetOptions options, params (object, object?)[] data)
     {
-        if(options == null) {
-            await Wrapped.Set(data.ToHashMap());
-        } else {
-            await Wrapped.Set(data.ToHashMap(), options.ToNative());
-        }
+        await SetDataAsync(data.ToDictionary(x => x.Item1, x => x.Item2), options);
     }
 
     public async Task UpdateDataAsync(Dictionary<object, object?> data)

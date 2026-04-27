@@ -67,7 +67,7 @@ public sealed class WriteBatchWrapper : IWriteBatch
     /// <inheritdoc/>
     public IWriteBatch SetData(IDocumentReference document, params (object, object?)[] data)
     {
-        return SetData(document, data.ToDictionary());
+        return SetData(document, data.ToDictionary(x => x.Item1, x => x.Item2));
     }
 
     /// <inheritdoc/>
@@ -77,7 +77,7 @@ public sealed class WriteBatchWrapper : IWriteBatch
         params (object, object?)[] data
     )
     {
-        return SetData(document, data.ToDictionary(), options);
+        return SetData(document, data.ToDictionary(x => x.Item1, x => x.Item2), options);
     }
 
     /// <inheritdoc/>

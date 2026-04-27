@@ -150,6 +150,20 @@ namespace Plugin.Firebase.IntegrationTests.Storage
             }
         }
 
+        [Fact]
+        public async Task uploads_via_file_path()
+        {
+            var path = "texts/via_file.txt";
+            var contents = "Some text via file";
+            var filePath = await CreateTempTextFileAsync("via_file.txt", contents);
+            var reference = CrossFirebaseStorage.Current.GetReferenceFromPath(path);
+
+            await reference.PutFile(filePath).AwaitAsync();
+
+            var bytes = await reference.GetBytesAsync(1 * 1024 * 1024);
+            Assert.Equal(contents, Encoding.UTF8.GetString(bytes));
+        }
+
         private static async Task<Stream> CreateTextStreamAsync(string text)
         {
             var stream = new MemoryStream();
@@ -157,6 +171,13 @@ namespace Plugin.Firebase.IntegrationTests.Storage
             await writer.WriteAsync(text);
             await writer.FlushAsync();
             return stream;
+        }
+
+        private static async Task<string> CreateTempTextFileAsync(string fileName, string text)
+        {
+            var filePath = Path.Combine(FileSystem.CacheDirectory, fileName);
+            await File.WriteAllTextAsync(filePath, text);
+            return filePath;
         }
 
         [Fact]
@@ -181,6 +202,29 @@ namespace Plugin.Firebase.IntegrationTests.Storage
             Assert.Equal(path, updatedMetadata.Path);
             Assert.Equal("text/html", updatedMetadata.ContentType);
             Assert.Equal(customData, updatedMetadata.CustomMetadata);
+        }
+
+        [Fact]
+        public async Task observes_upload_success_snapshot()
+        {
+            var path = "texts/upload_success_snapshot.txt";
+            var reference = CrossFirebaseStorage.Current.GetReferenceFromPath(path);
+            var transferTask = reference.PutBytes(Encoding.UTF8.GetBytes("Observe upload success"));
+            var completion = new TaskCompletionSource<IStorageTaskSnapshot>(TaskCreationOptions.RunContinuationsAsynchronously);
+            Action<IStorageTaskSnapshot> observer = snapshot => completion.TrySetResult(snapshot);
+            transferTask.AddObserver(StorageTaskStatus.Success, observer);
+
+            try {
+                await transferTask.AwaitAsync();
+                var snapshot = await completion.Task.WaitAsync(TimeSpan.FromSeconds(10));
+
+                Assert.NotNull(snapshot);
+                Assert.NotNull(snapshot.Metadata);
+                Assert.True(snapshot.TransferredUnitCount > 0);
+                Assert.InRange(snapshot.TransferredFraction, 0.99, 1.01);
+            } finally {
+                transferTask.RemoveObserver(observer);
+            }
         }
 
         [Fact]
@@ -239,6 +283,29 @@ namespace Plugin.Firebase.IntegrationTests.Storage
         }
 
         [Fact]
+        public async Task observes_download_success_snapshot()
+        {
+            var reference = CrossFirebaseStorage
+                .Current
+                .GetReferenceFromPath("files_to_keep/text_1.txt");
+            var destinationFilePath = Path.Combine(FileSystem.CacheDirectory, $"downloaded-{Guid.NewGuid():N}.txt");
+            var transferTask = reference.DownloadFile(destinationFilePath);
+            var completion = new TaskCompletionSource<IStorageTaskSnapshot>(TaskCreationOptions.RunContinuationsAsynchronously);
+            Action<IStorageTaskSnapshot> observer = snapshot => completion.TrySetResult(snapshot);
+            transferTask.AddObserver(StorageTaskStatus.Success, observer);
+
+            try {
+                await transferTask.AwaitAsync();
+                var snapshot = await completion.Task.WaitAsync(TimeSpan.FromSeconds(10));
+
+                Assert.NotNull(snapshot);
+                Assert.True(File.Exists(destinationFilePath));
+            } finally {
+                transferTask.RemoveObserver(observer);
+            }
+        }
+
+        [Fact]
         public void can_manage_files_upload()
         {
             var path = $"texts/managed.txt";
@@ -263,6 +330,25 @@ namespace Plugin.Firebase.IntegrationTests.Storage
             transferTask.Pause();
             transferTask.Resume();
             transferTask.Cancel();
+        }
+
+        [Fact]
+        public async Task metadata_exposes_reference_and_timestamps()
+        {
+            var path = "texts/metadata_properties.txt";
+            var reference = CrossFirebaseStorage.Current.GetReferenceFromPath(path);
+
+            await reference.PutBytes(Encoding.UTF8.GetBytes("metadata properties")).AwaitAsync();
+            var metadata = await reference.GetMetadataAsync();
+
+            Assert.Equal(GetExpectedBucket(), metadata.Bucket);
+            Assert.Equal("metadata_properties.txt", metadata.Name);
+            Assert.Equal(path, metadata.Path);
+            if(metadata.StorageReference != null) {
+                Assert.Equal(reference.FullPath, metadata.StorageReference.FullPath);
+            }
+            Assert.NotEqual(default, metadata.CreationTime);
+            Assert.NotEqual(default, metadata.UpdatedTime);
         }
 
         [Fact]

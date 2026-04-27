@@ -23,6 +23,13 @@ public static class NSObjectExtensions
                 return x.ToString();
             case NSDate x:
                 return x.ToDateTimeOffset();
+            case NSDictionary x when targetType?.GenericTypeArguments?.Length == 2:
+                return x.ToDictionary(
+                    targetType.GenericTypeArguments[0],
+                    targetType.GenericTypeArguments[1]
+                );
+            case NSDictionary x:
+                return x.ToDictionary();
             case NSArray x:
                 return x.ToList(GetGenericListType(targetType)!);
             case NSNull:
@@ -78,12 +85,6 @@ public static class NSObjectExtensions
 
     private static Type? GetGenericListType(Type? targetType)
     {
-        var genericType = targetType?.GenericTypeArguments?.FirstOrDefault();
-        if(genericType == null) {
-            throw new ArgumentException(
-                $"Couldn't get generic list type of targetType {targetType}. Make sure to use a list IList<T> instead of an array T[] as type in your FirestoreObject."
-            );
-        }
-        return genericType;
+        return targetType?.GenericTypeArguments?.FirstOrDefault() ?? typeof(object);
     }
 }

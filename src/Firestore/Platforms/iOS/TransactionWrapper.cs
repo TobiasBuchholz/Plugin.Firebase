@@ -79,7 +79,7 @@ public sealed class TransactionWrapper : ITransaction
     /// <inheritdoc/>
     public ITransaction SetData(IDocumentReference document, params (object, object?)[] data)
     {
-        return SetData(document, data.ToDictionary());
+        return SetData(document, data.ToDictionary(x => x.Item1, x => x.Item2));
     }
 
     /// <inheritdoc/>
@@ -89,7 +89,7 @@ public sealed class TransactionWrapper : ITransaction
         params (object, object?)[] data
     )
     {
-        return SetData(document, data.ToDictionary(), options);
+        return SetData(document, data.ToDictionary(x => x.Item1, x => x.Item2), options);
     }
 
     /// <inheritdoc/>

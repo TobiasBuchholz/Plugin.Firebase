@@ -51,13 +51,13 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
     /// <inheritdoc/>
     public Task SetDataAsync(params (object, object?)[] data)
     {
-        return SetDataAsync(data.ToDictionary());
+        return SetDataAsync(data.ToDictionary(x => x.Item1, x => x.Item2), null);
     }
 
     /// <inheritdoc/>
     public Task SetDataAsync(SetOptions options, params (object, object?)[] data)
     {
-        return SetDataAsync(data.ToDictionary(), options);
+        return SetDataAsync(data.ToDictionary(x => x.Item1, x => x.Item2), options);
     }
 
     /// <inheritdoc/>

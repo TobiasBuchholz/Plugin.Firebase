@@ -10,7 +10,8 @@ using Plugin.Firebase.Bundled.Platforms.iOS;
 using AndroidRuntime = Android.Runtime;
 using Plugin.Firebase.Bundled.Platforms.Android;
 #endif
-using Xunit.Runners.Maui;
+using DeviceRunners.UITesting;
+using DeviceRunners.VisualRunners;
 
 namespace Plugin.Firebase.IntegrationTests2;
 
@@ -18,12 +19,16 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
-        return MauiApp
+        var builder = MauiApp
             .CreateBuilder()
-            .ConfigureTests(new TestOptions { Assemblies = { typeof(MauiProgram).Assembly } })
-            .RegisterFirebaseServices()
-            .UseVisualRunner()
-            .Build();
+            .ConfigureUITesting()
+            .UseVisualTestRunner(conf => conf
+                .AddConsoleResultChannel()
+                .AddTestAssembly(typeof(MauiProgram).Assembly)
+                .AddXunit())
+            .RegisterFirebaseServices();
+
+        return builder.Build();
     }
 
     private static MauiAppBuilder RegisterFirebaseServices(this MauiAppBuilder builder)

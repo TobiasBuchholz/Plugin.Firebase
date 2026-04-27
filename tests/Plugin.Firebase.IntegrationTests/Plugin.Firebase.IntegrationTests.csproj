@@ -7,7 +7,7 @@
 		<OutputType>Exe</OutputType>
 		<RootNamespace>Plugin.Firebase.IntegrationTests</RootNamespace>
 		<UseMaui>true</UseMaui>
-        <MauiVersion>9.0.0</MauiVersion>
+        <MauiVersion>9.0.120</MauiVersion>
 		<SingleProject>true</SingleProject>
 		<ImplicitUsings>enable</ImplicitUsings>
 
@@ -58,7 +58,11 @@
 
     <!-- nuget packages -->
     <ItemGroup>
-        <PackageReference Include="Shiny.Xunit.Runners.Maui" Version="1.0.0" />
+        <PackageReference Include="DeviceRunners.UITesting.Maui" Version="0.1.0-preview.6" />
+        <PackageReference Include="DeviceRunners.VisualRunners.Maui" Version="0.1.0-preview.6" />
+        <PackageReference Include="DeviceRunners.VisualRunners.Xunit" Version="0.1.0-preview.6" />
+        <PackageReference Include="xunit" Version="2.9.3" />
+        <PackageReference Include="xunit.runner.utility" Version="2.9.3" />
     </ItemGroup>
 
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">

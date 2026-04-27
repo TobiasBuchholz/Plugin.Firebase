@@ -74,7 +74,7 @@ dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationT
   -p:EnableCodeSigning=false
 ```
 
-Use `xcrun simctl list devices available` to find a simulator UDID. The test app uses the xUnit MAUI visual runner, so once the app launches in the simulator, run the suite from the app UI.
+Use `xcrun simctl list devices available` to find a simulator UDID. The test app uses the DeviceRunners visual runner, so once the app launches in the simulator, run the suite from the app UI.
 
 Build the Android test app for an emulator:
 ```
@@ -91,7 +91,7 @@ dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationT
   -f net9.0-android
 ```
 
-Use `adb devices` to verify the emulator is online. The integration app also uses the xUnit MAUI visual runner on Android, so once the app launches in the emulator, run the suite from the app UI.
+Use `adb devices` to verify the emulator is online. The integration app also uses the DeviceRunners visual runner on Android, so once the app launches in the emulator, run the suite from the app UI.
 
 To route Cloud Functions calls to the local emulator on an iOS simulator, start the emulator:
 ```

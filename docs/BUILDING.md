@@ -123,7 +123,7 @@ dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationT
   -p:EnableCodeSigning=false
 ```
 
-Use `xcrun simctl list devices available` to discover simulator UDIDs. The integration app uses the xUnit MAUI visual runner, so once the app launches you run the suite from the app UI.
+Use `xcrun simctl list devices available` to discover simulator UDIDs. The integration app uses the DeviceRunners visual runner, so once the app launches you run the suite from the app UI.
 
 Android integration tests build for emulator:
 
@@ -142,7 +142,7 @@ dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationT
   -f net9.0-android
 ```
 
-Use `adb devices` to verify the emulator is online. The Android integration app uses the same xUnit MAUI visual runner, so once the app launches you run the suite from the app UI.
+Use `adb devices` to verify the emulator is online. The Android integration app uses the same DeviceRunners visual runner, so once the app launches you run the suite from the app UI.
 
 ## Firebase project setup for integration tests
 

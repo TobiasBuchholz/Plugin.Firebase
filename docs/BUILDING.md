@@ -127,10 +127,12 @@ dotnet tool install --global Microsoft.DotNet.XHarness.CLI \
   --version "11.0.0-prerelease*"
 ```
 
+The installed command is `xharness`. If your shell cannot find it, make sure `~/.dotnet/tools` is on your `PATH`.
+
 iOS integration tests run on a specific simulator:
 
 ```sh
-dotnet xharness apple test \
+xharness apple test \
   --target ios-simulator-64 \
   --device <simulator-udid> \
   --timeout="00:10:00" \
@@ -142,7 +144,7 @@ dotnet xharness apple test \
 Android integration tests run on the currently running emulator:
 
 ```sh
-dotnet xharness android test \
+xharness android test \
   --timeout="00:10:00" \
   --launch-timeout=00:10:00 \
   --package-name <package-id> \
@@ -239,7 +241,7 @@ cd tests/cloud-functions
 firebase emulators:start --only functions
 ```
 
-For the default iOS CLI/XHarness flow, add these flags to the `dotnet xharness apple test` command:
+For the default iOS CLI/XHarness flow, add these flags to the `xharness apple test` command:
 
 ```sh
 --set-env=PLUGIN_FIREBASE_USE_FUNCTIONS_EMULATOR=1 \
@@ -247,7 +249,7 @@ For the default iOS CLI/XHarness flow, add these flags to the `dotnet xharness a
 --set-env=PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_PORT=5001
 ```
 
-For the default Android CLI/XHarness flow, set system properties before invoking `dotnet xharness android test`:
+For the default Android CLI/XHarness flow, set system properties before invoking `xharness android test`:
 ```sh
 adb shell setprop debug.pluginfirebase.functions.use 1
 adb shell setprop debug.pluginfirebase.functions.host 10.0.2.2
@@ -324,7 +326,7 @@ cd tests/cloud-functions
 firebase emulators:start --only storage
 ```
 
-For the default iOS CLI/XHarness flow, add these flags to the `dotnet xharness apple test` command:
+For the default iOS CLI/XHarness flow, add these flags to the `xharness apple test` command:
 
 ```sh
 --set-env=PLUGIN_FIREBASE_USE_STORAGE_EMULATOR=1 \
@@ -332,7 +334,7 @@ For the default iOS CLI/XHarness flow, add these flags to the `dotnet xharness a
 --set-env=PLUGIN_FIREBASE_STORAGE_EMULATOR_PORT=9199
 ```
 
-For the default Android CLI/XHarness flow, set system properties before invoking `dotnet xharness android test`:
+For the default Android CLI/XHarness flow, set system properties before invoking `xharness android test`:
 ```sh
 adb shell setprop debug.pluginfirebase.storage.use 1
 adb shell setprop debug.pluginfirebase.storage.host 10.0.2.2

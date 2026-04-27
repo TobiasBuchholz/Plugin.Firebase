@@ -2,7 +2,7 @@
 This package bundles all features into a single nuget package for people who were using prior versions of the plugin before the features were separated into single packages.  
 
 ## Installation
-### Nuget
+### NuGet
 [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase/)
 
 > Install-Package Plugin.Firebase
@@ -22,29 +22,34 @@ If you encounter a build error, try to add the package via `dotnet add package P
 ```
 - Add the following line of code to the place where your app gets bootstrapped:
 ```c#
+using Microsoft.Maui.ApplicationModel;
+using Plugin.Firebase.Bundled.Shared;
+
 #if IOS
 using Plugin.Firebase.Bundled.Platforms.iOS;
 #elif ANDROID
 using Plugin.Firebase.Bundled.Platforms.Android;
 #endif
 
-  var settings = new CrossFirebaseSettings(
-        isAnalyticsEnabled: true,
-        isAuthEnabled: true,
-        isCloudMessagingEnabled: true,
-        isDynamicLinksEnabled: true,
-        isFirestoreEnabled: true,
-        isFunctionsEnabled: true,
-        isRemoteConfigEnabled: true,
-        isStorageEnabled: true,
-        googleRequestIdToken: "537235599720-723cgj10dtm47b4ilvuodtp206g0q0fg.apps.googleusercontent.com")
+var settings = new CrossFirebaseSettings(
+    isAnalyticsEnabled: true,
+    isAuthEnabled: true,
+    isCloudMessagingEnabled: true,
+    isDynamicLinksEnabled: true,
+    isFirestoreEnabled: true,
+    isFunctionsEnabled: true,
+    isRemoteConfigEnabled: true,
+    isStorageEnabled: true);
 
 #if IOS
-  CrossFirebase.Initialize(settings);
+CrossFirebase.Initialize(settings);
 #elif ANDROID
-  CrossFirebase.Initialize(activity, settings);
+CrossFirebase.Initialize(activity, () => Platform.CurrentActivity, settings);
 #endif
 ```
+
+When `isAnalyticsEnabled` is `true`, the bundled package initializes Firebase Analytics automatically. Do not call `FirebaseAnalyticsImplementation.Initialize(activity)` separately when using this bundled initializer.
+
 ## Release notes
 - Version 4.2.1
   - Plugin.Firebase.Auth 5.0.1

@@ -106,6 +106,7 @@ To get started add the `GoogleService-Info.plist` and the `google-services.json`
 Initialize the plugin in your `MauiProgram.cs` like this:
 
 ```c#
+using Microsoft.Maui.ApplicationModel;
 using Plugin.Firebase.Auth;
 
 #if IOS
@@ -121,7 +122,6 @@ public static class MauiProgram
         return MauiApp
             .CreateBuilder()
             .UseMauiApp<App>()
-            ...
             .RegisterFirebaseServices()
             .Build();
     }
@@ -131,12 +131,12 @@ public static class MauiProgram
         builder.ConfigureLifecycleEvents(events => {
 #if IOS
             events.AddiOS(iOS => iOS.WillFinishLaunching((_,__) => {
-                CrossFirebase.Initialize(new CrossFirebaseSettings());
+                CrossFirebase.Initialize();
                 return false;
             }));
 #elif ANDROID
             events.AddAndroid(android => android.OnCreate((activity, _) =>
-                CrossFirebase.Initialize(activity, () => Platform.CurrentActivity, CreateFirebaseSettings())));
+                CrossFirebase.Initialize(activity, () => Platform.CurrentActivity)));
 #endif
         });
         
@@ -146,6 +146,8 @@ public static class MauiProgram
     
 }
 ```
+This is the core setup used with the standalone feature packages. If you use the bundled `Plugin.Firebase` package, use `CrossFirebaseSettings` with the bundled initializer described in [docs/bundled.md](docs/bundled.md).
+
 Ensure the `ApplicationId` in your `.csproj` file matches the `bundle_id` and `package_name` inside of the `[GoogleService-Info.plist|google-services.json]` files:
 ```xml
 <ApplicationId>com.example.myapp</ApplicationId>

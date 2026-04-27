@@ -368,6 +368,55 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         }
 
         [Fact]
+        public async Task writes_nested_dictionary_maps_on_ios()
+        {
+            if(!OperatingSystem.IsIOS()) {
+                return;
+            }
+
+            var sut = CrossFirebaseFirestore.Current;
+            var nestedDictionary = new Dictionary<string, Dictionary<string, int>> {
+                {
+                    "first", new Dictionary<string, int> {
+                        { "wins", 3 },
+                        { "losses", 1 }
+                    }
+                },
+                {
+                    "second", new Dictionary<string, int> {
+                        { "wins", 5 },
+                        { "losses", 2 }
+                    }
+                }
+            };
+
+            var updateDocument = GetTestingDocument(sut, "nested-dictionary-update");
+            await updateDocument.SetDataAsync(new Dictionary<object, object> { { "seeded", true } });
+            await updateDocument.UpdateDataAsync(new Dictionary<object, object> {
+                { "foo", nestedDictionary }
+            });
+
+            var updateSnapshot = await updateDocument.GetDocumentSnapshotAsync<NestedDictionaryDocument>();
+            Assert.Equal(3, updateSnapshot.Data.Foo["first"]["wins"]);
+            Assert.Equal(1, updateSnapshot.Data.Foo["first"]["losses"]);
+            Assert.Equal(5, updateSnapshot.Data.Foo["second"]["wins"]);
+            Assert.Equal(2, updateSnapshot.Data.Foo["second"]["losses"]);
+
+            var parentDocument = GetTestingDocument(sut, "nested-dictionary-parent");
+            await parentDocument.SetDataAsync(
+                new NestedDictionaryParentDocument(
+                    new NestedDictionaryDocument(nestedDictionary)
+                )
+            );
+
+            var parentSnapshot = await parentDocument.GetDocumentSnapshotAsync<NestedDictionaryParentDocument>();
+            Assert.Equal(3, parentSnapshot.Data.Child.Foo["first"]["wins"]);
+            Assert.Equal(1, parentSnapshot.Data.Child.Foo["first"]["losses"]);
+            Assert.Equal(5, parentSnapshot.Data.Child.Foo["second"]["wins"]);
+            Assert.Equal(2, parentSnapshot.Data.Child.Foo["second"]["losses"]);
+        }
+
+        [Fact]
         public async Task gets_real_time_updates_on_multiple_documents()
         {
             var sut = CrossFirebaseFirestore.Current;

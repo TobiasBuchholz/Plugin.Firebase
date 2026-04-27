@@ -106,6 +106,11 @@ If you want the interactive visual runner instead, opt in explicitly:
 - On iOS simulators, relaunch with `SIMCTL_CHILD_PLUGIN_FIREBASE_USE_VISUAL_RUNNER=1`.
 - On Android emulators, run `adb shell setprop debug.pluginfirebase.visual.use 1` before launching the app.
 
+Harness notes:
+- The integration fixtures run sequentially on purpose. The suite shares backend state, emulator state, and cleanup code across tests, so disabling xUnit parallelization avoids order-dependent failures that are hard to reproduce on device runners.
+- Each test writes `[TEST START]` and `[TEST END]` breadcrumbs to the runner output. If a CLI run appears hung, check the xharness log, simulator console output, or Android logcat to see which test last started.
+- iOS simulator builds ad-hoc re-sign the generated app bundle and bundled .NET runtime libraries after `dotnet build`. This is a simulator-only workaround for Xcode 26 / macOS 26 code-signature validation and is not required for real-device builds.
+
 To route Cloud Functions calls to the local emulator on an iOS simulator, start the emulator:
 ```
 cd tests/cloud-functions

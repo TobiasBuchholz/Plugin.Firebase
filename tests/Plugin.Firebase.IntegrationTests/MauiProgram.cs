@@ -12,6 +12,7 @@ using Plugin.Firebase.Bundled.Platforms.Android;
 #endif
 using DeviceRunners.UITesting;
 using DeviceRunners.VisualRunners;
+using DeviceRunners.XHarness;
 
 namespace Plugin.Firebase.IntegrationTests2;
 
@@ -19,13 +20,33 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
+        var useVisualRunner = IsFeatureEnabled(
+            "PLUGIN_FIREBASE_USE_VISUAL_RUNNER",
+            "debug.pluginfirebase.visual.use");
         var builder = MauiApp
             .CreateBuilder()
             .ConfigureUITesting()
-            .UseVisualTestRunner(conf => conf
-                .AddConsoleResultChannel()
-                .AddTestAssembly(typeof(MauiProgram).Assembly)
-                .AddXunit())
+            .UseVisualTestRunner(conf => {
+                if(useVisualRunner) {
+                    conf.SetTestRunnerUsage(VisualTestRunnerUsage.Always);
+                } else {
+                    conf.SetTestRunnerUsage(VisualTestRunnerUsage.Never);
+                }
+
+                conf.AddConsoleResultChannel()
+                    .AddTestAssembly(typeof(MauiProgram).Assembly)
+                    .AddXunit();
+            })
+            .UseXHarnessTestRunner(conf => {
+                if(useVisualRunner) {
+                    conf.SetTestRunnerUsage(XHarnessTestRunnerUsage.Never);
+                } else {
+                    conf.SetTestRunnerUsage(XHarnessTestRunnerUsage.Always);
+                }
+
+                conf.AddTestAssembly(typeof(MauiProgram).Assembly)
+                    .AddXunit();
+            })
             .RegisterFirebaseServices();
 
         return builder.Build();

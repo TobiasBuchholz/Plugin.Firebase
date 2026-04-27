@@ -63,19 +63,6 @@ dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationT
   -p:EnableCodeSigning=false
 ```
 
-Launch it on a specific simulator:
-```
-dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
-  -t:Run \
-  -c Debug \
-  -f net9.0-ios \
-  -p:RuntimeIdentifier=iossimulator-arm64 \
-  -p:_DeviceName=:v2:udid=<simulator-udid> \
-  -p:EnableCodeSigning=false
-```
-
-Use `xcrun simctl list devices available` to find a simulator UDID. The test app uses the DeviceRunners visual runner, so once the app launches in the simulator, run the suite from the app UI.
-
 Build the Android test app for an emulator:
 ```
 dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
@@ -83,15 +70,41 @@ dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationT
   -f net9.0-android
 ```
 
-Install and launch it on the currently running Android emulator:
+The default integration-test host now uses the DeviceRunners XHarness runner so tests can be launched from the CLI. Install the tool once:
 ```
-dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
-  -t:Run \
-  -c Debug \
-  -f net9.0-android
+dotnet tool install --global Microsoft.DotNet.XHarness.CLI \
+  --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-eng/nuget/v3/index.json \
+  --version "11.0.0-prerelease*"
 ```
 
-Use `adb devices` to verify the emulator is online. The integration app also uses the DeviceRunners visual runner on Android, so once the app launches in the emulator, run the suite from the app UI.
+Run the iOS suite on a specific simulator:
+```
+dotnet xharness apple test \
+  --target ios-simulator-64 \
+  --device <simulator-udid> \
+  --timeout="00:10:00" \
+  --launch-timeout=00:10:00 \
+  --app tests/Plugin.Firebase.IntegrationTests/bin/Debug/net9.0-ios/iossimulator-arm64/Plugin.Firebase.IntegrationTests.app \
+  --output-directory artifacts/test-results/ios
+```
+
+Run the Android suite on the currently running emulator:
+```
+dotnet xharness android test \
+  --timeout="00:10:00" \
+  --launch-timeout=00:10:00 \
+  --package-name <package-id> \
+  --instrumentation devicerunners.xharness.maui.XHarnessInstrumentation \
+  --app tests/Plugin.Firebase.IntegrationTests/bin/Debug/net9.0-android/<package-id>-Signed.apk \
+  --output-directory artifacts/test-results/android \
+  --verbosity=Debug
+```
+
+Use `xcrun simctl list devices available` to find a simulator UDID and `adb devices` to verify the Android emulator is online. If you keep the default application ids, `<package-id>` is `plugin.firebase.integrationtests`. If you override the ids in `Plugin.Firebase.IntegrationTests.props.user`, use the overridden Android package id in both `--package-name` and the APK filename.
+
+If you want the interactive visual runner instead, opt in explicitly:
+- On iOS simulators, relaunch with `SIMCTL_CHILD_PLUGIN_FIREBASE_USE_VISUAL_RUNNER=1`.
+- On Android emulators, run `adb shell setprop debug.pluginfirebase.visual.use 1` before launching the app.
 
 To route Cloud Functions calls to the local emulator on an iOS simulator, start the emulator:
 ```
@@ -99,23 +112,29 @@ cd tests/cloud-functions
 firebase emulators:start --only functions
 ```
 
-Then launch the installed app through `simctl` with child environment variables:
+For the default iOS CLI/XHarness flow, add these flags to the `dotnet xharness apple test` command:
 ```
-SIMCTL_CHILD_PLUGIN_FIREBASE_USE_FUNCTIONS_EMULATOR=1 \
-SIMCTL_CHILD_PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_HOST=localhost \
-SIMCTL_CHILD_PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_PORT=5001 \
-xcrun simctl launch --terminate-running-process <simulator-udid> <bundle-id>
+--set-env=PLUGIN_FIREBASE_USE_FUNCTIONS_EMULATOR=1 \
+--set-env=PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_HOST=localhost \
+--set-env=PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_PORT=5001
 ```
 
 If `PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_HOST` is omitted, the integration app defaults to `localhost` on iOS and `10.0.2.2` on Android. If `PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_PORT` is omitted, it defaults to `5001`.
 
-On Android emulators, set system properties before relaunching the app:
+For the default Android CLI/XHarness flow, set system properties before invoking `dotnet xharness android test`:
 ```
 adb shell setprop debug.pluginfirebase.functions.use 1
 adb shell setprop debug.pluginfirebase.functions.host 10.0.2.2
 adb shell setprop debug.pluginfirebase.functions.port 5001
-adb shell am force-stop <package-id>
-adb shell monkey -p <package-id> -c android.intent.category.LAUNCHER 1
+```
+
+For the interactive visual runner instead:
+```
+SIMCTL_CHILD_PLUGIN_FIREBASE_USE_VISUAL_RUNNER=1 \
+SIMCTL_CHILD_PLUGIN_FIREBASE_USE_FUNCTIONS_EMULATOR=1 \
+SIMCTL_CHILD_PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_HOST=localhost \
+SIMCTL_CHILD_PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_PORT=5001 \
+xcrun simctl launch --terminate-running-process <simulator-udid> <bundle-id>
 ```
 
 To route Firebase Storage calls to the local emulator on an iOS simulator, start the emulator:
@@ -124,23 +143,29 @@ cd tests/cloud-functions
 firebase emulators:start --only storage
 ```
 
-Then launch the installed app through `simctl` with child environment variables:
+For the default iOS CLI/XHarness flow, add these flags to the `dotnet xharness apple test` command:
 ```
-SIMCTL_CHILD_PLUGIN_FIREBASE_USE_STORAGE_EMULATOR=1 \
-SIMCTL_CHILD_PLUGIN_FIREBASE_STORAGE_EMULATOR_HOST=localhost \
-SIMCTL_CHILD_PLUGIN_FIREBASE_STORAGE_EMULATOR_PORT=9199 \
-xcrun simctl launch --terminate-running-process <simulator-udid> <bundle-id>
+--set-env=PLUGIN_FIREBASE_USE_STORAGE_EMULATOR=1 \
+--set-env=PLUGIN_FIREBASE_STORAGE_EMULATOR_HOST=localhost \
+--set-env=PLUGIN_FIREBASE_STORAGE_EMULATOR_PORT=9199
 ```
 
 If `PLUGIN_FIREBASE_STORAGE_EMULATOR_HOST` is omitted, the integration app defaults to `localhost` on iOS and `10.0.2.2` on Android. If `PLUGIN_FIREBASE_STORAGE_EMULATOR_PORT` is omitted, it defaults to `9199`.
 
-On Android emulators, set system properties before relaunching the app:
+For the default Android CLI/XHarness flow, set system properties before invoking `dotnet xharness android test`:
 ```
 adb shell setprop debug.pluginfirebase.storage.use 1
 adb shell setprop debug.pluginfirebase.storage.host 10.0.2.2
 adb shell setprop debug.pluginfirebase.storage.port 9199
-adb shell am force-stop <package-id>
-adb shell monkey -p <package-id> -c android.intent.category.LAUNCHER 1
+```
+
+For the interactive visual runner instead:
+```
+SIMCTL_CHILD_PLUGIN_FIREBASE_USE_VISUAL_RUNNER=1 \
+SIMCTL_CHILD_PLUGIN_FIREBASE_USE_STORAGE_EMULATOR=1 \
+SIMCTL_CHILD_PLUGIN_FIREBASE_STORAGE_EMULATOR_HOST=localhost \
+SIMCTL_CHILD_PLUGIN_FIREBASE_STORAGE_EMULATOR_PORT=9199 \
+xcrun simctl launch --terminate-running-process <simulator-udid> <bundle-id>
 ```
 
 If you have multiple Xcode versions installed, make sure the selected Xcode matches the installed .NET iOS workload. You can either switch globally with `xcode-select --switch ...` or scope a single command with `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`.

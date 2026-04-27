@@ -125,6 +125,25 @@ dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationT
 
 Use `xcrun simctl list devices available` to discover simulator UDIDs. The integration app uses the xUnit MAUI visual runner, so once the app launches you run the suite from the app UI.
 
+Android integration tests build for emulator:
+
+```sh
+dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
+  -c Debug \
+  -f net9.0-android
+```
+
+Android integration tests install and launch on the currently running emulator:
+
+```sh
+dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
+  -t:Run \
+  -c Debug \
+  -f net9.0-android
+```
+
+Use `adb devices` to verify the emulator is online. The Android integration app uses the same xUnit MAUI visual runner, so once the app launches you run the suite from the app UI.
+
 ## Firebase project setup for integration tests
 
 Integration tests (`tests/Plugin.Firebase.IntegrationTests`) run on a real device or simulator and require a dedicated Firebase project. Below is the full configuration needed.
@@ -142,6 +161,7 @@ You can override it per-platform via MSBuild properties or a local ignored file 
 ```xml
 <Project>
   <PropertyGroup>
+    <IntegrationTestsAndroidApplicationId>com.example.integrationtests</IntegrationTestsAndroidApplicationId>
     <IntegrationTestsIosApplicationId>com.example.integrationtests</IntegrationTestsIosApplicationId>
     <CodesignEntitlements>Platforms\iOS\Entitlements.plist.user</CodesignEntitlements>
   </PropertyGroup>
@@ -205,6 +225,15 @@ SIMCTL_CHILD_PLUGIN_FIREBASE_USE_FUNCTIONS_EMULATOR=1 \
 SIMCTL_CHILD_PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_HOST=localhost \
 SIMCTL_CHILD_PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_PORT=5001 \
 xcrun simctl launch --terminate-running-process <simulator-udid> <bundle-id>
+```
+
+For Android emulators, set system properties before relaunching the installed app:
+```sh
+adb shell setprop debug.pluginfirebase.functions.use 1
+adb shell setprop debug.pluginfirebase.functions.host 10.0.2.2
+adb shell setprop debug.pluginfirebase.functions.port 5001
+adb shell am force-stop <package-id>
+adb shell monkey -p <package-id> -c android.intent.category.LAUNCHER 1
 ```
 
 Required functions:
@@ -275,6 +304,15 @@ SIMCTL_CHILD_PLUGIN_FIREBASE_USE_STORAGE_EMULATOR=1 \
 SIMCTL_CHILD_PLUGIN_FIREBASE_STORAGE_EMULATOR_HOST=localhost \
 SIMCTL_CHILD_PLUGIN_FIREBASE_STORAGE_EMULATOR_PORT=9199 \
 xcrun simctl launch --terminate-running-process <simulator-udid> <bundle-id>
+```
+
+For Android emulators, set system properties before relaunching the installed app:
+```sh
+adb shell setprop debug.pluginfirebase.storage.use 1
+adb shell setprop debug.pluginfirebase.storage.host 10.0.2.2
+adb shell setprop debug.pluginfirebase.storage.port 9199
+adb shell am force-stop <package-id>
+adb shell monkey -p <package-id> -c android.intent.category.LAUNCHER 1
 ```
 
 ### App Check (optional)

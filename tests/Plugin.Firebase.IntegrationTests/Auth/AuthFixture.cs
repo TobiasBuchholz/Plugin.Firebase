@@ -79,10 +79,10 @@ namespace Plugin.Firebase.IntegrationTests.Auth
             Assert.Null(sut.CurrentUser);
         }
 
-        // Firebase now requires verify-before-update on iOS for newer projects, so this
-        // direct email update path only works with deprecated project configuration.
-#if IOS
-        [Fact(Skip = "Firebase direct email updates on iOS rely on deprecated project configuration.")]
+        // Firebase now requires verify-before-update for newer projects on iOS and Android,
+        // so this direct email update path only works with deprecated project configuration.
+#if IOS || ANDROID
+        [Fact(Skip = "Firebase direct email updates on iOS and Android rely on deprecated project configuration.")]
 #else
         [Fact]
 #endif

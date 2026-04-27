@@ -45,10 +45,14 @@ public static class JavaObjectExtensions
                 return x;
             case HashMap x:
                 return x;
-            case IList x:
-                return x.ToJavaList();
             case IDictionary<string, object> x:
                 return x.ToHashMap();
+            case IDictionary<object, object> x:
+                return x.ToHashMap();
+            case IDictionary x:
+                return x.ToHashMapFromNonGenericDict();
+            case IList x:
+                return x.ToJavaList();
             case DocumentReferenceWrapper x:
                 return x.Wrapped;
             case IFirestoreObject x:

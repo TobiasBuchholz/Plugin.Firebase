@@ -118,6 +118,24 @@ jobs:
             --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-eng/nuget/v3/index.json \
             --version "11.0.0-prerelease.26224.1"
 
+      - name: Select Xcode for .NET iOS workload
+        run: |
+          for xcode in \
+            /Applications/Xcode_26.4.1.app \
+            /Applications/Xcode_26.4.0.app \
+            /Applications/Xcode_26.3.0.app \
+            /Applications/Xcode_26.3.app; do
+            if [ -d "$xcode" ]; then
+              sudo xcode-select -s "$xcode/Contents/Developer"
+              xcodebuild -version
+              exit 0
+            fi
+          done
+
+          echo "No compatible Xcode 26.3+ installation found." >&2
+          ls -1 /Applications/Xcode*.app >&2
+          exit 1
+
       - name: Build Cloud Functions
         run: |
           npm ci --prefix tests/cloud-functions/functions --legacy-peer-deps

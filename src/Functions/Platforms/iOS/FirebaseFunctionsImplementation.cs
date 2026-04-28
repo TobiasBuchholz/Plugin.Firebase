@@ -37,6 +37,6 @@ public sealed class FirebaseFunctionsImplementation : DisposableBase, IFirebaseF
     /// <inheritdoc/>
     public void UseEmulator(string host, int port)
     {
-        _functions.UseEmulatorOriginWithHost(host, (uint) port);
+        _functions.UseEmulatorWithHost(host, port);
     }
 }

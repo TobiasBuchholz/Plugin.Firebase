@@ -154,7 +154,7 @@ xharness android test \
   --verbosity=Debug
 ```
 
-Use `xcrun simctl list devices available` to discover simulator UDIDs and `adb devices` to verify the Android emulator is online. If you keep the default application ids, `<package-id>` is `plugin.firebase.integrationtests`. If you override the ids in `Plugin.Firebase.IntegrationTests.props.user`, use the overridden Android package id in both `--package-name` and the APK filename.
+Use `xcrun simctl list devices available` to discover simulator UDIDs and `adb devices` to verify the Android emulator is online before running the Android command. XHarness uses the only connected adb target by default; if `adb devices` lists more than one device or emulator, add `--device-id <adb-device-id>` to the `xharness android test` command. If you keep the default application ids, `<package-id>` is `plugin.firebase.integrationtests`. If you override the ids in `Plugin.Firebase.IntegrationTests.props.user`, use the overridden Android package id in both `--package-name` and the APK filename.
 
 The interactive visual runner is still available, but it is opt-in:
 

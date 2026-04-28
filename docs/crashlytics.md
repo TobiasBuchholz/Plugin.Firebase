@@ -17,7 +17,29 @@ Firebase [Firebase Crashlytics](https://firebase.google.com/docs/crashlytics) is
 ```
 
 ### iOS specifics
-- Make sure to start your app without the debugger attached to be able to see the crashes in the firebase console
+- Make sure to start your app without the debugger attached when testing fatal crashes.
+- After forcing a crash, restart the app so Crashlytics can send the report. The crash may take several minutes to appear in the Firebase Console.
+- To enable verbose Firebase logs while diagnosing setup issues, add `-FIRDebugEnabled` to your iOS app launch arguments.
+- If the device log contains `Crashlytics could not find the symbol for the app's main function`, add the following properties to your app project:
+```xml
+<PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+    <_ExportSymbolsExplicitly>false</_ExportSymbolsExplicitly>
+    <DebugType>full</DebugType>
+</PropertyGroup>
+```
+- If the symbol error still appears, create `Platforms/iOS/exported_symbols.txt` containing exactly:
+```text
+__mh_execute_header
+```
+Then reference that file from your app project:
+```xml
+<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+    <_ReferencesLinkerFlags Include="-u__mh_execute_header" Visible="false" />
+    <_CustomLinkFlags Include="-exported_symbols_list" Visible="false" />
+    <_CustomLinkFlags Include="$(ProjectDir)Platforms/iOS/exported_symbols.txt" Visible="false" />
+</ItemGroup>
+```
+The exported symbols file must be plain UTF-8 without a byte order mark or other hidden characters. A hidden character before `__mh_execute_header` can cause Release builds to fail during linking.
 - For more specific instructions take a look at the official [Firebase documentation](https://firebase.google.com/docs/crashlytics/get-started?platform=ios)
 
 ### Android specifics
@@ -30,11 +52,18 @@ Firebase [Firebase Crashlytics](https://firebase.google.com/docs/crashlytics) is
     ...
 </resources>
 ```
+- If you created `strings.xml` manually, make sure it is included as an Android resource. In Visual Studio this is the `AndroidResource` build action. If the file is not already included in your project file, add an item like:
+```xml
+<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+    <AndroidResource Include="Platforms/Android/Resources/values/strings.xml" />
+</ItemGroup>
+```
+- After adding or changing Android resources, clean `bin` and `obj` and rebuild the app if Crashlytics still reports a missing build ID.
 - For more specific instructions take a look at the official [Firebase documentation](https://firebase.google.com/docs/crashlytics/get-started?platform=android)
 
 ## Usage
 
-To test if everything is setup correctly, restart the app after a forced crash and visit the [Crashlytics Dashboard](https://console.firebase.google.com/u/0/project/_/crashlytics) to view your reports and statistics.
+To test if everything is setup correctly, restart the app after a forced crash and visit the [Crashlytics Dashboard](https://console.firebase.google.com/u/0/project/_/crashlytics) to view your reports and statistics. See the official Firebase [test implementation guide](https://firebase.google.com/docs/crashlytics/test-implementation?platform=ios) for current platform-specific testing guidance.
 
 Take a look at the [documentation](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents/blob/master/docs/Firebase/Crashlytics/GettingStarted.md) for the AdamE.Firebase.iOS.Crashlytics packages, because Plugin.Firebase's code is abstracted but still very similar.
 

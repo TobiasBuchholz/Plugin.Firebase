@@ -87,6 +87,8 @@ Override them with `PLUGIN_FIREBASE_<SERVICE>_EMULATOR_HOST` / `PLUGIN_FIREBASE_
 
 The Auth emulator seed script recreates `custom-claims@test.com` with password `123456` and custom claims `{ "is_awesome": true }`. The `updates_user_email` test remains skipped on iOS and Android because Firebase's direct email update flow now depends on deprecated project configuration.
 
+The `.github/workflows/integration-emulators.yml` workflow runs the emulator-backed Android and iOS suites on pull requests and can also be started manually with `workflow_dispatch`. Branch protection should require the `integration-emulators-android` and `integration-emulators-ios` checks.
+
 Build the iOS test app for a simulator:
 ```
 dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \

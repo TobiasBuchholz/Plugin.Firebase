@@ -1,10 +1,15 @@
-name: integration-emulators (manual)
+name: integration-emulators
 
 on:
+  pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: integration-emulators-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 env:
   DOTNET_MULTILEVEL_LOOKUP: 0
@@ -16,6 +21,7 @@ env:
 
 jobs:
   android:
+    name: integration-emulators-android
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -30,10 +36,10 @@ jobs:
 
       - name: Install Firebase CLI and XHarness
         run: |
-          npm install --global firebase-tools
+          npm install --global firebase-tools@15.15.0
           dotnet tool install --global Microsoft.DotNet.XHarness.CLI \
             --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-eng/nuget/v3/index.json \
-            --version "11.0.0-prerelease*"
+            --version "11.0.0-prerelease.26224.1"
 
       - name: Build Cloud Functions
         run: |
@@ -42,6 +48,32 @@ jobs:
 
       - name: Build Android integration app
         run: dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj -c Debug -f net9.0-android
+
+      - name: Resolve Android integration app metadata
+        run: |
+          ANDROID_PACKAGE_ID=$(dotnet msbuild tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
+            -getProperty:IntegrationTestsAndroidApplicationId \
+            -p:TargetFramework=net9.0-android \
+            | tr -d '\r\n')
+          ANDROID_APK=$(find "$GITHUB_WORKSPACE/tests/Plugin.Firebase.IntegrationTests/bin/Debug/net9.0-android" \
+            -name "${ANDROID_PACKAGE_ID}-Signed.apk" \
+            -type f \
+            -print \
+            -quit)
+
+          if [ -z "$ANDROID_PACKAGE_ID" ]; then
+            echo "Could not resolve IntegrationTestsAndroidApplicationId." >&2
+            exit 1
+          fi
+
+          if [ -z "$ANDROID_APK" ]; then
+            echo "Could not find signed Android APK for package '$ANDROID_PACKAGE_ID'." >&2
+            find "$GITHUB_WORKSPACE/tests/Plugin.Firebase.IntegrationTests/bin/Debug/net9.0-android" -name "*-Signed.apk" -type f >&2
+            exit 1
+          fi
+
+          echo "ANDROID_PACKAGE_ID=$ANDROID_PACKAGE_ID" >> "$GITHUB_ENV"
+          echo "ANDROID_APK=$ANDROID_APK" >> "$GITHUB_ENV"
 
       - name: Run Android integration tests against emulators
         uses: ReactiveCircus/android-emulator-runner@v2
@@ -55,7 +87,7 @@ jobs:
             firebase emulators:exec \
               --project "$FIREBASE_PROJECT_ID" \
               --only auth,firestore,functions,storage \
-              "node scripts/seed-auth-emulator.js && xharness android test --timeout=00:10:00 --launch-timeout=00:10:00 --package-name plugin.firebase.integrationtests --instrumentation devicerunners.xharness.maui.XHarnessInstrumentation --app ../Plugin.Firebase.IntegrationTests/bin/Debug/net9.0-android/plugin.firebase.integrationtests-Signed.apk --output-directory ../../artifacts/test-results/android --verbosity=Debug"
+              "node scripts/seed-auth-emulator.js && xharness android test --timeout=00:10:00 --launch-timeout=00:10:00 --package-name $ANDROID_PACKAGE_ID --instrumentation devicerunners.xharness.maui.XHarnessInstrumentation --app $ANDROID_APK --output-directory ../../artifacts/test-results/android --verbosity=Debug"
 
       - name: Upload Android test artifacts
         if: always()
@@ -66,6 +98,7 @@ jobs:
           if-no-files-found: ignore
 
   ios:
+    name: integration-emulators-ios
     runs-on: macos-15
     timeout-minutes: 60
     steps:
@@ -80,10 +113,10 @@ jobs:
 
       - name: Install Firebase CLI and XHarness
         run: |
-          npm install --global firebase-tools
+          npm install --global firebase-tools@15.15.0
           dotnet tool install --global Microsoft.DotNet.XHarness.CLI \
             --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-eng/nuget/v3/index.json \
-            --version "11.0.0-prerelease*"
+            --version "11.0.0-prerelease.26224.1"
 
       - name: Build Cloud Functions
         run: |
@@ -110,9 +143,17 @@ jobs:
           export PATH="$PATH:$HOME/.dotnet/tools"
           cd tests/cloud-functions
           firebase emulators:exec \
-            --project "$FIREBASE_PROJECT_ID" \
-            --only auth,firestore,functions,storage \
-            "node scripts/seed-auth-emulator.js && xharness apple test --target ios-simulator-64 --device $DEVICE_ID --timeout=00:10:00 --launch-timeout=00:10:00 --app ../Plugin.Firebase.IntegrationTests/bin/Debug/net9.0-ios/iossimulator-arm64/Plugin.Firebase.IntegrationTests.app --output-directory ../../artifacts/test-results/ios --set-env=PLUGIN_FIREBASE_TEST_BACKEND=emulator"
+              --project "$FIREBASE_PROJECT_ID" \
+              --only auth,firestore,functions,storage \
+              "node scripts/seed-auth-emulator.js && xharness apple test --target ios-simulator-64 --device $DEVICE_ID --timeout=00:10:00 --launch-timeout=00:10:00 --app ../Plugin.Firebase.IntegrationTests/bin/Debug/net9.0-ios/iossimulator-arm64/Plugin.Firebase.IntegrationTests.app --output-directory ../../artifacts/test-results/ios --set-env=PLUGIN_FIREBASE_TEST_BACKEND=emulator"
+
+      - name: Cleanup iOS simulator
+        if: always()
+        run: |
+          if [ -n "${DEVICE_ID:-}" ]; then
+            xcrun simctl shutdown "$DEVICE_ID" || true
+            xcrun simctl delete "$DEVICE_ID" || true
+          fi
 
       - name: Upload iOS test artifacts
         if: always()

@@ -202,6 +202,8 @@ Default emulator ports are Auth `9099`, Firestore `8080`, Functions `5001`, and 
 
 Analytics, Remote Config, and App Check token tests are skipped on the emulator backend because Firebase does not provide local emulators for those products. Use the real backend below when validating them.
 
+The `.github/workflows/integration-emulators.yml` workflow runs the emulator-backed Android and iOS suites as PR-gated checks and still supports manual reruns with `workflow_dispatch`. Branch protection should require the `integration-emulators-android` and `integration-emulators-ios` checks.
+
 ## Real Firebase project setup for integration tests
 
 Set `PLUGIN_FIREBASE_TEST_BACKEND=real` on iOS, or `adb shell setprop debug.pluginfirebase.backend real` on Android, to run integration tests against a dedicated Firebase project. Below is the full real-project configuration needed.

@@ -136,7 +136,12 @@ public static class NSObjectExtensions
             return @this.ToUntypedObject();
         }
 
-        switch(Type.GetTypeCode(Nullable.GetUnderlyingType(targetType) ?? targetType)) {
+        var conversionType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+        if(conversionType.IsEnum) {
+            return Enum.ToObject(conversionType, @this.Int64Value);
+        }
+
+        switch(Type.GetTypeCode(conversionType)) {
             case TypeCode.Boolean:
                 return @this.BoolValue;
             case TypeCode.Char:

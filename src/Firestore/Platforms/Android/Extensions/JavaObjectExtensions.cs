@@ -102,15 +102,15 @@ public static class JavaObjectExtensions
             case Java.Lang.ICharSequence x:
                 return x.ToString();
             case Java.Lang.Boolean x:
-                return x.BooleanValue();
+                return ConvertToTargetType(x.BooleanValue(), targetType);
             case Java.Lang.Integer x:
-                return x.IntValue();
+                return ConvertToTargetType(x.IntValue(), targetType);
             case Java.Lang.Double x:
-                return x.DoubleValue();
+                return ConvertToTargetType(x.DoubleValue(), targetType);
             case Java.Lang.Float x:
-                return x.FloatValue();
+                return ConvertToTargetType(x.FloatValue(), targetType);
             case Java.Lang.Long x:
-                return x.LongValue();
+                return ConvertToTargetType(x.LongValue(), targetType);
             case Date x:
                 return x.ToDateTimeOffset();
             case NativeFirebase.Timestamp x:
@@ -274,6 +274,23 @@ public static class JavaObjectExtensions
         if(conversionType.IsEnum) {
             return Enum.ToObject(conversionType, value);
         }
+        return Convert.ChangeType(value, conversionType);
+    }
+
+    private static object ConvertToTargetType(object value, Type targetType)
+    {
+        var conversionType = targetType == null
+            ? null
+            : Nullable.GetUnderlyingType(targetType) ?? targetType;
+
+        if(value == null || conversionType == null || conversionType == typeof(object) || conversionType.IsInstanceOfType(value)) {
+            return value;
+        }
+
+        if(conversionType.IsEnum) {
+            return Enum.ToObject(conversionType, value);
+        }
+
         return Convert.ChangeType(value, conversionType);
     }
 

@@ -44,44 +44,7 @@ public static class DictionaryExtensions
         ref NSMutableDictionary<NSString, NSObject> nsDictionary
     )
     {
-        switch(pair.Value) {
-            case bool x:
-                nsDictionary.Add((NSString) pair.Key, new NSNumber(x));
-                break;
-            case double x:
-                nsDictionary.Add((NSString) pair.Key, new NSNumber(x));
-                break;
-            case float x:
-                nsDictionary.Add((NSString) pair.Key, new NSNumber(x));
-                break;
-            case long x:
-                nsDictionary.Add((NSString) pair.Key, new NSNumber(x));
-                break;
-            case int x:
-                nsDictionary.Add((NSString) pair.Key, new NSNumber(x));
-                break;
-            case short x:
-                nsDictionary.Add((NSString) pair.Key, new NSNumber(x));
-                break;
-            case string x:
-                nsDictionary.Add((NSString) pair.Key, new NSString(x));
-                break;
-            case NSObject x:
-                nsDictionary.Add((NSString) pair.Key, x);
-                break;
-            default:
-                if(pair.Value is Enum @enum) {
-                    nsDictionary.Add((NSString) pair.Key, new NSNumber(Convert.ToInt64(@enum)));
-                    break;
-                } else if(pair.Value == null) {
-                    nsDictionary.Add((NSString) pair.Key, new NSNull());
-                    break;
-                } else {
-                    throw new ArgumentException(
-                        $"Couldn't put object of type {pair.Value.GetType()} into NSDictionary"
-                    );
-                }
-        }
+        nsDictionary.Add((NSString) pair.Key, pair.Value.ToNSObject());
     }
 
     /// <summary>

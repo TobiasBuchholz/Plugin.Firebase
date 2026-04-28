@@ -890,10 +890,28 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 ("unknown_bool", true),
                 ("unknown_null", null),
                 ("unknown_numbers", new[] { 1L, 2L }),
+                ("unknown_map_array", new[] {
+                    new Dictionary<object, object> {
+                        { "name", "first" },
+                        { "score", 1L },
+                        { "active", true }
+                    },
+                    new Dictionary<object, object> {
+                        { "name", "second" },
+                        { "score", 2L },
+                        { "active", false }
+                    }
+                }),
                 ("nested.answer", 42L),
                 ("nested.values", new[] { "one", "two" }),
                 ("nested.deep.answer", 84L),
                 ("nested.label", "nested value"),
+                ("nested.direct_map", new Dictionary<object, object> {
+                    { "text", "direct" },
+                    { "count", 9L },
+                    { "flags", new[] { true, false } },
+                    { "inner", new Dictionary<object, object> { { "value", "inside" } } }
+                }),
                 ("observed_at", observedAt),
                 ("location", new GeoPoint(1.25, 2.5)),
                 ("original_reference", document));
@@ -916,6 +934,76 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 .WhereEqualsTo("unknown_string", "value")
                 .GetDocumentsAsync<Dictionary<string, object>>();
             AssertRawDictionaryData(Assert.Single(querySnapshot.Documents).Data, document);
+        }
+
+        [Fact]
+        public async Task gets_document_data_as_strongly_typed_dictionaries()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+
+            var stringDocument = GetTestingDocument(sut, "typed-string-map");
+            await stringDocument.SetDataAsync(new Dictionary<object, object> {
+                { "alpha", "one" },
+                { "beta", "two" }
+            });
+            var strings = (await stringDocument.GetDocumentSnapshotAsync<Dictionary<string, string>>()).Data;
+            Assert.Equal("one", strings["alpha"]);
+            Assert.Equal("two", strings["beta"]);
+
+            var boolDocument = GetTestingDocument(sut, "typed-bool-map");
+            await boolDocument.SetDataAsync(new Dictionary<object, object> {
+                { "enabled", true },
+                { "archived", false }
+            });
+            var bools = (await boolDocument.GetDocumentSnapshotAsync<Dictionary<object, bool>>()).Data;
+            Assert.All(bools.Keys, key => Assert.IsType<string>(key));
+            Assert.True(bools["enabled"]);
+            Assert.False(bools["archived"]);
+
+            var longDocument = GetTestingDocument(sut, "typed-long-map");
+            await longDocument.SetDataAsync(new Dictionary<object, object> {
+                { "one", 1L },
+                { "two", 2 }
+            });
+            var longs = (await longDocument.GetDocumentSnapshotAsync<IDictionary<string, long>>()).Data;
+            Assert.Equal(1L, longs["one"]);
+            Assert.Equal(2L, longs["two"]);
+
+            var intDocument = GetTestingDocument(sut, "typed-int-map");
+            await intDocument.SetDataAsync(new Dictionary<object, object> {
+                { "one", 1L },
+                { "two", 2 }
+            });
+            var ints = (await intDocument.GetDocumentSnapshotAsync<Dictionary<string, int>>()).Data;
+            Assert.Equal(1, ints["one"]);
+            Assert.Equal(2, ints["two"]);
+
+            var doubleDocument = GetTestingDocument(sut, "typed-double-map");
+            await doubleDocument.SetDataAsync(new Dictionary<object, object> {
+                { "half", 0.5 },
+                { "whole", 2L }
+            });
+            var doubles = (await doubleDocument.GetDocumentSnapshotAsync<Dictionary<string, double>>()).Data;
+            Assert.Equal(0.5, doubles["half"]);
+            Assert.Equal(2.0, doubles["whole"]);
+
+            var floatDocument = GetTestingDocument(sut, "typed-float-map");
+            await floatDocument.SetDataAsync(new Dictionary<object, object> {
+                { "half", 0.5 },
+                { "whole", 2L }
+            });
+            var floats = (await floatDocument.GetDocumentSnapshotAsync<Dictionary<string, float>>()).Data;
+            Assert.Equal(0.5f, floats["half"]);
+            Assert.Equal(2.0f, floats["whole"]);
+
+            var enumDocument = GetTestingDocument(sut, "typed-enum-map");
+            await enumDocument.SetDataAsync(new Dictionary<object, object> {
+                { "fire", PokeType.Fire },
+                { "water", PokeType.Water }
+            });
+            var enums = (await enumDocument.GetDocumentSnapshotAsync<Dictionary<string, PokeType>>()).Data;
+            Assert.Equal(PokeType.Fire, enums["fire"]);
+            Assert.Equal(PokeType.Water, enums["water"]);
         }
 
         [Fact]
@@ -1365,6 +1453,17 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             var numbers = Assert.IsAssignableFrom<IList<object>>(data["unknown_numbers"]);
             Assert.Equal(new[] { 1L, 2L }, numbers.Select(Convert.ToInt64));
 
+            var mapArray = Assert.IsAssignableFrom<IList<object>>(data["unknown_map_array"]);
+            Assert.Equal(2, mapArray.Count);
+            var firstMap = Assert.IsAssignableFrom<IDictionary<string, object>>(mapArray[0]);
+            Assert.Equal("first", firstMap["name"]);
+            Assert.Equal(1L, Convert.ToInt64(firstMap["score"]));
+            Assert.True((bool) firstMap["active"]);
+            var secondMap = Assert.IsAssignableFrom<IDictionary<string, object>>(mapArray[1]);
+            Assert.Equal("second", secondMap["name"]);
+            Assert.Equal(2L, Convert.ToInt64(secondMap["score"]));
+            Assert.False((bool) secondMap["active"]);
+
             var nested = Assert.IsAssignableFrom<IDictionary<string, object>>(data["nested"]);
             Assert.Equal(42L, Convert.ToInt64(nested["answer"]));
             Assert.Equal("nested value", nested["label"]);
@@ -1374,6 +1473,14 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
 
             var deepNested = Assert.IsAssignableFrom<IDictionary<string, object>>(nested["deep"]);
             Assert.Equal(84L, Convert.ToInt64(deepNested["answer"]));
+
+            var directMap = Assert.IsAssignableFrom<IDictionary<string, object>>(nested["direct_map"]);
+            Assert.Equal("direct", directMap["text"]);
+            Assert.Equal(9L, Convert.ToInt64(directMap["count"]));
+            var flags = Assert.IsAssignableFrom<IList<object>>(directMap["flags"]);
+            Assert.Equal(new[] { true, false }, flags.Select(x => (bool) x));
+            var innerMap = Assert.IsAssignableFrom<IDictionary<string, object>>(directMap["inner"]);
+            Assert.Equal("inside", innerMap["value"]);
 
             Assert.IsType<DateTimeOffset>(data["observed_at"]);
             var location = Assert.IsType<GeoPoint>(data["location"]);

@@ -55,6 +55,8 @@ public static class JavaObjectExtensions
                 return x.ToJavaList();
             case DocumentReferenceWrapper x:
                 return x.Wrapped;
+            case GeoPoint x:
+                return new global::Firebase.Firestore.GeoPoint(x.Latitude, x.Longitude);
             case IFirestoreObject x:
                 return x.ToJavaObject();
             default:
@@ -135,7 +137,9 @@ public static class JavaObjectExtensions
     {
         if(targetType == null) {
             return @this.ToDictionary();
-        } else if(targetType.IsGenericType && (targetType.GetGenericTypeDefinition() == typeof(IDictionary<,>) || targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>))) {
+        } else if(targetType == typeof(object)) {
+            return @this.ToDictionary(typeof(string), typeof(object));
+        } else if(IsDictionaryType(targetType)) {
             var types = targetType.GenericTypeArguments;
             return @this.ToDictionary(types[0], types[1]);
         } else {
@@ -151,12 +155,12 @@ public static class JavaObjectExtensions
         }
 
         foreach(DictionaryEntry pair in @this) {
-            var key = pair.Key.ToJavaObject().ToObject(keyType);
+            var key = ConvertToObject(pair.Key, keyType);
             if(key is null) {
                 throw new ArgumentException("Dictionary contains a null key.");
             }
 
-            var value = pair.Value.ToJavaObject().ToObject(valueType);
+            var value = ConvertToObject(pair.Value, valueType);
             dict[key] = value;
         }
         return dict;
@@ -178,6 +182,10 @@ public static class JavaObjectExtensions
 
     private static object Cast(this IDictionary @this, Type targetType, string? documentId = null)
     {
+        if(targetType == typeof(object) || IsDictionaryType(targetType)) {
+            return @this.ToDictionaryObject(targetType);
+        }
+
         var instance = Activator.CreateInstance(targetType);
         if(instance is null) {
             throw new InvalidOperationException("Could not create instance of type " + targetType);
@@ -228,6 +236,56 @@ public static class JavaObjectExtensions
         return instance;
     }
 
+    private static Type GetGenericListType(Type? targetType)
+    {
+        if(targetType == null || targetType == typeof(object)) {
+            return typeof(object);
+        }
+
+        var genericType = targetType.GenericTypeArguments.FirstOrDefault();
+        if(genericType == null) {
+            throw new ArgumentException(
+                $"Couldn't get generic list type of targetType {targetType}. Make sure to use a list IList<T> instead of an array T[] as type in your FirestoreObject."
+            );
+        }
+        return genericType;
+    }
+
+    private static object? ConvertToObject(object? value, Type? targetType)
+    {
+        var conversionType = targetType == null
+            ? null
+            : Nullable.GetUnderlyingType(targetType) ?? targetType;
+
+        if(value == null) {
+            return null;
+        } else if(conversionType == typeof(string)) {
+            return value is Java.Lang.ICharSequence charSequence
+                ? charSequence.ToString()
+                : value.ToString();
+        } else if(value is Java.Lang.Object javaValue) {
+            return javaValue.ToObject(targetType);
+        } else if(value is IDictionary dictionary) {
+            return dictionary.ToDictionaryObject(targetType);
+        } else if(conversionType == null || conversionType == typeof(object) || conversionType.IsInstanceOfType(value)) {
+            return value;
+        }
+
+        if(conversionType.IsEnum) {
+            return Enum.ToObject(conversionType, value);
+        }
+        return Convert.ChangeType(value, conversionType);
+    }
+
+    private static bool IsDictionaryType(Type targetType)
+    {
+        return targetType.IsGenericType
+               && (
+                   targetType.GetGenericTypeDefinition() == typeof(IDictionary<,>)
+                   || targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>)
+               );
+    }
+
     public static IDictionary<string, object?> ToDictionary(this ArrayMap @this)
     {
         var dict = new Dictionary<string, object?>();
@@ -245,16 +303,5 @@ public static class JavaObjectExtensions
             dict[keyString] = @this.Get(keyString).ToObject();
         }
         return dict;
-    }
-
-    private static Type GetGenericListType(Type targetType)
-    {
-        var genericType = targetType.GenericTypeArguments.FirstOrDefault();
-        if(genericType == null) {
-            throw new ArgumentException(
-                $"Couldn't get generic list type of targetType {targetType}. Make sure to use a list IList<T> instead of an array T[] as type in your FirestoreObject."
-            );
-        }
-        return genericType;
     }
 }

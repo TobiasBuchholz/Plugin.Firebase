@@ -125,15 +125,9 @@ public static class DictionaryExtensions
     /// <returns>The converted object.</returns>
     public static object? ToDictionaryObject(this NSDictionary @this, Type? targetType)
     {
-        if(targetType == null) {
-            return @this.ToDictionary();
-        } else if(
-              targetType.IsGenericType
-              && (
-                  targetType.GetGenericTypeDefinition() == typeof(IDictionary<,>)
-                  || targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>)
-              )
-          ) {
+        if(targetType == null || targetType == typeof(object)) {
+            return @this.ToDictionary(typeof(string), typeof(object));
+        } else if(IsDictionaryType(targetType)) {
             var types = targetType.GenericTypeArguments;
             return @this.ToDictionary(types[0], types[1]);
         } else {
@@ -164,6 +158,15 @@ public static class DictionaryExtensions
             dict[key] = pair.Value.ToObject(valueType);
         }
         return dict;
+    }
+
+    private static bool IsDictionaryType(Type targetType)
+    {
+        return targetType.IsGenericType
+               && (
+                   targetType.GetGenericTypeDefinition() == typeof(IDictionary<,>)
+                   || targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>)
+               );
     }
 
     /// <summary>

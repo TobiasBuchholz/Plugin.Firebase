@@ -52,6 +52,7 @@ for proj in \
   src/Crashlytics/Crashlytics.csproj \
   src/Firestore/Firestore.csproj \
   src/Functions/Functions.csproj \
+  src/Installations/Installations.csproj \
   src/RemoteConfig/RemoteConfig.csproj \
   src/Storage/Storage.csproj \
   src/AppCheck/AppCheck.csproj \
@@ -390,6 +391,10 @@ xcrun simctl launch --terminate-running-process <simulator-udid> <bundle-id>
 ### App Check (optional)
 
 App Check is disabled by default in the integration tests (`AppCheckOptions.Disabled`). To run the optional App Check token test, set `PLUGIN_FIREBASE_TEST_BACKEND=real` and `PLUGIN_FIREBASE_RUN_APPCHECK_TOKEN_TESTS=1`; the test harness configures `AppCheckOptions.Debug` during app startup for that opt-in path.
+
+### Installations (optional destructive)
+
+The Firebase Installations delete test is skipped by default. To run it, set `PLUGIN_FIREBASE_RUN_INSTALLATIONS_DELETE_TESTS=1`. This deletes the current Firebase installation ID and may affect other Firebase services tied to that installation.
 
 ## Troubleshooting
 

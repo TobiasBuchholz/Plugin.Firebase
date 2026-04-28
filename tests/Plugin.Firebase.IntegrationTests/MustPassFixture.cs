@@ -4,6 +4,7 @@ using Plugin.Firebase.Auth;
 using Plugin.Firebase.CloudMessaging;
 using Plugin.Firebase.Firestore;
 using Plugin.Firebase.Functions;
+using Plugin.Firebase.Installations;
 using Plugin.Firebase.RemoteConfig;
 using Plugin.Firebase.Storage;
 
@@ -23,6 +24,7 @@ namespace Plugin.Firebase.IntegrationTests
             Assert.True(CrossFirebaseCloudMessaging.IsSupported);
             Assert.True(CrossFirebaseFirestore.IsSupported);
             Assert.True(CrossFirebaseFunctions.IsSupported);
+            Assert.True(CrossFirebaseInstallations.IsSupported);
             Assert.True(CrossFirebaseStorage.IsSupported);
             Assert.True(CrossFirebaseRemoteConfig.IsSupported);
             Assert.True(CrossFirebaseAppCheck.IsSupported);

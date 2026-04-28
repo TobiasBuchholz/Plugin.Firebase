@@ -17,6 +17,7 @@ using Plugin.Firebase.Auth;
 using Plugin.Firebase.Bundled.Shared;
 using Plugin.Firebase.CloudMessaging;
 using Plugin.Firebase.Functions;
+using Plugin.Firebase.Installations;
 using Plugin.Firebase.RemoteConfig;
 using Plugin.Firebase.Storage;
 #if IOS
@@ -95,6 +96,7 @@ public static class MauiProgram
         builder.Services.AddSingleton(_ => CrossFirebaseAuth.Current);
         builder.Services.AddSingleton(_ => CrossFirebaseCloudMessaging.Current);
         builder.Services.AddSingleton(_ => CrossFirebaseFunctions.Current);
+        builder.Services.AddSingleton(_ => CrossFirebaseInstallations.Current);
         builder.Services.AddSingleton(_ => CrossFirebaseStorage.Current);
         builder.Services.AddSingleton(_ => CrossFirebaseRemoteConfig.Current);
         builder.Services.AddSingleton(_ => CrossFirebaseAppCheck.Current);
@@ -151,6 +153,8 @@ public static class MauiProgram
             isStorageEnabled: true,
             appCheckOptions: appCheckOptions,
             googleRequestIdToken: "537235599720-723cgj10dtm47b4ilvuodtp206g0q0fg.apps.googleusercontent.com"
-        );
+        ) {
+            IsInstallationsEnabled = true
+        };
     }
 }

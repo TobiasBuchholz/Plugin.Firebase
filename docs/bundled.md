@@ -40,7 +40,10 @@ var settings = new CrossFirebaseSettings(
     isFirestoreEnabled: true,
     isFunctionsEnabled: true,
     isRemoteConfigEnabled: true,
-    isStorageEnabled: true);
+    isStorageEnabled: true,
+    googleRequestIdToken: "YOUR_GOOGLE_WEB_CLIENT_ID.apps.googleusercontent.com") {
+    IsInstallationsEnabled = true
+};
 
 #if IOS
 CrossFirebase.Initialize(settings);

@@ -1,0 +1,123 @@
+name: integration-emulators (manual)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_MULTILEVEL_LOOKUP: 0
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_WORKLOAD_UPDATE_NOTIFICATION_LEVEL: Disable
+  FIREBASE_PROJECT_ID: demo-pluginfirebase-integrationtests
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Install .NET MAUI workload
+        run: dotnet workload install maui --source https://api.nuget.org/v3/index.json
+
+      - name: Install Firebase CLI and XHarness
+        run: |
+          npm install --global firebase-tools
+          dotnet tool install --global Microsoft.DotNet.XHarness.CLI \
+            --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-eng/nuget/v3/index.json \
+            --version "11.0.0-prerelease*"
+
+      - name: Build Cloud Functions
+        run: |
+          npm ci --prefix tests/cloud-functions/functions --legacy-peer-deps
+          npm --prefix tests/cloud-functions/functions run build
+
+      - name: Build Android integration app
+        run: dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj -c Debug -f net9.0-android
+
+      - name: Run Android integration tests against emulators
+        uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          profile: pixel_6
+          script: |
+            export PATH="$PATH:$HOME/.dotnet/tools"
+            cd tests/cloud-functions
+            firebase emulators:exec \
+              --project "$FIREBASE_PROJECT_ID" \
+              --only auth,firestore,functions,storage \
+              "node scripts/seed-auth-emulator.js && xharness android test --timeout=00:10:00 --launch-timeout=00:10:00 --package-name plugin.firebase.integrationtests --instrumentation devicerunners.xharness.maui.XHarnessInstrumentation --app ../Plugin.Firebase.IntegrationTests/bin/Debug/net9.0-android/plugin.firebase.integrationtests-Signed.apk --output-directory ../../artifacts/test-results/android --verbosity=Debug"
+
+      - name: Upload Android test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-integration-results
+          path: artifacts/test-results/android
+          if-no-files-found: ignore
+
+  ios:
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Install .NET MAUI workload
+        run: sudo "$DOTNET_ROOT/dotnet" workload install maui --source https://api.nuget.org/v3/index.json
+
+      - name: Install Firebase CLI and XHarness
+        run: |
+          npm install --global firebase-tools
+          dotnet tool install --global Microsoft.DotNet.XHarness.CLI \
+            --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-eng/nuget/v3/index.json \
+            --version "11.0.0-prerelease*"
+
+      - name: Build Cloud Functions
+        run: |
+          npm ci --prefix tests/cloud-functions/functions --legacy-peer-deps
+          npm --prefix tests/cloud-functions/functions run build
+
+      - name: Build iOS integration app
+        run: |
+          dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
+            -c Debug \
+            -f net9.0-ios \
+            -p:RuntimeIdentifier=iossimulator-arm64 \
+            -p:EnableCodeSigning=false
+
+      - name: Boot iOS simulator
+        run: |
+          DEVICE_ID=$(xcrun simctl create PluginFirebaseIntegration "iPhone 16" || xcrun simctl create PluginFirebaseIntegration "iPhone 15")
+          echo "DEVICE_ID=$DEVICE_ID" >> "$GITHUB_ENV"
+          xcrun simctl boot "$DEVICE_ID"
+          xcrun simctl bootstatus "$DEVICE_ID" -b
+
+      - name: Run iOS integration tests against emulators
+        run: |
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          cd tests/cloud-functions
+          firebase emulators:exec \
+            --project "$FIREBASE_PROJECT_ID" \
+            --only auth,firestore,functions,storage \
+            "node scripts/seed-auth-emulator.js && xharness apple test --target ios-simulator-64 --device $DEVICE_ID --timeout=00:10:00 --launch-timeout=00:10:00 --app ../Plugin.Firebase.IntegrationTests/bin/Debug/net9.0-ios/iossimulator-arm64/Plugin.Firebase.IntegrationTests.app --output-directory ../../artifacts/test-results/ios --set-env=PLUGIN_FIREBASE_TEST_BACKEND=emulator"
+
+      - name: Upload iOS test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-integration-results
+          path: artifacts/test-results/ios
+          if-no-files-found: ignore

@@ -91,16 +91,15 @@ namespace Plugin.Firebase.IntegrationTests.Storage
             var decodedUrl = WebUtility.UrlDecode(downloadUrl);
             if(UsesStorageEmulator()) {
                 var uri = new Uri(decodedUrl);
-                var expectedHost = GetStorageEmulatorHost();
-                var expectedPort = GetStorageEmulatorPort();
+                var expectedEndpoint = IntegrationTestEnvironment.StorageEmulatorEndpoint;
 
                 Assert.Equal("http", uri.Scheme);
                 Assert.True(
-                    string.Equals(uri.Host, expectedHost, StringComparison.OrdinalIgnoreCase)
-                        || (string.Equals(expectedHost, "localhost", StringComparison.OrdinalIgnoreCase)
+                    string.Equals(uri.Host, expectedEndpoint.Host, StringComparison.OrdinalIgnoreCase)
+                        || (string.Equals(expectedEndpoint.Host, "localhost", StringComparison.OrdinalIgnoreCase)
                             && string.Equals(uri.Host, "127.0.0.1", StringComparison.OrdinalIgnoreCase)),
-                    $"Expected storage emulator host '{expectedHost}' but got '{uri.Host}'.");
-                Assert.Equal(expectedPort, uri.Port);
+                    $"Expected storage emulator host '{expectedEndpoint.Host}' but got '{uri.Host}'.");
+                Assert.Equal(expectedEndpoint.Port, uri.Port);
                 Assert.StartsWith($"/v0/b/{bucket}/o/{pathToFile}", uri.AbsolutePath);
                 Assert.Contains("alt=media", uri.Query, StringComparison.Ordinal);
                 Assert.Contains("token=", uri.Query, StringComparison.Ordinal);
@@ -120,24 +119,7 @@ namespace Plugin.Firebase.IntegrationTests.Storage
 
         private static bool UsesStorageEmulator()
         {
-            return IntegrationTestConfiguration.IsFeatureEnabled(
-                "PLUGIN_FIREBASE_USE_STORAGE_EMULATOR",
-                "debug.pluginfirebase.storage.use");
-        }
-
-        private static string GetStorageEmulatorHost()
-        {
-            return IntegrationTestConfiguration.GetEmulatorHost(
-                "PLUGIN_FIREBASE_STORAGE_EMULATOR_HOST",
-                "debug.pluginfirebase.storage.host");
-        }
-
-        private static int GetStorageEmulatorPort()
-        {
-            return IntegrationTestConfiguration.GetEmulatorPort(
-                "PLUGIN_FIREBASE_STORAGE_EMULATOR_PORT",
-                "debug.pluginfirebase.storage.port",
-                9199);
+            return IntegrationTestEnvironment.ShouldUseStorageEmulator;
         }
 
         [Fact]
@@ -312,7 +294,7 @@ namespace Plugin.Firebase.IntegrationTests.Storage
         {
             try {
                 return (await reference.ListAllAsync()).Items;
-            } catch(Exception e) when (e.Message.Contains("does not exist", StringComparison.OrdinalIgnoreCase)) {
+            } catch(Exception e) when(e.Message.Contains("does not exist", StringComparison.OrdinalIgnoreCase)) {
                 TestLog.Write($"[STORAGE CLEANUP SKIP] {reference.FullPath}: {e.Message}");
                 return Array.Empty<IStorageReference>();
             }
@@ -358,7 +340,8 @@ namespace Plugin.Firebase.IntegrationTests.Storage
                     Encoding.UTF8.GetBytes("text-file-three"));
 
                 _storageEmulatorSeeded = true;
-            } finally {
+            }
+            finally {
                 SeedLock.Release();
             }
         }

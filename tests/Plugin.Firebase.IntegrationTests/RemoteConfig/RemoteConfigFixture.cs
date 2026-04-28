@@ -7,13 +7,13 @@ namespace Plugin.Firebase.IntegrationTests.RemoteConfig
     [Preserve(AllMembers = true)]
     public sealed class RemoteConfigFixture
     {
-        [Fact]
+        [RealFirebaseFact]
         public async Task ensures_it_is_initialized()
         {
             await CrossFirebaseRemoteConfig.Current.EnsureInitializedAsync();
         }
 
-        [Fact]
+        [RealFirebaseFact]
         public async Task sets_defaults_via_tuples()
         {
             var sut = CrossFirebaseRemoteConfig.Current;
@@ -31,7 +31,7 @@ namespace Plugin.Firebase.IntegrationTests.RemoteConfig
             Assert.Equal(millis % 2 == 0, sut.GetBoolean("some_bool"));
         }
 
-        [Fact]
+        [RealFirebaseFact]
         public async Task sets_defaults_via_dictionary()
         {
             var sut = CrossFirebaseRemoteConfig.Current;
@@ -50,7 +50,7 @@ namespace Plugin.Firebase.IntegrationTests.RemoteConfig
             Assert.Equal(millis % 2 == 0, sut.GetBoolean("some_bool"));
         }
 
-        [Fact]
+        [RealFirebaseFact]
         public async Task fetches_and_activates_remote_config_at_once()
         {
             var sut = CrossFirebaseRemoteConfig.Current;
@@ -70,7 +70,7 @@ namespace Plugin.Firebase.IntegrationTests.RemoteConfig
             Assert.True(sut.GetBoolean("remote_bool"));
         }
 
-        [Fact]
+        [RealFirebaseFact]
         public async Task fetches_and_activates_remote_config_separately()
         {
             var sut = CrossFirebaseRemoteConfig.Current;
@@ -101,7 +101,7 @@ namespace Plugin.Firebase.IntegrationTests.RemoteConfig
                 : "Android shouldn't throw an exception";
         }
 
-        [Fact]
+        [RealFirebaseFact]
         public void gets_keys_by_prefix()
         {
             var keys = CrossFirebaseRemoteConfig.Current.GetKeysByPrefix("remote").ToList();
@@ -112,7 +112,7 @@ namespace Plugin.Firebase.IntegrationTests.RemoteConfig
             Assert.Contains("remote_bool", keys);
         }
 
-        [Fact]
+        [RealFirebaseFact]
         public async Task gets_info()
         {
             var sut = CrossFirebaseRemoteConfig.Current;

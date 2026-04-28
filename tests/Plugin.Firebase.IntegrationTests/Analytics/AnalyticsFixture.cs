@@ -7,7 +7,7 @@ namespace Plugin.Firebase.IntegrationTests.Analytics
     [Preserve(AllMembers = true)]
     public sealed class AnalyticsFixture
     {
-        [Fact]
+        [RealFirebaseFact]
         public void does_not_throw_any_exception_when_logging_events()
         {
             var sut = CrossFirebaseAnalytics.Current;
@@ -22,7 +22,7 @@ namespace Plugin.Firebase.IntegrationTests.Analytics
                 ("some_double", 13.37),
                 ("some_float", 133.7f),
                 ("some_bool", true),
-                ("some_dictionary", new Dictionary<string, object> { { "some_string", "some_value" } } ),
+                ("some_dictionary", new Dictionary<string, object> { { "some_string", "some_value" } }),
                 ("some_dictionary_collection", new[] { new Dictionary<string, object> { { "dict_string", "dict_value" } } })
             );
 
@@ -38,7 +38,7 @@ namespace Plugin.Firebase.IntegrationTests.Analytics
             });
         }
 
-        [Fact]
+        [RealFirebaseFact]
         public void does_not_throw_any_exception_when_setting_user_properties()
         {
             var sut = CrossFirebaseAnalytics.Current;
@@ -46,14 +46,14 @@ namespace Plugin.Firebase.IntegrationTests.Analytics
             sut.SetUserProperty("some_name", "some_value");
         }
 
-        [Fact]
+        [RealFirebaseFact]
         public async Task does_not_throw_any_exception_when_getting_app_instance_id()
         {
             var sut = CrossFirebaseAnalytics.Current;
             Assert.NotNull(await sut.GetAppInstanceIdAsync());
         }
 
-        [Fact]
+        [RealFirebaseFact]
         public void does_not_throw_any_exception_at_other_methods()
         {
             var sut = CrossFirebaseAnalytics.Current;

@@ -2,6 +2,8 @@ using Plugin.Firebase.Analytics;
 
 namespace Plugin.Firebase.IntegrationTests.Analytics
 {
+    [Collection("Sequential")]
+    [TestLogging]
     [Preserve(AllMembers = true)]
     public sealed class AnalyticsFixture
     {

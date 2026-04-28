@@ -11,7 +11,7 @@ public static class DateExtensions
 
     public static DateTime ToDateTime(this Date date)
     {
-        return DateTime.FromFileTimeUtc(date.Time);
+        return DateTimeOffset.FromUnixTimeMilliseconds(date.Time).UtcDateTime;
     }
 
     public static Date ToJavaDate(this DateTimeOffset @this)

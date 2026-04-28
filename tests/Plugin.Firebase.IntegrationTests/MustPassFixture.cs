@@ -9,6 +9,8 @@ using Plugin.Firebase.Storage;
 
 namespace Plugin.Firebase.IntegrationTests
 {
+    [Collection("Sequential")]
+    [TestLogging]
     [Preserve(AllMembers = true)]
     public class MustPassFixture
     {

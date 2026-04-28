@@ -1,19 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+    <Import Project="Plugin.Firebase.IntegrationTests.props.user" Condition="Exists('Plugin.Firebase.IntegrationTests.props.user')" />
+
 	<PropertyGroup>
 		<TargetFrameworks>net9.0-android;net9.0-ios</TargetFrameworks>
 		<OutputType>Exe</OutputType>
 		<RootNamespace>Plugin.Firebase.IntegrationTests</RootNamespace>
 		<UseMaui>true</UseMaui>
-        <MauiVersion>9.0.0</MauiVersion>
+        <MauiVersion>9.0.120</MauiVersion>
 		<SingleProject>true</SingleProject>
 		<ImplicitUsings>enable</ImplicitUsings>
+        <RestoreAdditionalProjectSources>$(RestoreAdditionalProjectSources);https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-eng/nuget/v3/index.json</RestoreAdditionalProjectSources>
 
 		<!-- Display name -->
 		<ApplicationTitle>Plugin Firebase Integration Tests</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>plugin.firebase.integrationtests</ApplicationId>
+		<IntegrationTestsIosApplicationId Condition="'$(IntegrationTestsIosApplicationId)' == ''">plugin.firebase.integrationtests</IntegrationTestsIosApplicationId>
+		<IntegrationTestsAndroidApplicationId Condition="'$(IntegrationTestsAndroidApplicationId)' == ''">plugin.firebase.integrationtests</IntegrationTestsAndroidApplicationId>
 		<ApplicationIdGuid>06C3A02E-0965-4D7F-9E22-1902C6448F87</ApplicationIdGuid>
 
 		<!-- Versions -->
@@ -39,8 +43,13 @@
     
     <!-- ios entitlements -->
     <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
-        <CodesignEntitlements>Platforms\iOS\Entitlements.plist</CodesignEntitlements>
+        <ApplicationId>$(IntegrationTestsIosApplicationId)</ApplicationId>
+        <CodesignEntitlements Condition="'$(CodesignEntitlements)' == ''">Platforms\iOS\Entitlements.plist</CodesignEntitlements>
         <FirebaseCrashlyticsUploadSymbolsEnabled>false</FirebaseCrashlyticsUploadSymbolsEnabled>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+        <ApplicationId>$(IntegrationTestsAndroidApplicationId)</ApplicationId>
     </PropertyGroup>
 
     <!-- project references -->
@@ -50,7 +59,13 @@
 
     <!-- nuget packages -->
     <ItemGroup>
-        <PackageReference Include="Shiny.Xunit.Runners.Maui" Version="1.0.0" />
+        <PackageReference Include="DeviceRunners.UITesting.Maui" Version="0.1.0-preview.6" />
+        <PackageReference Include="DeviceRunners.VisualRunners.Maui" Version="0.1.0-preview.6" />
+        <PackageReference Include="DeviceRunners.VisualRunners.Xunit" Version="0.1.0-preview.6" />
+        <PackageReference Include="DeviceRunners.XHarness.Maui" Version="0.1.0-preview.6" />
+        <PackageReference Include="DeviceRunners.XHarness.Xunit" Version="0.1.0-preview.6" />
+        <PackageReference Include="xunit" Version="2.9.3" />
+        <PackageReference Include="xunit.runner.utility" Version="2.9.3" />
     </ItemGroup>
 
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
@@ -84,4 +99,32 @@
     <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-android|AnyCPU'">
       <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
     </PropertyGroup>
+
+    <Target
+      Name="ResignSimulatorRuntimeLibraries"
+      AfterTargets="Build"
+      Condition="
+        $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'
+        and !$([System.String]::IsNullOrEmpty('$(RuntimeIdentifier)'))
+        and $([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('iossimulator'))
+      ">
+      <PropertyGroup>
+        <_SimulatorAppBundlePath>$(OutputPath)$(AssemblyName).app</_SimulatorAppBundlePath>
+      </PropertyGroup>
+
+      <!--
+        Xcode 26 / macOS 26 rejects the Microsoft-signed simulator runtime dylibs
+        with "Code Signature Invalid" before the test runner starts. Re-sign them
+        ad hoc to match the generated simulator app bundle.
+      -->
+      <Exec
+        Condition="Exists('$(_SimulatorAppBundlePath)/libxamarin-dotnet.dylib')"
+        Command="codesign --force --sign - &quot;$(_SimulatorAppBundlePath)/libxamarin-dotnet.dylib&quot;" />
+      <Exec
+        Condition="Exists('$(_SimulatorAppBundlePath)/libxamarin-dotnet-debug.dylib')"
+        Command="codesign --force --sign - &quot;$(_SimulatorAppBundlePath)/libxamarin-dotnet-debug.dylib&quot;" />
+      <Exec
+        Condition="Exists('$(_SimulatorAppBundlePath)')"
+        Command="codesign --force --sign - --deep &quot;$(_SimulatorAppBundlePath)&quot;" />
+    </Target>
 </Project>

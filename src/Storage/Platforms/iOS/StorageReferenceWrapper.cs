@@ -1,6 +1,7 @@
 using Firebase.Storage;
 using Plugin.Firebase.Core.Exceptions;
 using Plugin.Firebase.Storage.Platforms.iOS.Extensions;
+using NativeStorageListResult = Firebase.Storage.StorageListResult;
 using NativeStorageMetadata = Firebase.Storage.StorageMetadata;
 
 namespace Plugin.Firebase.Storage.Platforms.iOS;
@@ -95,16 +96,46 @@ public sealed class StorageReferenceWrapper : IStorageReference
     /// <inheritdoc/>
     public Task<IStorageListResult> ListAllAsync()
     {
+        return ListAllPagedAsync();
+    }
+
+    private async Task<IStorageListResult> ListAllPagedAsync()
+    {
+        const long maxResultsPerPage = 1000;
+
+        var items = new List<IStorageReference>();
+        var prefixes = new List<IStorageReference>();
+        string pageToken = null;
+
+        do {
+            var page = await ListPageAsync(maxResultsPerPage, pageToken);
+            items.AddRange(page.Items);
+            prefixes.AddRange(page.Prefixes);
+            pageToken = page.PageToken;
+        } while(!string.IsNullOrEmpty(pageToken));
+
+        return new PagedStorageListResult(items, prefixes, pageToken: null);
+    }
+
+    private Task<IStorageListResult> ListPageAsync(long maxResults, string pageToken)
+    {
         var tcs = new TaskCompletionSource<IStorageListResult>();
-        _wrapped.ListAll(
-            (x, error) => {
-                if(error == null) {
-                    tcs.SetResult(x.ToAbstract());
-                } else {
-                    tcs.SetException(new FirebaseException(error.LocalizedDescription));
-                }
+
+        void CompletionHandler(NativeStorageListResult listResult, NSError error)
+        {
+            if(error == null) {
+                tcs.SetResult(listResult.ToAbstract());
+            } else {
+                tcs.SetException(new FirebaseException(error.LocalizedDescription));
             }
-        );
+        }
+
+        if(string.IsNullOrEmpty(pageToken)) {
+            _wrapped.List(maxResults, CompletionHandler);
+        } else {
+            _wrapped.List(maxResults, pageToken, CompletionHandler);
+        }
+
         return tcs.Task;
     }
 

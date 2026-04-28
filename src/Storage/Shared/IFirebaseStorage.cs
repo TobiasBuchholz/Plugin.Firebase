@@ -27,4 +27,12 @@ public interface IFirebaseStorage : IDisposable
     /// <param name="path">A relative path from the root to initialize the reference with, for instance "path/to/object"</param>
     /// <returns></returns>
     IStorageReference GetReferenceFromPath(string path);
+
+    /// <summary>
+    /// Modifies this FirebaseStorage instance to communicate with the Cloud Storage for Firebase emulator.
+    /// Note: Call this method before using the instance to do any storage operations.
+    /// </summary>
+    /// <param name="host">The emulator host (for example, 10.0.2.2 on android and localhost on iOS)</param>
+    /// <param name="port">The emulator port (for example, 9199)</param>
+    void UseEmulator(string host, int port);
 }

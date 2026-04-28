@@ -1,4 +1,33 @@
 {
-  "indexes": [],
+  "indexes": [
+    {
+      "collectionGroup": "pokemons",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "poke_type",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "height_in_cm",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "pokemons",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "poke_type",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "name",
+          "order": "ASCENDING"
+        }
+      ]
+    }
+  ],
   "fieldOverrides": []
 }

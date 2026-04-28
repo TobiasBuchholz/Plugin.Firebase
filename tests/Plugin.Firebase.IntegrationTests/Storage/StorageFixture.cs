@@ -1,12 +1,23 @@
 using System.Net;
 using System.Text;
+using Plugin.Firebase.IntegrationTests;
 using Plugin.Firebase.Storage;
 
 namespace Plugin.Firebase.IntegrationTests.Storage
 {
+    [Collection("Sequential")]
+    [TestLogging]
     [Preserve(AllMembers = true)]
-    public sealed class StorageFixture : IDisposable
+    public sealed class StorageFixture : IAsyncLifetime
     {
+        private static readonly SemaphoreSlim SeedLock = new(1, 1);
+        private static bool _storageEmulatorSeeded;
+
+        public async Task InitializeAsync()
+        {
+            await EnsureStorageEmulatorSeedDataAsync();
+        }
+
         [Fact]
         public void gets_root_reference()
         {
@@ -16,21 +27,22 @@ namespace Plugin.Firebase.IntegrationTests.Storage
             Assert.Null(reference.Parent);
             Assert.Equal("/", reference.FullPath);
             Assert.Equal("", reference.Name);
-            Assert.Equal("pluginfirebase-integrationtest.appspot.com", reference.Bucket);
+            Assert.Equal(GetExpectedBucket(), reference.Bucket);
         }
 
         [Fact]
         public void gets_reference_from_url()
         {
+            var bucket = GetExpectedBucket();
             var reference = CrossFirebaseStorage
                 .Current
-                .GetReferenceFromUrl("gs://pluginfirebase-integrationtest.appspot.com/files_to_keep/text_1.txt");
+                .GetReferenceFromUrl($"gs://{bucket}/files_to_keep/text_1.txt");
 
             Assert.NotNull(reference.Root);
             Assert.NotNull(reference.Parent);
             Assert.Equal("/files_to_keep/text_1.txt", reference.FullPath);
             Assert.Equal("text_1.txt", reference.Name);
-            Assert.Equal("pluginfirebase-integrationtest.appspot.com", reference.Bucket);
+            Assert.Equal(bucket, reference.Bucket);
         }
 
         [Fact]
@@ -44,7 +56,7 @@ namespace Plugin.Firebase.IntegrationTests.Storage
             Assert.NotNull(reference.Parent);
             Assert.Equal("/files_to_keep/text_1.txt", reference.FullPath);
             Assert.Equal("text_1.txt", reference.Name);
-            Assert.Equal("pluginfirebase-integrationtest.appspot.com", reference.Bucket);
+            Assert.Equal(GetExpectedBucket(), reference.Bucket);
         }
 
         [Fact]
@@ -58,7 +70,7 @@ namespace Plugin.Firebase.IntegrationTests.Storage
             Assert.NotNull(reference.Parent);
             Assert.Equal("/files_to_keep/text_1.txt", reference.FullPath);
             Assert.Equal("text_1.txt", reference.Name);
-            Assert.Equal("pluginfirebase-integrationtest.appspot.com", reference.Bucket);
+            Assert.Equal(GetExpectedBucket(), reference.Bucket);
         }
 
         [Fact]
@@ -75,11 +87,57 @@ namespace Plugin.Firebase.IntegrationTests.Storage
 
         private static void AssertDownloadUrl(string pathToFile, string downloadUrl)
         {
-            var port = DeviceInfo.Platform == DevicePlatform.iOS ? ":443" : "";
+            var bucket = GetExpectedBucket();
+            var decodedUrl = WebUtility.UrlDecode(downloadUrl);
+            if(UsesStorageEmulator()) {
+                var uri = new Uri(decodedUrl);
+                var expectedHost = GetStorageEmulatorHost();
+                var expectedPort = GetStorageEmulatorPort();
 
+                Assert.Equal("http", uri.Scheme);
+                Assert.True(
+                    string.Equals(uri.Host, expectedHost, StringComparison.OrdinalIgnoreCase)
+                        || (string.Equals(expectedHost, "localhost", StringComparison.OrdinalIgnoreCase)
+                            && string.Equals(uri.Host, "127.0.0.1", StringComparison.OrdinalIgnoreCase)),
+                    $"Expected storage emulator host '{expectedHost}' but got '{uri.Host}'.");
+                Assert.Equal(expectedPort, uri.Port);
+                Assert.StartsWith($"/v0/b/{bucket}/o/{pathToFile}", uri.AbsolutePath);
+                Assert.Contains("alt=media", uri.Query, StringComparison.Ordinal);
+                Assert.Contains("token=", uri.Query, StringComparison.Ordinal);
+                return;
+            }
+
+            var port = DeviceInfo.Platform == DevicePlatform.iOS ? ":443" : "";
             Assert.StartsWith(
-                $"https://firebasestorage.googleapis.com{port}/v0/b/pluginfirebase-integrationtest.appspot.com/o/{pathToFile}?alt=media&token=",
-                WebUtility.UrlDecode(downloadUrl));
+                $"https://firebasestorage.googleapis.com{port}/v0/b/{bucket}/o/{pathToFile}?alt=media&token=",
+                decodedUrl);
+        }
+
+        private static string GetExpectedBucket()
+        {
+            return CrossFirebaseStorage.Current.GetRootReference().Bucket;
+        }
+
+        private static bool UsesStorageEmulator()
+        {
+            return IntegrationTestConfiguration.IsFeatureEnabled(
+                "PLUGIN_FIREBASE_USE_STORAGE_EMULATOR",
+                "debug.pluginfirebase.storage.use");
+        }
+
+        private static string GetStorageEmulatorHost()
+        {
+            return IntegrationTestConfiguration.GetEmulatorHost(
+                "PLUGIN_FIREBASE_STORAGE_EMULATOR_HOST",
+                "debug.pluginfirebase.storage.host");
+        }
+
+        private static int GetStorageEmulatorPort()
+        {
+            return IntegrationTestConfiguration.GetEmulatorPort(
+                "PLUGIN_FIREBASE_STORAGE_EMULATOR_PORT",
+                "debug.pluginfirebase.storage.port",
+                9199);
         }
 
         [Fact]
@@ -240,12 +298,24 @@ namespace Plugin.Firebase.IntegrationTests.Storage
             Assert.Empty((await reference.ListAllAsync()).Items);
         }
 
-        public async void Dispose()
+        public async Task DisposeAsync()
         {
+            TestLog.Write("[STORAGE CLEANUP START]");
             var rootReference = CrossFirebaseStorage.Current.GetRootReference();
-            var filesToDelete = (await rootReference.GetChild("files_to_delete").ListAllAsync()).Items;
-            var texts = (await rootReference.GetChild("texts").ListAllAsync()).Items;
+            var filesToDelete = await ListItemsIfExistsAsync(rootReference.GetChild("files_to_delete"));
+            var texts = await ListItemsIfExistsAsync(rootReference.GetChild("texts"));
             await Task.WhenAll(filesToDelete.Select(TryDeleteAsync).Concat(texts.Select(TryDeleteAsync)));
+            TestLog.Write("[STORAGE CLEANUP END]");
+        }
+
+        private static async Task<IEnumerable<IStorageReference>> ListItemsIfExistsAsync(IStorageReference reference)
+        {
+            try {
+                return (await reference.ListAllAsync()).Items;
+            } catch(Exception e) when (e.Message.Contains("does not exist", StringComparison.OrdinalIgnoreCase)) {
+                TestLog.Write($"[STORAGE CLEANUP SKIP] {reference.FullPath}: {e.Message}");
+                return Array.Empty<IStorageReference>();
+            }
         }
 
         private static async Task TryDeleteAsync(IStorageReference reference)
@@ -253,8 +323,52 @@ namespace Plugin.Firebase.IntegrationTests.Storage
             try {
                 await reference.DeleteAsync();
             } catch(Exception e) {
-                Console.WriteLine(e);
+                TestLog.Write($"[STORAGE CLEANUP ERROR] {reference.FullPath}: {e}");
             }
+        }
+
+        private static async Task EnsureStorageEmulatorSeedDataAsync()
+        {
+            if(!UsesStorageEmulator() || _storageEmulatorSeeded) {
+                return;
+            }
+
+            await SeedLock.WaitAsync();
+            try {
+                if(_storageEmulatorSeeded) {
+                    return;
+                }
+
+                var rootReference = CrossFirebaseStorage.Current.GetRootReference();
+                var filesToKeep = rootReference.GetChild("files_to_keep");
+                var existingItems = await ListItemsIfExistsAsync(filesToKeep);
+                await Task.WhenAll(existingItems.Select(x => x.DeleteAsync()));
+
+                await EnsureSeedFileAsync(
+                    filesToKeep,
+                    "text_1.txt",
+                    "0123456789012345678901234567890123"u8.ToArray());
+                await EnsureSeedFileAsync(
+                    filesToKeep,
+                    "text_2.txt",
+                    Encoding.UTF8.GetBytes("text-file-two"));
+                await EnsureSeedFileAsync(
+                    filesToKeep,
+                    "text_3.txt",
+                    Encoding.UTF8.GetBytes("text-file-three"));
+
+                _storageEmulatorSeeded = true;
+            } finally {
+                SeedLock.Release();
+            }
+        }
+
+        private static async Task EnsureSeedFileAsync(
+            IStorageReference parentReference,
+            string fileName,
+            byte[] contents)
+        {
+            await parentReference.GetChild(fileName).PutBytes(contents).AwaitAsync();
         }
     }
 }

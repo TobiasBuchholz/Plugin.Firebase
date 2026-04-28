@@ -36,4 +36,10 @@ public sealed class FirebaseStorageImplementation : DisposableBase, IFirebaseSto
     {
         return _instance.GetReferenceFromPath(path).ToAbstract();
     }
+
+    /// <inheritdoc/>
+    public void UseEmulator(string host, int port)
+    {
+        _instance.UseEmulatorWithHost(host, (uint) port);
+    }
 }

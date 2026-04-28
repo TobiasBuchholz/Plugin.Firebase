@@ -7,25 +7,33 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
 
-      - name: Build packages (net9.0 only)
+      - name: Install .NET MAUI workloads
         run: |
-          dotnet build src/Core/Core.csproj -c Release -f net9.0
-          dotnet build src/Analytics/Analytics.csproj -c Release -f net9.0
-          dotnet build src/Auth/Auth.csproj -c Release -f net9.0
-          dotnet build src/CloudMessaging/CloudMessaging.csproj -c Release -f net9.0
-          dotnet build src/Crashlytics/Crashlytics.csproj -c Release -f net9.0
-          dotnet build src/Firestore/Firestore.csproj -c Release -f net9.0
-          dotnet build src/Functions/Functions.csproj -c Release -f net9.0
-          dotnet build src/RemoteConfig/RemoteConfig.csproj -c Release -f net9.0
-          dotnet build src/Storage/Storage.csproj -c Release -f net9.0
-          dotnet build src/Bundled/Bundled.csproj -c Release -f net9.0
+          sudo "$DOTNET_ROOT/dotnet" workload install maui --source https://api.nuget.org/v3/index.json
+          dotnet workload list
+
+      - name: Build packages
+        run: |
+          dotnet build src/Core/Core.csproj -c Release
+          dotnet build src/Analytics/Analytics.csproj -c Release
+          dotnet build src/AppCheck/AppCheck.csproj -c Release
+          dotnet build src/Auth/Auth.csproj -c Release
+          dotnet build src/CloudMessaging/CloudMessaging.csproj -c Release
+          dotnet build src/Crashlytics/Crashlytics.csproj -c Release
+          dotnet build src/Firestore/Firestore.csproj -c Release
+          dotnet build src/Functions/Functions.csproj -c Release
+          dotnet build src/RemoteConfig/RemoteConfig.csproj -c Release
+          dotnet build src/Storage/Storage.csproj -c Release
+          dotnet build src/Bundled/Bundled.csproj -c Release
 
       - name: Run unit tests
-        run: dotnet test tests/Plugin.Firebase.UnitTests/Plugin.Firebase.UnitTests.csproj -c Release
+        run: |
+          dotnet restore tests/Plugin.Firebase.UnitTests/Plugin.Firebase.UnitTests.csproj
+          dotnet test tests/Plugin.Firebase.UnitTests/Plugin.Firebase.UnitTests.csproj -c Release -f net9.0 --no-restore

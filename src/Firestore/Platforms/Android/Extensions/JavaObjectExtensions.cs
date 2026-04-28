@@ -55,6 +55,8 @@ public static class JavaObjectExtensions
                 return x.ToJavaList();
             case DocumentReferenceWrapper x:
                 return x.Wrapped;
+            case GeoPoint x:
+                return new global::Firebase.Firestore.GeoPoint(x.Latitude, x.Longitude);
             case IFirestoreObject x:
                 return x.ToJavaObject();
             default:
@@ -135,7 +137,9 @@ public static class JavaObjectExtensions
     {
         if(targetType == null) {
             return @this.ToDictionary();
-        } else if(targetType.IsGenericType && (targetType.GetGenericTypeDefinition() == typeof(IDictionary<,>) || targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>))) {
+        } else if(targetType == typeof(object)) {
+            return @this.ToDictionary(typeof(string), typeof(object));
+        } else if(IsDictionaryType(targetType)) {
             var types = targetType.GenericTypeArguments;
             return @this.ToDictionary(types[0], types[1]);
         } else {
@@ -171,13 +175,17 @@ public static class JavaObjectExtensions
                 throw new ArgumentException("Dictionary contains a null key.");
             }
 
-            dict[key] = pair.Value.ToJavaObject().ToObject();
+            dict[key] = ConvertToObject(typeof(object), pair.Value);
         }
         return dict;
     }
 
     private static object Cast(this IDictionary @this, Type targetType, string? documentId = null)
     {
+        if(targetType == typeof(object) || IsDictionaryType(targetType)) {
+            return @this.ToDictionaryObject(targetType);
+        }
+
         var instance = Activator.CreateInstance(targetType);
         if(instance is null) {
             throw new InvalidOperationException("Could not create instance of type " + targetType);
@@ -238,11 +246,22 @@ public static class JavaObjectExtensions
             return value is Java.Lang.ICharSequence charSequence
                 ? charSequence.ToString()
                 : value.ToString();
+        } else if(value is IDictionary dictionary) {
+            return dictionary.ToDictionaryObject(targetType);
         } else if(value is Java.Lang.Object javaValue) {
             return javaValue.ToObject(targetType);
         }
 
         return value.ConvertToTargetType(targetType);
+    }
+
+    private static bool IsDictionaryType(Type targetType)
+    {
+        return targetType.IsGenericType
+               && (
+                   targetType.GetGenericTypeDefinition() == typeof(IDictionary<,>)
+                   || targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>)
+               );
     }
 
     public static IDictionary<string, object?> ToDictionary(this ArrayMap @this)

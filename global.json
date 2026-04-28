@@ -1,6 +1,7 @@
 {
   "sdk": {
-    "version": "9.0.0",
+    "version": "9.0.313",
+    "workloadVersion": "9.0.313",
     "allowPrerelease": false,
     "rollForward": "latestMinor"
   }

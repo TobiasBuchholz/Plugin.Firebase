@@ -11,7 +11,7 @@ public interface IDocumentSnapshot<out T> : IDocumentSnapshot
     /// <summary>
     /// Retrieves all fields in the document as the given generic type. Returns null if the document doesn't exist.
     /// </summary>
-    T Data { get; }
+    T? Data { get; }
 
     /// <summary>
     /// Metadata about this snapshot concerning its source and if it has local modifications.

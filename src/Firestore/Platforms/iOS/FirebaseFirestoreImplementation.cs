@@ -41,11 +41,11 @@ public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseF
     }
 
     /// <inheritdoc/>
-    public async Task<TResult> RunTransactionAsync<TResult>(Func<ITransaction, TResult> updateFunc)
+    public async Task<TResult?> RunTransactionAsync<TResult>(Func<ITransaction, TResult> updateFunc)
     {
-        FirebaseException exception = null;
+        FirebaseException? exception = null;
         var result = await _firestore.RunTransactionAsync(
-            (Transaction transaction, ref NSError error) => {
+            (Transaction transaction, ref NSError? error) => {
                 try {
                     if(error == null) {
                         return updateFunc(transaction.ToAbstract())?.ToNSObject();
@@ -58,7 +58,7 @@ public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseF
                 return null;
             }
         );
-        return exception is null ? (TResult) result?.ToObject(typeof(TResult)) : throw exception;
+        return exception is null ? (TResult?) result?.ToObject(typeof(TResult)) : throw exception;
     }
 
     /// <inheritdoc/>

@@ -15,17 +15,17 @@ public sealed class WriteBatchWrapper : IWriteBatch
 
     public override string ToString()
     {
-        return _wrapped?.ToString() ?? "null";
+        return _wrapped.ToString();
     }
 
-    public IWriteBatch SetData(IDocumentReference document, object data, SetOptions options = null)
+    public IWriteBatch SetData(IDocumentReference document, object data, SetOptions? options = null)
     {
         return options == null
             ? _wrapped.Set(document.ToNative(), data.ToHashMap()).ToAbstract()
             : _wrapped.Set(document.ToNative(), data.ToHashMap(), options.ToNative()).ToAbstract();
     }
 
-    public IWriteBatch SetData(IDocumentReference document, Dictionary<object, object> data, SetOptions options = null)
+    public IWriteBatch SetData(IDocumentReference document, Dictionary<object, object> data, SetOptions? options = null)
     {
         return options == null
             ? _wrapped.Set(document.ToNative(), data.ToHashMap()).ToAbstract()

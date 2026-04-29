@@ -30,10 +30,10 @@ public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseF
         return new DocumentReferenceWrapper(_firestore.Document(documentPath));
     }
 
-    public async Task<TResult> RunTransactionAsync<TResult>(Func<ITransaction, TResult> updateFunc)
+    public async Task<TResult?> RunTransactionAsync<TResult>(Func<ITransaction, TResult> updateFunc)
     {
         var result = await _firestore.RunTransaction(new TransactionFunction<TResult>(updateFunc));
-        return (TResult) result?.ToObject(typeof(TResult));
+        return (TResult?) result?.ToObject(typeof(TResult));
     }
 
     public IWriteBatch CreateBatch()

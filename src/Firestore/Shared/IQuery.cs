@@ -246,5 +246,5 @@ public interface IQuery
     /// Whether metadata-only changes (i.e. only <c>IDocumentSnapshot.Metadata</c> changed) should trigger snapshot events.
     /// </param>
     /// <typeparam name="T">The type of the document item.</typeparam>
-    IDisposable AddSnapshotListener<T>(Action<IQuerySnapshot<T>> onChanged, Action<Exception> onError = null, bool includeMetaDataChanges = false);
+    IDisposable AddSnapshotListener<T>(Action<IQuerySnapshot<T>> onChanged, Action<Exception>? onError = null, bool includeMetaDataChanges = false);
 }

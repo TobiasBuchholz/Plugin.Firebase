@@ -78,9 +78,9 @@ namespace Plugin.Firebase.Firestore.Platforms.Android.Extensions
         {
             switch(@this.Type) {
                 case FieldValueType.ArrayUnion:
-                    return NativeFieldValue.ArrayUnion(@this.Elements.Select(x => x.ToJavaObject()).ToArray());
+                    return NativeFieldValue.ArrayUnion(ToNativeArray(@this.Elements));
                 case FieldValueType.ArrayRemove:
-                    return NativeFieldValue.ArrayRemove(@this.Elements.Select(x => x.ToJavaObject()).ToArray());
+                    return NativeFieldValue.ArrayRemove(ToNativeArray(@this.Elements));
                 case FieldValueType.IntegerIncrement:
                     return NativeFieldValue.Increment((long) @this.IncrementValue);
                 case FieldValueType.DoubleIncrement:
@@ -109,9 +109,9 @@ namespace Plugin.Firebase.Firestore.Platforms.Android.Extensions
                 case SetOptions.TypeMerge:
                     return NativeSetOptions.Merge();
                 case SetOptions.TypeMergeFieldPaths:
-                    return NativeSetOptions.MergeFieldPaths(options.FieldPaths.Select(x => NativeFieldPath.Of(x.ToArray())).ToList());
+                    return NativeSetOptions.MergeFieldPaths(options.FieldPaths?.Select(x => NativeFieldPath.Of(x.ToArray())).ToList() ?? []);
                 case SetOptions.TypeMergeFields:
-                    return NativeSetOptions.MergeFields(options.Fields);
+                    return NativeSetOptions.MergeFields(options.Fields ?? []);
                 default:
                     throw new ArgumentException($"SetOptions type {options.Type} is not supported.");
             }
@@ -144,12 +144,26 @@ namespace Plugin.Firebase.Firestore.Platforms.Android.Extensions
 
         public static NativeFieldPath ToNative(this FieldPath @this)
         {
-            return @this.IsDocumentId ? NativeFieldPath.DocumentId() : NativeFieldPath.Of(@this.Fields);
+            return @this.IsDocumentId ? NativeFieldPath.DocumentId() : NativeFieldPath.Of(@this.Fields ?? []);
         }
 
         public static ICollectionReference ToAbstract(this CollectionReference @this)
         {
             return new CollectionReferenceWrapper(@this);
+        }
+
+        private static Java.Lang.Object[] ToNativeArray(object[]? elements)
+        {
+            var nativeElements = new Java.Lang.Object[elements?.Length ?? 0];
+            if(elements is null) {
+                return nativeElements;
+            }
+
+            for(var i = 0; i < elements.Length; i++) {
+                nativeElements.SetValue(elements[i].ToJavaObject(), i);
+            }
+
+            return nativeElements;
         }
     }
 }

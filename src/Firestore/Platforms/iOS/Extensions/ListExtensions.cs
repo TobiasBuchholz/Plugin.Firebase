@@ -29,7 +29,10 @@ public static class ListExtensions
     /// <returns>A typed list containing the converted elements.</returns>
     public static IList ToList(this NSArray @this, Type targetType)
     {
-        var list = (IList) Activator.CreateInstance(typeof(List<>).MakeGenericType(targetType));
+        var list = (IList?) Activator.CreateInstance(typeof(List<>).MakeGenericType(targetType));
+        if(list is null)
+            throw new InvalidOperationException("Could not create list of type " + targetType);
+
         for(nuint i = 0; i < @this.Count; i++) {
             var item = @this.GetItem<NSObject>(i);
             if(item != null)

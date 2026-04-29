@@ -10,7 +10,7 @@ public sealed class DocumentSnapshotWrapper<T> : DocumentSnapshotWrapper, IDocum
     {
     }
 
-    public new T Data => Wrapped.Data == null ? default(T) : Wrapped.Data.Cast<T>(Wrapped.Id);
+    public new T? Data => Wrapped.Data == null ? default(T) : Wrapped.Data.Cast<T>(Wrapped.Id);
 }
 
 public class DocumentSnapshotWrapper : IDocumentSnapshot
@@ -20,7 +20,7 @@ public class DocumentSnapshotWrapper : IDocumentSnapshot
         Wrapped = snapshot;
     }
 
-    public object Data => Wrapped.Data;
+    public object? Data => Wrapped.Data;
     public ISnapshotMetadata Metadata => Wrapped.Metadata.ToAbstract();
     public IDocumentReference Reference => Wrapped.Reference.ToAbstract();
     public DocumentSnapshot Wrapped { get; }

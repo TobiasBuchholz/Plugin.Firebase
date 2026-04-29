@@ -11,7 +11,7 @@ public interface ITransaction
     /// <param name="document">A reference to the document to be read.</param>
     /// <typeparam name="T">The type of the document item.</typeparam>
     /// <returns></returns>
-    IDocumentSnapshot<T> GetDocument<T>(IDocumentReference document);
+    IDocumentSnapshot<T>? GetDocument<T>(IDocumentReference document);
 
     /// <summary>
     /// Writes to the document referred to by the provided <c>IDocumentReference</c> object. If the document does not yet exist, it will be
@@ -21,7 +21,7 @@ public interface ITransaction
     /// <param name="data">The data to write to the document.</param>
     /// <param name="options">An object to configure the set behavior.</param>
     /// <returns>This <c>ITransaction</c> instance. Used for chaining method calls.</returns>
-    ITransaction SetData(IDocumentReference document, object data, SetOptions options = null);
+    ITransaction SetData(IDocumentReference document, object data, SetOptions? options = null);
 
     /// <summary>
     /// Writes to the document referred to by the provided <c>IDocumentReference</c> object. If the document does not yet exist, it will be
@@ -31,7 +31,7 @@ public interface ITransaction
     /// <param name="data">The data to write to the document.</param>
     /// <param name="options">An object to configure the set behavior.</param>
     /// <returns>This <c>ITransaction</c> instance. Used for chaining method calls.</returns>
-    ITransaction SetData(IDocumentReference document, Dictionary<object, object> data, SetOptions options = null);
+    ITransaction SetData(IDocumentReference document, Dictionary<object, object> data, SetOptions? options = null);
 
     /// <summary>
     /// Writes to the document referred to by the provided <c>IDocumentReference</c> object. If the document does not yet exist, it will be

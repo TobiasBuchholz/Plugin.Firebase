@@ -52,7 +52,7 @@ public sealed class FieldValue
     /// <returns></returns>
     public static FieldValue ServerTimestamp() => new FieldValue(FieldValueType.ServerTimestamp);
 
-    private FieldValue(FieldValueType type, double incrementValue = 0, object[] elements = null)
+    private FieldValue(FieldValueType type, double incrementValue = 0, object[]? elements = null)
     {
         Type = type;
         Elements = elements;
@@ -67,7 +67,7 @@ public sealed class FieldValue
     /// <summary>
     /// Gets the elements for array operations (ArrayUnion, ArrayRemove).
     /// </summary>
-    public object[] Elements { get; }
+    public object[]? Elements { get; }
 
     /// <summary>
     /// Gets the increment value for numeric increment operations.

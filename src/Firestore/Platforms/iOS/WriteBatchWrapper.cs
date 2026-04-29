@@ -27,7 +27,7 @@ public sealed class WriteBatchWrapper : IWriteBatch
     }
 
     /// <inheritdoc/>
-    public IWriteBatch SetData(IDocumentReference document, object data, SetOptions options = null)
+    public IWriteBatch SetData(IDocumentReference document, object data, SetOptions? options = null)
     {
         return SetData(document, data.ToDictionary(), options);
     }
@@ -36,7 +36,7 @@ public sealed class WriteBatchWrapper : IWriteBatch
     public IWriteBatch SetData(
         IDocumentReference document,
         Dictionary<object, object> data,
-        SetOptions options = null
+        SetOptions? options = null
     )
     {
         if(options == null) {
@@ -51,12 +51,12 @@ public sealed class WriteBatchWrapper : IWriteBatch
                     .SetData(
                         data,
                         document.ToNative(),
-                        options.FieldPaths.Select(x => new NativeFieldPath(x.ToArray())).ToArray()
+                        options.FieldPaths?.Select(x => new NativeFieldPath(x.ToArray())).ToArray() ?? []
                     )
                     .ToAbstract();
             case SetOptions.TypeMergeFields:
                 return _wrapped
-                    .SetData(data, document.ToNative(), options.Fields.ToArray())
+                    .SetData(data, document.ToNative(), options.Fields?.ToArray() ?? [])
                     .ToAbstract();
             default:
                 throw new ArgumentException($"SetOptions type {options.Type} is not supported.");

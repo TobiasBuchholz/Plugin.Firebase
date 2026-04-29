@@ -62,7 +62,7 @@ public sealed class SetOptions
     /// <param name="type">The type of merge operation.</param>
     /// <param name="fieldPaths">The field paths to merge.</param>
     /// <param name="fields">The field names to merge.</param>
-    public SetOptions(int type, IList<IList<string>> fieldPaths = null, IList<string> fields = null)
+    public SetOptions(int type, IList<IList<string>>? fieldPaths = null, IList<string>? fields = null)
     {
         Type = type;
         FieldPaths = fieldPaths;
@@ -77,10 +77,10 @@ public sealed class SetOptions
     /// <summary>
     /// The list of fields to merge.
     /// </summary>
-    public IList<IList<string>> FieldPaths { get; }
+    public IList<IList<string>>? FieldPaths { get; }
 
     /// <summary>
     /// The list of fields to merge.
     /// </summary>
-    public IList<string> Fields { get; }
+    public IList<string>? Fields { get; }
 }

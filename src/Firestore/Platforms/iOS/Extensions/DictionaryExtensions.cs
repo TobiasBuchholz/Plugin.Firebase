@@ -22,7 +22,10 @@ public static class DictionaryExtensions
 
             foreach(DictionaryEntry entry in dictionary) {
                 PutIntoNSDictionary(
-                    new KeyValuePair<string, object>(entry.Key.ToString(), entry.Value),
+                    new KeyValuePair<string, object?>(
+                        entry.Key.ToString() ?? throw new ArgumentException("Dictionary contains a null key."),
+                        entry.Value
+                    ),
                     ref nsDictionary
                 );
             }
@@ -37,7 +40,7 @@ public static class DictionaryExtensions
     }
 
     private static void PutIntoNSDictionary(
-        KeyValuePair<string, object> pair,
+        KeyValuePair<string, object?> pair,
         ref NSMutableDictionary<NSString, NSObject> nsDictionary
     )
     {
@@ -120,7 +123,7 @@ public static class DictionaryExtensions
     /// <param name="this">The NSDictionary to convert.</param>
     /// <param name="targetType">The target type to convert to.</param>
     /// <returns>The converted object.</returns>
-    public static object ToDictionaryObject(this NSDictionary @this, Type targetType)
+    public static object? ToDictionaryObject(this NSDictionary @this, Type? targetType)
     {
         if(targetType == null) {
             return @this.ToDictionary();
@@ -147,10 +150,18 @@ public static class DictionaryExtensions
     /// <returns>A typed dictionary containing the converted key-value pairs.</returns>
     public static IDictionary ToDictionary(this NSDictionary @this, Type keyType, Type valueType)
     {
-        var dict = (IDictionary)
-            Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(keyType, valueType));
+        var dict =
+            Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(keyType, valueType)) as IDictionary;
+        if(dict is null) {
+            throw new InvalidOperationException("Could not create dictionary of type " + valueType);
+        }
+
         foreach(var pair in @this) {
-            dict[pair.Key.ToObject(keyType)] = pair.Value.ToObject(valueType);
+            var key = pair.Key.ToObject(keyType);
+            if(key is null) {
+                throw new ArgumentException("Dictionary contains a null key.");
+            }
+            dict[key] = pair.Value.ToObject(valueType);
         }
         return dict;
     }

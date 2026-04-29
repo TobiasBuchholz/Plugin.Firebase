@@ -4,6 +4,7 @@ using Firebase;
 using Firebase.Firestore;
 using Plugin.Firebase.Core;
 using Plugin.Firebase.Firestore.Platforms.Android.Extensions;
+using Exception = System.Exception;
 
 namespace Plugin.Firebase.Firestore.Platforms.Android;
 
@@ -162,12 +163,12 @@ public class QueryWrapper : IQuery
         return new QuerySnapshotWrapper<T>(querySnapshot);
     }
 
-    public IDisposable AddSnapshotListener<T>(Action<IQuerySnapshot<T>> onChanged, Action<Exception> onError = null, bool includeMetaDataChanges = false)
+    public IDisposable AddSnapshotListener<T>(Action<IQuerySnapshot<T>> onChanged, Action<Exception>? onError = null, bool includeMetaDataChanges = false)
     {
         var registration = _wrapped
             .AddSnapshotListener(includeMetaDataChanges ? MetadataChanges.Include : MetadataChanges.Exclude, new EventListener(
                 x => onChanged(new QuerySnapshotWrapper<T>(x.JavaCast<QuerySnapshot>())),
-                e => onError?.Invoke(new FirebaseException(e.LocalizedMessage))));
+                e => onError?.Invoke(new FirebaseException(e.LocalizedMessage ?? "Unknown error", e))));
         return new DisposableWithAction(registration.Remove);
     }
 }

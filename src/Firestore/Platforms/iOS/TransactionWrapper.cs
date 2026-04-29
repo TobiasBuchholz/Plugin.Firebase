@@ -28,9 +28,9 @@ public sealed class TransactionWrapper : ITransaction
     }
 
     /// <inheritdoc/>
-    public IDocumentSnapshot<T> GetDocument<T>(IDocumentReference document)
+    public IDocumentSnapshot<T>? GetDocument<T>(IDocumentReference document)
     {
-        var snapshot = _wrapped.GetDocument(document.ToNative(), out var error).ToAbstract<T>();
+        var snapshot = _wrapped.GetDocument(document.ToNative(), out var error)?.ToAbstract<T>();
         if(error == null) {
             return snapshot;
         } else {
@@ -39,7 +39,7 @@ public sealed class TransactionWrapper : ITransaction
     }
 
     /// <inheritdoc/>
-    public ITransaction SetData(IDocumentReference document, object data, SetOptions options = null)
+    public ITransaction SetData(IDocumentReference document, object data, SetOptions? options = null)
     {
         return SetData(document, data.ToDictionary(), options);
     }
@@ -48,7 +48,7 @@ public sealed class TransactionWrapper : ITransaction
     public ITransaction SetData(
         IDocumentReference document,
         Dictionary<object, object> data,
-        SetOptions options = null
+        SetOptions? options = null
     )
     {
         if(options == null) {
@@ -63,12 +63,12 @@ public sealed class TransactionWrapper : ITransaction
                     .SetData(
                         data,
                         document.ToNative(),
-                        options.FieldPaths.Select(x => new NativeFieldPath(x.ToArray())).ToArray()
+                        options.FieldPaths?.Select(x => new NativeFieldPath(x.ToArray())).ToArray() ?? []
                     )
                     .ToAbstract();
             case SetOptions.TypeMergeFields:
                 return _wrapped
-                    .SetData(data, document.ToNative(), options.Fields.ToArray())
+                    .SetData(data, document.ToNative(), options.Fields?.ToArray() ?? [])
                     .ToAbstract();
             default:
                 throw new ArgumentException($"SetOptions type {options.Type} is not supported.");

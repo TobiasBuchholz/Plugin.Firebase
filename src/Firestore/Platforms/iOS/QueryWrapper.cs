@@ -210,10 +210,13 @@ public class QueryWrapper : IQuery
         _wrapped.GetDocuments(
             source.ToNative(),
             (snapshot, error) => {
-                if(error == null) {
+                if(snapshot is not null) {
                     tcs.SetResult(new QuerySnapshotWrapper<T>(snapshot));
-                } else {
+                }
+                else if (error is not null) {
                     tcs.SetException(new FirebaseException(error.LocalizedDescription));
+                } else {
+                    tcs.SetException(new FirebaseException("Unknown error"));
                 }
             }
         );
@@ -223,16 +226,17 @@ public class QueryWrapper : IQuery
     /// <inheritdoc/>
     public IDisposable AddSnapshotListener<T>(
         Action<IQuerySnapshot<T>> onChanged,
-        Action<Exception> onError = null,
+        Action<Exception>? onError = null,
         bool includeMetaDataChanges = false
     )
     {
         var registration = _wrapped.AddSnapshotListener(
             includeMetaDataChanges,
             (snapshot, error) => {
-                if(error == null) {
+                if(snapshot is not null) {
                     onChanged(new QuerySnapshotWrapper<T>(snapshot));
-                } else {
+                }
+                if (error is not null) {
                     onError?.Invoke(new FirebaseException(error.LocalizedDescription));
                 }
             }

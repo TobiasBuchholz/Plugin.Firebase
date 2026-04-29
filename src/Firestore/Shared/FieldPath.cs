@@ -5,7 +5,7 @@ namespace Plugin.Firebase.Firestore;
 /// </summary>
 public sealed class FieldPath
 {
-    private FieldPath(string[] fields = null, bool isDocumentId = false)
+    private FieldPath(string[]? fields = null, bool isDocumentId = false)
     {
         Fields = fields;
         IsDocumentId = isDocumentId;
@@ -33,7 +33,7 @@ public sealed class FieldPath
     /// <summary>
     /// Gets the array of field names that make up this path.
     /// </summary>
-    public string[] Fields { get; }
+    public string[]? Fields { get; }
 
     /// <summary>
     /// Gets a value indicating whether this path refers to the document ID.

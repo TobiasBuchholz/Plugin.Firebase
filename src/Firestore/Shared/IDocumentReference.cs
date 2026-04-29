@@ -13,7 +13,7 @@ public interface IDocumentReference
     /// </summary>
     /// <param name="data">The data to write to the document.</param>
     /// <param name="options">An object to configure the set behavior.</param>
-    Task SetDataAsync(object data, SetOptions options = null);
+    Task SetDataAsync(object data, SetOptions? options = null);
 
     /// <summary>
     /// Writes to the document referred to by this <c>IDocumentReference</c>. If the document does not yet exist, it will be created. If you
@@ -21,7 +21,7 @@ public interface IDocumentReference
     /// </summary>
     /// <param name="data">The data to write to the document.</param>
     /// <param name="options">An object to configure the set behavior.</param>
-    Task SetDataAsync(Dictionary<object, object> data, SetOptions options = null);
+    Task SetDataAsync(Dictionary<object, object> data, SetOptions? options = null);
 
     /// <summary>
     /// Writes to the document referred to by this <c>IDocumentReference</c>. If the document does not yet exist, it will be created. If you
@@ -72,7 +72,7 @@ public interface IDocumentReference
     /// Whether metadata-only changes (i.e. only <c>IDocumentSnapshot.Metadata</c> changed) should trigger snapshot events.
     /// </param>
     /// <typeparam name="T">The type of the document item.</typeparam>
-    IDisposable AddSnapshotListener<T>(Action<IDocumentSnapshot<T>> onChanged, Action<Exception> onError = null, bool includeMetaDataChanges = false);
+    IDisposable AddSnapshotListener<T>(Action<IDocumentSnapshot<T>> onChanged, Action<Exception>? onError = null, bool includeMetaDataChanges = false);
 
     /// <summary>
     /// Gets a <c>ICollectionReference</c> object referring to the collection at the specified path within this <c>IDocumentReference</c>.
@@ -94,5 +94,5 @@ public interface IDocumentReference
     /// <summary>
     /// A reference to the collection to which this <c>IDocumentReference</c> belongs.
     /// </summary>
-    ICollectionReference Parent { get; }
+    ICollectionReference? Parent { get; }
 }

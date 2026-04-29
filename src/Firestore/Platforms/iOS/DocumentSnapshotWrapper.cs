@@ -17,7 +17,7 @@ public sealed class DocumentSnapshotWrapper<T> : DocumentSnapshotWrapper, IDocum
         : base(documentSnapshot) { }
 
     /// <inheritdoc/>
-    public new T Data => Wrapped.Data == null ? default(T) : Wrapped.Data.Cast<T>(Wrapped.Id);
+    public new T? Data => Wrapped.Data == null ? default(T) : Wrapped.Data.Cast<T>(Wrapped.Id);
 }
 
 /// <summary>
@@ -35,7 +35,7 @@ public class DocumentSnapshotWrapper : IDocumentSnapshot
     }
 
     /// <inheritdoc/>
-    public object Data => Wrapped.Data;
+    public object? Data => Wrapped.Data;
 
     /// <inheritdoc/>
     public ISnapshotMetadata Metadata => Wrapped.Metadata.ToAbstract();

@@ -18,7 +18,7 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
         Wrapped = reference;
     }
 
-    public async Task SetDataAsync(object data, SetOptions options = null)
+    public async Task SetDataAsync(object data, SetOptions? options = null)
     {
         if(options == null) {
             await Wrapped.Set(data.ToHashMap());
@@ -27,7 +27,7 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
         }
     }
 
-    public async Task SetDataAsync(Dictionary<object, object> data, SetOptions options = null)
+    public async Task SetDataAsync(Dictionary<object, object> data, SetOptions? options = null)
     {
         if(options == null) {
             await Wrapped.Set(data.ToHashMap());
@@ -72,10 +72,16 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
             .Get(source.ToNative())
             .AddOnCompleteListener(new OnCompleteListener(task => {
                 if(task.IsSuccessful) {
-                    var snapshot = task.GetResult(Class.FromType(typeof(DocumentSnapshot))).JavaCast<DocumentSnapshot>();
-                    tcs.SetResult(snapshot.ToAbstract<T>());
-                } else {
+                    var snapshot = task.GetResult(Class.FromType(typeof(DocumentSnapshot)))?.JavaCast<DocumentSnapshot>();
+                    if(snapshot is not null) {
+                        tcs.SetResult(snapshot.ToAbstract<T>());
+                    } else {
+                        tcs.SetException(new FirebaseException("Unknown error"));
+                    }
+                } else if(task.Exception is not null) {
                     tcs.SetException(task.Exception);
+                } else {
+                    tcs.SetException(new FirebaseException("Unknown error"));
                 }
             }));
         return tcs.Task;
@@ -83,13 +89,13 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
 
     public IDisposable AddSnapshotListener<T>(
         Action<IDocumentSnapshot<T>> onChanged,
-        Action<Exception> onError = null,
+        Action<Exception>? onError = null,
         bool includeMetaDataChanges = false)
     {
         var registration = Wrapped
             .AddSnapshotListener(includeMetaDataChanges ? MetadataChanges.Include : MetadataChanges.Exclude, new EventListener(
                 x => onChanged(x.JavaCast<DocumentSnapshot>().ToAbstract<T>()),
-                e => onError?.Invoke(new FirebaseException(e.LocalizedMessage))));
+                e => onError?.Invoke(new FirebaseException(e.LocalizedMessage ?? "Unknown error", e))));
         return new DisposableWithAction(registration.Remove);
     }
 
@@ -100,6 +106,6 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
 
     public string Id => Wrapped.Id;
     public string Path => Wrapped.Path;
-    public ICollectionReference Parent => Wrapped.Parent == null ? null : new CollectionReferenceWrapper(Wrapped.Parent);
+    public ICollectionReference? Parent => Wrapped.Parent == null ? null : new CollectionReferenceWrapper(Wrapped.Parent);
     public DocumentReference Wrapped { get; }
 }

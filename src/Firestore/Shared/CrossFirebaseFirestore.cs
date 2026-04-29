@@ -5,12 +5,12 @@ namespace Plugin.Firebase.Firestore;
 /// </summary>
 public sealed class CrossFirebaseFirestore
 {
-    private static Lazy<IFirebaseFirestore> _implementation = new Lazy<IFirebaseFirestore>(
+    private static Lazy<IFirebaseFirestore?> _implementation = new Lazy<IFirebaseFirestore?>(
         CreateInstance,
         LazyThreadSafetyMode.PublicationOnly
     );
 
-    private static IFirebaseFirestore CreateInstance()
+    private static IFirebaseFirestore? CreateInstance()
     {
 #if IOS || ANDROID
         return new FirebaseFirestoreImplementation();
@@ -50,8 +50,8 @@ public sealed class CrossFirebaseFirestore
     public static void Dispose()
     {
         if(_implementation != null && _implementation.IsValueCreated) {
-            _implementation.Value.Dispose();
-            _implementation = new Lazy<IFirebaseFirestore>(
+            _implementation.Value?.Dispose();
+            _implementation = new Lazy<IFirebaseFirestore?>(
                 CreateInstance,
                 LazyThreadSafetyMode.PublicationOnly
             );

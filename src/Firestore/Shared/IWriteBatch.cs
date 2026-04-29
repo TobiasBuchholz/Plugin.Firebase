@@ -16,7 +16,7 @@ public interface IWriteBatch
     /// <param name="data">The data to write to the document.</param>
     /// <param name="options">An object to configure the set behavior.</param>
     /// <returns>This <c>IWriteBatch</c> instance. Used for chaining method calls.</returns>
-    IWriteBatch SetData(IDocumentReference document, object data, SetOptions options = null);
+    IWriteBatch SetData(IDocumentReference document, object data, SetOptions? options = null);
 
     /// <summary>
     /// Writes to the document referred to by the provided <c>IDocumentReference</c>. If the document does not yet exist, it will be created.
@@ -26,7 +26,7 @@ public interface IWriteBatch
     /// <param name="data">The data to write to the document.</param>
     /// <param name="options">An object to configure the set behavior.</param>
     /// <returns>This <c>IWriteBatch</c> instance. Used for chaining method calls.</returns>
-    IWriteBatch SetData(IDocumentReference document, Dictionary<object, object> data, SetOptions options = null);
+    IWriteBatch SetData(IDocumentReference document, Dictionary<object, object> data, SetOptions? options = null);
 
     /// <summary>
     /// Writes to the document referred to by the provided <c>IDocumentReference</c>. If the document does not yet exist, it will be created.

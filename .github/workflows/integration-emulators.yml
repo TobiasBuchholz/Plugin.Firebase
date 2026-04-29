@@ -121,8 +121,6 @@ jobs:
       - name: Select Xcode for .NET iOS workload
         run: |
           for xcode in \
-            /Applications/Xcode_26.4.1.app \
-            /Applications/Xcode_26.4.0.app \
             /Applications/Xcode_26.3.0.app \
             /Applications/Xcode_26.3.app; do
             if [ -d "$xcode" ]; then
@@ -132,7 +130,7 @@ jobs:
             fi
           done
 
-          echo "No compatible Xcode 26.3+ installation found." >&2
+          echo "No compatible Xcode 26.3 installation found." >&2
           ls -1 /Applications/Xcode*.app >&2
           exit 1
 

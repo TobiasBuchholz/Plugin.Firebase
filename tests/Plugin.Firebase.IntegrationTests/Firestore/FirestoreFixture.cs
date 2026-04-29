@@ -75,6 +75,20 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         }
 
         [Fact]
+        public async Task increments_double_field_values()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var pokemon = PokemonFactory.CreateBulbasur();
+            var document = GetTestingDocument(sut, "double-increment");
+
+            await document.SetDataAsync(pokemon);
+            await document.UpdateDataAsync(("weight_in_kg", FieldValue.DoubleIncrement(0.25)));
+
+            var snapshot = await document.GetDocumentSnapshotAsync<Pokemon>();
+            Assert.Equal(pokemon.WeightInKg + 0.25, snapshot.Data.WeightInKg, 6);
+        }
+
+        [Fact]
         public async Task runs_transaction()
         {
             var sut = CrossFirebaseFirestore.Current;

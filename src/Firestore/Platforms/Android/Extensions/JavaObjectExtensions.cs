@@ -289,7 +289,7 @@ public static class JavaObjectExtensions
         return Convert.ChangeType(value, conversionType);
     }
 
-    private static object ConvertToTargetType(object value, Type targetType)
+    private static object? ConvertToTargetType(object value, Type? targetType)
     {
         var conversionType = targetType == null
             ? null

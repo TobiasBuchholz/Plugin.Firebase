@@ -84,6 +84,20 @@ public static class DictionaryExtensions
         return dict;
     }
 
+    /// <summary>
+    /// Converts a collection of key-value tuples to a dictionary.
+    /// </summary>
+    /// <param name="this">The collection of tuples to convert.</param>
+    /// <returns>A dictionary containing the tuple keys and values.</returns>
+    public static Dictionary<object, object?> ToDictionary(this IEnumerable<(object, object?)> @this)
+    {
+        var dict = new Dictionary<object, object?>();
+        foreach(var (key, value) in @this) {
+            dict[key] = value;
+        }
+        return dict;
+    }
+
     private static Dictionary<object, object?> ToObjectDictionary(this IDictionary @this)
     {
         var dict = new Dictionary<object, object?>();

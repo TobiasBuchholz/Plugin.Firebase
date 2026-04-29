@@ -95,6 +95,10 @@ jobs:
           script: |
             bash -lc 'export PATH="$PATH:$HOME/.dotnet/tools"; cd tests/cloud-functions && firebase emulators:exec --project "$FIREBASE_PROJECT_ID" --only auth,firestore,functions,storage "node scripts/seed-auth-emulator.js && xharness android test --timeout=00:10:00 --launch-timeout=00:10:00 --package-name $ANDROID_PACKAGE_ID --instrumentation devicerunners.xharness.maui.XHarnessInstrumentation --app $ANDROID_APK --output-directory ../../artifacts/test-results/android --verbosity=Debug"'
 
+      - name: Summarize Android test results
+        if: always()
+        run: ruby scripts/write-xunit-github-summary.rb "Android emulator integration tests" "artifacts/test-results/android"
+
       - name: Upload Android test artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -191,6 +195,10 @@ jobs:
             xcrun simctl shutdown "$DEVICE_ID" || true
             xcrun simctl delete "$DEVICE_ID" || true
           fi
+
+      - name: Summarize iOS test results
+        if: always()
+        run: ruby scripts/write-xunit-github-summary.rb "iOS emulator integration tests" "artifacts/test-results/ios"
 
       - name: Upload iOS test artifacts
         if: always()

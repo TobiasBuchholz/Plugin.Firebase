@@ -25,8 +25,20 @@ public static class JavaObjectExtensions
                 return x;
             case int x:
                 return x;
+            case uint x:
+                return Convert.ToInt64(x);
+            case short x:
+                return Convert.ToInt64(x);
+            case ushort x:
+                return Convert.ToInt64(x);
+            case byte x:
+                return Convert.ToInt64(x);
+            case sbyte x:
+                return Convert.ToInt64(x);
             case long x:
                 return x;
+            case ulong x:
+                return Convert.ToInt64(x);
             case float x:
                 return x;
             case double x:

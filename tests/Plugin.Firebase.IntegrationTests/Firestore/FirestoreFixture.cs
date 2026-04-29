@@ -965,6 +965,358 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             Assert.Empty(Assert.IsAssignableFrom<IDictionary<string, object>>(objectSnapshot.Data));
         }
 
+        [Fact]
+        public async Task gets_dictionary_properties_inside_firestore_objects()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var document = GetTestingDocument(sut, "dictionary-container");
+            var container = new DictionaryContainer(
+                metadata: new Dictionary<string, object> {
+                    { "title", "container" },
+                    { "count", 5L },
+                    { "nullable", null },
+                    {
+                        "details",
+                        new Dictionary<object, object> {
+                            { "enabled", true },
+                            { "label", "nested" }
+                        }
+                    }
+                },
+                scores: new Dictionary<string, long> {
+                    { "first", 10L },
+                    { "second", 20L }
+                },
+                flags: new Dictionary<string, bool> {
+                    { "active", true },
+                    { "archived", false }
+                },
+                mixedLists: new Dictionary<string, IList<object>> {
+                    { "values", new object[] { "first", null, 3L } },
+                    { "empty", Array.Empty<object>() }
+                },
+                nested: new Dictionary<string, Dictionary<string, object>> {
+                    {
+                        "outer",
+                        new Dictionary<string, object> {
+                            { "name", "outer" },
+                            { "count", 2L }
+                        }
+                    }
+                });
+
+            await document.SetDataAsync(container);
+
+            var result = (await document.GetDocumentSnapshotAsync<DictionaryContainer>()).Data;
+            Assert.Equal("dictionary-container", result.Id);
+            Assert.Equal("container", result.Metadata["title"]);
+            Assert.Equal(5L, Convert.ToInt64(result.Metadata["count"]));
+            Assert.Null(result.Metadata["nullable"]);
+            Assert.Equal("nested", Assert.IsAssignableFrom<IDictionary<string, object>>(result.Metadata["details"])["label"]);
+            Assert.Equal(10L, result.Scores["first"]);
+            Assert.Equal(20L, result.Scores["second"]);
+            Assert.True(result.Flags["active"]);
+            Assert.False(result.Flags["archived"]);
+            Assert.Equal(new object[] { "first", null, 3L }, result.MixedLists["values"]);
+            Assert.Empty(result.MixedLists["empty"]);
+            Assert.Equal("outer", result.Nested["outer"]["name"]);
+            Assert.Equal(2L, Convert.ToInt64(result.Nested["outer"]["count"]));
+        }
+
+        [Fact]
+        public async Task writes_dictionary_data_through_all_dictionary_write_paths()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var collection = GetTestingCollection(sut);
+            var reference = GetTestingDocument(sut, "dictionary-reference");
+
+            var dictionarySetDocument = collection.GetDocument("dictionary-set-path");
+            await dictionarySetDocument.SetDataAsync(CreateAcceptanceDictionaryPayload(reference));
+            AssertAcceptanceDictionaryPayload(
+                (await dictionarySetDocument.GetDocumentSnapshotAsync<Dictionary<string, object>>()).Data,
+                reference);
+
+            var tupleSetDocument = collection.GetDocument("tuple-set-path");
+            await tupleSetDocument.SetDataAsync(
+                ("payload", CreateAcceptanceDictionaryPayload(reference)),
+                ("writer", "tuple-set"));
+            var tupleSetData = (await tupleSetDocument.GetDocumentSnapshotAsync<Dictionary<string, object>>()).Data;
+            Assert.Equal("tuple-set", tupleSetData["writer"]);
+            AssertAcceptanceDictionaryPayload(
+                Assert.IsAssignableFrom<IDictionary<string, object>>(tupleSetData["payload"]),
+                reference);
+
+            var dictionaryUpdateDocument = collection.GetDocument("dictionary-update-path");
+            await dictionaryUpdateDocument.SetDataAsync(new Dictionary<object, object> { { "seed", true } });
+            await dictionaryUpdateDocument.UpdateDataAsync(new Dictionary<object, object> {
+                { "payload", CreateAcceptanceDictionaryPayload(reference) },
+                { "writer", "dictionary-update" }
+            });
+            var dictionaryUpdateData = (await dictionaryUpdateDocument.GetDocumentSnapshotAsync<Dictionary<string, object>>()).Data;
+            Assert.Equal("dictionary-update", dictionaryUpdateData["writer"]);
+            AssertAcceptanceDictionaryPayload(
+                Assert.IsAssignableFrom<IDictionary<string, object>>(dictionaryUpdateData["payload"]),
+                reference);
+
+            var tupleUpdateDocument = collection.GetDocument("tuple-update-path");
+            await tupleUpdateDocument.SetDataAsync(new Dictionary<object, object> { { "seed", true } });
+            await tupleUpdateDocument.UpdateDataAsync(
+                ("payload", CreateAcceptanceDictionaryPayload(reference)),
+                ("writer", "tuple-update"));
+            var tupleUpdateData = (await tupleUpdateDocument.GetDocumentSnapshotAsync<Dictionary<string, object>>()).Data;
+            Assert.Equal("tuple-update", tupleUpdateData["writer"]);
+            AssertAcceptanceDictionaryPayload(
+                Assert.IsAssignableFrom<IDictionary<string, object>>(tupleUpdateData["payload"]),
+                reference);
+
+            var addedReference = await collection.AddDocumentAsync(CreateAcceptanceDictionaryPayload(reference));
+            AssertAcceptanceDictionaryPayload(
+                (await addedReference.GetDocumentSnapshotAsync<Dictionary<string, object>>()).Data,
+                reference);
+
+            var batchSetDocument = collection.GetDocument("batch-set-path");
+            var batchUpdateDocument = collection.GetDocument("batch-update-path");
+            await batchUpdateDocument.SetDataAsync(new Dictionary<object, object> { { "seed", true } });
+            var batch = sut.CreateBatch();
+            batch.SetData(batchSetDocument, CreateAcceptanceDictionaryPayload(reference));
+            batch.UpdateData(batchUpdateDocument, new Dictionary<object, object> {
+                { "payload", CreateAcceptanceDictionaryPayload(reference) },
+                { "writer", "batch-update" }
+            });
+            await batch.CommitAsync();
+
+            AssertAcceptanceDictionaryPayload(
+                (await batchSetDocument.GetDocumentSnapshotAsync<Dictionary<string, object>>()).Data,
+                reference);
+            var batchUpdateData = (await batchUpdateDocument.GetDocumentSnapshotAsync<Dictionary<string, object>>()).Data;
+            Assert.Equal("batch-update", batchUpdateData["writer"]);
+            AssertAcceptanceDictionaryPayload(
+                Assert.IsAssignableFrom<IDictionary<string, object>>(batchUpdateData["payload"]),
+                reference);
+
+            var transactionSetDocument = collection.GetDocument("transaction-set-path");
+            var transactionUpdateDocument = collection.GetDocument("transaction-update-path");
+            await transactionUpdateDocument.SetDataAsync(new Dictionary<object, object> { { "seed", true } });
+            await sut.RunTransactionAsync(transaction => {
+                transaction.GetDocument<Dictionary<string, object>>(transactionUpdateDocument);
+                transaction.SetData(transactionSetDocument, CreateAcceptanceDictionaryPayload(reference));
+                transaction.UpdateData(transactionUpdateDocument, new Dictionary<object, object> {
+                    { "payload", CreateAcceptanceDictionaryPayload(reference) },
+                    { "writer", "transaction-update" }
+                });
+                return true;
+            });
+
+            AssertAcceptanceDictionaryPayload(
+                (await transactionSetDocument.GetDocumentSnapshotAsync<Dictionary<string, object>>()).Data,
+                reference);
+            var transactionUpdateData = (await transactionUpdateDocument.GetDocumentSnapshotAsync<Dictionary<string, object>>()).Data;
+            Assert.Equal("transaction-update", transactionUpdateData["writer"]);
+            AssertAcceptanceDictionaryPayload(
+                Assert.IsAssignableFrom<IDictionary<string, object>>(transactionUpdateData["payload"]),
+                reference);
+        }
+
+        [Fact]
+        public async Task applies_dictionary_set_options_without_overwriting_unselected_fields()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var mergeDocument = GetTestingDocument(sut, "dictionary-merge-options");
+            await mergeDocument.SetDataAsync(new Dictionary<object, object> {
+                { "untouched", "keep" },
+                { "selected", "old" }
+            });
+
+            await mergeDocument.SetDataAsync(
+                new Dictionary<object, object> {
+                    { "selected", "merged" }
+                },
+                SetOptions.Merge());
+
+            var mergeData = (await mergeDocument.GetDocumentSnapshotAsync<Dictionary<string, object>>()).Data;
+            Assert.Equal("keep", mergeData["untouched"]);
+            Assert.Equal("merged", mergeData["selected"]);
+
+            var mergeFieldsDocument = GetTestingDocument(sut, "dictionary-merge-fields-options");
+            await mergeFieldsDocument.SetDataAsync(new Dictionary<object, object> {
+                { "untouched", "keep" },
+                { "selected", "old" },
+                { "ignored", "original" }
+            });
+
+            await mergeFieldsDocument.SetDataAsync(
+                SetOptions.MergeFields("selected"),
+                ("selected", "from-merge-fields"),
+                ("ignored", "should-not-change"));
+
+            var mergeFieldsData = (await mergeFieldsDocument.GetDocumentSnapshotAsync<Dictionary<string, object>>()).Data;
+            Assert.Equal("keep", mergeFieldsData["untouched"]);
+            Assert.Equal("from-merge-fields", mergeFieldsData["selected"]);
+            Assert.Equal("original", mergeFieldsData["ignored"]);
+
+            var mergeFieldPathsDocument = GetTestingDocument(sut, "dictionary-merge-field-paths-options");
+            await mergeFieldPathsDocument.SetDataAsync(new Dictionary<object, object> {
+                {
+                    "profile",
+                    new Dictionary<object, object> {
+                        { "name", "old" },
+                        {
+                            "stats",
+                            new Dictionary<object, object> {
+                                { "wins", 1L },
+                                { "losses", 2L }
+                            }
+                        }
+                    }
+                }
+            });
+
+            await mergeFieldPathsDocument.SetDataAsync(
+                new Dictionary<object, object> {
+                    {
+                        "profile",
+                        new Dictionary<object, object> {
+                            { "name", "should-not-change" },
+                            {
+                                "stats",
+                                new Dictionary<object, object> {
+                                    { "wins", 5L },
+                                    { "losses", 99L }
+                                }
+                            }
+                        }
+                    }
+                },
+                SetOptions.MergeFieldPaths(new List<IList<string>> {
+                    new List<string> { "profile", "stats", "wins" }
+                }));
+
+            var fieldPathsData = (await mergeFieldPathsDocument.GetDocumentSnapshotAsync<Dictionary<string, object>>()).Data;
+            var profile = Assert.IsAssignableFrom<IDictionary<string, object>>(fieldPathsData["profile"]);
+            var stats = Assert.IsAssignableFrom<IDictionary<string, object>>(profile["stats"]);
+            Assert.Equal("old", profile["name"]);
+            Assert.Equal(5L, Convert.ToInt64(stats["wins"]));
+            Assert.Equal(2L, Convert.ToInt64(stats["losses"]));
+
+            var batchDocument = GetTestingDocument(sut, "dictionary-batch-merge-fields-options");
+            await batchDocument.SetDataAsync(new Dictionary<object, object> {
+                { "untouched", "keep" },
+                { "selected", "old" }
+            });
+
+            var batch = sut.CreateBatch();
+            batch.SetData(
+                batchDocument,
+                SetOptions.MergeFields("selected"),
+                ("selected", "from-batch"),
+                ("untouched", "should-not-change"));
+            await batch.CommitAsync();
+
+            var batchData = (await batchDocument.GetDocumentSnapshotAsync<Dictionary<string, object>>()).Data;
+            Assert.Equal("keep", batchData["untouched"]);
+            Assert.Equal("from-batch", batchData["selected"]);
+        }
+
+        [Fact]
+        public async Task applies_dictionary_field_value_operations()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var document = GetTestingDocument(sut, "dictionary-field-values");
+            await document.SetDataAsync(new Dictionary<object, object> {
+                { "counter", 1L },
+                { "ratio", 1.5 },
+                { "tags", new object[] { "base", "remove" } },
+                { "remove_me", "gone" },
+                {
+                    "nested",
+                    new Dictionary<object, object> {
+                        { "counter", 2L },
+                        { "remove_me", "gone" }
+                    }
+                }
+            });
+
+            await document.UpdateDataAsync(new Dictionary<object, object> {
+                { "counter", FieldValue.IntegerIncrement(4) },
+                { "ratio", FieldValue.DoubleIncrement(0.25) },
+                { "tags", FieldValue.ArrayUnion("new", "base") },
+                { "remove_me", FieldValue.Delete() },
+                { "generated_at", FieldValue.ServerTimestamp() }
+            });
+            await document.UpdateDataAsync(
+                ("tags", FieldValue.ArrayRemove("remove")),
+                ("nested.counter", FieldValue.IntegerIncrement(3)),
+                ("nested.remove_me", FieldValue.Delete()));
+
+            var data = (await document.GetDocumentSnapshotAsync<Dictionary<string, object>>()).Data;
+            Assert.Equal(5L, Convert.ToInt64(data["counter"]));
+            Assert.Equal(1.75, Convert.ToDouble(data["ratio"]));
+            Assert.Equal(new[] { "base", "new" }, Assert.IsAssignableFrom<IList<object>>(data["tags"]).Select(x => x as string));
+            Assert.False(data.ContainsKey("remove_me"));
+            Assert.IsType<DateTimeOffset>(data["generated_at"]);
+
+            var nested = Assert.IsAssignableFrom<IDictionary<string, object>>(data["nested"]);
+            Assert.Equal(5L, Convert.ToInt64(nested["counter"]));
+            Assert.False(nested.ContainsKey("remove_me"));
+        }
+
+        [Fact]
+        public async Task queries_using_dictionary_values_and_nested_fields()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var collection = GetTestingCollection(sut);
+            var profile = new Dictionary<object, object> {
+                { "category", "match" },
+                { "rank", 2L },
+                { "active", true }
+            };
+
+            await collection.GetDocument("dictionary-query-match").SetDataAsync(new Dictionary<object, object> {
+                { "marker", "match" },
+                { "profile", profile }
+            });
+            await collection.GetDocument("dictionary-query-other").SetDataAsync(new Dictionary<object, object> {
+                { "marker", "other" },
+                {
+                    "profile",
+                    new Dictionary<object, object> {
+                        { "category", "other" },
+                        { "rank", 2L },
+                        { "active", true }
+                    }
+                }
+            });
+
+            var byMap = await collection
+                .WhereEqualsTo("profile", profile)
+                .GetDocumentsAsync<Dictionary<string, object>>();
+            Assert.Equal("match", Assert.Single(byMap.Documents).Data["marker"]);
+
+            var byNestedField = await collection
+                .WhereEqualsTo("profile.category", "match")
+                .GetDocumentsAsync<Dictionary<string, object>>();
+            Assert.Equal("match", Assert.Single(byNestedField.Documents).Data["marker"]);
+        }
+
+        [Fact]
+        public async Task rejects_direct_nested_arrays_in_dictionary_data()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var document = GetTestingDocument(sut, "dictionary-nested-array-constraint");
+
+            var exception = await Assert.ThrowsAnyAsync<Exception>(() =>
+                document.SetDataAsync(new Dictionary<object, object> {
+                    {
+                        "values",
+                        new object[] {
+                            "outer",
+                            new object[] { "inner" }
+                        }
+                    }
+                }));
+            Assert.Contains("Nested arrays", exception.ToString());
+        }
+
         public async Task DisposeAsync()
         {
             TestLog.Write($"[FIRESTORE CLEANUP START] {_testingCollectionPath}");
@@ -994,6 +1346,127 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         private ICollectionReference GetTestingCollection(IFirebaseFirestore firestore)
         {
             return firestore.GetCollection(_testingCollectionPath);
+        }
+
+        private static Dictionary<object, object> CreateAcceptanceDictionaryPayload(IDocumentReference reference)
+        {
+            return new Dictionary<object, object> {
+                { "string_value", "value" },
+                { "bool_value", true },
+                { "sbyte_value", (sbyte) -8 },
+                { "byte_value", (byte) 8 },
+                { "short_value", (short) -16 },
+                { "ushort_value", (ushort) 16 },
+                { "int_value", 32 },
+                { "uint_value", 64U },
+                { "long_value", 128L },
+                { "ulong_value", 256UL },
+                { "double_value", 1.25 },
+                { "null_value", null },
+                { "empty_map", new Dictionary<object, object>() },
+                { "empty_list", Array.Empty<object>() },
+                {
+                    "list_value",
+                    new object[] {
+                        "first",
+                        null,
+                        3L,
+                        new Dictionary<object, object> {
+                            { "name", "inside-list" },
+                            { "active", true }
+                        }
+                    }
+                },
+                {
+                    "map_list",
+                    new object[] {
+                        new Dictionary<object, object> {
+                            { "name", "first" },
+                            { "count", 1L }
+                        },
+                        new Dictionary<object, object> {
+                            { "name", "second" },
+                            { "count", 2L }
+                        }
+                    }
+                },
+                {
+                    "nested_map",
+                    new Dictionary<object, object> {
+                        { "string_value", "nested" },
+                        { "null_value", null },
+                        { "empty_map", new Dictionary<object, object>() },
+                        { "list_value", new object[] { "nested-a", "nested-b" } },
+                        {
+                            "deep",
+                            new Dictionary<object, object> {
+                                { "answer", 42L }
+                            }
+                        }
+                    }
+                },
+                { "created_at", new DateTime(2026, 4, 29, 10, 11, 12, 345, DateTimeKind.Utc) },
+                { "observed_at", new DateTimeOffset(2026, 4, 29, 13, 14, 15, 678, TimeSpan.Zero) },
+                { "location", new GeoPoint(35.25, -120.5) },
+                { "reference", reference }
+            };
+        }
+
+        private static void AssertAcceptanceDictionaryPayload(
+            IDictionary<string, object> data,
+            IDocumentReference reference
+        )
+        {
+            Assert.NotNull(data);
+            Assert.Equal("value", data["string_value"]);
+            Assert.True((bool) data["bool_value"]);
+            Assert.Equal((sbyte) -8, Convert.ToSByte(data["sbyte_value"]));
+            Assert.Equal((byte) 8, Convert.ToByte(data["byte_value"]));
+            Assert.Equal((short) -16, Convert.ToInt16(data["short_value"]));
+            Assert.Equal((ushort) 16, Convert.ToUInt16(data["ushort_value"]));
+            Assert.Equal(32, Convert.ToInt32(data["int_value"]));
+            Assert.Equal(64U, Convert.ToUInt32(data["uint_value"]));
+            Assert.Equal(128L, Convert.ToInt64(data["long_value"]));
+            Assert.Equal(256UL, Convert.ToUInt64(data["ulong_value"]));
+            Assert.Equal(1.25, Convert.ToDouble(data["double_value"]));
+            Assert.Null(data["null_value"]);
+            Assert.Empty(Assert.IsAssignableFrom<IDictionary<string, object>>(data["empty_map"]));
+            Assert.Empty(Assert.IsAssignableFrom<IList<object>>(data["empty_list"]));
+
+            var list = Assert.IsAssignableFrom<IList<object>>(data["list_value"]);
+            Assert.Equal("first", list[0]);
+            Assert.Null(list[1]);
+            Assert.Equal(3L, Convert.ToInt64(list[2]));
+            var listMap = Assert.IsAssignableFrom<IDictionary<string, object>>(list[3]);
+            Assert.Equal("inside-list", listMap["name"]);
+            Assert.True((bool) listMap["active"]);
+
+            var mapList = Assert.IsAssignableFrom<IList<object>>(data["map_list"]);
+            Assert.Equal(2, mapList.Count);
+            var firstMap = Assert.IsAssignableFrom<IDictionary<string, object>>(mapList[0]);
+            Assert.Equal("first", firstMap["name"]);
+            Assert.Equal(1L, Convert.ToInt64(firstMap["count"]));
+            var secondMap = Assert.IsAssignableFrom<IDictionary<string, object>>(mapList[1]);
+            Assert.Equal("second", secondMap["name"]);
+            Assert.Equal(2L, Convert.ToInt64(secondMap["count"]));
+
+            var nested = Assert.IsAssignableFrom<IDictionary<string, object>>(data["nested_map"]);
+            Assert.Equal("nested", nested["string_value"]);
+            Assert.Null(nested["null_value"]);
+            Assert.Empty(Assert.IsAssignableFrom<IDictionary<string, object>>(nested["empty_map"]));
+            var nestedList = Assert.IsAssignableFrom<IList<object>>(nested["list_value"]);
+            Assert.Equal(new[] { "nested-a", "nested-b" }, nestedList.Select(x => x as string));
+            var deep = Assert.IsAssignableFrom<IDictionary<string, object>>(nested["deep"]);
+            Assert.Equal(42L, Convert.ToInt64(deep["answer"]));
+
+            Assert.IsType<DateTimeOffset>(data["created_at"]);
+            Assert.IsType<DateTimeOffset>(data["observed_at"]);
+            var location = Assert.IsType<GeoPoint>(data["location"]);
+            Assert.Equal(35.25, location.Latitude);
+            Assert.Equal(-120.5, location.Longitude);
+
+            var documentReference = Assert.IsAssignableFrom<IDocumentReference>(data["reference"]);
+            Assert.Equal(reference.Path, documentReference.Path);
         }
 
         private static void AssertRawDictionaryData(IDictionary<string, object> data, IDocumentReference document)
@@ -1071,6 +1544,48 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             Assert.NotNull(data);
             Assert.All(data.Keys, key => Assert.IsType<string>(key));
             AssertRawDictionaryData(data.ToDictionary(x => (string) x.Key, x => x.Value), document);
+        }
+
+        [Preserve(AllMembers = true)]
+        private sealed class DictionaryContainer : IFirestoreObject
+        {
+            public DictionaryContainer()
+            {
+                // needed for firestore
+            }
+
+            public DictionaryContainer(
+                Dictionary<string, object> metadata,
+                IDictionary<string, long> scores,
+                Dictionary<string, bool> flags,
+                Dictionary<string, IList<object>> mixedLists,
+                Dictionary<string, Dictionary<string, object>> nested
+            )
+            {
+                Metadata = metadata;
+                Scores = scores;
+                Flags = flags;
+                MixedLists = mixedLists;
+                Nested = nested;
+            }
+
+            [FirestoreDocumentId]
+            public string Id { get; private set; }
+
+            [FirestoreProperty("metadata")]
+            public Dictionary<string, object> Metadata { get; private set; }
+
+            [FirestoreProperty("scores")]
+            public IDictionary<string, long> Scores { get; private set; }
+
+            [FirestoreProperty("flags")]
+            public Dictionary<string, bool> Flags { get; private set; }
+
+            [FirestoreProperty("mixed_lists")]
+            public Dictionary<string, IList<object>> MixedLists { get; private set; }
+
+            [FirestoreProperty("nested")]
+            public Dictionary<string, Dictionary<string, object>> Nested { get; private set; }
         }
 
         private static async Task EnsureBasePokemonsSeededAsync()

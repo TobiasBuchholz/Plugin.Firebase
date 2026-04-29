@@ -39,7 +39,7 @@ public sealed class FieldValue
     /// </summary>
     /// <param name="incrementValue">The value to increment.</param>
     public static FieldValue DoubleIncrement(double incrementValue) =>
-        new FieldValue(FieldValueType.IntegerIncrement, incrementValue);
+        new FieldValue(FieldValueType.DoubleIncrement, incrementValue);
 
     /// <summary>
     /// Returns a sentinel for use with <c>Update()</c> to mark a field for deletion.

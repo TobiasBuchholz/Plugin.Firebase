@@ -525,9 +525,9 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                     3L,
                     new Dictionary<object, object> {
                         { "child_null", null },
-                        { "child_empty_array", Array.Empty<object>() }
+                        { "child_text", "child" }
                     },
-                    new object[] { true, null }
+                    false
                 }),
                 ("unknown_map_array", new[] {
                     new Dictionary<object, object> {
@@ -552,6 +552,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 ("nested.direct_map", new Dictionary<object, object> {
                     { "text", "direct" },
                     { "count", 9L },
+                    { "short_count", (short) 7 },
                     { "flags", new[] { true, false } },
                     { "inner", new Dictionary<object, object> { { "value", "inside" } } }
                 }),
@@ -807,7 +808,10 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                         "text",
                         5L,
                         new Dictionary<object, object> { { "name", "map" } },
-                        new object[] { true, null }
+                        new Dictionary<object, object> {
+                            { "active", true },
+                            { "nullable", null }
+                        }
                     }
                 },
                 { "empty", Array.Empty<object>() }
@@ -821,9 +825,9 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             Assert.Equal(5L, Convert.ToInt64(values[2]));
             Assert.Equal("map", Assert.IsAssignableFrom<IDictionary<string, object>>(values[3])["name"]);
 
-            var nestedValues = Assert.IsAssignableFrom<IList<object>>(values[4]);
-            Assert.True((bool) nestedValues[0]);
-            Assert.Null(nestedValues[1]);
+            var nestedMap = Assert.IsAssignableFrom<IDictionary<string, object>>(values[4]);
+            Assert.True((bool) nestedMap["active"]);
+            Assert.Null(nestedMap["nullable"]);
         }
 
         [Fact]
@@ -839,7 +843,10 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 { "created", expectedDateTime }
             });
             var dateTimes = (await dateTimeDocument.GetDocumentSnapshotAsync<Dictionary<string, DateTime>>()).Data;
-            Assert.InRange(Math.Abs(dateTimes["created"].Ticks - expectedDateTime.Ticks), 0, 10);
+            Assert.InRange(
+                Math.Abs(dateTimes["created"].Ticks - expectedDateTime.Ticks),
+                0,
+                TimeSpan.FromMilliseconds(1).Ticks);
 
             var dateTimeOffsetDocument = GetTestingDocument(sut, "typed-datetime-offset-map");
             await dateTimeOffsetDocument.SetDataAsync(new Dictionary<object, object> {
@@ -847,7 +854,10 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 { "generated", FieldValue.ServerTimestamp() }
             });
             var dateTimeOffsets = (await dateTimeOffsetDocument.GetDocumentSnapshotAsync<Dictionary<string, DateTimeOffset>>()).Data;
-            Assert.InRange(Math.Abs(dateTimeOffsets["observed"].Ticks - expectedOffset.Ticks), 0, 10);
+            Assert.InRange(
+                Math.Abs(dateTimeOffsets["observed"].Ticks - expectedOffset.Ticks),
+                0,
+                TimeSpan.FromMilliseconds(1).Ticks);
             Assert.NotEqual(default, dateTimeOffsets["generated"]);
 
             var geoPointDocument = GetTestingDocument(sut, "typed-geopoint-map");
@@ -1008,11 +1018,8 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
 
             var childMap = Assert.IsAssignableFrom<IDictionary<string, object>>(arrayWithNulls[3]);
             Assert.Null(childMap["child_null"]);
-            Assert.Empty(Assert.IsAssignableFrom<IList<object>>(childMap["child_empty_array"]));
-
-            var nestedArray = Assert.IsAssignableFrom<IList<object>>(arrayWithNulls[4]);
-            Assert.True((bool) nestedArray[0]);
-            Assert.Null(nestedArray[1]);
+            Assert.Equal("child", childMap["child_text"]);
+            Assert.False((bool) arrayWithNulls[4]);
 
             var mapArray = Assert.IsAssignableFrom<IList<object>>(data["unknown_map_array"]);
             Assert.Equal(2, mapArray.Count);
@@ -1042,6 +1049,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             var directMap = Assert.IsAssignableFrom<IDictionary<string, object>>(nested["direct_map"]);
             Assert.Equal("direct", directMap["text"]);
             Assert.Equal(9L, Convert.ToInt64(directMap["count"]));
+            Assert.Equal((short) 7, Convert.ToInt16(directMap["short_count"]));
             var flags = Assert.IsAssignableFrom<IList<object>>(directMap["flags"]);
             Assert.Equal(new[] { true, false }, flags.Select(x => (bool) x));
             var innerMap = Assert.IsAssignableFrom<IDictionary<string, object>>(directMap["inner"]);

@@ -31,6 +31,11 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
       - name: Install .NET MAUI workload
         run: dotnet workload install maui --source https://api.nuget.org/v3/index.json
 
@@ -102,6 +107,11 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
 
       - name: Install .NET MAUI workload
         run: sudo "$DOTNET_ROOT/dotnet" workload install maui --source https://api.nuget.org/v3/index.json

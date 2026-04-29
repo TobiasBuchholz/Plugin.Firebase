@@ -82,12 +82,7 @@ jobs:
           arch: x86_64
           profile: pixel_6
           script: |
-            export PATH="$PATH:$HOME/.dotnet/tools"
-            cd tests/cloud-functions
-            firebase emulators:exec \
-              --project "$FIREBASE_PROJECT_ID" \
-              --only auth,firestore,functions,storage \
-              "node scripts/seed-auth-emulator.js && xharness android test --timeout=00:10:00 --launch-timeout=00:10:00 --package-name $ANDROID_PACKAGE_ID --instrumentation devicerunners.xharness.maui.XHarnessInstrumentation --app $ANDROID_APK --output-directory ../../artifacts/test-results/android --verbosity=Debug"
+            bash -lc 'export PATH="$PATH:$HOME/.dotnet/tools"; cd tests/cloud-functions && firebase emulators:exec --project "$FIREBASE_PROJECT_ID" --only auth,firestore,functions,storage "node scripts/seed-auth-emulator.js && xharness android test --timeout=00:10:00 --launch-timeout=00:10:00 --package-name $ANDROID_PACKAGE_ID --instrumentation devicerunners.xharness.maui.XHarnessInstrumentation --app $ANDROID_APK --output-directory ../../artifacts/test-results/android --verbosity=Debug"'
 
       - name: Upload Android test artifacts
         if: always()

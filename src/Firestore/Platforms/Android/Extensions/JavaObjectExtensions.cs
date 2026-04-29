@@ -55,6 +55,8 @@ public static class JavaObjectExtensions
                 return x.ToJavaList();
             case DocumentReferenceWrapper x:
                 return x.Wrapped;
+            case GeoPoint x:
+                return new global::Firebase.Firestore.GeoPoint(x.Latitude, x.Longitude);
             case IFirestoreObject x:
                 return x.ToJavaObject();
             default:

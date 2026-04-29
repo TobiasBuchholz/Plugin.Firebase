@@ -204,6 +204,8 @@ public static class NSObjectExtensions
                 return x.ToNSDate();
             case FieldValue x:
                 return x.ToNative();
+            case Plugin.Firebase.Firestore.GeoPoint x:
+                return new global::Firebase.CloudFirestore.GeoPoint(x.Latitude, x.Longitude);
             case IList x:
                 return x.ToNSArray();
             case IDictionary x:

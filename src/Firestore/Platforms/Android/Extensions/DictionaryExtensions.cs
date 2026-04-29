@@ -32,6 +32,13 @@ public static class DictionaryExtensions
         return hashMap;
     }
 
+    public static HashMap ToHashMap(this IEnumerable<(object, object?)> tuples)
+    {
+        var dict = new Dictionary<object, object?>();
+        tuples.ToList().ForEach(x => dict.Add(x.Item1, x.Item2));
+        return dict.ToHashMap();
+    }
+
     private static void Put(this IMap @this, object key, object? value)
     {
         switch(value) {

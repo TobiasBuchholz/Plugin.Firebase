@@ -502,6 +502,27 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             Assert.Single(snapshot2.Documents);
         }
 
+        [Fact]
+        public async Task reads_null_entries_inside_firestore_lists()
+        {
+            if(!OperatingSystem.IsIOS()) {
+                return;
+            }
+
+            var sut = CrossFirebaseFirestore.Current;
+            var document = GetTestingDocument(sut, "list-null-values");
+            await document.SetDataAsync(new ListNullDocument(
+                values: new object[] { "first", null, "third" },
+                nullableNumbers: new long?[] { 1L, null, 3L }));
+
+            var snapshot = await document.GetDocumentSnapshotAsync<ListNullDocument>();
+
+            Assert.Equal("first", snapshot.Data.Values[0]);
+            Assert.Null(snapshot.Data.Values[1]);
+            Assert.Equal("third", snapshot.Data.Values[2]);
+            Assert.Equal(new long?[] { 1L, null, 3L }, snapshot.Data.NullableNumbers);
+        }
+
         public async Task DisposeAsync()
         {
             TestLog.Write($"[FIRESTORE CLEANUP START] {_testingCollectionPath}");
@@ -531,6 +552,27 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         private ICollectionReference GetTestingCollection(IFirebaseFirestore firestore)
         {
             return firestore.GetCollection(_testingCollectionPath);
+        }
+
+        [Preserve(AllMembers = true)]
+        private sealed class ListNullDocument : IFirestoreObject
+        {
+            public ListNullDocument()
+            {
+                // needed for firestore
+            }
+
+            public ListNullDocument(IList<object> values, IList<long?> nullableNumbers)
+            {
+                Values = values;
+                NullableNumbers = nullableNumbers;
+            }
+
+            [FirestoreProperty("values")]
+            public IList<object> Values { get; private set; }
+
+            [FirestoreProperty("nullable_numbers")]
+            public IList<long?> NullableNumbers { get; private set; }
         }
 
         private static async Task EnsureBasePokemonsSeededAsync()

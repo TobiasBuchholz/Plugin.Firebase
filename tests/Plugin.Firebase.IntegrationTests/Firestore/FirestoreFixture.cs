@@ -657,6 +657,33 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             Assert.Equal((short) 7, snapshot.Data.Values["outer"]["inner"]);
         }
 
+        [Fact]
+        public async Task applies_ios_batch_tuple_set_options()
+        {
+            if(OperatingSystem.IsIOS() is false) {
+                return;
+            }
+
+            var sut = CrossFirebaseFirestore.Current;
+            var document = GetTestingDocument(sut, "ios-batch-tuple-set-options");
+            await document.SetDataAsync(new Dictionary<object, object> {
+                { "untouched", "keep" },
+                { "selected", "old" }
+            });
+
+            var batch = sut.CreateBatch();
+            batch.SetData(
+                document,
+                SetOptions.MergeFields("selected"),
+                ("selected", "from-batch"),
+                ("untouched", "should-not-change"));
+            await batch.CommitAsync();
+
+            var result = (await document.GetDocumentSnapshotAsync<BatchMergeFieldsDocument>()).Data;
+            Assert.Equal("keep", result.Untouched);
+            Assert.Equal("from-batch", result.Selected);
+        }
+
         public async Task DisposeAsync()
         {
             TestLog.Write($"[FIRESTORE CLEANUP START] {_testingCollectionPath}");
@@ -770,6 +797,21 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
 
             [FirestoreProperty("values")]
             public Dictionary<string, Dictionary<string, short>> Values { get; private set; }
+        }
+
+        [Preserve(AllMembers = true)]
+        private sealed class BatchMergeFieldsDocument : IFirestoreObject
+        {
+            public BatchMergeFieldsDocument()
+            {
+                // needed for firestore
+            }
+
+            [FirestoreProperty("untouched")]
+            public string Untouched { get; private set; }
+
+            [FirestoreProperty("selected")]
+            public string Selected { get; private set; }
         }
 
         private static async Task EnsureBasePokemonsSeededAsync()

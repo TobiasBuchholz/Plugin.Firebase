@@ -517,6 +517,18 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 ("unknown_bool", true),
                 ("unknown_null", null),
                 ("unknown_numbers", new[] { 1L, 2L }),
+                ("unknown_empty_array", Array.Empty<object>()),
+                ("unknown_empty_map", new Dictionary<object, object>()),
+                ("unknown_array_with_nulls", new object[] {
+                    null,
+                    "text",
+                    3L,
+                    new Dictionary<object, object> {
+                        { "child_null", null },
+                        { "child_empty_array", Array.Empty<object>() }
+                    },
+                    new object[] { true, null }
+                }),
                 ("unknown_map_array", new[] {
                     new Dictionary<object, object> {
                         { "name", "first" },
@@ -532,7 +544,11 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 ("nested.answer", 42L),
                 ("nested.values", new[] { "one", "two" }),
                 ("nested.deep.answer", 84L),
+                ("nested.deep.null_value", null),
                 ("nested.label", "nested value"),
+                ("nested.null_value", null),
+                ("nested.empty_values", Array.Empty<object>()),
+                ("nested.empty_map", new Dictionary<object, object>()),
                 ("nested.direct_map", new Dictionary<object, object> {
                     { "text", "direct" },
                     { "count", 9L },
@@ -540,6 +556,8 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                     { "inner", new Dictionary<object, object> { { "value", "inside" } } }
                 }),
                 ("observed_at", observedAt),
+                ("created_at", observedAt.UtcDateTime),
+                ("generated_at", FieldValue.ServerTimestamp()),
                 ("location", new GeoPoint(1.25, 2.5)),
                 ("original_reference", document));
 
@@ -631,6 +649,224 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             var enums = (await enumDocument.GetDocumentSnapshotAsync<Dictionary<string, PokeType>>()).Data;
             Assert.Equal(PokeType.Fire, enums["fire"]);
             Assert.Equal(PokeType.Water, enums["water"]);
+        }
+
+        [Fact]
+        public async Task gets_document_data_as_additional_numeric_dictionaries()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+
+            var byteDocument = GetTestingDocument(sut, "typed-byte-map");
+            await byteDocument.SetDataAsync(new Dictionary<object, object> {
+                { "min", 0L },
+                { "max", 255L }
+            });
+            var bytes = (await byteDocument.GetDocumentSnapshotAsync<Dictionary<string, byte>>()).Data;
+            Assert.Equal((byte) 0, bytes["min"]);
+            Assert.Equal(byte.MaxValue, bytes["max"]);
+
+            var sbyteDocument = GetTestingDocument(sut, "typed-sbyte-map");
+            await sbyteDocument.SetDataAsync(new Dictionary<object, object> {
+                { "min", -128L },
+                { "max", 127L }
+            });
+            var sbytes = (await sbyteDocument.GetDocumentSnapshotAsync<Dictionary<string, sbyte>>()).Data;
+            Assert.Equal(sbyte.MinValue, sbytes["min"]);
+            Assert.Equal(sbyte.MaxValue, sbytes["max"]);
+
+            var shortDocument = GetTestingDocument(sut, "typed-short-map");
+            await shortDocument.SetDataAsync(new Dictionary<object, object> {
+                { "min", -32768L },
+                { "max", 32767L }
+            });
+            var shorts = (await shortDocument.GetDocumentSnapshotAsync<Dictionary<string, short>>()).Data;
+            Assert.Equal(short.MinValue, shorts["min"]);
+            Assert.Equal(short.MaxValue, shorts["max"]);
+
+            var ushortDocument = GetTestingDocument(sut, "typed-ushort-map");
+            await ushortDocument.SetDataAsync(new Dictionary<object, object> {
+                { "min", 0L },
+                { "max", 65535L }
+            });
+            var ushorts = (await ushortDocument.GetDocumentSnapshotAsync<Dictionary<string, ushort>>()).Data;
+            Assert.Equal((ushort) 0, ushorts["min"]);
+            Assert.Equal(ushort.MaxValue, ushorts["max"]);
+
+            var uintDocument = GetTestingDocument(sut, "typed-uint-map");
+            await uintDocument.SetDataAsync(new Dictionary<object, object> {
+                { "min", 0L },
+                { "max", 4294967295L }
+            });
+            var uints = (await uintDocument.GetDocumentSnapshotAsync<Dictionary<string, uint>>()).Data;
+            Assert.Equal(0U, uints["min"]);
+            Assert.Equal(uint.MaxValue, uints["max"]);
+
+            var ulongDocument = GetTestingDocument(sut, "typed-ulong-map");
+            await ulongDocument.SetDataAsync(new Dictionary<object, object> {
+                { "zero", 0L },
+                { "value", 9223372036854775807L }
+            });
+            var ulongs = (await ulongDocument.GetDocumentSnapshotAsync<Dictionary<string, ulong>>()).Data;
+            Assert.Equal(0UL, ulongs["zero"]);
+            Assert.Equal(9223372036854775807UL, ulongs["value"]);
+
+            var nullableDocument = GetTestingDocument(sut, "typed-nullable-int-map");
+            await nullableDocument.SetDataAsync(new Dictionary<object, object> {
+                { "present", 123L },
+                { "missing", null }
+            });
+            var nullableInts = (await nullableDocument.GetDocumentSnapshotAsync<Dictionary<string, int?>>()).Data;
+            Assert.Equal(123, nullableInts["present"]);
+            Assert.Null(nullableInts["missing"]);
+        }
+
+        [Fact]
+        public async Task gets_document_data_as_typed_nested_dictionaries()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+
+            var objectMapDocument = GetTestingDocument(sut, "typed-nested-object-map");
+            await objectMapDocument.SetDataAsync(new Dictionary<object, object> {
+                {
+                    "outer",
+                    new Dictionary<object, object> {
+                        { "name", "nested" },
+                        { "count", 3L },
+                        { "active", true },
+                        { "empty", new Dictionary<object, object>() },
+                        { "inner", new Dictionary<object, object> { { "value", "deep" } } }
+                    }
+                }
+            });
+            var objectMaps = (await objectMapDocument.GetDocumentSnapshotAsync<Dictionary<string, Dictionary<string, object>>>()).Data;
+            var outerObjectMap = objectMaps["outer"];
+            Assert.Equal("nested", outerObjectMap["name"]);
+            Assert.Equal(3L, Convert.ToInt64(outerObjectMap["count"]));
+            Assert.True((bool) outerObjectMap["active"]);
+            Assert.Empty(Assert.IsAssignableFrom<IDictionary<string, object>>(outerObjectMap["empty"]));
+            Assert.Equal(
+                "deep",
+                Assert.IsAssignableFrom<IDictionary<string, object>>(outerObjectMap["inner"])["value"]);
+
+            var interfaceMapDocument = GetTestingDocument(sut, "typed-nested-interface-map");
+            await interfaceMapDocument.SetDataAsync(new Dictionary<object, object> {
+                {
+                    "outer",
+                    new Dictionary<object, object> {
+                        { "label", "interface" },
+                        { "nullable", null }
+                    }
+                }
+            });
+            var interfaceMaps = (await interfaceMapDocument.GetDocumentSnapshotAsync<Dictionary<string, IDictionary<string, object>>>()).Data;
+            Assert.Equal("interface", interfaceMaps["outer"]["label"]);
+            Assert.Null(interfaceMaps["outer"]["nullable"]);
+
+            var longMapDocument = GetTestingDocument(sut, "typed-nested-long-map");
+            await longMapDocument.SetDataAsync(new Dictionary<object, object> {
+                {
+                    "outer",
+                    new Dictionary<object, object> {
+                        { "one", 1L },
+                        { "two", 2 }
+                    }
+                }
+            });
+            var longMaps = (await longMapDocument.GetDocumentSnapshotAsync<Dictionary<string, Dictionary<string, long>>>()).Data;
+            Assert.Equal(1L, longMaps["outer"]["one"]);
+            Assert.Equal(2L, longMaps["outer"]["two"]);
+        }
+
+        [Fact]
+        public async Task gets_document_data_as_typed_list_dictionaries()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+
+            var longListDocument = GetTestingDocument(sut, "typed-long-list-map");
+            await longListDocument.SetDataAsync(new Dictionary<object, object> {
+                { "first", new[] { 1L, 2L } },
+                { "second", new[] { 3, 4 } }
+            });
+            var longLists = (await longListDocument.GetDocumentSnapshotAsync<Dictionary<string, IList<long>>>()).Data;
+            Assert.Equal(new[] { 1L, 2L }, longLists["first"]);
+            Assert.Equal(new[] { 3L, 4L }, longLists["second"]);
+
+            var nullableListDocument = GetTestingDocument(sut, "typed-nullable-list-map");
+            await nullableListDocument.SetDataAsync(new Dictionary<object, object> {
+                { "values", new object[] { 1L, null, 3L } }
+            });
+            var nullableLists = (await nullableListDocument.GetDocumentSnapshotAsync<Dictionary<string, IList<long?>>>()).Data;
+            Assert.Equal(new long?[] { 1L, null, 3L }, nullableLists["values"]);
+
+            var objectListDocument = GetTestingDocument(sut, "typed-object-list-map");
+            await objectListDocument.SetDataAsync(new Dictionary<object, object> {
+                {
+                    "values",
+                    new object[] {
+                        null,
+                        "text",
+                        5L,
+                        new Dictionary<object, object> { { "name", "map" } },
+                        new object[] { true, null }
+                    }
+                },
+                { "empty", Array.Empty<object>() }
+            });
+            var objectLists = (await objectListDocument.GetDocumentSnapshotAsync<Dictionary<string, IList<object>>>()).Data;
+            Assert.Empty(objectLists["empty"]);
+
+            var values = objectLists["values"];
+            Assert.Null(values[0]);
+            Assert.Equal("text", values[1]);
+            Assert.Equal(5L, Convert.ToInt64(values[2]));
+            Assert.Equal("map", Assert.IsAssignableFrom<IDictionary<string, object>>(values[3])["name"]);
+
+            var nestedValues = Assert.IsAssignableFrom<IList<object>>(values[4]);
+            Assert.True((bool) nestedValues[0]);
+            Assert.Null(nestedValues[1]);
+        }
+
+        [Fact]
+        public async Task gets_document_data_as_typed_special_value_dictionaries()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var expectedDateTime = new DateTime(2026, 4, 29, 1, 2, 3, 456, DateTimeKind.Utc);
+            var expectedOffset = new DateTimeOffset(2026, 4, 29, 4, 5, 6, 789, TimeSpan.Zero);
+            var documentReference = GetTestingDocument(sut, "typed-reference-target");
+
+            var dateTimeDocument = GetTestingDocument(sut, "typed-datetime-map");
+            await dateTimeDocument.SetDataAsync(new Dictionary<object, object> {
+                { "created", expectedDateTime }
+            });
+            var dateTimes = (await dateTimeDocument.GetDocumentSnapshotAsync<Dictionary<string, DateTime>>()).Data;
+            Assert.InRange(Math.Abs(dateTimes["created"].Ticks - expectedDateTime.Ticks), 0, 10);
+
+            var dateTimeOffsetDocument = GetTestingDocument(sut, "typed-datetime-offset-map");
+            await dateTimeOffsetDocument.SetDataAsync(new Dictionary<object, object> {
+                { "observed", expectedOffset },
+                { "generated", FieldValue.ServerTimestamp() }
+            });
+            var dateTimeOffsets = (await dateTimeOffsetDocument.GetDocumentSnapshotAsync<Dictionary<string, DateTimeOffset>>()).Data;
+            Assert.InRange(Math.Abs(dateTimeOffsets["observed"].Ticks - expectedOffset.Ticks), 0, 10);
+            Assert.NotEqual(default, dateTimeOffsets["generated"]);
+
+            var geoPointDocument = GetTestingDocument(sut, "typed-geopoint-map");
+            await geoPointDocument.SetDataAsync(new Dictionary<object, object> {
+                { "home", new GeoPoint(10.5, 20.25) },
+                { "away", new GeoPoint(-33.875, 151.2) }
+            });
+            var geoPoints = (await geoPointDocument.GetDocumentSnapshotAsync<Dictionary<string, GeoPoint>>()).Data;
+            Assert.Equal(10.5, geoPoints["home"].Latitude);
+            Assert.Equal(20.25, geoPoints["home"].Longitude);
+            Assert.Equal(-33.875, geoPoints["away"].Latitude);
+            Assert.Equal(151.2, geoPoints["away"].Longitude);
+
+            var referenceDocument = GetTestingDocument(sut, "typed-reference-map");
+            await referenceDocument.SetDataAsync(new Dictionary<object, object> {
+                { "original", documentReference }
+            });
+            var references = (await referenceDocument.GetDocumentSnapshotAsync<Dictionary<string, IDocumentReference>>()).Data;
+            Assert.Equal(documentReference.Path, references["original"].Path);
         }
 
         [Fact]
@@ -762,6 +998,22 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             var numbers = Assert.IsAssignableFrom<IList<object>>(data["unknown_numbers"]);
             Assert.Equal(new[] { 1L, 2L }, numbers.Select(Convert.ToInt64));
 
+            Assert.Empty(Assert.IsAssignableFrom<IList<object>>(data["unknown_empty_array"]));
+            Assert.Empty(Assert.IsAssignableFrom<IDictionary<string, object>>(data["unknown_empty_map"]));
+
+            var arrayWithNulls = Assert.IsAssignableFrom<IList<object>>(data["unknown_array_with_nulls"]);
+            Assert.Null(arrayWithNulls[0]);
+            Assert.Equal("text", arrayWithNulls[1]);
+            Assert.Equal(3L, Convert.ToInt64(arrayWithNulls[2]));
+
+            var childMap = Assert.IsAssignableFrom<IDictionary<string, object>>(arrayWithNulls[3]);
+            Assert.Null(childMap["child_null"]);
+            Assert.Empty(Assert.IsAssignableFrom<IList<object>>(childMap["child_empty_array"]));
+
+            var nestedArray = Assert.IsAssignableFrom<IList<object>>(arrayWithNulls[4]);
+            Assert.True((bool) nestedArray[0]);
+            Assert.Null(nestedArray[1]);
+
             var mapArray = Assert.IsAssignableFrom<IList<object>>(data["unknown_map_array"]);
             Assert.Equal(2, mapArray.Count);
             var firstMap = Assert.IsAssignableFrom<IDictionary<string, object>>(mapArray[0]);
@@ -776,12 +1028,16 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             var nested = Assert.IsAssignableFrom<IDictionary<string, object>>(data["nested"]);
             Assert.Equal(42L, Convert.ToInt64(nested["answer"]));
             Assert.Equal("nested value", nested["label"]);
+            Assert.Null(nested["null_value"]);
+            Assert.Empty(Assert.IsAssignableFrom<IList<object>>(nested["empty_values"]));
+            Assert.Empty(Assert.IsAssignableFrom<IDictionary<string, object>>(nested["empty_map"]));
 
             var nestedValues = Assert.IsAssignableFrom<IList<object>>(nested["values"]);
             Assert.Equal(new[] { "one", "two" }, nestedValues.Select(x => x as string));
 
             var deepNested = Assert.IsAssignableFrom<IDictionary<string, object>>(nested["deep"]);
             Assert.Equal(84L, Convert.ToInt64(deepNested["answer"]));
+            Assert.Null(deepNested["null_value"]);
 
             var directMap = Assert.IsAssignableFrom<IDictionary<string, object>>(nested["direct_map"]);
             Assert.Equal("direct", directMap["text"]);
@@ -792,6 +1048,8 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             Assert.Equal("inside", innerMap["value"]);
 
             Assert.IsType<DateTimeOffset>(data["observed_at"]);
+            Assert.IsType<DateTimeOffset>(data["created_at"]);
+            Assert.IsType<DateTimeOffset>(data["generated_at"]);
             var location = Assert.IsType<GeoPoint>(data["location"]);
             Assert.Equal(1.25, location.Latitude);
             Assert.Equal(2.5, location.Longitude);

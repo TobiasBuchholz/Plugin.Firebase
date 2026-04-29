@@ -121,11 +121,21 @@ jobs:
       - name: Select Xcode for .NET iOS workload
         run: |
           for xcode in \
-            /Applications/Xcode_26.3.0.app \
-            /Applications/Xcode_26.3.app; do
+            /Applications/Xcode_26.3.app \
+            /Applications/Xcode_26.3.0.app; do
             if [ -d "$xcode" ]; then
               sudo xcode-select -s "$xcode/Contents/Developer"
               xcodebuild -version
+              sdk_dir="$(xcode-select -p)/Platforms/MacOSX.platform/Developer/SDKs"
+              if [ ! -e "$sdk_dir/MacOSX.sdk" ]; then
+                macos_sdk=$(find "$sdk_dir" -maxdepth 1 -name "MacOSX*.sdk" -type d | sort | tail -n 1)
+                if [ -z "$macos_sdk" ]; then
+                  echo "No macOS SDK found under $sdk_dir." >&2
+                  exit 1
+                fi
+                sudo ln -s "$(basename "$macos_sdk")" "$sdk_dir/MacOSX.sdk"
+              fi
+              xcrun --sdk macosx --show-sdk-path
               exit 0
             fi
           done

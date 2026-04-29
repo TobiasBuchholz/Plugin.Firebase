@@ -502,6 +502,30 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             Assert.Single(snapshot2.Documents);
         }
 
+        [Fact]
+        public async Task writes_nested_dictionary_properties_on_ios()
+        {
+            if(!OperatingSystem.IsIOS()) {
+                return;
+            }
+
+            var sut = CrossFirebaseFirestore.Current;
+            var document = GetTestingDocument(sut, "ios-nested-dictionary");
+            var expected = new Dictionary<string, Dictionary<string, short>> {
+                {
+                    "outer",
+                    new Dictionary<string, short> {
+                        { "inner", 7 }
+                    }
+                }
+            };
+
+            await document.SetDataAsync(new NestedShortDictionaryDocument(expected));
+
+            var snapshot = await document.GetDocumentSnapshotAsync<NestedShortDictionaryDocument>();
+            Assert.Equal((short) 7, snapshot.Data.Values["outer"]["inner"]);
+        }
+
         public async Task DisposeAsync()
         {
             TestLog.Write($"[FIRESTORE CLEANUP START] {_testingCollectionPath}");
@@ -531,6 +555,23 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         private ICollectionReference GetTestingCollection(IFirebaseFirestore firestore)
         {
             return firestore.GetCollection(_testingCollectionPath);
+        }
+
+        [Preserve(AllMembers = true)]
+        private sealed class NestedShortDictionaryDocument : IFirestoreObject
+        {
+            public NestedShortDictionaryDocument()
+            {
+                // needed for firestore
+            }
+
+            public NestedShortDictionaryDocument(Dictionary<string, Dictionary<string, short>> values)
+            {
+                Values = values;
+            }
+
+            [FirestoreProperty("values")]
+            public Dictionary<string, Dictionary<string, short>> Values { get; private set; }
         }
 
         private static async Task EnsureBasePokemonsSeededAsync()

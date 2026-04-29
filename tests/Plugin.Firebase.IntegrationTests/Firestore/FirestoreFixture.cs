@@ -502,6 +502,27 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             Assert.Single(snapshot2.Documents);
         }
 
+        [Fact]
+        public async Task reads_ios_enum_dictionary_values()
+        {
+            if(!OperatingSystem.IsIOS()) {
+                return;
+            }
+
+            var sut = CrossFirebaseFirestore.Current;
+            var document = GetTestingDocument(sut, "ios-enum-dictionary-values");
+            await document.SetDataAsync(new EnumDictionaryDocument(
+                new Dictionary<string, PokeType> {
+                    { "fire", PokeType.Fire },
+                    { "water", PokeType.Water }
+                }));
+
+            var snapshot = await document.GetDocumentSnapshotAsync<EnumDictionaryDocument>();
+
+            Assert.Equal(PokeType.Fire, snapshot.Data.Values["fire"]);
+            Assert.Equal(PokeType.Water, snapshot.Data.Values["water"]);
+        }
+
         public async Task DisposeAsync()
         {
             TestLog.Write($"[FIRESTORE CLEANUP START] {_testingCollectionPath}");
@@ -531,6 +552,23 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         private ICollectionReference GetTestingCollection(IFirebaseFirestore firestore)
         {
             return firestore.GetCollection(_testingCollectionPath);
+        }
+
+        [Preserve(AllMembers = true)]
+        private sealed class EnumDictionaryDocument : IFirestoreObject
+        {
+            public EnumDictionaryDocument()
+            {
+                // needed for firestore
+            }
+
+            public EnumDictionaryDocument(Dictionary<string, PokeType> values)
+            {
+                Values = values;
+            }
+
+            [FirestoreProperty("values")]
+            public Dictionary<string, PokeType> Values { get; private set; }
         }
 
         private static async Task EnsureBasePokemonsSeededAsync()

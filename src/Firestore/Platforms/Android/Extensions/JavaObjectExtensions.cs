@@ -100,15 +100,15 @@ public static class JavaObjectExtensions
             case Java.Lang.ICharSequence x:
                 return x.ToString();
             case Java.Lang.Boolean x:
-                return x.BooleanValue();
+                return x.BooleanValue().ConvertToTargetType(targetType);
             case Java.Lang.Integer x:
-                return x.IntValue();
+                return x.IntValue().ConvertToTargetType(targetType);
             case Java.Lang.Double x:
-                return x.DoubleValue();
+                return x.DoubleValue().ConvertToTargetType(targetType);
             case Java.Lang.Float x:
-                return x.FloatValue();
+                return x.FloatValue().ConvertToTargetType(targetType);
             case Java.Lang.Long x:
-                return x.LongValue();
+                return x.LongValue().ConvertToTargetType(targetType);
             case Date x:
                 return x.ToDateTimeOffset();
             case NativeFirebase.Timestamp x:
@@ -151,12 +151,12 @@ public static class JavaObjectExtensions
         }
 
         foreach(DictionaryEntry pair in @this) {
-            var key = pair.Key.ToJavaObject().ToObject(keyType);
+            var key = ConvertToObject(keyType, pair.Key);
             if(key is null) {
                 throw new ArgumentException("Dictionary contains a null key.");
             }
 
-            var value = pair.Value.ToJavaObject().ToObject(valueType);
+            var value = ConvertToObject(valueType, pair.Value);
             dict[key] = value;
         }
         return dict;
@@ -226,6 +226,23 @@ public static class JavaObjectExtensions
             }
         }
         return instance;
+    }
+
+    private static object? ConvertToObject(Type? targetType, object? value)
+    {
+        var conversionType = targetType.GetConversionType();
+
+        if(value == null) {
+            return null;
+        } else if(conversionType == typeof(string)) {
+            return value is Java.Lang.ICharSequence charSequence
+                ? charSequence.ToString()
+                : value.ToString();
+        } else if(value is Java.Lang.Object javaValue) {
+            return javaValue.ToObject(targetType);
+        }
+
+        return value.ConvertToTargetType(targetType);
     }
 
     public static IDictionary<string, object?> ToDictionary(this ArrayMap @this)

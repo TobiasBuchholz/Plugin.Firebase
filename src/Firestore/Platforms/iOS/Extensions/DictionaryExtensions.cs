@@ -193,4 +193,13 @@ public static class DictionaryExtensions
         }
         return dict;
     }
+
+    internal static Dictionary<object, object?> ToDictionary(this IEnumerable<(object, object?)> @this)
+    {
+        var dict = new Dictionary<object, object?>();
+        foreach(var (key, value) in @this) {
+            dict[key] = value;
+        }
+        return dict;
+    }
 }

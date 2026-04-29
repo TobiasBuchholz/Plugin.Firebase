@@ -526,6 +526,27 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         }
 
         [Fact]
+        public async Task reads_ios_enum_dictionary_values()
+        {
+            if(!OperatingSystem.IsIOS()) {
+                return;
+            }
+
+            var sut = CrossFirebaseFirestore.Current;
+            var document = GetTestingDocument(sut, "ios-enum-dictionary-values");
+            await document.SetDataAsync(new EnumDictionaryDocument(
+                new Dictionary<string, PokeType> {
+                    { "fire", PokeType.Fire },
+                    { "water", PokeType.Water }
+                }));
+
+            var snapshot = await document.GetDocumentSnapshotAsync<EnumDictionaryDocument>();
+
+            Assert.Equal(PokeType.Fire, snapshot.Data.Values["fire"]);
+            Assert.Equal(PokeType.Water, snapshot.Data.Values["water"]);
+        }
+
+        [Fact]
         public async Task writes_nested_dictionary_properties_on_ios()
         {
             if(!OperatingSystem.IsIOS()) {
@@ -595,6 +616,23 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
 
             [FirestoreProperty("values")]
             public Dictionary<string, object> Values { get; private set; }
+        }
+
+        [Preserve(AllMembers = true)]
+        private sealed class EnumDictionaryDocument : IFirestoreObject
+        {
+            public EnumDictionaryDocument()
+            {
+                // needed for firestore
+            }
+
+            public EnumDictionaryDocument(Dictionary<string, PokeType> values)
+            {
+                Values = values;
+            }
+
+            [FirestoreProperty("values")]
+            public Dictionary<string, PokeType> Values { get; private set; }
         }
 
         [Preserve(AllMembers = true)]

@@ -45,9 +45,9 @@ public static class JavaObjectExtensions
                 return x;
             case HashMap x:
                 return x;
-            case IDictionary<string, object> x:
+            case IDictionary<string, object?> x:
                 return x.ToHashMap();
-            case IDictionary<object, object> x:
+            case IDictionary<object, object?> x:
                 return x.ToHashMap();
             case IDictionary x:
                 return x.ToHashMapFromNonGenericDict();
@@ -193,9 +193,14 @@ public static class JavaObjectExtensions
             var attributes = property.GetCustomAttributes(typeof(FirestorePropertyAttribute), true);
             if(attributes.Any()) {
                 var attribute = (FirestorePropertyAttribute) attributes[0];
-                var value = @this[attribute.PropertyName];
-                if(value == null) {
+                if(!@this.Contains(attribute.PropertyName)) {
                     Debug.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because it's not contained in the dictionary.");
+                    continue;
+                }
+
+                var value = @this[attribute.PropertyName];
+                if(value is null) {
+                    property.SetValue(instance, null);
                 } else if(value is Java.Lang.Object javaValue) {
                     property.SetValue(instance, javaValue.ToObject(property.PropertyType));
                 } else if(property.PropertyType == typeof(float)) {

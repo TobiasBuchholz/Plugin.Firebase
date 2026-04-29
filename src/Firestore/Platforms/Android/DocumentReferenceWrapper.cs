@@ -27,7 +27,7 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
         }
     }
 
-    public async Task SetDataAsync(Dictionary<object, object> data, SetOptions? options = null)
+    public async Task SetDataAsync(Dictionary<object, object?> data, SetOptions? options = null)
     {
         if(options == null) {
             await Wrapped.Set(data.ToHashMap());
@@ -36,12 +36,12 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
         }
     }
 
-    public async Task SetDataAsync(params (object, object)[] data)
+    public async Task SetDataAsync(params (object, object?)[] data)
     {
         await Wrapped.Set(data.ToHashMap());
     }
 
-    public async Task SetDataAsync(SetOptions options, params (object, object)[] data)
+    public async Task SetDataAsync(SetOptions options, params (object, object?)[] data)
     {
         if(options == null) {
             await Wrapped.Set(data.ToHashMap());
@@ -50,12 +50,12 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
         }
     }
 
-    public async Task UpdateDataAsync(Dictionary<object, object> data)
+    public async Task UpdateDataAsync(Dictionary<object, object?> data)
     {
         await Wrapped.Update(data.ToJavaObjectDictionary());
     }
 
-    public async Task UpdateDataAsync(params (string, object)[] data)
+    public async Task UpdateDataAsync(params (string, object?)[] data)
     {
         await Wrapped.Update(data.ToJavaObjectDictionary());
     }
@@ -92,6 +92,10 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
         Action<Exception>? onError = null,
         bool includeMetaDataChanges = false)
     {
+        if(onChanged is null) {
+            throw new ArgumentNullException(nameof(onChanged));
+        }
+
         var registration = Wrapped
             .AddSnapshotListener(includeMetaDataChanges ? MetadataChanges.Include : MetadataChanges.Exclude, new EventListener(
                 x => onChanged(x.JavaCast<DocumentSnapshot>().ToAbstract<T>()),

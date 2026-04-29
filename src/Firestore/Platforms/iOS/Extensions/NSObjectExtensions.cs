@@ -179,7 +179,7 @@ public static class NSObjectExtensions
     /// <param name="this">The object to convert.</param>
     /// <returns>The native iOS NSObject representation.</returns>
     /// <exception cref="ArgumentException">Thrown if the object type cannot be converted.</exception>
-    public static NSObject ToNSObject(this object @this)
+    public static NSObject ToNSObject(this object? @this)
     {
         switch(@this) {
             case null:

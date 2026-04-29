@@ -12,7 +12,7 @@ public interface IQuery
     /// </summary>
     /// <param name="field">The name of the field to compare.</param>
     /// <param name="value">The value the field must be equal to.</param>
-    IQuery WhereEqualsTo(string field, object value);
+    IQuery WhereEqualsTo(string field, object? value);
 
     /// <summary>
     /// Creates and returns a new <c>IQuery</c> object with the additional filter that documents must contain the specified field and the
@@ -20,7 +20,7 @@ public interface IQuery
     /// </summary>
     /// <param name="path">The path of the field to compare.</param>
     /// <param name="value">The value the field must be equal to.</param>
-    IQuery WhereEqualsTo(FieldPath path, object value);
+    IQuery WhereEqualsTo(FieldPath path, object? value);
 
     /// <summary>
     /// Creates and returns a new <c>IQuery</c> object with the additional filter that documents must contain the specified field and the
@@ -28,7 +28,7 @@ public interface IQuery
     /// </summary>
     /// <param name="field">The name of the field to compare.</param>
     /// <param name="value">The value the field must be greater than.</param>
-    IQuery WhereGreaterThan(string field, object value);
+    IQuery WhereGreaterThan(string field, object? value);
 
     /// <summary>
     /// Creates and returns a new <c>IQuery</c> object with the additional filter that documents must contain the specified field and the
@@ -36,7 +36,7 @@ public interface IQuery
     /// </summary>
     /// <param name="path">The path of the field to compare.</param>
     /// <param name="value">The value the field must be greater than.</param>
-    IQuery WhereGreaterThan(FieldPath path, object value);
+    IQuery WhereGreaterThan(FieldPath path, object? value);
 
     /// <summary>
     /// Creates and returns a new <c>IQuery</c> object with the additional filter that documents must contain the specified field and the
@@ -44,7 +44,7 @@ public interface IQuery
     /// </summary>
     /// <param name="field">The name of the field to compare.</param>
     /// <param name="value">The value the field must be less than.</param>
-    IQuery WhereLessThan(string field, object value);
+    IQuery WhereLessThan(string field, object? value);
 
     /// <summary>
     /// Creates and returns a new <c>IQuery</c> object with the additional filter that documents must contain the specified field and the
@@ -52,7 +52,7 @@ public interface IQuery
     /// </summary>
     /// <param name="path">The path of the field to compare.</param>
     /// <param name="value">The value the field must be less than.</param>
-    IQuery WhereLessThan(FieldPath path, object value);
+    IQuery WhereLessThan(FieldPath path, object? value);
 
     /// <summary>
     /// Creates and returns a new <c>IQuery</c> object with the additional filter that documents must contain the specified field and the
@@ -60,7 +60,7 @@ public interface IQuery
     /// </summary>
     /// <param name="field">The name of the field to compare.</param>
     /// <param name="value">The value the field must be greater than.</param>
-    IQuery WhereGreaterThanOrEqualsTo(string field, object value);
+    IQuery WhereGreaterThanOrEqualsTo(string field, object? value);
 
     /// <summary>
     /// Creates and returns a new <c>IQuery</c> object with the additional filter that documents must contain the specified field and the
@@ -68,7 +68,7 @@ public interface IQuery
     /// </summary>
     /// <param name="path">The path of the field to compare.</param>
     /// <param name="value">The value the field must be greater than.</param>
-    IQuery WhereGreaterThanOrEqualsTo(FieldPath path, object value);
+    IQuery WhereGreaterThanOrEqualsTo(FieldPath path, object? value);
 
     /// <summary>
     /// Creates and returns a new <c>IQuery</c> object with the additional filter that documents must contain the specified field and the
@@ -76,7 +76,7 @@ public interface IQuery
     /// </summary>
     /// <param name="field">The name of the field to compare.</param>
     /// <param name="value">The value the field must be less than or equal to.</param>
-    IQuery WhereLessThanOrEqualsTo(string field, object value);
+    IQuery WhereLessThanOrEqualsTo(string field, object? value);
 
     /// <summary>
     /// Creates and returns a new <c>IQuery</c> object with the additional filter that documents must contain the specified field and the
@@ -84,7 +84,7 @@ public interface IQuery
     /// </summary>
     /// <param name="path">The path of the field to compare.</param>
     /// <param name="value">The value the field must be less than or equal to.</param>
-    IQuery WhereLessThanOrEqualsTo(FieldPath path, object value);
+    IQuery WhereLessThanOrEqualsTo(FieldPath path, object? value);
 
     /// <summary>
     /// Creates and returns a new <c>IQuery</c> with the additional filter that documents must contain the specified field, it must be an array,
@@ -94,7 +94,7 @@ public interface IQuery
     /// </summary>
     /// <param name="field">The name of the field containing an array to search</param>
     /// <param name="value">The value that must be contained in the array</param>
-    IQuery WhereArrayContains(string field, object value);
+    IQuery WhereArrayContains(string field, object? value);
 
     /// <summary>
     /// Creates and returns a new <c>IQuery</c> with the additional filter that documents must contain the specified field, it must be an array,
@@ -104,7 +104,7 @@ public interface IQuery
     /// </summary>
     /// <param name="path">The path of the field containing an array to search</param>
     /// <param name="value">The value that must be contained in the array</param>
-    IQuery WhereArrayContains(FieldPath path, object value);
+    IQuery WhereArrayContains(FieldPath path, object? value);
 
     /// <summary>
     /// Creates and returns a new <c>IQuery</c> with the additional filter that documents must contain the specified field, the value must be an array,
@@ -114,7 +114,7 @@ public interface IQuery
     /// </summary>
     /// <param name="field">The name of the field containing an array to search.</param>
     /// <param name="values">The array that contains the values to match.</param>
-    IQuery WhereArrayContainsAny(string field, object[] values);
+    IQuery WhereArrayContainsAny(string field, object?[] values);
 
     /// <summary>
     /// Creates and returns a new <c>IQuery</c> with the additional filter that documents must contain the specified field, the value must be an array,
@@ -124,7 +124,7 @@ public interface IQuery
     /// </summary>
     /// <param name="path">The path of the field containing an array to search.</param>
     /// <param name="values">The array that contains the values to match.</param>
-    IQuery WhereArrayContainsAny(FieldPath path, object[] values);
+    IQuery WhereArrayContainsAny(FieldPath path, object?[] values);
 
     /// <summary>
     /// Creates and returns a new <c>IQuery</c> with the additional filter that documents must contain the specified field and the value must equal
@@ -134,7 +134,7 @@ public interface IQuery
     /// </summary>
     /// <param name="field">The name of the field to search.</param>
     /// <param name="values">The array that contains the values to match.</param>
-    IQuery WhereFieldIn(string field, object[] values);
+    IQuery WhereFieldIn(string field, object?[] values);
 
     /// <summary>
     /// Creates and returns a new <c>IQuery</c> with the additional filter that documents must contain the specified field and the value must equal
@@ -144,7 +144,7 @@ public interface IQuery
     /// </summary>
     /// <param name="path">The name of the field to search.</param>
     /// <param name="values">The array that contains the values to match.</param>
-    IQuery WhereFieldIn(FieldPath path, object[] values);
+    IQuery WhereFieldIn(FieldPath path, object?[] values);
 
     /// <summary>
     /// Creates and returns a new <c>IQuery</c> object that’s additionally sorted by the specified field.
@@ -165,7 +165,7 @@ public interface IQuery
     /// the field values must match the order of the order by clauses of the query.
     /// </summary>
     /// <param name="fieldValues">The field values to start this query at, in order of the query’s order by.</param>
-    IQuery StartingAt(params object[] fieldValues);
+    IQuery StartingAt(params object?[] fieldValues);
 
     /// <summary>
     /// Creates and returns a new <c>IQuery</c> object that starts at the provided document (inclusive). The starting position is relative
@@ -179,7 +179,7 @@ public interface IQuery
     /// the field values must match the order of the order by clauses of the query.
     /// </summary>
     /// <param name="fieldValues">The field values to start this query after, in order of the query’s order by.</param>
-    IQuery StartingAfter(params object[] fieldValues);
+    IQuery StartingAfter(params object?[] fieldValues);
 
     /// <summary>
     /// Creates and returns a new <c>IQuery</c> object that starts after the provided document (exclusive). The starting position is relative
@@ -193,7 +193,7 @@ public interface IQuery
     /// field values must match the order of the order by clauses of the query.
     /// </summary>
     /// <param name="fieldValues">The field values to end this query at, in order of the query’s order by.</param>
-    IQuery EndingAt(params object[] fieldValues);
+    IQuery EndingAt(params object?[] fieldValues);
 
     /// <summary>
     /// Creates and returns a new <c>IQuery</c> object that ends at the provided document (exclusive). The end position is relative to the
@@ -207,7 +207,7 @@ public interface IQuery
     /// the field values must match the order of the order by clauses of the query.
     /// </summary>
     /// <param name="fieldValues">The field values to end this query before, in order of the query’s order by.</param>
-    IQuery EndingBefore(params object[] fieldValues);
+    IQuery EndingBefore(params object?[] fieldValues);
 
     /// <summary>
     /// Creates and returns a new <c>IQuery</c> object that ends before the provided document (exclusive). The end position is relative to

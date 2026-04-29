@@ -17,82 +17,82 @@ public class QueryWrapper : IQuery
         _wrapped = query;
     }
 
-    public IQuery WhereEqualsTo(string field, object value)
+    public IQuery WhereEqualsTo(string field, object? value)
     {
         return _wrapped.WhereEqualTo(field, value.ToJavaObject()).ToAbstract();
     }
 
-    public IQuery WhereEqualsTo(FieldPath path, object value)
+    public IQuery WhereEqualsTo(FieldPath path, object? value)
     {
         return _wrapped.WhereEqualTo(path.ToNative(), value.ToJavaObject()).ToAbstract();
     }
 
-    public IQuery WhereGreaterThan(string field, object value)
+    public IQuery WhereGreaterThan(string field, object? value)
     {
         return _wrapped.WhereGreaterThan(field, value.ToJavaObject()).ToAbstract();
     }
 
-    public IQuery WhereGreaterThan(FieldPath path, object value)
+    public IQuery WhereGreaterThan(FieldPath path, object? value)
     {
         return _wrapped.WhereGreaterThan(path.ToNative(), value.ToJavaObject()).ToAbstract();
     }
 
-    public IQuery WhereLessThan(string field, object value)
+    public IQuery WhereLessThan(string field, object? value)
     {
         return _wrapped.WhereLessThan(field, value.ToJavaObject()).ToAbstract();
     }
 
-    public IQuery WhereLessThan(FieldPath path, object value)
+    public IQuery WhereLessThan(FieldPath path, object? value)
     {
         return _wrapped.WhereLessThan(path.ToNative(), value.ToJavaObject()).ToAbstract();
     }
 
-    public IQuery WhereGreaterThanOrEqualsTo(string field, object value)
+    public IQuery WhereGreaterThanOrEqualsTo(string field, object? value)
     {
         return _wrapped.WhereGreaterThanOrEqualTo(field, value.ToJavaObject()).ToAbstract();
     }
 
-    public IQuery WhereGreaterThanOrEqualsTo(FieldPath path, object value)
+    public IQuery WhereGreaterThanOrEqualsTo(FieldPath path, object? value)
     {
         return _wrapped.WhereGreaterThanOrEqualTo(path.ToNative(), value.ToJavaObject()).ToAbstract();
     }
 
-    public IQuery WhereLessThanOrEqualsTo(string field, object value)
+    public IQuery WhereLessThanOrEqualsTo(string field, object? value)
     {
         return _wrapped.WhereLessThanOrEqualTo(field, value.ToJavaObject()).ToAbstract();
     }
 
-    public IQuery WhereLessThanOrEqualsTo(FieldPath path, object value)
+    public IQuery WhereLessThanOrEqualsTo(FieldPath path, object? value)
     {
         return _wrapped.WhereLessThanOrEqualTo(path.ToNative(), value.ToJavaObject()).ToAbstract();
     }
 
-    public IQuery WhereArrayContains(string field, object value)
+    public IQuery WhereArrayContains(string field, object? value)
     {
         return _wrapped.WhereArrayContains(field, value.ToJavaObject()).ToAbstract();
     }
 
-    public IQuery WhereArrayContains(FieldPath path, object value)
+    public IQuery WhereArrayContains(FieldPath path, object? value)
     {
         return _wrapped.WhereArrayContains(path.ToNative(), value.ToJavaObject()).ToAbstract();
     }
 
-    public IQuery WhereArrayContainsAny(string field, object[] values)
+    public IQuery WhereArrayContainsAny(string field, object?[] values)
     {
         return _wrapped.WhereArrayContainsAny(field, values.Select(x => x.ToJavaObject()).ToArray()).ToAbstract();
     }
 
-    public IQuery WhereArrayContainsAny(FieldPath path, object[] values)
+    public IQuery WhereArrayContainsAny(FieldPath path, object?[] values)
     {
         return _wrapped.WhereArrayContainsAny(path.ToNative(), values.Select(x => x.ToJavaObject()).ToArray()).ToAbstract();
     }
 
-    public IQuery WhereFieldIn(string field, object[] values)
+    public IQuery WhereFieldIn(string field, object?[] values)
     {
         return _wrapped.WhereIn(field, values.Select(x => x.ToJavaObject()).ToArray()).ToAbstract();
     }
 
-    public IQuery WhereFieldIn(FieldPath path, object[] values)
+    public IQuery WhereFieldIn(FieldPath path, object?[] values)
     {
         return _wrapped.WhereIn(path.ToNative(), values.Select(x => x.ToJavaObject()).ToArray()).ToAbstract();
     }
@@ -107,7 +107,7 @@ public class QueryWrapper : IQuery
         return _wrapped.OrderBy(path.ToNative(), descending ? Query.Direction.Descending : Query.Direction.Ascending).ToAbstract();
     }
 
-    public IQuery StartingAt(object[] fieldValues)
+    public IQuery StartingAt(object?[] fieldValues)
     {
         return _wrapped.StartAt(fieldValues.Select(x => x.ToJavaObject()).ToArray()).ToAbstract();
     }
@@ -117,7 +117,7 @@ public class QueryWrapper : IQuery
         return _wrapped.StartAt(snapshot.ToNative()).ToAbstract();
     }
 
-    public IQuery StartingAfter(params object[] fieldValues)
+    public IQuery StartingAfter(params object?[] fieldValues)
     {
         return _wrapped.StartAfter(fieldValues.Select(x => x.ToJavaObject()).ToArray()).ToAbstract();
     }
@@ -127,7 +127,7 @@ public class QueryWrapper : IQuery
         return _wrapped.StartAfter(snapshot.ToNative()).ToAbstract();
     }
 
-    public IQuery EndingAt(object[] fieldValues)
+    public IQuery EndingAt(object?[] fieldValues)
     {
         return _wrapped.EndAt(fieldValues.Select(x => x.ToJavaObject()).ToArray()).ToAbstract();
     }
@@ -137,7 +137,7 @@ public class QueryWrapper : IQuery
         return _wrapped.EndAt(snapshot.ToNative()).ToAbstract();
     }
 
-    public IQuery EndingBefore(params object[] fieldValues)
+    public IQuery EndingBefore(params object?[] fieldValues)
     {
         return _wrapped.EndBefore(fieldValues.Select(x => x.ToJavaObject()).ToArray()).ToAbstract();
     }
@@ -165,6 +165,10 @@ public class QueryWrapper : IQuery
 
     public IDisposable AddSnapshotListener<T>(Action<IQuerySnapshot<T>> onChanged, Action<Exception>? onError = null, bool includeMetaDataChanges = false)
     {
+        if(onChanged is null) {
+            throw new ArgumentNullException(nameof(onChanged));
+        }
+
         var registration = _wrapped
             .AddSnapshotListener(includeMetaDataChanges ? MetadataChanges.Include : MetadataChanges.Exclude, new EventListener(
                 x => onChanged(new QuerySnapshotWrapper<T>(x.JavaCast<QuerySnapshot>())),

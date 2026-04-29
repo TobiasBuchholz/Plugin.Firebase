@@ -35,28 +35,29 @@ public sealed class WriteBatchWrapper : IWriteBatch
     /// <inheritdoc/>
     public IWriteBatch SetData(
         IDocumentReference document,
-        Dictionary<object, object> data,
+        Dictionary<object, object?> data,
         SetOptions? options = null
     )
     {
+        var nativeData = data.ToNSObjectDictionary();
         if(options == null) {
-            return _wrapped.SetData(data, document.ToNative()).ToAbstract();
+            return _wrapped.SetData(nativeData, document.ToNative()).ToAbstract();
         }
 
         switch(options.Type) {
             case SetOptions.TypeMerge:
-                return _wrapped.SetData(data, document.ToNative(), true).ToAbstract();
+                return _wrapped.SetData(nativeData, document.ToNative(), true).ToAbstract();
             case SetOptions.TypeMergeFieldPaths:
                 return _wrapped
                     .SetData(
-                        data,
+                        nativeData,
                         document.ToNative(),
                         options.FieldPaths?.Select(x => new NativeFieldPath(x.ToArray())).ToArray() ?? []
                     )
                     .ToAbstract();
             case SetOptions.TypeMergeFields:
                 return _wrapped
-                    .SetData(data, document.ToNative(), options.Fields?.ToArray() ?? [])
+                    .SetData(nativeData, document.ToNative(), options.Fields?.ToArray() ?? [])
                     .ToAbstract();
             default:
                 throw new ArgumentException($"SetOptions type {options.Type} is not supported.");
@@ -64,7 +65,7 @@ public sealed class WriteBatchWrapper : IWriteBatch
     }
 
     /// <inheritdoc/>
-    public IWriteBatch SetData(IDocumentReference document, params (object, object)[] data)
+    public IWriteBatch SetData(IDocumentReference document, params (object, object?)[] data)
     {
         return SetData(document, data.ToDictionary());
     }
@@ -73,20 +74,20 @@ public sealed class WriteBatchWrapper : IWriteBatch
     public IWriteBatch SetData(
         IDocumentReference document,
         SetOptions options,
-        params (object, object)[] data
+        params (object, object?)[] data
     )
     {
-        return SetData(document, data.ToDictionary());
+        return SetData(document, data.ToDictionary(), options);
     }
 
     /// <inheritdoc/>
-    public IWriteBatch UpdateData(IDocumentReference document, Dictionary<object, object> data)
+    public IWriteBatch UpdateData(IDocumentReference document, Dictionary<object, object?> data)
     {
         return _wrapped.UpdateData(data.ToNSObjectDictionary(), document.ToNative()).ToAbstract();
     }
 
     /// <inheritdoc/>
-    public IWriteBatch UpdateData(IDocumentReference document, params (string, object)[] data)
+    public IWriteBatch UpdateData(IDocumentReference document, params (string, object?)[] data)
     {
         return _wrapped.UpdateData(data.ToNSObjectDictionary(), document.ToNative()).ToAbstract();
     }

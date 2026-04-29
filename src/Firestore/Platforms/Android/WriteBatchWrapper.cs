@@ -25,31 +25,31 @@ public sealed class WriteBatchWrapper : IWriteBatch
             : _wrapped.Set(document.ToNative(), data.ToHashMap(), options.ToNative()).ToAbstract();
     }
 
-    public IWriteBatch SetData(IDocumentReference document, Dictionary<object, object> data, SetOptions? options = null)
+    public IWriteBatch SetData(IDocumentReference document, Dictionary<object, object?> data, SetOptions? options = null)
     {
         return options == null
             ? _wrapped.Set(document.ToNative(), data.ToHashMap()).ToAbstract()
             : _wrapped.Set(document.ToNative(), data.ToHashMap(), options.ToNative()).ToAbstract();
     }
 
-    public IWriteBatch SetData(IDocumentReference document, params (object, object)[] data)
+    public IWriteBatch SetData(IDocumentReference document, params (object, object?)[] data)
     {
         return _wrapped.Set(document.ToNative(), data.ToHashMap()).ToAbstract();
     }
 
-    public IWriteBatch SetData(IDocumentReference document, SetOptions options, params (object, object)[] data)
+    public IWriteBatch SetData(IDocumentReference document, SetOptions options, params (object, object?)[] data)
     {
         return options == null
             ? _wrapped.Set(document.ToNative(), data.ToHashMap()).ToAbstract()
             : _wrapped.Set(document.ToNative(), data.ToHashMap(), options.ToNative()).ToAbstract();
     }
 
-    public IWriteBatch UpdateData(IDocumentReference document, Dictionary<object, object> data)
+    public IWriteBatch UpdateData(IDocumentReference document, Dictionary<object, object?> data)
     {
         return _wrapped.Update(document.ToNative(), data.ToJavaObjectDictionary()).ToAbstract();
     }
 
-    public IWriteBatch UpdateData(IDocumentReference document, params (string, object)[] data)
+    public IWriteBatch UpdateData(IDocumentReference document, params (string, object?)[] data)
     {
         return _wrapped.Update(document.ToNative(), data.ToJavaObjectDictionary()).ToAbstract();
     }

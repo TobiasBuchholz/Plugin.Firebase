@@ -22,49 +22,49 @@ public class QueryWrapper : IQuery
     }
 
     /// <inheritdoc/>
-    public IQuery WhereEqualsTo(string field, object value)
+    public IQuery WhereEqualsTo(string field, object? value)
     {
         return _wrapped.WhereEqualsTo(field, value.ToNSObject()).ToAbstract();
     }
 
     /// <inheritdoc/>
-    public IQuery WhereEqualsTo(FieldPath path, object value)
+    public IQuery WhereEqualsTo(FieldPath path, object? value)
     {
         return _wrapped.WhereEqualsTo(path.ToNative(), value.ToNSObject()).ToAbstract();
     }
 
     /// <inheritdoc/>
-    public IQuery WhereGreaterThan(string field, object value)
+    public IQuery WhereGreaterThan(string field, object? value)
     {
         return _wrapped.WhereGreaterThan(field, value.ToNSObject()).ToAbstract();
     }
 
     /// <inheritdoc/>
-    public IQuery WhereGreaterThan(FieldPath path, object value)
+    public IQuery WhereGreaterThan(FieldPath path, object? value)
     {
         return _wrapped.WhereGreaterThan(path.ToNative(), value.ToNSObject()).ToAbstract();
     }
 
     /// <inheritdoc/>
-    public IQuery WhereLessThan(string field, object value)
+    public IQuery WhereLessThan(string field, object? value)
     {
         return _wrapped.WhereLessThan(field, value.ToNSObject()).ToAbstract();
     }
 
     /// <inheritdoc/>
-    public IQuery WhereLessThan(FieldPath path, object value)
+    public IQuery WhereLessThan(FieldPath path, object? value)
     {
         return _wrapped.WhereLessThan(path.ToNative(), value.ToNSObject()).ToAbstract();
     }
 
     /// <inheritdoc/>
-    public IQuery WhereGreaterThanOrEqualsTo(string field, object value)
+    public IQuery WhereGreaterThanOrEqualsTo(string field, object? value)
     {
         return _wrapped.WhereGreaterThanOrEqualsTo(field, value.ToNSObject()).ToAbstract();
     }
 
     /// <inheritdoc/>
-    public IQuery WhereGreaterThanOrEqualsTo(FieldPath path, object value)
+    public IQuery WhereGreaterThanOrEqualsTo(FieldPath path, object? value)
     {
         return _wrapped
             .WhereGreaterThanOrEqualsTo(path.ToNative(), value.ToNSObject())
@@ -72,31 +72,31 @@ public class QueryWrapper : IQuery
     }
 
     /// <inheritdoc/>
-    public IQuery WhereLessThanOrEqualsTo(string field, object value)
+    public IQuery WhereLessThanOrEqualsTo(string field, object? value)
     {
         return _wrapped.WhereLessThanOrEqualsTo(field, value.ToNSObject()).ToAbstract();
     }
 
     /// <inheritdoc/>
-    public IQuery WhereLessThanOrEqualsTo(FieldPath path, object value)
+    public IQuery WhereLessThanOrEqualsTo(FieldPath path, object? value)
     {
         return _wrapped.WhereLessThanOrEqualsTo(path.ToNative(), value.ToNSObject()).ToAbstract();
     }
 
     /// <inheritdoc/>
-    public IQuery WhereArrayContains(string field, object value)
+    public IQuery WhereArrayContains(string field, object? value)
     {
         return _wrapped.WhereArrayContains(field, value.ToNSObject()).ToAbstract();
     }
 
     /// <inheritdoc/>
-    public IQuery WhereArrayContains(FieldPath path, object value)
+    public IQuery WhereArrayContains(FieldPath path, object? value)
     {
         return _wrapped.WhereArrayContains(path.ToNative(), value.ToNSObject()).ToAbstract();
     }
 
     /// <inheritdoc/>
-    public IQuery WhereArrayContainsAny(string field, object[] values)
+    public IQuery WhereArrayContainsAny(string field, object?[] values)
     {
         return _wrapped
             .WhereArrayContainsAny(field, values.Select(x => x.ToNSObject()).ToArray())
@@ -104,7 +104,7 @@ public class QueryWrapper : IQuery
     }
 
     /// <inheritdoc/>
-    public IQuery WhereArrayContainsAny(FieldPath path, object[] values)
+    public IQuery WhereArrayContainsAny(FieldPath path, object?[] values)
     {
         return _wrapped
             .WhereArrayContainsAny(path.ToNative(), values.Select(x => x.ToNSObject()).ToArray())
@@ -112,7 +112,7 @@ public class QueryWrapper : IQuery
     }
 
     /// <inheritdoc/>
-    public IQuery WhereFieldIn(string field, object[] values)
+    public IQuery WhereFieldIn(string field, object?[] values)
     {
         return _wrapped
             .WhereFieldIn(field, values.Select(x => x.ToNSObject()).ToArray())
@@ -120,7 +120,7 @@ public class QueryWrapper : IQuery
     }
 
     /// <inheritdoc/>
-    public IQuery WhereFieldIn(FieldPath path, object[] values)
+    public IQuery WhereFieldIn(FieldPath path, object?[] values)
     {
         return _wrapped
             .WhereFieldIn(path.ToNative(), values.Select(x => x.ToNSObject()).ToArray())
@@ -140,7 +140,7 @@ public class QueryWrapper : IQuery
     }
 
     /// <inheritdoc/>
-    public IQuery StartingAt(params object[] fieldValues)
+    public IQuery StartingAt(params object?[] fieldValues)
     {
         return _wrapped.StartingAt(fieldValues.Select(x => x.ToNSObject()).ToArray()).ToAbstract();
     }
@@ -152,7 +152,7 @@ public class QueryWrapper : IQuery
     }
 
     /// <inheritdoc/>
-    public IQuery StartingAfter(params object[] fieldValues)
+    public IQuery StartingAfter(params object?[] fieldValues)
     {
         return _wrapped
             .StartingAfter(fieldValues.Select(x => x.ToNSObject()).ToArray())
@@ -166,7 +166,7 @@ public class QueryWrapper : IQuery
     }
 
     /// <inheritdoc/>
-    public IQuery EndingAt(params object[] fieldValues)
+    public IQuery EndingAt(params object?[] fieldValues)
     {
         return _wrapped.EndingAt(fieldValues.Select(x => x.ToNSObject()).ToArray()).ToAbstract();
     }
@@ -178,7 +178,7 @@ public class QueryWrapper : IQuery
     }
 
     /// <inheritdoc/>
-    public IQuery EndingBefore(params object[] fieldValues)
+    public IQuery EndingBefore(params object?[] fieldValues)
     {
         return _wrapped
             .EndingBefore(fieldValues.Select(x => x.ToNSObject()).ToArray())
@@ -212,8 +212,7 @@ public class QueryWrapper : IQuery
             (snapshot, error) => {
                 if(snapshot is not null) {
                     tcs.SetResult(new QuerySnapshotWrapper<T>(snapshot));
-                }
-                else if (error is not null) {
+                } else if(error is not null) {
                     tcs.SetException(new FirebaseException(error.LocalizedDescription));
                 } else {
                     tcs.SetException(new FirebaseException("Unknown error"));
@@ -230,13 +229,17 @@ public class QueryWrapper : IQuery
         bool includeMetaDataChanges = false
     )
     {
+        if(onChanged is null) {
+            throw new ArgumentNullException(nameof(onChanged));
+        }
+
         var registration = _wrapped.AddSnapshotListener(
             includeMetaDataChanges,
             (snapshot, error) => {
                 if(snapshot is not null) {
                     onChanged(new QuerySnapshotWrapper<T>(snapshot));
                 }
-                if (error is not null) {
+                if(error is not null) {
                     onError?.Invoke(new FirebaseException(error.LocalizedDescription));
                 }
             }

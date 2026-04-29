@@ -27,7 +27,7 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
     }
 
     /// <inheritdoc/>
-    public Task SetDataAsync(Dictionary<object, object> data, SetOptions? options)
+    public Task SetDataAsync(Dictionary<object, object?> data, SetOptions? options = null)
     {
         var nsData = data.ToNSObjectDictionary();
         if(options == null) {
@@ -49,25 +49,25 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
     }
 
     /// <inheritdoc/>
-    public Task SetDataAsync(params (object, object)[] data)
+    public Task SetDataAsync(params (object, object?)[] data)
     {
         return SetDataAsync(data.ToDictionary());
     }
 
     /// <inheritdoc/>
-    public Task SetDataAsync(SetOptions options, params (object, object)[] data)
+    public Task SetDataAsync(SetOptions options, params (object, object?)[] data)
     {
         return SetDataAsync(data.ToDictionary(), options);
     }
 
     /// <inheritdoc/>
-    public Task UpdateDataAsync(Dictionary<object, object> data)
+    public Task UpdateDataAsync(Dictionary<object, object?> data)
     {
         return Wrapped.UpdateDataAsync(data.ToNSObjectDictionary());
     }
 
     /// <inheritdoc/>
-    public Task UpdateDataAsync(params (string, object)[] data)
+    public Task UpdateDataAsync(params (string, object?)[] data)
     {
         return Wrapped.UpdateDataAsync(data.ToNSObjectDictionary());
     }
@@ -87,8 +87,7 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
             (snapshot, error) => {
                 if(snapshot is not null) {
                     tcs.SetResult(snapshot.ToAbstract<T>());
-                }
-                else if(error is not null) {
+                } else if(error is not null) {
                     tcs.SetException(new FirebaseException(error.LocalizedDescription));
                 } else {
                     tcs.SetException(new FirebaseException("Unknown error"));
@@ -105,6 +104,10 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
         bool includeMetaDataChanges = false
     )
     {
+        if(onChanged is null) {
+            throw new ArgumentNullException(nameof(onChanged));
+        }
+
         var registration = Wrapped.AddSnapshotListener(
             includeMetaDataChanges,
             (snapshot, error) => {

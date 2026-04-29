@@ -89,9 +89,9 @@ public static class DictionaryExtensions
     /// </summary>
     /// <param name="this">The object to convert.</param>
     /// <returns>A dictionary with property names as keys and their values.</returns>
-    public static Dictionary<object, object> ToDictionary(this object @this)
+    public static Dictionary<object, object?> ToDictionary(this object @this)
     {
-        var dict = new Dictionary<object, object>();
+        var dict = new Dictionary<object, object?>();
         var properties = @this.GetType().GetProperties();
         foreach(var property in properties) {
             var attributes = property.GetCustomAttributes(typeof(FirestorePropertyAttribute), true);
@@ -100,7 +100,7 @@ public static class DictionaryExtensions
                 var value = property.GetValue(@this);
                 if(value is Enum) {
                     dict[attribute.PropertyName] = value;
-                } else if(value != null) {
+                } else {
                     dict[attribute.PropertyName] = value.ToNSObject();
                 }
             }
@@ -172,7 +172,7 @@ public static class DictionaryExtensions
     /// <param name="this">The dictionary to convert.</param>
     /// <returns>A dictionary with values converted to NSObject types.</returns>
     public static Dictionary<object, object> ToNSObjectDictionary(
-        this Dictionary<object, object> @this
+        this Dictionary<object, object?> @this
     )
     {
         return @this.ToDictionary(x => x.Key, x => (object) x.Value.ToNSObject());
@@ -184,7 +184,7 @@ public static class DictionaryExtensions
     /// <param name="this">The collection of tuples to convert.</param>
     /// <returns>A dictionary with NSObject values.</returns>
     public static Dictionary<object, object> ToNSObjectDictionary(
-        this IEnumerable<(string, object)> @this
+        this IEnumerable<(string, object?)> @this
     )
     {
         var dict = new Dictionary<object, object>();

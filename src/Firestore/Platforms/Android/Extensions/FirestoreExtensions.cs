@@ -152,7 +152,7 @@ namespace Plugin.Firebase.Firestore.Platforms.Android.Extensions
             return new CollectionReferenceWrapper(@this);
         }
 
-        private static Java.Lang.Object[] ToNativeArray(object[]? elements)
+        private static Java.Lang.Object[] ToNativeArray(object?[]? elements)
         {
             var nativeElements = new Java.Lang.Object[elements?.Length ?? 0];
             if(elements is null) {

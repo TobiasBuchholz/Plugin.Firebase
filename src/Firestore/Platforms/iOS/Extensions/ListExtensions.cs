@@ -35,8 +35,7 @@ public static class ListExtensions
 
         for(nuint i = 0; i < @this.Count; i++) {
             var item = @this.GetItem<NSObject>(i);
-            if(item != null)
-                list.Add(item.ToObject(targetType));
+            list.Add(item is null ? null : item.ToObject(targetType));
         }
         return list;
     }

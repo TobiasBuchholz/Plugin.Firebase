@@ -38,7 +38,7 @@ public sealed class CollectionReferenceWrapper : QueryWrapper, ICollectionRefere
     {
         var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var documentReference = _wrapped.AddDocument(
-            data.ToDictionary(),
+            data.ToDictionary().ToNSObjectDictionary(),
             error => {
                 if(error == null) {
                     tcs.TrySetResult();

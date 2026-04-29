@@ -91,6 +91,10 @@ public static class DictionaryExtensions
     /// <returns>A dictionary with property names as keys and their values.</returns>
     public static Dictionary<object, object?> ToDictionary(this object @this)
     {
+        if(@this is IDictionary dictionary) {
+            return dictionary.ToObjectDictionary();
+        }
+
         var dict = new Dictionary<object, object?>();
         var properties = @this.GetType().GetProperties();
         foreach(var property in properties) {
@@ -113,6 +117,16 @@ public static class DictionaryExtensions
                 var attribute = (FirestoreServerTimestampAttribute) timestampAttributes[0];
                 dict[attribute.PropertyName] = NativeFieldValue.ServerTimestamp;
             }
+        }
+        return dict;
+    }
+
+    private static Dictionary<object, object?> ToObjectDictionary(this IDictionary @this)
+    {
+        var dict = new Dictionary<object, object?>();
+        foreach(DictionaryEntry pair in @this) {
+            var key = pair.Key ?? throw new ArgumentException("Dictionary contains a null key.");
+            dict[key] = pair.Value;
         }
         return dict;
     }

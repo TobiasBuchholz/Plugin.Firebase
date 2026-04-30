@@ -142,23 +142,14 @@ public static class DictionaryExtensions
     public static IDictionary<string, Java.Lang.Object?> ToJavaObjectDictionary(this IDictionary<string, object?> dictionary)
     {
         var result = new Dictionary<string, Java.Lang.Object?>();
-        dictionary.ToList().ForEach(x => {
-            var value = x.Value.ToJavaObject();
-            result.Add(x.Key, value);
-        });
+        dictionary.ToList().ForEach(x => result.Add(x.Key, x.Value.ToJavaObject()));
         return result;
     }
 
     public static IDictionary<string, Java.Lang.Object?> ToJavaObjectDictionary(this IDictionary<object, object?> @this)
     {
         var dict = new Dictionary<string, object?>();
-        @this.ToList().ForEach(x => {
-            var key = x.Key.ToString();
-            if(key is null) {
-                throw new ArgumentException("Dictionary contains a null key.");
-            }
-            dict.Add(key, x.Value);
-        });
+        @this.ToList().ForEach(x => dict.Add(x.Key.ToString() ?? throw new ArgumentException("Dictionary contains a null key."), x.Value));
         return dict.ToJavaObjectDictionary();
     }
 }

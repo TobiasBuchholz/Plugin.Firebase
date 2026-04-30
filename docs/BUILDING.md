@@ -389,7 +389,7 @@ xcrun simctl launch --terminate-running-process <simulator-udid> <bundle-id>
 
 ### App Check (optional)
 
-App Check is disabled by default in the integration tests (`AppCheckOptions.Disabled`). To run the optional App Check token test, set `PLUGIN_FIREBASE_TEST_BACKEND=real`, set `PLUGIN_FIREBASE_RUN_APPCHECK_TOKEN_TESTS=1`, and configure `AppCheckOptions.Debug`.
+App Check is disabled by default in the integration tests (`AppCheckOptions.Disabled`). To run the optional App Check token test, set `PLUGIN_FIREBASE_TEST_BACKEND=real` and `PLUGIN_FIREBASE_RUN_APPCHECK_TOKEN_TESTS=1`; the test harness configures `AppCheckOptions.Debug` during app startup for that opt-in path.
 
 ## Troubleshooting
 

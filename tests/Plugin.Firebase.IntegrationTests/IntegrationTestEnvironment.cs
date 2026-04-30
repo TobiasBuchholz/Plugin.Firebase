@@ -22,6 +22,7 @@ internal static class IntegrationTestEnvironment
     public const string GcmSenderId = "123456789012";
     public const string AndroidGoogleAppId = "1:123456789012:android:0123456789abcdef";
     public const string IosGoogleAppId = "1:123456789012:ios:0123456789abcdef";
+    public const string RunAppCheckTokenTestsEnvironmentVariableName = "PLUGIN_FIREBASE_RUN_APPCHECK_TOKEN_TESTS";
 
     public static IntegrationTestBackend Backend {
         get {
@@ -46,6 +47,9 @@ internal static class IntegrationTestEnvironment
     public static bool UsesEmulatorBackend => Backend == IntegrationTestBackend.Emulator;
 
     public static bool UsesRealBackend => Backend == IntegrationTestBackend.Real;
+
+    public static bool ShouldRunAppCheckTokenTests =>
+        Environment.GetEnvironmentVariable(RunAppCheckTokenTestsEnvironmentVariableName) == "1";
 
     public static bool ShouldUseAuthEmulator => UsesEmulatorBackend || IsFeatureEnabled(
         "PLUGIN_FIREBASE_USE_AUTH_EMULATOR",

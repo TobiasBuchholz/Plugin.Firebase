@@ -106,7 +106,7 @@ public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseF
     /// <inheritdoc/>
     public void UseEmulator(string host, int port)
     {
-        _firestore.UseEmulatorWithHost(host, (uint) port);
+        _firestore.UseEmulatorWithHost(host, port);
         Settings = new FirestoreSettings(Settings.Host);
     }
 

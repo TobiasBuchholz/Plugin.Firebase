@@ -86,7 +86,7 @@
     </ItemGroup>
 
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
-        <PackageReference Include="AdamE.Firebase.iOS.CloudMessaging" Version="[12.5.0.4,)" />
+        <PackageReference Include="AdamE.Firebase.iOS.CloudMessaging" Version="[12.7.0,)" />
     </ItemGroup>
     
 </Project>

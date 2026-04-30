@@ -40,6 +40,6 @@ public sealed class FirebaseStorageImplementation : DisposableBase, IFirebaseSto
     /// <inheritdoc/>
     public void UseEmulator(string host, int port)
     {
-        _instance.UseEmulatorWithHost(host, (uint) port);
+        _instance.UseEmulatorWithHost(host, port);
     }
 }

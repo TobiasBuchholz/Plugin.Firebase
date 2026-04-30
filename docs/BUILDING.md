@@ -167,9 +167,46 @@ Harness notes:
 - Each test writes `[TEST START]` and `[TEST END]` breadcrumbs to the runner output. If a CLI run appears hung, check the xharness log, simulator console output, or Android logcat to see which test last started.
 - iOS simulator builds ad-hoc re-sign the generated app bundle and bundled .NET runtime libraries after `dotnet build`. This is a simulator-only workaround for Xcode 26 / macOS 26 code-signature validation and is not required for real-device builds.
 
-## Firebase project setup for integration tests
+## Emulator-backed integration tests (default)
 
-Integration tests (`tests/Plugin.Firebase.IntegrationTests`) run on a real device or simulator and require a dedicated Firebase project. Below is the full configuration needed.
+The integration test app defaults to `PLUGIN_FIREBASE_TEST_BACKEND=emulator` and initializes Firebase with dummy options for project `demo-pluginfirebase-integrationtests`. No real Firebase config files are required for the default Auth, Firestore, Functions, and Storage coverage.
+
+Install and build the local Functions project once:
+
+```sh
+cd tests/cloud-functions/functions
+npm install --legacy-peer-deps
+npm run build
+```
+
+Run the Firebase Local Emulator Suite from `tests/cloud-functions`:
+
+```sh
+firebase emulators:start --only auth,firestore,functions,storage
+```
+
+Seed the Auth emulator before launching the device test app:
+
+```sh
+node scripts/seed-auth-emulator.js
+```
+
+For one-shot runs, wrap the XHarness command with `emulators:exec`:
+
+```sh
+firebase emulators:exec --project demo-pluginfirebase-integrationtests --only auth,firestore,functions,storage \
+  "node scripts/seed-auth-emulator.js && <xharness command>"
+```
+
+Default emulator ports are Auth `9099`, Firestore `8080`, Functions `5001`, and Storage `9199`. The app uses `localhost` on iOS and `10.0.2.2` on Android unless overridden with `PLUGIN_FIREBASE_<SERVICE>_EMULATOR_HOST` / `PLUGIN_FIREBASE_<SERVICE>_EMULATOR_PORT` or Android system properties such as `debug.pluginfirebase.auth.host`.
+
+Analytics, Remote Config, and App Check token tests are skipped on the emulator backend because Firebase does not provide local emulators for those products. Use the real backend below when validating them.
+
+The `.github/workflows/integration-emulators.yml` workflow runs the emulator-backed Android and iOS suites as PR-gated checks and still supports manual reruns with `workflow_dispatch`. Branch protection should require the `integration-emulators-android` and `integration-emulators-ios` checks.
+
+## Real Firebase project setup for integration tests
+
+Set `PLUGIN_FIREBASE_TEST_BACKEND=real` on iOS, or `adb shell setprop debug.pluginfirebase.backend real` on Android, to run integration tests against a dedicated Firebase project. Below is the full real-project configuration needed.
 
 ### Firebase config files
 
@@ -229,19 +266,19 @@ Then install dependencies and deploy:
 
 ```sh
 cd tests/cloud-functions/functions
-npm install
+npm install --legacy-peer-deps
 cd ..
 firebase deploy --only functions
 ```
 
-If your Firebase project stays on the Spark plan, you can still run `FunctionsFixture` locally against the Functions emulator instead of deploying:
+When using the real backend, you may still route only `FunctionsFixture` to the local Functions emulator instead of deploying:
 
 ```sh
 cd tests/cloud-functions
 firebase emulators:start --only functions
 ```
 
-For the default iOS CLI/XHarness flow, add these flags to the `xharness apple test` command:
+For the iOS CLI/XHarness flow, add these flags to the `xharness apple test` command:
 
 ```sh
 --set-env=PLUGIN_FIREBASE_USE_FUNCTIONS_EMULATOR=1 \
@@ -249,7 +286,7 @@ For the default iOS CLI/XHarness flow, add these flags to the `xharness apple te
 --set-env=PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_PORT=5001
 ```
 
-For the default Android CLI/XHarness flow, set system properties before invoking `xharness android test`:
+For the Android CLI/XHarness flow, set system properties before invoking `xharness android test`:
 ```sh
 adb shell setprop debug.pluginfirebase.functions.use 1
 adb shell setprop debug.pluginfirebase.functions.host 10.0.2.2
@@ -319,14 +356,14 @@ Use the default Storage bucket. Create the following files:
 
 The `files_to_keep/` directory must contain exactly **3 files** (asserted by `lists_all_files`). All other storage paths (`texts/*`, `files_to_delete/*`) are created and cleaned up by the tests.
 
-If your Firebase project does not have a provisioned default bucket, you can run `StorageFixture` locally against the Storage emulator instead. The repository includes permissive emulator rules in `tests/cloud-functions/storage.rules`:
+When using the real backend, you may still route only `StorageFixture` to the local Storage emulator. The repository includes permissive emulator rules in `tests/cloud-functions/storage.rules`:
 
 ```sh
 cd tests/cloud-functions
 firebase emulators:start --only storage
 ```
 
-For the default iOS CLI/XHarness flow, add these flags to the `xharness apple test` command:
+For the iOS CLI/XHarness flow, add these flags to the `xharness apple test` command:
 
 ```sh
 --set-env=PLUGIN_FIREBASE_USE_STORAGE_EMULATOR=1 \
@@ -334,7 +371,7 @@ For the default iOS CLI/XHarness flow, add these flags to the `xharness apple te
 --set-env=PLUGIN_FIREBASE_STORAGE_EMULATOR_PORT=9199
 ```
 
-For the default Android CLI/XHarness flow, set system properties before invoking `xharness android test`:
+For the Android CLI/XHarness flow, set system properties before invoking `xharness android test`:
 ```sh
 adb shell setprop debug.pluginfirebase.storage.use 1
 adb shell setprop debug.pluginfirebase.storage.host 10.0.2.2
@@ -352,7 +389,7 @@ xcrun simctl launch --terminate-running-process <simulator-udid> <bundle-id>
 
 ### App Check (optional)
 
-App Check is disabled by default in the integration tests (`AppCheckOptions.Disabled`). To run the optional App Check token test, set the environment variable `PLUGIN_FIREBASE_RUN_APPCHECK_TOKEN_TESTS=1` and configure `AppCheckOptions.Debug`.
+App Check is disabled by default in the integration tests (`AppCheckOptions.Disabled`). To run the optional App Check token test, set `PLUGIN_FIREBASE_TEST_BACKEND=real` and `PLUGIN_FIREBASE_RUN_APPCHECK_TOKEN_TESTS=1`; the test harness configures `AppCheckOptions.Debug` during app startup for that opt-in path.
 
 ## Troubleshooting
 

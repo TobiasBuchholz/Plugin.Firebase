@@ -43,14 +43,9 @@ namespace Plugin.Firebase.IntegrationTests
             }
         }
 
-        [Fact]
+        [RealFirebaseOptInFact(IntegrationTestEnvironment.RunAppCheckTokenTestsEnvironmentVariableName)]
         public async Task fetches_app_check_token_when_enabled_via_environment()
         {
-            var shouldRunTokenTest = Environment.GetEnvironmentVariable("PLUGIN_FIREBASE_RUN_APPCHECK_TOKEN_TESTS") == "1";
-            if(!shouldRunTokenTest) {
-                return;
-            }
-
             CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
             var token = await CrossFirebaseAppCheck.GetTokenAsync(forceRefresh: true);
 

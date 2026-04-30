@@ -1,14 +1,19 @@
 using Microsoft.Maui.LifecycleEvents;
 using Plugin.Firebase.AppCheck;
+using Plugin.Firebase.Auth;
 using Plugin.Firebase.Bundled.Shared;
+using Plugin.Firebase.Firestore;
 using Plugin.Firebase.Functions;
 using Plugin.Firebase.IntegrationTests;
 using Plugin.Firebase.Storage;
 #if IOS
 using Foundation;
-using Plugin.Firebase.Bundled.Platforms.iOS;
+using NativeFirebaseOptions = Firebase.Core.Options;
+using PlatformCrossFirebase = Plugin.Firebase.Bundled.Platforms.iOS.CrossFirebase;
 #elif ANDROID
-using Plugin.Firebase.Bundled.Platforms.Android;
+using NativeFirebaseApp = global::Firebase.FirebaseApp;
+using NativeFirebaseOptions = Firebase.FirebaseOptions;
+using PlatformCrossFirebase = Plugin.Firebase.Bundled.Platforms.Android.CrossFirebase;
 #endif
 using DeviceRunners.UITesting;
 using DeviceRunners.VisualRunners;
@@ -20,7 +25,7 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
-        var useVisualRunner = IsFeatureEnabled(
+        var useVisualRunner = IntegrationTestEnvironment.IsFeatureEnabled(
             "PLUGIN_FIREBASE_USE_VISUAL_RUNNER",
             "debug.pluginfirebase.visual.use");
         var builder = MauiApp
@@ -57,17 +62,29 @@ public static class MauiProgram
         builder.ConfigureLifecycleEvents(events => {
 #if IOS
             events.AddiOS(iOS => iOS.WillFinishLaunching((_,__) => {
-                EnsureFirebaseConfigPresent();
-                CrossFirebase.Initialize(CreateCrossFirebaseSettings());
-                ConfigureFunctionsEmulatorIfRequested();
-                ConfigureStorageEmulatorIfRequested();
+                if(IntegrationTestEnvironment.UsesRealBackend) {
+                    EnsureFirebaseConfigPresent();
+                    PlatformCrossFirebase.Initialize(CreateCrossFirebaseSettings());
+                } else {
+                    PlatformCrossFirebase.Initialize(
+                        CreateCrossFirebaseSettings(),
+                        CreateEmulatorFirebaseOptions());
+                }
+                ConfigureEmulatorsIfRequested();
                 return false;
             }));
 #elif ANDROID
             events.AddAndroid(android => android.OnCreate((activity, _) => {
-                CrossFirebase.Initialize(activity, () => Platform.CurrentActivity, CreateCrossFirebaseSettings());
-                ConfigureFunctionsEmulatorIfRequested();
-                ConfigureStorageEmulatorIfRequested();
+                if(IntegrationTestEnvironment.UsesEmulatorBackend) {
+                    DeleteDefaultFirebaseAppIfInitialized();
+                }
+
+                PlatformCrossFirebase.Initialize(
+                    activity,
+                    () => Platform.CurrentActivity,
+                    CreateCrossFirebaseSettings(),
+                    IntegrationTestEnvironment.UsesEmulatorBackend ? CreateEmulatorFirebaseOptions() : null);
+                ConfigureEmulatorsIfRequested();
             }));
 #endif
         });
@@ -109,6 +126,15 @@ public static class MauiProgram
 
     private static CrossFirebaseSettings CreateCrossFirebaseSettings()
     {
+        if(IntegrationTestEnvironment.UsesEmulatorBackend) {
+            return new CrossFirebaseSettings(
+                isAuthEnabled: true,
+                isFirestoreEnabled: true,
+                isFunctionsEnabled: true,
+                isStorageEnabled: true,
+                appCheckOptions: AppCheckOptions.Disabled);
+        }
+
         return new CrossFirebaseSettings(
             isAnalyticsEnabled: true,
             isAuthEnabled: true,
@@ -119,62 +145,67 @@ public static class MauiProgram
             isFunctionsEnabled: true,
             isRemoteConfigEnabled: true,
             isStorageEnabled: true,
-            appCheckOptions: AppCheckOptions.Disabled);
+            appCheckOptions: IntegrationTestEnvironment.ShouldRunAppCheckTokenTests
+                ? AppCheckOptions.Debug
+                : AppCheckOptions.Disabled);
     }
 
-    private static void ConfigureFunctionsEmulatorIfRequested()
+    private static void ConfigureEmulatorsIfRequested()
     {
-        var shouldUseFunctionsEmulator = IsFeatureEnabled(
-            "PLUGIN_FIREBASE_USE_FUNCTIONS_EMULATOR",
-            "debug.pluginfirebase.functions.use");
-        if(!shouldUseFunctionsEmulator) {
-            return;
+        if(IntegrationTestEnvironment.ShouldUseAuthEmulator) {
+            var auth = IntegrationTestEnvironment.AuthEmulatorEndpoint;
+            CrossFirebaseAuth.Current.UseEmulator(auth.Host, auth.Port);
         }
 
-        var host = GetEmulatorHost(
-            "PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_HOST",
-            "debug.pluginfirebase.functions.host");
-        var port = GetEmulatorPort(
-            "PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_PORT",
-            "debug.pluginfirebase.functions.port",
-            5001);
-        CrossFirebaseFunctions.Current.UseEmulator(host, port);
-    }
-
-    private static void ConfigureStorageEmulatorIfRequested()
-    {
-        var shouldUseStorageEmulator = IsFeatureEnabled(
-            "PLUGIN_FIREBASE_USE_STORAGE_EMULATOR",
-            "debug.pluginfirebase.storage.use");
-        if(!shouldUseStorageEmulator) {
-            return;
+        if(IntegrationTestEnvironment.ShouldUseFirestoreEmulator) {
+            var firestore = IntegrationTestEnvironment.FirestoreEmulatorEndpoint;
+            CrossFirebaseFirestore.Current.UseEmulator(firestore.Host, firestore.Port);
         }
 
-        var host = GetEmulatorHost(
-            "PLUGIN_FIREBASE_STORAGE_EMULATOR_HOST",
-            "debug.pluginfirebase.storage.host");
-        var port = GetEmulatorPort(
-            "PLUGIN_FIREBASE_STORAGE_EMULATOR_PORT",
-            "debug.pluginfirebase.storage.port",
-            9199);
-        CrossFirebaseStorage.Current.UseEmulator(host, port);
+        if(IntegrationTestEnvironment.ShouldUseFunctionsEmulator) {
+            var functions = IntegrationTestEnvironment.FunctionsEmulatorEndpoint;
+            CrossFirebaseFunctions.Current.UseEmulator(functions.Host, functions.Port);
+        }
+
+        if(IntegrationTestEnvironment.ShouldUseStorageEmulator) {
+            var storage = IntegrationTestEnvironment.StorageEmulatorEndpoint;
+            CrossFirebaseStorage.Current.UseEmulator(storage.Host, storage.Port);
+        }
     }
 
-    private static bool IsFeatureEnabled(string environmentVariableName, string androidSystemPropertyName)
+#if IOS
+    private static NativeFirebaseOptions CreateEmulatorFirebaseOptions()
     {
-        return IntegrationTestConfiguration.IsFeatureEnabled(environmentVariableName, androidSystemPropertyName);
+        return new NativeFirebaseOptions(
+            IntegrationTestEnvironment.IosGoogleAppId,
+            IntegrationTestEnvironment.GcmSenderId) {
+            ApiKey = IntegrationTestEnvironment.ApiKey,
+            BundleId = NSBundle.MainBundle.BundleIdentifier,
+            DatabaseUrl = IntegrationTestEnvironment.DatabaseUrl,
+            ProjectId = IntegrationTestEnvironment.ProjectId,
+            StorageBucket = IntegrationTestEnvironment.StorageBucket
+        };
+    }
+#elif ANDROID
+    private static void DeleteDefaultFirebaseAppIfInitialized()
+    {
+        try {
+            NativeFirebaseApp.Instance.Delete();
+        } catch(Java.Lang.IllegalStateException) {
+            // FirebaseInitProvider only creates a default app when google-services.json is present.
+        }
     }
 
-    private static string GetEmulatorHost(string environmentVariableName, string androidSystemPropertyName)
+    private static NativeFirebaseOptions CreateEmulatorFirebaseOptions()
     {
-        return IntegrationTestConfiguration.GetEmulatorHost(environmentVariableName, androidSystemPropertyName);
+        return new NativeFirebaseOptions.Builder()
+            .SetApiKey(IntegrationTestEnvironment.ApiKey)
+            .SetApplicationId(IntegrationTestEnvironment.AndroidGoogleAppId)
+            .SetDatabaseUrl(IntegrationTestEnvironment.DatabaseUrl)
+            .SetGcmSenderId(IntegrationTestEnvironment.GcmSenderId)
+            .SetProjectId(IntegrationTestEnvironment.ProjectId)
+            .SetStorageBucket(IntegrationTestEnvironment.StorageBucket)
+            .Build();
     }
-
-    private static int GetEmulatorPort(string environmentVariableName, string androidSystemPropertyName, int defaultPort)
-    {
-        return IntegrationTestConfiguration.GetEmulatorPort(
-            environmentVariableName,
-            androidSystemPropertyName,
-            defaultPort);
-    }
+#endif
 }

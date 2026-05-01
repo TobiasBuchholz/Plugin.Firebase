@@ -502,6 +502,29 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             Assert.Single(snapshot2.Documents);
         }
 
+        [Fact]
+        public async Task reads_ios_dictionary_object_numeric_and_boolean_values()
+        {
+            if(!OperatingSystem.IsIOS()) {
+                return;
+            }
+
+            var sut = CrossFirebaseFirestore.Current;
+            var document = GetTestingDocument(sut, "ios-dictionary-object-values");
+            await document.SetDataAsync(new DictionaryObjectValuesDocument(
+                new Dictionary<string, object> {
+                    { "enabled", true },
+                    { "count", 5L },
+                    { "ratio", 1.25 }
+                }));
+
+            var snapshot = await document.GetDocumentSnapshotAsync<DictionaryObjectValuesDocument>();
+
+            Assert.True((bool) snapshot.Data.Values["enabled"]);
+            Assert.Equal(5L, Convert.ToInt64(snapshot.Data.Values["count"]));
+            Assert.Equal(1.25, Convert.ToDouble(snapshot.Data.Values["ratio"]));
+        }
+
         public async Task DisposeAsync()
         {
             TestLog.Write($"[FIRESTORE CLEANUP START] {_testingCollectionPath}");
@@ -531,6 +554,23 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         private ICollectionReference GetTestingCollection(IFirebaseFirestore firestore)
         {
             return firestore.GetCollection(_testingCollectionPath);
+        }
+
+        [Preserve(AllMembers = true)]
+        private sealed class DictionaryObjectValuesDocument : IFirestoreObject
+        {
+            public DictionaryObjectValuesDocument()
+            {
+                // needed for firestore
+            }
+
+            public DictionaryObjectValuesDocument(Dictionary<string, object> values)
+            {
+                Values = values;
+            }
+
+            [FirestoreProperty("values")]
+            public Dictionary<string, object> Values { get; private set; }
         }
 
         private static async Task EnsureBasePokemonsSeededAsync()

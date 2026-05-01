@@ -1,4 +1,4 @@
-# Analyticss
+# Analytics
 
 Firebase Analytics collects usage and behavior data for your app. The SDK logs two primary types of information:
 
@@ -6,7 +6,7 @@ Firebase Analytics collects usage and behavior data for your app. The SDK logs t
 - User properties: Attributes you define to describe segments of your userbase, such as language preference or geographic location
 
 ## Installation
-### Nuget
+### NuGet
 [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.analytics.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Analytics/)
 
 > Install-Package Plugin.Firebase.Analytics
@@ -14,11 +14,40 @@ Firebase Analytics collects usage and behavior data for your app. The SDK logs t
 ## Setup
 
 - Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/README.md#basic-setup)
-- Add the following lines of code after calling `CrossFirebase.Initialize()`:
+- When using the standalone `Plugin.Firebase.Analytics` package on Android, initialize Analytics after calling `CrossFirebase.Initialize(...)`:
+
+```c#
+using Microsoft.Maui.ApplicationModel;
+using Plugin.Firebase.Analytics;
+
+#if IOS
+using Plugin.Firebase.Core.Platforms.iOS;
+#elif ANDROID
+using Plugin.Firebase.Core.Platforms.Android;
+#endif
+
+builder.ConfigureLifecycleEvents(events => {
+#if IOS
+    events.AddiOS(iOS => iOS.WillFinishLaunching((_,__) => {
+        CrossFirebase.Initialize();
+        return false;
+    }));
+#elif ANDROID
+    events.AddAndroid(android => android.OnCreate((activity, _) => {
+        CrossFirebase.Initialize(activity, () => Platform.CurrentActivity);
+        FirebaseAnalyticsImplementation.Initialize(activity);
+    }));
+#endif
+});
+```
+
+The `FirebaseAnalyticsImplementation.Initialize(activity)` call is only required on Android when using the standalone Analytics package. If you use the bundled `Plugin.Firebase` package, enable Analytics through `CrossFirebaseSettings` instead:
 
 ```c#
 #if ANDROID
-  FirebaseAnalyticsImplementation.Initialize(activity);
+using Plugin.Firebase.Bundled.Shared;
+
+var settings = new CrossFirebaseSettings(isAnalyticsEnabled: true);
 #endif
 ```
 
@@ -27,7 +56,7 @@ Firebase Analytics collects usage and behavior data for your app. The SDK logs t
 Take a look at the [documentation](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents/blob/master/docs/Firebase/Analytics/GettingStarted.md) for the AdamE.Firebase.iOS.Analytics packages, because Plugin.Firebase's code is abstracted but still very similar.
 
 Since code should be documenting itself you can also take a look at the following classes:
-- [src/.../IFirebaseAnalytics.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Analytics/IFirebaseAnalytics.cs)
+- [src/.../IFirebaseAnalytics.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Analytics/Shared/IFirebaseAnalytics.cs)
 - [tests/.../AnalyticsFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Analytics/AnalyticsFixture.cs)
 
 ## Release notes

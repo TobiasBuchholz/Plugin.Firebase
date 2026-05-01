@@ -7,6 +7,34 @@ namespace Plugin.Firebase.IntegrationTests.Analytics
     [Preserve(AllMembers = true)]
     public sealed class AnalyticsFixture
     {
+#if ANDROID
+        [Fact]
+        public void throws_actionable_exception_when_android_analytics_is_not_initialized()
+        {
+            var firebaseAnalyticsField = typeof(FirebaseAnalyticsImplementation).GetField(
+                "_firebaseAnalytics",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static
+            );
+            Assert.NotNull(firebaseAnalyticsField);
+
+            var originalFirebaseAnalytics = firebaseAnalyticsField.GetValue(null);
+            try {
+                firebaseAnalyticsField.SetValue(null, null);
+
+                var exception = Assert.Throws<InvalidOperationException>(
+                    () => CrossFirebaseAnalytics.Current.LogEvent("test_uninitialized_analytics_guard")
+                );
+
+                Assert.Contains("Firebase Analytics has not been initialized on Android", exception.Message);
+                Assert.Contains("FirebaseAnalyticsImplementation.Initialize(activity)", exception.Message);
+                Assert.Contains("isAnalyticsEnabled: true", exception.Message);
+            }
+            finally {
+                firebaseAnalyticsField.SetValue(null, originalFirebaseAnalytics);
+            }
+        }
+#endif
+
         [RealFirebaseFact]
         public void does_not_throw_any_exception_when_logging_events()
         {

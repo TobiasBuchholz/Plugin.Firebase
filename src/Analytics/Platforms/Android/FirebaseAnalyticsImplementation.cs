@@ -17,12 +17,12 @@ public sealed class FirebaseAnalyticsImplementation : DisposableBase, IFirebaseA
 
     public async Task<string> GetAppInstanceIdAsync()
     {
-        return (string) await _firebaseAnalytics.GetAppInstanceId().AsAsync<Java.Lang.String>();
+        return (string) await GetInitializedAnalytics().GetAppInstanceId().AsAsync<Java.Lang.String>();
     }
 
     public void LogEvent(string eventName, IDictionary<string, object> parameters)
     {
-        _firebaseAnalytics.LogEvent(eventName, parameters?.ToBundle());
+        GetInitializedAnalytics().LogEvent(eventName, parameters?.ToBundle());
     }
 
     public void LogEvent(string eventName, params (string parameterName, object parameterValue)[] parameters)
@@ -32,25 +32,35 @@ public sealed class FirebaseAnalyticsImplementation : DisposableBase, IFirebaseA
 
     public void SetUserId(string id)
     {
-        _firebaseAnalytics.SetUserId(id);
+        GetInitializedAnalytics().SetUserId(id);
     }
 
     public void SetUserProperty(string name, string value)
     {
-        _firebaseAnalytics.SetUserProperty(name, value);
+        GetInitializedAnalytics().SetUserProperty(name, value);
     }
 
     public void SetSessionTimoutDuration(TimeSpan duration)
     {
-        _firebaseAnalytics.SetSessionTimeoutDuration((long) duration.TotalMilliseconds);
+        GetInitializedAnalytics().SetSessionTimeoutDuration((long) duration.TotalMilliseconds);
     }
 
     public void ResetAnalyticsData()
     {
-        _firebaseAnalytics.ResetAnalyticsData();
+        GetInitializedAnalytics().ResetAnalyticsData();
     }
 
     public bool IsAnalyticsCollectionEnabled {
-        set => _firebaseAnalytics.SetAnalyticsCollectionEnabled(value);
+        set => GetInitializedAnalytics().SetAnalyticsCollectionEnabled(value);
+    }
+
+    private static FirebaseAnalytics GetInitializedAnalytics()
+    {
+        return _firebaseAnalytics ?? throw new InvalidOperationException(
+            "Firebase Analytics has not been initialized on Android. "
+                + "When using Plugin.Firebase.Analytics directly, call FirebaseAnalyticsImplementation.Initialize(activity) "
+                + "after CrossFirebase.Initialize(...). When using the bundled Plugin.Firebase package, enable "
+                + "isAnalyticsEnabled: true in CrossFirebaseSettings."
+        );
     }
 }

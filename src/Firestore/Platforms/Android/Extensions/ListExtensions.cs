@@ -18,26 +18,31 @@ public static class ListExtensions
         for(var i = 0; i < @this.Size(); i++) {
             var value = @this[i];
             if(value is Java.Lang.Object javaValue) {
-                list.Add(javaValue.ToObject(targetType));
+                list.AddConvertedValue(javaValue.ToObject(targetType), targetType);
             } else if(targetType == typeof(string)) {
-                list.Add(Convert.ToString(value));
+                list.AddConvertedValue(Convert.ToString(value), targetType);
             } else if(targetType == typeof(int)) {
-                list.Add(Convert.ToInt32(value));
+                list.AddConvertedValue(Convert.ToInt32(value), targetType);
             } else if(targetType == typeof(long)) {
-                list.Add(Convert.ToInt64(value));
+                list.AddConvertedValue(Convert.ToInt64(value), targetType);
             } else if(targetType == typeof(float)) {
-                list.Add(Convert.ToSingle(value));
+                list.AddConvertedValue(Convert.ToSingle(value), targetType);
             } else if(targetType == typeof(double)) {
-                list.Add(Convert.ToDouble(value));
+                list.AddConvertedValue(Convert.ToDouble(value), targetType);
             } else if(targetType == typeof(decimal)) {
-                list.Add(Convert.ToDecimal(value));
+                list.AddConvertedValue(Convert.ToDecimal(value), targetType);
             } else if(targetType == typeof(bool)) {
-                list.Add(Convert.ToBoolean(value));
+                list.AddConvertedValue(Convert.ToBoolean(value), targetType);
             } else {
-                list.Add(value);
+                list.AddConvertedValue(value, targetType);
             }
         }
         return list;
+    }
+
+    private static void AddConvertedValue(this IList list, object? value, Type? targetType)
+    {
+        list.Add(value.ConvertToTargetType(targetType));
     }
 
     public static JavaList ToJavaList(this IEnumerable @this)

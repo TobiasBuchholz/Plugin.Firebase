@@ -3,7 +3,7 @@ using Plugin.Firebase.CloudMessaging.Platforms.Android.Extensions;
 
 namespace Plugin.Firebase.CloudMessaging.Platforms.Android;
 
-[Service(Exported = true)]
+[Service(Exported = false)]
 [IntentFilter(new[] { "com.google.firebase.MESSAGING_EVENT" })]
 public class MyFirebaseMessagingService : FirebaseMessagingService
 {

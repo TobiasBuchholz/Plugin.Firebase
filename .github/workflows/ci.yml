@@ -33,6 +33,9 @@ jobs:
           dotnet build src/Storage/Storage.csproj -c Release
           dotnet build src/Bundled/Bundled.csproj -c Release
 
+      - name: Validate CloudMessaging trimming
+        run: scripts/validate-cloudmessaging-trimming.sh
+
       - name: Run unit tests
         run: |
           dotnet restore tests/Plugin.Firebase.UnitTests/Plugin.Firebase.UnitTests.csproj

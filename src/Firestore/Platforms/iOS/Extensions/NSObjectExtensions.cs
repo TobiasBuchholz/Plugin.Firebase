@@ -223,6 +223,8 @@ public static class NSObjectExtensions
                 return new NSNumber(x);
             case long x:
                 return new NSNumber(x);
+            case short x:
+                return new NSNumber(x);
             case float x:
                 return new NSNumber(x);
             case double x:

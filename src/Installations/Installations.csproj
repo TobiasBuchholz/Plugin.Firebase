@@ -81,11 +81,11 @@
 
     <!-- nuget packages -->
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
-        <PackageReference Include="Xamarin.Firebase.Installations" Version="117.0.1.1" />
+        <PackageReference Include="Xamarin.Firebase.Installations" Version="118.0.0.6" />
     </ItemGroup>
 
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
-        <PackageReference Include="AdamE.Firebase.iOS.Installations" Version="[12.5.0.4,)" />
+        <PackageReference Include="AdamE.Firebase.iOS.Installations" Version="[12.7.0,)" />
     </ItemGroup>
 
 </Project>

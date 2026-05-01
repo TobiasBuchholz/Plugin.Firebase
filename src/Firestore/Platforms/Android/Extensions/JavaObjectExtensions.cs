@@ -295,8 +295,12 @@ public static class JavaObjectExtensions
         return dict;
     }
 
-    private static Type GetGenericListType(Type targetType)
+    private static Type GetGenericListType(Type? targetType)
     {
+        if(targetType == null || targetType == typeof(object)) {
+            return typeof(object);
+        }
+
         var genericType = targetType.GenericTypeArguments.FirstOrDefault();
         if(genericType == null) {
             throw new ArgumentException(

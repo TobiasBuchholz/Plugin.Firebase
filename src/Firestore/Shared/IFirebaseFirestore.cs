@@ -32,7 +32,7 @@ public interface IFirebaseFirestore : IDisposable
     /// <param name="updateFunc">The func to execute within the transaction context.</param>
     /// <typeparam name="TResult">The type of the result returned by updateFunc.</typeparam>
     /// <returns></returns>
-    Task<TResult> RunTransactionAsync<TResult>(Func<ITransaction, TResult> updateFunc);
+    Task<TResult?> RunTransactionAsync<TResult>(Func<ITransaction, TResult> updateFunc);
 
     /// <summary>
     /// Creates a write batch, used for performing multiple writes as a single atomic operation.

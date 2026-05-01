@@ -10,7 +10,7 @@ public sealed class FirestoreSettings
     /// </summary>
     /// <param name="host">The host of the Cloud Firestore backend.</param>
     /// <param name="isSslEnabled">Whether to use SSL for communication.</param>
-    public FirestoreSettings(string host = null, bool isSslEnabled = false)
+    public FirestoreSettings(string host, bool isSslEnabled = false)
     {
         Host = host;
         IsSslEnabled = isSslEnabled;

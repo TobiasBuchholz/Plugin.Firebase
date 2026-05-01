@@ -21,13 +21,13 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
     }
 
     /// <inheritdoc/>
-    public Task SetDataAsync(object data, SetOptions options = null)
+    public Task SetDataAsync(object data, SetOptions? options = null)
     {
         return SetDataAsync(data.ToDictionary(), options);
     }
 
     /// <inheritdoc/>
-    public Task SetDataAsync(Dictionary<object, object> data, SetOptions options)
+    public Task SetDataAsync(Dictionary<object, object?> data, SetOptions? options = null)
     {
         var nsData = data.ToNSObjectDictionary();
         if(options == null) {
@@ -39,35 +39,35 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
             case SetOptions.TypeMergeFieldPaths:
                 return Wrapped.SetDataAsync(
                     nsData,
-                    options.FieldPaths.Select(x => new NativeFieldPath(x.ToArray())).ToArray()
+                    options.FieldPaths?.Select(x => new NativeFieldPath(x.ToArray())).ToArray() ?? []
                 );
             case SetOptions.TypeMergeFields:
-                return Wrapped.SetDataAsync(nsData, options.Fields.ToArray());
+                return Wrapped.SetDataAsync(nsData, options.Fields?.ToArray() ?? []);
             default:
                 throw new ArgumentException($"SetOptions type {options.Type} is not supported.");
         }
     }
 
     /// <inheritdoc/>
-    public Task SetDataAsync(params (object, object)[] data)
+    public Task SetDataAsync(params (object, object?)[] data)
     {
         return SetDataAsync(data.ToDictionary());
     }
 
     /// <inheritdoc/>
-    public Task SetDataAsync(SetOptions options, params (object, object)[] data)
+    public Task SetDataAsync(SetOptions options, params (object, object?)[] data)
     {
         return SetDataAsync(data.ToDictionary(), options);
     }
 
     /// <inheritdoc/>
-    public Task UpdateDataAsync(Dictionary<object, object> data)
+    public Task UpdateDataAsync(Dictionary<object, object?> data)
     {
         return Wrapped.UpdateDataAsync(data.ToNSObjectDictionary());
     }
 
     /// <inheritdoc/>
-    public Task UpdateDataAsync(params (string, object)[] data)
+    public Task UpdateDataAsync(params (string, object?)[] data)
     {
         return Wrapped.UpdateDataAsync(data.ToNSObjectDictionary());
     }
@@ -85,10 +85,12 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
         Wrapped.GetDocument(
             source.ToNative(),
             (snapshot, error) => {
-                if(error == null) {
+                if(snapshot is not null) {
                     tcs.SetResult(snapshot.ToAbstract<T>());
-                } else {
+                } else if(error is not null) {
                     tcs.SetException(new FirebaseException(error.LocalizedDescription));
+                } else {
+                    tcs.SetException(new FirebaseException("Unknown error"));
                 }
             }
         );
@@ -98,16 +100,21 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
     /// <inheritdoc/>
     public IDisposable AddSnapshotListener<T>(
         Action<IDocumentSnapshot<T>> onChanged,
-        Action<Exception> onError = null,
+        Action<Exception>? onError = null,
         bool includeMetaDataChanges = false
     )
     {
+        if(onChanged is null) {
+            throw new ArgumentNullException(nameof(onChanged));
+        }
+
         var registration = Wrapped.AddSnapshotListener(
             includeMetaDataChanges,
             (snapshot, error) => {
-                if(error == null) {
+                if(snapshot is not null) {
                     onChanged(snapshot.ToAbstract<T>());
-                } else {
+                }
+                if(error is not null) {
                     onError?.Invoke(new FirebaseException(error.LocalizedDescription));
                 }
             }
@@ -128,7 +135,7 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
     public string Path => Wrapped.Path;
 
     /// <inheritdoc/>
-    public ICollectionReference Parent =>
+    public ICollectionReference? Parent =>
         Wrapped.Parent == null ? null : new CollectionReferenceWrapper(Wrapped.Parent);
 
     /// <summary>

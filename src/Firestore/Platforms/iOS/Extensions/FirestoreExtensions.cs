@@ -166,11 +166,11 @@ namespace Plugin.Firebase.Firestore.Platforms.iOS.Extensions
             switch(@this.Type) {
                 case FieldValueType.ArrayUnion:
                     return NativeFieldValue.FromArrayUnion(
-                        @this.Elements.Select(x => x.ToNSObject()).ToArray()
+                        @this.Elements?.Select(x => x.ToNSObject()).ToArray() ?? []
                     );
                 case FieldValueType.ArrayRemove:
                     return NativeFieldValue.FromArrayRemove(
-                        @this.Elements.Select(x => x.ToNSObject()).ToArray()
+                        @this.Elements?.Select(x => x.ToNSObject()).ToArray() ?? []
                     );
                 case FieldValueType.IntegerIncrement:
                     return NativeFieldValue.FromIntegerIncrement((long) @this.IncrementValue);
@@ -235,7 +235,7 @@ namespace Plugin.Firebase.Firestore.Platforms.iOS.Extensions
         {
             return @this.IsDocumentId
                 ? NativeFieldPath.GetDocumentId()
-                : new NativeFieldPath(@this.Fields);
+                : new NativeFieldPath(@this.Fields ?? []);
         }
 
         /// <summary>

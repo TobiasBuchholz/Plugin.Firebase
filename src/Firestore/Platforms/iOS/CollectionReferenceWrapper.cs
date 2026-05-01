@@ -34,23 +34,23 @@ public sealed class CollectionReferenceWrapper : QueryWrapper, ICollectionRefere
     }
 
     /// <inheritdoc/>
-    public Task<IDocumentReference> AddDocumentAsync(object data)
+    public async Task<IDocumentReference> AddDocumentAsync(object data)
     {
-        var tcs = new TaskCompletionSource<IDocumentReference>();
-        DocumentReference documentReference = null;
-        documentReference = _wrapped.AddDocument(
-            data.ToDictionary(),
+        var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var documentReference = _wrapped.AddDocument(
+            data.ToDictionary().ToNSObjectDictionary(),
             error => {
                 if(error == null) {
-                    tcs.SetResult(new DocumentReferenceWrapper(documentReference));
+                    tcs.TrySetResult();
                 } else {
-                    tcs.SetException(new FirebaseException(error.LocalizedDescription));
+                    tcs.TrySetException(new FirebaseException(error.LocalizedDescription));
                 }
             }
         );
-        return tcs.Task;
+        await tcs.Task;
+        return new DocumentReferenceWrapper(documentReference);
     }
 
     /// <inheritdoc/>
-    public IDocumentReference Parent => _wrapped.Parent?.ToAbstract();
+    public IDocumentReference? Parent => _wrapped.Parent?.ToAbstract();
 }

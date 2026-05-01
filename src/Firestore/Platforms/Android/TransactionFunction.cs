@@ -13,7 +13,7 @@ public class TransactionFunction<TResult> : Object, Transaction.IFunction
         _func = func;
     }
 
-    public Object Apply(Transaction transaction)
+    public Object? Apply(Transaction transaction)
     {
         return _func(transaction.ToAbstract()).ToJavaObject();
     }

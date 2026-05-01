@@ -28,9 +28,9 @@ public sealed class TransactionWrapper : ITransaction
     }
 
     /// <inheritdoc/>
-    public IDocumentSnapshot<T> GetDocument<T>(IDocumentReference document)
+    public IDocumentSnapshot<T>? GetDocument<T>(IDocumentReference document)
     {
-        var snapshot = _wrapped.GetDocument(document.ToNative(), out var error).ToAbstract<T>();
+        var snapshot = _wrapped.GetDocument(document.ToNative(), out var error)?.ToAbstract<T>();
         if(error == null) {
             return snapshot;
         } else {
@@ -39,7 +39,7 @@ public sealed class TransactionWrapper : ITransaction
     }
 
     /// <inheritdoc/>
-    public ITransaction SetData(IDocumentReference document, object data, SetOptions options = null)
+    public ITransaction SetData(IDocumentReference document, object data, SetOptions? options = null)
     {
         return SetData(document, data.ToDictionary(), options);
     }
@@ -47,28 +47,29 @@ public sealed class TransactionWrapper : ITransaction
     /// <inheritdoc/>
     public ITransaction SetData(
         IDocumentReference document,
-        Dictionary<object, object> data,
-        SetOptions options = null
+        Dictionary<object, object?> data,
+        SetOptions? options = null
     )
     {
+        var nativeData = data.ToNSObjectDictionary();
         if(options == null) {
-            return _wrapped.SetData(data, document.ToNative()).ToAbstract();
+            return _wrapped.SetData(nativeData, document.ToNative()).ToAbstract();
         }
 
         switch(options.Type) {
             case SetOptions.TypeMerge:
-                return _wrapped.SetData(data, document.ToNative(), true).ToAbstract();
+                return _wrapped.SetData(nativeData, document.ToNative(), true).ToAbstract();
             case SetOptions.TypeMergeFieldPaths:
                 return _wrapped
                     .SetData(
-                        data,
+                        nativeData,
                         document.ToNative(),
-                        options.FieldPaths.Select(x => new NativeFieldPath(x.ToArray())).ToArray()
+                        options.FieldPaths?.Select(x => new NativeFieldPath(x.ToArray())).ToArray() ?? []
                     )
                     .ToAbstract();
             case SetOptions.TypeMergeFields:
                 return _wrapped
-                    .SetData(data, document.ToNative(), options.Fields.ToArray())
+                    .SetData(nativeData, document.ToNative(), options.Fields?.ToArray() ?? [])
                     .ToAbstract();
             default:
                 throw new ArgumentException($"SetOptions type {options.Type} is not supported.");
@@ -76,7 +77,7 @@ public sealed class TransactionWrapper : ITransaction
     }
 
     /// <inheritdoc/>
-    public ITransaction SetData(IDocumentReference document, params (object, object)[] data)
+    public ITransaction SetData(IDocumentReference document, params (object, object?)[] data)
     {
         return SetData(document, data.ToDictionary());
     }
@@ -85,20 +86,20 @@ public sealed class TransactionWrapper : ITransaction
     public ITransaction SetData(
         IDocumentReference document,
         SetOptions options,
-        params (object, object)[] data
+        params (object, object?)[] data
     )
     {
         return SetData(document, data.ToDictionary(), options);
     }
 
     /// <inheritdoc/>
-    public ITransaction UpdateData(IDocumentReference document, Dictionary<object, object> data)
+    public ITransaction UpdateData(IDocumentReference document, Dictionary<object, object?> data)
     {
-        return _wrapped.UpdateData(data, document.ToNative()).ToAbstract();
+        return _wrapped.UpdateData(data.ToNSObjectDictionary(), document.ToNative()).ToAbstract();
     }
 
     /// <inheritdoc/>
-    public ITransaction UpdateData(IDocumentReference document, params (string, object)[] data)
+    public ITransaction UpdateData(IDocumentReference document, params (string, object?)[] data)
     {
         return _wrapped.UpdateData(data.ToNSObjectDictionary(), document.ToNative()).ToAbstract();
     }

@@ -27,5 +27,5 @@ public interface ICollectionReference : IQuery
     /// <summary>
     /// A reference to the document to which this <c>ICollectionReference</c> belongs.
     /// </summary>
-    IDocumentReference Parent { get; }
+    IDocumentReference? Parent { get; }
 }

@@ -11,19 +11,20 @@ namespace Plugin.Firebase.Firestore.Platforms.Android.Extensions;
 
 public static class DictionaryExtensions
 {
-    public static HashMap ToHashMap(this IDictionary<object, object> dictionary)
+    public static HashMap ToHashMap(this IDictionary<object, object?> dictionary)
     {
         var map = new HashMap();
         dictionary.ToList().ForEach(x => map.Put(x.Key, x.Value));
         return map;
     }
 
-    public static HashMap ToHashMap(this IDictionary<string, object> dictionary)
+    public static HashMap ToHashMap(this IDictionary<string, object?> dictionary)
     {
         var hashMap = new HashMap();
         dictionary.ToList().ForEach(x => {
             if(x.Value is JsonObject jsonValue) {
-                hashMap.Put(x.Key, jsonValue.Deserialize<Dictionary<string, object>>().ToHashMap());
+                var deserialized = jsonValue.Deserialize<Dictionary<string, object?>>();
+                hashMap.Put(x.Key, (deserialized ?? new Dictionary<string, object?>()).ToHashMap());
             } else {
                 hashMap.Put(x.Key, x.Value);
             }
@@ -31,7 +32,14 @@ public static class DictionaryExtensions
         return hashMap;
     }
 
-    private static void Put(this IMap @this, object key, object value)
+    public static HashMap ToHashMap(this IEnumerable<(object, object?)> tuples)
+    {
+        var dict = new Dictionary<object, object?>();
+        tuples.ToList().ForEach(x => dict.Add(x.Item1, x.Item2));
+        return dict.ToHashMap();
+    }
+
+    private static void Put(this IMap @this, object key, object? value)
     {
         switch(value) {
             case bool x:
@@ -124,24 +132,24 @@ public static class DictionaryExtensions
         return map;
     }
 
-    public static IDictionary<string, Java.Lang.Object> ToJavaObjectDictionary(this IEnumerable<(string, object)> tuples)
+    public static IDictionary<string, Java.Lang.Object?> ToJavaObjectDictionary(this IEnumerable<(string, object?)> tuples)
     {
-        var dict = new Dictionary<string, object>();
+        var dict = new Dictionary<string, object?>();
         tuples.ToList().ForEach(x => dict.Add(x.Item1, x.Item2));
         return dict.ToJavaObjectDictionary();
     }
 
-    public static IDictionary<string, Java.Lang.Object> ToJavaObjectDictionary(this IDictionary<string, object> dictionary)
+    public static IDictionary<string, Java.Lang.Object?> ToJavaObjectDictionary(this IDictionary<string, object?> dictionary)
     {
-        var result = new Dictionary<string, Java.Lang.Object>();
+        var result = new Dictionary<string, Java.Lang.Object?>();
         dictionary.ToList().ForEach(x => result.Add(x.Key, x.Value.ToJavaObject()));
         return result;
     }
 
-    public static IDictionary<string, Java.Lang.Object> ToJavaObjectDictionary(this IDictionary<object, object> @this)
+    public static IDictionary<string, Java.Lang.Object?> ToJavaObjectDictionary(this IDictionary<object, object?> @this)
     {
-        var dict = new Dictionary<string, object>();
-        @this.ToList().ForEach(x => dict.Add(x.Key.ToString(), x.Value));
+        var dict = new Dictionary<string, object?>();
+        @this.ToList().ForEach(x => dict.Add(x.Key.ToString() ?? throw new ArgumentException("Dictionary contains a null key."), x.Value));
         return dict.ToJavaObjectDictionary();
     }
 }

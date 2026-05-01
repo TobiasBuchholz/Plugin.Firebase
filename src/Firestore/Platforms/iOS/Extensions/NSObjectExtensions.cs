@@ -18,9 +18,9 @@ public static class NSObjectExtensions
     /// <param name="this">The NSDictionary to cast.</param>
     /// <param name="documentId">Optional document ID to set on the object.</param>
     /// <returns>The typed object.</returns>
-    public static T Cast<T>(this NSDictionary @this, string documentId = null)
+    public static T? Cast<T>(this NSDictionary @this, string? documentId = null)
     {
-        return (T) @this.Cast(typeof(T), documentId);
+        return (T?) @this.Cast(typeof(T), documentId);
     }
 
     /// <summary>
@@ -30,7 +30,7 @@ public static class NSObjectExtensions
     /// <param name="targetType">The target type to cast to.</param>
     /// <param name="documentId">Optional document ID to set on the object.</param>
     /// <returns>The converted object.</returns>
-    public static object Cast(this NSDictionary @this, Type targetType, string documentId = null)
+    public static object? Cast(this NSDictionary @this, Type targetType, string? documentId = null)
     {
         var instance = Activator.CreateInstance(targetType);
         var properties = targetType.GetProperties();
@@ -89,7 +89,7 @@ public static class NSObjectExtensions
     /// <param name="targetType">Optional target type for the conversion.</param>
     /// <returns>The converted .NET object.</returns>
     /// <exception cref="ArgumentException">Thrown if the NSObject type cannot be converted.</exception>
-    public static object ToObject(this NSObject @this, Type targetType = null)
+    public static object? ToObject(this NSObject @this, Type? targetType = null)
     {
         switch(@this) {
             case NSNumber x:
@@ -101,7 +101,7 @@ public static class NSObjectExtensions
             case NSDictionary x:
                 return x.ToDictionaryObject(targetType);
             case NSArray x:
-                return x.ToList(GetGenericListType(targetType));
+                return targetType is null ? x.ToList() : x.ToList(GetGenericListType(targetType));
             case global::Firebase.CloudFirestore.GeoPoint x:
                 return new GeoPoint(x.Latitude, x.Longitude);
             case Timestamp x:
@@ -126,7 +126,7 @@ public static class NSObjectExtensions
     /// <param name="this">The NSNumber to convert.</param>
     /// <param name="targetType">Optional target type for the conversion.</param>
     /// <returns>The converted numeric value.</returns>
-    public static object ToObject(this NSNumber @this, Type targetType = null)
+    public static object? ToObject(this NSNumber @this, Type? targetType = null)
     {
         if(targetType == null) {
             return @this.Int32Value;
@@ -179,7 +179,7 @@ public static class NSObjectExtensions
     /// <param name="this">The object to convert.</param>
     /// <returns>The native iOS NSObject representation.</returns>
     /// <exception cref="ArgumentException">Thrown if the object type cannot be converted.</exception>
-    public static NSObject ToNSObject(this object @this)
+    public static NSObject ToNSObject(this object? @this)
     {
         switch(@this) {
             case null:

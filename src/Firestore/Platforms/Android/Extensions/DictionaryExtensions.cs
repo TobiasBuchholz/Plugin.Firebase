@@ -114,6 +114,15 @@ public static class DictionaryExtensions
 
     public static HashMap ToHashMap(this object @this)
     {
+        switch(@this) {
+            case IDictionary<string, object?> stringDictionary:
+                return stringDictionary.ToHashMap();
+            case IDictionary<object, object?> objectDictionary:
+                return objectDictionary.ToHashMap();
+            case IDictionary dictionary:
+                return dictionary.ToHashMapFromNonGenericDict();
+        }
+
         var map = new HashMap();
         var properties = @this.GetType().GetProperties();
         foreach(var property in properties) {

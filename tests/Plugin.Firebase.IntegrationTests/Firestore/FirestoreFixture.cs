@@ -583,6 +583,57 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         }
 
         [Fact]
+        public async Task writes_set_data_from_dictionary_and_tuple_payloads()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+
+            var dictionaryDocument = GetTestingDocument(sut, "setdata-string-dictionary");
+            await dictionaryDocument.SetDataAsync(new Dictionary<string, object> {
+                { "field_a", "dictionary-a" },
+                { "field_b", "dictionary-b" }
+            });
+            var dictionaryResult = (await dictionaryDocument.GetDocumentSnapshotAsync<SetDataPayloadDocument>()).Data;
+            Assert.Equal("dictionary-a", dictionaryResult.FieldA);
+            Assert.Equal("dictionary-b", dictionaryResult.FieldB);
+
+            var tupleDocument = GetTestingDocument(sut, "setdata-tuple");
+            await tupleDocument.SetDataAsync(
+                ("field_a", "tuple-a"),
+                ("field_b", "tuple-b"));
+            var tupleResult = (await tupleDocument.GetDocumentSnapshotAsync<SetDataPayloadDocument>()).Data;
+            Assert.Equal("tuple-a", tupleResult.FieldA);
+            Assert.Equal("tuple-b", tupleResult.FieldB);
+
+            if(OperatingSystem.IsAndroid() is false) {
+                return;
+            }
+
+            var transactionDictionaryDocument = GetTestingDocument(sut, "transaction-setdata-string-dictionary");
+            var transactionTupleDocument = GetTestingDocument(sut, "transaction-setdata-tuple");
+            await sut.RunTransactionAsync(transaction => {
+                transaction.SetData(
+                    transactionDictionaryDocument,
+                    new Dictionary<string, object> {
+                        { "field_a", "transaction-dictionary-a" },
+                        { "field_b", "transaction-dictionary-b" }
+                    });
+                transaction.SetData(
+                    transactionTupleDocument,
+                    ("field_a", "transaction-tuple-a"),
+                    ("field_b", "transaction-tuple-b"));
+                return true;
+            });
+
+            var transactionDictionaryResult = (await transactionDictionaryDocument.GetDocumentSnapshotAsync<SetDataPayloadDocument>()).Data;
+            Assert.Equal("transaction-dictionary-a", transactionDictionaryResult.FieldA);
+            Assert.Equal("transaction-dictionary-b", transactionDictionaryResult.FieldB);
+
+            var transactionTupleResult = (await transactionTupleDocument.GetDocumentSnapshotAsync<SetDataPayloadDocument>()).Data;
+            Assert.Equal("transaction-tuple-a", transactionTupleResult.FieldA);
+            Assert.Equal("transaction-tuple-b", transactionTupleResult.FieldB);
+        }
+
+        [Fact]
         public async Task writes_nested_dictionary_properties_on_ios()
         {
             if(!OperatingSystem.IsIOS()) {
@@ -687,6 +738,21 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
 
             [FirestoreProperty("types")]
             public Dictionary<string, PokeType> Types { get; private set; }
+        }
+
+        [Preserve(AllMembers = true)]
+        private sealed class SetDataPayloadDocument : IFirestoreObject
+        {
+            public SetDataPayloadDocument()
+            {
+                // needed for firestore
+            }
+
+            [FirestoreProperty("field_a")]
+            public string FieldA { get; private set; }
+
+            [FirestoreProperty("field_b")]
+            public string FieldB { get; private set; }
         }
 
         [Preserve(AllMembers = true)]

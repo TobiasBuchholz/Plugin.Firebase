@@ -20,6 +20,7 @@ If you encounter a build error, try to add the package via `dotnet add package P
     ...
 </resources>
 ```
+- For Crashlytics troubleshooting, including Android resource setup and iOS `__mh_execute_header` setup, see the [Crashlytics documentation](crashlytics.md).
 - Add the following line of code to the place where your app gets bootstrapped:
 ```c#
 #if IOS

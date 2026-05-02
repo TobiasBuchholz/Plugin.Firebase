@@ -1,3 +1,5 @@
+using System.Net.Http;
+
 namespace Plugin.Firebase.PerformanceMonitoring;
 
 /// <summary>
@@ -32,7 +34,7 @@ public interface IFirebasePerformanceMonitoring : IDisposable
     /// <returns>A new custom HTTP metric.</returns>
     IFirebasePerformanceHttpMetric NewHttpMetric(
         string url,
-        PerformanceMonitoringHttpMethod httpMethod
+        HttpMethod httpMethod
     );
 
     /// <summary>
@@ -43,6 +45,6 @@ public interface IFirebasePerformanceMonitoring : IDisposable
     /// <returns>A new custom HTTP metric.</returns>
     IFirebasePerformanceHttpMetric NewHttpMetric(
         Uri url,
-        PerformanceMonitoringHttpMethod httpMethod
+        HttpMethod httpMethod
     );
 }

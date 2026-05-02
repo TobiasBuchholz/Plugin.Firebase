@@ -1,3 +1,4 @@
+using System.Net.Http;
 using Plugin.Firebase.PerformanceMonitoring;
 
 namespace Plugin.Firebase.IntegrationTests.PerformanceMonitoring
@@ -11,6 +12,19 @@ namespace Plugin.Firebase.IntegrationTests.PerformanceMonitoring
         private const string AttributeValue = "integration_test";
         private const string MetricName = "items";
 
+        public static TheoryData<HttpMethod> HttpMethods => new()
+        {
+            HttpMethod.Get,
+            HttpMethod.Put,
+            HttpMethod.Post,
+            HttpMethod.Delete,
+            HttpMethod.Head,
+            HttpMethod.Patch,
+            HttpMethod.Options,
+            HttpMethod.Trace,
+            HttpMethod.Connect
+        };
+
         [Fact]
         public void round_trips_collection_enabled_state()
         {
@@ -23,7 +37,8 @@ namespace Plugin.Firebase.IntegrationTests.PerformanceMonitoring
 
                 sut.IsDataCollectionEnabled = true;
                 Assert.True(sut.IsDataCollectionEnabled);
-            } finally {
+            }
+            finally {
                 sut.IsDataCollectionEnabled = originalValue;
                 Assert.Equal(originalValue, sut.IsDataCollectionEnabled);
             }
@@ -53,7 +68,8 @@ namespace Plugin.Firebase.IntegrationTests.PerformanceMonitoring
                 trace.RemoveAttribute(AttributeName);
                 Assert.Null(trace.GetAttribute(AttributeName));
                 Assert.False(trace.Attributes.ContainsKey(AttributeName));
-            } finally {
+            }
+            finally {
                 if(started) {
                     trace.Stop();
                 }
@@ -71,22 +87,15 @@ namespace Plugin.Firebase.IntegrationTests.PerformanceMonitoring
                 trace.PutMetric(MetricName, 3);
                 trace.IncrementMetric(MetricName, 4);
                 Assert.Equal(7, trace.GetLongMetric(MetricName));
-            } finally {
+            }
+            finally {
                 trace.Stop();
             }
         }
 
         [Theory]
-        [InlineData(PerformanceMonitoringHttpMethod.Get)]
-        [InlineData(PerformanceMonitoringHttpMethod.Put)]
-        [InlineData(PerformanceMonitoringHttpMethod.Post)]
-        [InlineData(PerformanceMonitoringHttpMethod.Delete)]
-        [InlineData(PerformanceMonitoringHttpMethod.Head)]
-        [InlineData(PerformanceMonitoringHttpMethod.Patch)]
-        [InlineData(PerformanceMonitoringHttpMethod.Options)]
-        [InlineData(PerformanceMonitoringHttpMethod.Trace)]
-        [InlineData(PerformanceMonitoringHttpMethod.Connect)]
-        public void records_string_http_metric_for_each_method(PerformanceMonitoringHttpMethod method)
+        [MemberData(nameof(HttpMethods))]
+        public void records_string_http_metric_for_each_method(HttpMethod method)
         {
             var metric = CrossFirebasePerformanceMonitoring.Current.NewHttpMetric(
                 GetHttpMetricUrl("string", method),
@@ -97,16 +106,8 @@ namespace Plugin.Firebase.IntegrationTests.PerformanceMonitoring
         }
 
         [Theory]
-        [InlineData(PerformanceMonitoringHttpMethod.Get)]
-        [InlineData(PerformanceMonitoringHttpMethod.Put)]
-        [InlineData(PerformanceMonitoringHttpMethod.Post)]
-        [InlineData(PerformanceMonitoringHttpMethod.Delete)]
-        [InlineData(PerformanceMonitoringHttpMethod.Head)]
-        [InlineData(PerformanceMonitoringHttpMethod.Patch)]
-        [InlineData(PerformanceMonitoringHttpMethod.Options)]
-        [InlineData(PerformanceMonitoringHttpMethod.Trace)]
-        [InlineData(PerformanceMonitoringHttpMethod.Connect)]
-        public void records_uri_http_metric_for_each_method(PerformanceMonitoringHttpMethod method)
+        [MemberData(nameof(HttpMethods))]
+        public void records_uri_http_metric_for_each_method(HttpMethod method)
         {
             var metric = CrossFirebasePerformanceMonitoring.Current.NewHttpMetric(
                 new Uri(GetHttpMetricUrl("uri", method)),
@@ -121,35 +122,35 @@ namespace Plugin.Firebase.IntegrationTests.PerformanceMonitoring
         {
             var exception = Assert.Throws<ArgumentNullException>(
                 () => CrossFirebasePerformanceMonitoring.Current.NewHttpMetric(
-                    (Uri)null!,
-                    PerformanceMonitoringHttpMethod.Get
+                    (Uri) null!,
+                    HttpMethod.Get
                 )
             );
             Assert.Equal("url", exception.ParamName);
         }
 
         [Fact]
-        public void throws_for_undefined_string_http_metric_method()
+        public void throws_for_unsupported_string_http_metric_method()
         {
             var exception = Assert.Throws<ArgumentOutOfRangeException>(
                 () => CrossFirebasePerformanceMonitoring.Current.NewHttpMetric(
-                    "https://example.com/performance-monitoring/undefined-string-method",
-                    (PerformanceMonitoringHttpMethod)int.MaxValue
+                    "https://example.com/performance-monitoring/unsupported-string-method",
+                    new HttpMethod("BREW")
                 )
             );
-            Assert.Equal("method", exception.ParamName);
+            Assert.Equal("httpMethod", exception.ParamName);
         }
 
         [Fact]
-        public void throws_for_undefined_uri_http_metric_method()
+        public void throws_for_unsupported_uri_http_metric_method()
         {
             var exception = Assert.Throws<ArgumentOutOfRangeException>(
                 () => CrossFirebasePerformanceMonitoring.Current.NewHttpMetric(
-                    new Uri("https://example.com/performance-monitoring/undefined-uri-method"),
-                    (PerformanceMonitoringHttpMethod)int.MaxValue
+                    new Uri("https://example.com/performance-monitoring/unsupported-uri-method"),
+                    new HttpMethod("BREW")
                 )
             );
-            Assert.Equal("method", exception.ParamName);
+            Assert.Equal("httpMethod", exception.ParamName);
         }
 
         [RealFirebaseFact]
@@ -165,7 +166,8 @@ namespace Plugin.Firebase.IntegrationTests.PerformanceMonitoring
                 trace.PutMetric(MetricName, 1);
                 trace.IncrementMetric(MetricName, 1);
                 Assert.Equal(2, trace.GetLongMetric(MetricName));
-            } finally {
+            }
+            finally {
                 if(started) {
                     trace.Stop();
                 }
@@ -177,7 +179,7 @@ namespace Plugin.Firebase.IntegrationTests.PerformanceMonitoring
         {
             var metric = CrossFirebasePerformanceMonitoring.Current.NewHttpMetric(
                 "https://example.com/performance-monitoring/real-backend",
-                PerformanceMonitoringHttpMethod.Get
+                HttpMethod.Get
             );
 
             AssertHttpMetricContract(metric);
@@ -204,16 +206,17 @@ namespace Plugin.Firebase.IntegrationTests.PerformanceMonitoring
                 metric.RemoveAttribute(AttributeName);
                 Assert.Null(metric.GetAttribute(AttributeName));
                 Assert.False(metric.Attributes.ContainsKey(AttributeName));
-            } finally {
+            }
+            finally {
                 if(started) {
                     metric.Stop();
                 }
             }
         }
 
-        private static string GetHttpMetricUrl(string overloadName, PerformanceMonitoringHttpMethod method)
+        private static string GetHttpMetricUrl(string overloadName, HttpMethod method)
         {
-            return $"https://example.com/performance-monitoring/{overloadName}/{method.ToString().ToLowerInvariant()}";
+            return $"https://example.com/performance-monitoring/{overloadName}/{method.Method.ToLowerInvariant()}";
         }
     }
 }

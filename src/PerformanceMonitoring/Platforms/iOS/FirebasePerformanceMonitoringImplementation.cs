@@ -1,5 +1,6 @@
 using Plugin.Firebase.Core;
 using Plugin.Firebase.PerformanceMonitoring.Platforms.iOS.Extensions;
+using System.Net.Http;
 using NativeHttpMetric = Firebase.PerformanceMonitoring.HttpMetric;
 using NativePerformance = Firebase.PerformanceMonitoring.Performance;
 
@@ -39,7 +40,7 @@ public sealed class FirebasePerformanceMonitoringImplementation : DisposableBase
     /// <inheritdoc/>
     public IFirebasePerformanceHttpMetric NewHttpMetric(
         string url,
-        PerformanceMonitoringHttpMethod httpMethod
+        HttpMethod httpMethod
     )
     {
         return new FirebasePerformanceHttpMetricWrapper(
@@ -50,7 +51,7 @@ public sealed class FirebasePerformanceMonitoringImplementation : DisposableBase
     /// <inheritdoc/>
     public IFirebasePerformanceHttpMetric NewHttpMetric(
         Uri url,
-        PerformanceMonitoringHttpMethod httpMethod
+        HttpMethod httpMethod
     )
     {
         ArgumentNullException.ThrowIfNull(url);

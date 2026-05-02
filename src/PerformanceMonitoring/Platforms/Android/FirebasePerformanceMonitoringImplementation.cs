@@ -1,6 +1,7 @@
 using Firebase.Perf;
 using Plugin.Firebase.Core;
 using Plugin.Firebase.PerformanceMonitoring.Platforms.Android.Extensions;
+using System.Net.Http;
 
 namespace Plugin.Firebase.PerformanceMonitoring;
 
@@ -30,7 +31,7 @@ public sealed class FirebasePerformanceMonitoringImplementation : DisposableBase
 
     public IFirebasePerformanceHttpMetric NewHttpMetric(
         string url,
-        PerformanceMonitoringHttpMethod httpMethod
+        HttpMethod httpMethod
     )
     {
         return new FirebasePerformanceHttpMetricWrapper(
@@ -40,7 +41,7 @@ public sealed class FirebasePerformanceMonitoringImplementation : DisposableBase
 
     public IFirebasePerformanceHttpMetric NewHttpMetric(
         Uri url,
-        PerformanceMonitoringHttpMethod httpMethod
+        HttpMethod httpMethod
     )
     {
         ArgumentNullException.ThrowIfNull(url);

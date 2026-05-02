@@ -18,6 +18,7 @@ Firebase [Performance Monitoring](https://firebase.google.com/docs/perf-mon) hel
 ## Usage
 
 ```c#
+using System.Net.Http;
 using Plugin.Firebase.PerformanceMonitoring;
 
 CrossFirebasePerformanceMonitoring.Current.IsDataCollectionEnabled = true;
@@ -31,7 +32,7 @@ trace.Stop();
 
 var httpMetric = CrossFirebasePerformanceMonitoring.Current.NewHttpMetric(
     "https://example.com/items",
-    PerformanceMonitoringHttpMethod.Get);
+    HttpMethod.Get);
 httpMetric.Start();
 httpMetric.SetHttpResponseCode(200);
 httpMetric.SetResponseContentType("application/json");

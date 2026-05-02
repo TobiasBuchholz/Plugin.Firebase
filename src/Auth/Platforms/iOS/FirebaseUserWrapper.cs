@@ -1,12 +1,13 @@
 using Firebase.Auth;
 using Plugin.Firebase.Auth.Platforms.iOS.Extensions;
+using ProfileChangeRequest = Plugin.Firebase.Auth.UserProfileChangeRequest;
 
 namespace Plugin.Firebase.Auth.Platforms.iOS;
 
 /// <summary>
 /// Wraps a native iOS Firebase User for cross-platform access.
 /// </summary>
-public sealed class FirebaseUserWrapper : IFirebaseUser
+public sealed class FirebaseUserWrapper : IFirebaseUser, IUserProfileChangeRequestHandler
 {
     private readonly User _wrapped;
 
@@ -48,17 +49,32 @@ public sealed class FirebaseUserWrapper : IFirebaseUser
     }
 
     /// <inheritdoc/>
-    public Task UpdateProfileAsync(string displayName = "", string photoUrl = "")
+    public Task UpdateProfileAsync(ProfileChangeRequest request)
     {
-        var request = _wrapped.ProfileChangeRequest();
-        if(displayName != "") {
-            request.DisplayName = displayName;
+        var nativeRequest = _wrapped.ProfileChangeRequest();
+        if(request.UpdatesDisplayName) {
+            nativeRequest.DisplayName = request.DisplayName;
         }
-        if(photoUrl != "") {
-            request.PhotoUrl = photoUrl == null ? null : new NSUrl(photoUrl);
+        if(request.UpdatesPhotoUrl) {
+            nativeRequest.PhotoUrl = request.PhotoUrl == null ? null : new NSUrl(request.PhotoUrl);
         }
 
-        return FirebaseAuthExceptionFactory.Wrap(() => request.CommitChangesAsync());
+        return FirebaseAuthExceptionFactory.Wrap(() => nativeRequest.CommitChangesAsync());
+    }
+
+    /// <inheritdoc/>
+    [Obsolete("Use UpdateProfileAsync(UserProfileChangeRequest request) to distinguish omitted, null, and empty string values.")]
+    public Task UpdateProfileAsync(string? displayName = "", string? photoUrl = "")
+    {
+        var builder = new ProfileChangeRequest.Builder();
+        if(displayName != "") {
+            builder.SetDisplayName(displayName);
+        }
+        if(photoUrl != "") {
+            builder.SetPhotoUrl(photoUrl);
+        }
+
+        return UpdateProfileAsync(builder.Build());
     }
 
     /// <inheritdoc/>

@@ -132,7 +132,9 @@ public static class MauiProgram
                 isFirestoreEnabled: true,
                 isFunctionsEnabled: true,
                 isStorageEnabled: true,
-                appCheckOptions: AppCheckOptions.Disabled);
+                appCheckOptions: AppCheckOptions.Disabled) {
+                IsInstallationsEnabled = true
+            };
         }
 
         return new CrossFirebaseSettings(
@@ -147,7 +149,9 @@ public static class MauiProgram
             isStorageEnabled: true,
             appCheckOptions: IntegrationTestEnvironment.ShouldRunAppCheckTokenTests
                 ? AppCheckOptions.Debug
-                : AppCheckOptions.Disabled);
+                : AppCheckOptions.Disabled) {
+            IsInstallationsEnabled = true
+        };
     }
 
     private static void ConfigureEmulatorsIfRequested()

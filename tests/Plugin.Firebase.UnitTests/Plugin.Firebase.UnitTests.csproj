@@ -11,6 +11,8 @@
     <ProjectReference Include="..\..\src\Core\Core.csproj" SetTargetFramework="TargetFramework=net9.0" />
     <ProjectReference Include="..\..\src\AppCheck\AppCheck.csproj" SetTargetFramework="TargetFramework=net9.0" />
     <ProjectReference Include="..\..\src\Auth\Auth.csproj" SetTargetFramework="TargetFramework=net9.0" />
+    <ProjectReference Include="..\..\src\Bundled\Bundled.csproj" SetTargetFramework="TargetFramework=net9.0" />
+    <ProjectReference Include="..\..\src\Installations\Installations.csproj" SetTargetFramework="TargetFramework=net9.0" />
   </ItemGroup>
 
   <ItemGroup>

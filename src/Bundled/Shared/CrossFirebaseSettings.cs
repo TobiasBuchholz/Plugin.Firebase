@@ -56,6 +56,7 @@ public sealed class CrossFirebaseSettings
                $"{nameof(IsDynamicLinksEnabled)}={IsDynamicLinksEnabled}," +
                $"{nameof(IsFirestoreEnabled)}={IsFirestoreEnabled}," +
                $"{nameof(IsFunctionsEnabled)}={IsFunctionsEnabled}," +
+               $"{nameof(IsInstallationsEnabled)}={IsInstallationsEnabled}," +
                $"{nameof(IsRemoteConfigEnabled)}={IsRemoteConfigEnabled}," +
                $"{nameof(IsStorageEnabled)}={IsStorageEnabled}," +
                $"{nameof(AppCheckOptions)}={AppCheckOptions?.Provider}]";
@@ -95,6 +96,11 @@ public sealed class CrossFirebaseSettings
     /// Gets whether Firebase Functions is enabled.
     /// </summary>
     public bool IsFunctionsEnabled { get; }
+
+    /// <summary>
+    /// Gets whether Firebase Installations is enabled.
+    /// </summary>
+    public bool IsInstallationsEnabled { get; init; }
 
     /// <summary>
     /// Gets whether Firebase Remote Config is enabled.

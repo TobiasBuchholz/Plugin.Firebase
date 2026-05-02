@@ -145,6 +145,43 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         }
 
         [Fact]
+        public async Task reauthenticates_user_with_email_and_password()
+        {
+            var sut = CrossFirebaseAuth.Current;
+            var email = CreateUniqueEmail("reauth-email-password");
+            var user = await sut.SignInWithEmailAndPasswordAsync(email, "123456");
+            var uid = user.Uid;
+
+            await sut.CurrentUser.ReauthenticateWithEmailAndPasswordAsync(email, "123456");
+            await sut.CurrentUser.UpdatePasswordAsync("abcdefgh");
+
+            Assert.NotNull(sut.CurrentUser);
+            Assert.Equal(uid, sut.CurrentUser.Uid);
+
+            await sut.SignOutAsync();
+            await Assert.ThrowsAnyAsync<CrossPlatformFirebaseAuthException>(
+                () => sut.SignInWithEmailAndPasswordAsync(email, "123456", createsUserAutomatically: false)
+            );
+
+            var updatedUser = await sut.SignInWithEmailAndPasswordAsync(email, "abcdefgh", createsUserAutomatically: false);
+            Assert.Equal(uid, updatedUser.Uid);
+        }
+
+        [Fact]
+        public async Task throws_error_if_reauthenticating_with_invalid_email_password()
+        {
+            var sut = CrossFirebaseAuth.Current;
+            var email = CreateUniqueEmail("reauth-invalid");
+            await sut.SignInWithEmailAndPasswordAsync(email, "123456");
+
+            var ex = await Assert.ThrowsAnyAsync<CrossPlatformFirebaseAuthException>(
+                () => sut.CurrentUser.ReauthenticateWithEmailAndPasswordAsync(email, "000000")
+            );
+
+            AssertNativeAuthExceptionCaptured(ex);
+        }
+
+        [Fact]
         public async Task updates_user_profile()
         {
             const string displayName = "Bruce Wayne";
@@ -219,6 +256,21 @@ namespace Plugin.Firebase.IntegrationTests.Auth
 
             var uid = sut.CurrentUser.Uid;
             await sut.ReloadCurrentUserAsync();
+
+            Assert.NotNull(sut.CurrentUser);
+            Assert.Equal(uid, sut.CurrentUser.Uid);
+        }
+
+        [Fact]
+        public async Task reloads_user()
+        {
+            var sut = CrossFirebaseAuth.Current;
+            var email = CreateUniqueEmail("reload-user");
+            await sut.SignInWithEmailAndPasswordAsync(email, "123456");
+            Assert.NotNull(sut.CurrentUser);
+
+            var uid = sut.CurrentUser.Uid;
+            await sut.CurrentUser.ReloadAsync();
 
             Assert.NotNull(sut.CurrentUser);
             Assert.Equal(uid, sut.CurrentUser.Uid);

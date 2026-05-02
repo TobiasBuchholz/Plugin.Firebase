@@ -75,6 +75,11 @@ Since code should be documenting itself you can also take a look at the followin
 Set `LanguageCode = "fr"` (or any BCP-47 code) before invoking an Auth flow that triggers user-facing content such as password-reset emails, email-verification emails, or phone-auth SMS.
 Call `UseAppLanguage()` to reset to the app language.
 
+## User reauthentication and reload
+
+Call `CurrentUser.ReauthenticateWithEmailAndPasswordAsync(email, password)` before sensitive email/password user operations that require recent authentication.
+Call `CurrentUser.ReloadAsync()` to refresh that user from the backend, or `ReloadCurrentUserAsync()` to refresh the currently signed in user through `IFirebaseAuth`.
+
 ## Error handling
 
 Native Firebase Auth failures are wrapped in `CrossPlatformFirebaseAuthException`. The wrapper preserves the original native exception in `InnerException` and exposes stable inspection fields for the native exception type, domain, code, and message.
@@ -109,6 +114,8 @@ In v5:
 - `SignOutAsync()` now follows the same unified exception model when the underlying native Auth SDK reports a failure.
 
 ## Release notes
+- Next
+  - Add email/password user reauthentication and user-level reload APIs.
 - Version 5.0.1
   - Fix for wrong Core project version dependency at nuget.org
 - Version 5.0.0

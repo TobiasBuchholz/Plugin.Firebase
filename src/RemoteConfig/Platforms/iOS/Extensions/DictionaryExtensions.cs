@@ -33,7 +33,7 @@ public static class DictionaryExtensions
 
             foreach(DictionaryEntry entry in dictionary) {
                 PutIntoNSDictionary(
-                    new KeyValuePair<string, object>(entry.Key.ToString(), entry.Value),
+                    new KeyValuePair<string, object?>((string) entry.Key, entry.Value),
                     ref nsDictionary
                 );
             }
@@ -48,7 +48,7 @@ public static class DictionaryExtensions
     }
 
     private static void PutIntoNSDictionary(
-        KeyValuePair<string, object> pair,
+        KeyValuePair<string, object?> pair,
         ref NSMutableDictionary<NSString, NSObject> nsDictionary
     )
     {

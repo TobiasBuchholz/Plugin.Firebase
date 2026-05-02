@@ -6,7 +6,7 @@ namespace Plugin.Firebase.RemoteConfig.Platforms.Android.Extensions;
 
 public static class JavaObjectExtensions
 {
-    public static object ToObject(this Java.Lang.Object @this, Type targetType = null)
+    public static object ToObject(this Java.Lang.Object @this, Type? targetType = null)
     {
         switch(@this) {
             case Java.Lang.ICharSequence x:
@@ -34,7 +34,7 @@ public static class JavaObjectExtensions
     {
         switch(@this) {
             case string x:
-                return x;
+                return new Java.Lang.String(x);
             case int x:
                 return x;
             case long x:

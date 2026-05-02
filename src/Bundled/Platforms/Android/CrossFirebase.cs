@@ -56,7 +56,9 @@ public static class CrossFirebase
             FirebaseAnalyticsImplementation.Initialize(activity);
         }
 
-        FirebaseCrashlytics.Instance.SetCrashlyticsCollectionEnabled(settings.IsCrashlyticsEnabled);
+        FirebaseCrashlytics.Instance.SetCrashlyticsCollectionEnabled(
+            Java.Lang.Boolean.ValueOf(settings.IsCrashlyticsEnabled)
+        );
 
         Console.WriteLine($"Plugin.Firebase initialized with the following settings:\n{settings}");
     }

@@ -135,7 +135,9 @@ public static class JavaObjectExtensions
     {
         if(targetType == null) {
             return @this.ToDictionary();
-        } else if(targetType.IsGenericType && (targetType.GetGenericTypeDefinition() == typeof(IDictionary<,>) || targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>))) {
+        } else if(targetType == typeof(object)) {
+            return @this.ToDictionary(typeof(string), typeof(object));
+        } else if(IsDictionaryType(targetType)) {
             var types = targetType.GenericTypeArguments;
             return @this.ToDictionary(types[0], types[1]);
         } else {
@@ -150,13 +152,17 @@ public static class JavaObjectExtensions
             throw new InvalidOperationException("Could not create dictionary of type " + valueType);
         }
 
-        foreach(DictionaryEntry pair in @this) {
-            var key = ConvertToObject(keyType, pair.Key);
+        foreach(var rawKey in @this.Keys) {
+            if(rawKey is null) {
+                throw new ArgumentException("Dictionary contains a null key.");
+            }
+
+            var key = ConvertToObject(keyType, rawKey);
             if(key is null) {
                 throw new ArgumentException("Dictionary contains a null key.");
             }
 
-            var value = ConvertToObject(valueType, pair.Value);
+            var value = ConvertToObject(valueType, @this[rawKey]);
             dict[key] = value;
         }
         return dict;
@@ -165,19 +171,27 @@ public static class JavaObjectExtensions
     private static IDictionary<string, object?> ToDictionary(this IDictionary @this)
     {
         var dict = new Dictionary<string, object?>();
-        foreach(DictionaryEntry pair in @this) {
-            var key = pair.Key?.ToString();
+        foreach(var rawKey in @this.Keys) {
+            if(rawKey is null) {
+                throw new ArgumentException("Dictionary contains a null key.");
+            }
+
+            var key = rawKey.ToString();
             if(key is null) {
                 throw new ArgumentException("Dictionary contains a null key.");
             }
 
-            dict[key] = pair.Value.ToJavaObject().ToObject();
+            dict[key] = ConvertToObject(typeof(object), @this[rawKey]);
         }
         return dict;
     }
 
     private static object Cast(this IDictionary @this, Type targetType, string? documentId = null)
     {
+        if(targetType == typeof(object) || IsDictionaryType(targetType)) {
+            return @this.ToDictionaryObject(targetType);
+        }
+
         var instance = Activator.CreateInstance(targetType);
         if(instance is null) {
             throw new InvalidOperationException("Could not create instance of type " + targetType);
@@ -238,11 +252,22 @@ public static class JavaObjectExtensions
             return value is Java.Lang.ICharSequence charSequence
                 ? charSequence.ToString()
                 : value.ToString();
+        } else if(value is IDictionary dictionary) {
+            return dictionary.ToDictionaryObject(targetType);
         } else if(value is Java.Lang.Object javaValue) {
             return javaValue.ToObject(targetType);
         }
 
         return value.ConvertToTargetType(targetType);
+    }
+
+    private static bool IsDictionaryType(Type targetType)
+    {
+        return targetType.IsGenericType
+               && (
+                   targetType.GetGenericTypeDefinition() == typeof(IDictionary<,>)
+                   || targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>)
+               );
     }
 
     public static IDictionary<string, object?> ToDictionary(this ArrayMap @this)
@@ -264,8 +289,12 @@ public static class JavaObjectExtensions
         return dict;
     }
 
-    private static Type GetGenericListType(Type targetType)
+    private static Type GetGenericListType(Type? targetType)
     {
+        if(targetType == null || targetType == typeof(object)) {
+            return typeof(object);
+        }
+
         var genericType = targetType.GenericTypeArguments.FirstOrDefault();
         if(genericType == null) {
             throw new ArgumentException(

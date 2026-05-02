@@ -1606,6 +1606,25 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             Assert.Equal(new long?[] { 1L, null, 3L }, snapshot.Data.NullableNumbers);
         }
 
+        [Fact]
+        public async Task writes_geopoint_values_inside_firestore_lists()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var document = GetTestingDocument(sut, "geopoint-list-values");
+            var expected = new[] {
+                new GeoPoint(10.5, 20.25),
+                new GeoPoint(-33.875, 151.2)
+            };
+
+            await document.SetDataAsync(new GeoPointListDocument(expected));
+
+            var result = (await document.GetDocumentSnapshotAsync<GeoPointListDocument>()).Data;
+            Assert.Equal(expected[0].Latitude, result.Locations[0].Latitude);
+            Assert.Equal(expected[0].Longitude, result.Locations[0].Longitude);
+            Assert.Equal(expected[1].Latitude, result.Locations[1].Latitude);
+            Assert.Equal(expected[1].Longitude, result.Locations[1].Longitude);
+        }
+
         public async Task DisposeAsync()
         {
             TestLog.Write($"[FIRESTORE CLEANUP START] {_testingCollectionPath}");
@@ -1656,6 +1675,23 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
 
             [FirestoreProperty("nullable_numbers")]
             public IList<long?> NullableNumbers { get; private set; }
+        }
+
+        [Preserve(AllMembers = true)]
+        private sealed class GeoPointListDocument : IFirestoreObject
+        {
+            public GeoPointListDocument()
+            {
+                // needed for firestore
+            }
+
+            public GeoPointListDocument(IList<GeoPoint> locations)
+            {
+                Locations = locations;
+            }
+
+            [FirestoreProperty("locations")]
+            public IList<GeoPoint> Locations { get; private set; }
         }
 
         [Preserve(AllMembers = true)]

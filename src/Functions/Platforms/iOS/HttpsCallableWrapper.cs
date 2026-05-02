@@ -9,9 +9,6 @@ namespace Plugin.Firebase.Functions.Platforms.iOS;
 /// </summary>
 public sealed class HttpsCallableWrapper : IHttpsCallable
 {
-    // The current .NET iOS enum binding does not expose NSJSONWritingFragmentsAllowed.
-    private const NSJsonWritingOptions JsonWritingFragmentsAllowed = (NSJsonWritingOptions) 4;
-
     private readonly HttpsCallable _httpsCallable;
 
     /// <summary>
@@ -109,7 +106,7 @@ public sealed class HttpsCallableWrapper : IHttpsCallable
 
         var jsonData = NSJsonSerialization.Serialize(
             data,
-            JsonWritingFragmentsAllowed,
+            NSJsonWritingOptions.FragmentsAllowed,
             out var error);
         if(error != null) {
             throw new FirebaseException(error.LocalizedDescription);

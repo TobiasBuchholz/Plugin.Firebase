@@ -310,6 +310,13 @@ Required functions:
 | Function | Type | Purpose |
 |---|---|---|
 | `convertToLeet` | `https.onCall` | Called by `FunctionsFixture` |
+| `returnObjectPayload` | `https.onCall` | Verifies callable object response deserialization |
+| `returnArrayPayload` | `https.onCall` | Verifies callable array response deserialization |
+| `returnStringPayload` | `https.onCall` | Verifies callable string response deserialization |
+| `returnEscapedStringPayload` | `https.onCall` | Verifies callable escaped string response deserialization |
+| `returnNumberPayload` | `https.onCall` | Verifies callable number response deserialization |
+| `returnBooleanPayload` | `https.onCall` | Verifies callable boolean response deserialization |
+| `returnNullPayload` | `https.onCall` | Verifies callable null response deserialization |
 | `addMessage` | `https.onRequest` | Writes to Firestore `messages` collection |
 | `makeUppercase` | `firestore.onCreate` | Triggered on `/messages/{documentId}` |
 | `echo` | `https.onRequest` | Echoes request body |

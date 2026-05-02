@@ -53,6 +53,19 @@ var settings = new CrossFirebaseSettings(isAnalyticsEnabled: true);
 
 ## Usage
 
+Set Analytics consent state with the Firebase consent types exposed by the plugin:
+
+```c#
+CrossFirebaseAnalytics.Current.SetConsent(new Dictionary<ConsentType, ConsentStatus> {
+    { ConsentType.AnalyticsStorage, ConsentStatus.Granted },
+    { ConsentType.AdStorage, ConsentStatus.Denied },
+    { ConsentType.AdUserData, ConsentStatus.Granted },
+    { ConsentType.AdPersonalization, ConsentStatus.Denied }
+});
+```
+
+Omitting a consent type retains its previous status. Obtain and interpret user consent in your app before passing the resulting Firebase consent values to the plugin.
+
 Take a look at the [documentation](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents/blob/master/docs/Firebase/Analytics/GettingStarted.md) for the AdamE.Firebase.iOS.Analytics packages, because Plugin.Firebase's code is abstracted but still very similar.
 
 Since code should be documenting itself you can also take a look at the following classes:

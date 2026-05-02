@@ -30,6 +30,11 @@ public sealed class FirebaseAnalyticsImplementation : DisposableBase, IFirebaseA
         LogEvent(eventName, parameters?.ToDictionary(x => x.parameterName, x => x.parameterValue));
     }
 
+    public void SetConsent(IDictionary<ConsentType, ConsentStatus> consentSettings)
+    {
+        GetInitializedAnalytics().SetConsent(consentSettings.ToNativeConsentSettings());
+    }
+
     public void SetUserId(string id)
     {
         GetInitializedAnalytics().SetUserId(id);

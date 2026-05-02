@@ -6,7 +6,8 @@ namespace Plugin.Firebase.Analytics;
 public interface IFirebaseAnalytics : IDisposable
 {
     /// <summary>
-    /// Returns the unique ID for this instance of the application or null if ConsentType.analyticsStorage has been set to ConsentStatus.denied.
+    /// Returns the unique ID for this instance of the application or null if <see cref="ConsentType.AnalyticsStorage"/> has been set
+    /// to <see cref="ConsentStatus.Denied"/>.
     /// </summary>
     Task<string> GetAppInstanceIdAsync();
 
@@ -49,6 +50,12 @@ public interface IFirebaseAnalytics : IDisposable
     /// be used for parameter names.
     /// </param>
     void LogEvent(string eventName, params (string parameterName, object parameterValue)[] parameters);
+
+    /// <summary>
+    /// Sets the applicable end user consent state for this app on this device. Settings are persisted across app sessions.
+    /// </summary>
+    /// <param name="consentSettings">The consent type values to set. Omitting a consent type retains its previous status.</param>
+    void SetConsent(IDictionary<ConsentType, ConsentStatus> consentSettings);
 
     /// <summary>
     /// Sets the user ID property. This feature must be used in accordance with Google’s Privacy Policy

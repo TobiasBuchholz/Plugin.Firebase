@@ -166,13 +166,17 @@ public static class JavaObjectExtensions
             throw new InvalidOperationException("Could not create dictionary of type " + valueType);
         }
 
-        foreach(DictionaryEntry pair in @this) {
-            var key = ConvertToObject(keyType, pair.Key);
+        foreach(var rawKey in @this.Keys) {
+            if(rawKey is null) {
+                throw new ArgumentException("Dictionary contains a null key.");
+            }
+
+            var key = ConvertToObject(keyType, rawKey);
             if(key is null) {
                 throw new ArgumentException("Dictionary contains a null key.");
             }
 
-            var value = ConvertToObject(valueType, pair.Value);
+            var value = ConvertToObject(valueType, @this[rawKey]);
             dict[key] = value;
         }
         return dict;
@@ -181,13 +185,17 @@ public static class JavaObjectExtensions
     private static IDictionary<string, object?> ToDictionary(this IDictionary @this)
     {
         var dict = new Dictionary<string, object?>();
-        foreach(DictionaryEntry pair in @this) {
-            var key = pair.Key?.ToString();
+        foreach(var rawKey in @this.Keys) {
+            if(rawKey is null) {
+                throw new ArgumentException("Dictionary contains a null key.");
+            }
+
+            var key = rawKey.ToString();
             if(key is null) {
                 throw new ArgumentException("Dictionary contains a null key.");
             }
 
-            dict[key] = ConvertToObject(typeof(object), pair.Value);
+            dict[key] = ConvertToObject(typeof(object), @this[rawKey]);
         }
         return dict;
     }

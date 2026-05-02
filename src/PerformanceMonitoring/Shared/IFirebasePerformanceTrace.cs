@@ -58,7 +58,7 @@ public interface IFirebasePerformanceTrace
     /// </summary>
     /// <param name="attribute">The attribute name.</param>
     /// <returns>The attribute value.</returns>
-    string GetAttribute(string attribute);
+    string? GetAttribute(string attribute);
 
     /// <summary>
     /// Removes a trace attribute.

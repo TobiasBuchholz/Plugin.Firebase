@@ -60,7 +60,7 @@ public sealed class FirebasePerformanceTraceWrapper : IFirebasePerformanceTrace
     }
 
     /// <inheritdoc/>
-    public string GetAttribute(string attribute)
+    public string? GetAttribute(string attribute)
     {
         return _trace.GetValue(attribute);
     }

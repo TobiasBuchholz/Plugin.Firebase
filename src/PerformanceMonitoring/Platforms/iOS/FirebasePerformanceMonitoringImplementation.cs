@@ -27,13 +27,13 @@ public sealed class FirebasePerformanceMonitoringImplementation : DisposableBase
     /// <inheritdoc/>
     public IFirebasePerformanceTrace NewTrace(string traceName)
     {
-        return new FirebasePerformanceTraceWrapper(_instance.GetTrace(traceName));
+        return new FirebasePerformanceTraceWrapper(_instance.GetTrace(traceName)!);
     }
 
     /// <inheritdoc/>
     public IFirebasePerformanceTrace StartTrace(string traceName)
     {
-        return new FirebasePerformanceTraceWrapper(NativePerformance.StartTrace(traceName));
+        return new FirebasePerformanceTraceWrapper(NativePerformance.StartTrace(traceName)!);
     }
 
     /// <inheritdoc/>

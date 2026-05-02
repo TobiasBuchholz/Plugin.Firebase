@@ -55,7 +55,7 @@ public sealed class FirebasePerformanceHttpMetricWrapper : IFirebasePerformanceH
         _httpMetric.PutAttribute(attribute, value);
     }
 
-    public string GetAttribute(string attribute)
+    public string? GetAttribute(string attribute)
     {
         return _httpMetric.GetAttribute(attribute);
     }

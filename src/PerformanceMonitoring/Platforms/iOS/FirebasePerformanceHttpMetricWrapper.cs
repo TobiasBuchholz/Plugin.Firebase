@@ -63,7 +63,7 @@ public sealed class FirebasePerformanceHttpMetricWrapper : IFirebasePerformanceH
     }
 
     /// <inheritdoc/>
-    public string GetAttribute(string attribute)
+    public string? GetAttribute(string attribute)
     {
         return _httpMetric.GetValue(attribute);
     }

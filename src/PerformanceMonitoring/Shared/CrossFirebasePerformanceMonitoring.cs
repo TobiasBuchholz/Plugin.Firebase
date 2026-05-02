@@ -5,12 +5,12 @@ namespace Plugin.Firebase.PerformanceMonitoring;
 /// </summary>
 public sealed class CrossFirebasePerformanceMonitoring
 {
-    private static Lazy<IFirebasePerformanceMonitoring> _implementation = new Lazy<IFirebasePerformanceMonitoring>(
+    private static Lazy<IFirebasePerformanceMonitoring?> _implementation = new Lazy<IFirebasePerformanceMonitoring?>(
         CreateInstance,
         LazyThreadSafetyMode.PublicationOnly
     );
 
-    private static IFirebasePerformanceMonitoring CreateInstance()
+    private static IFirebasePerformanceMonitoring? CreateInstance()
     {
 #if IOS || ANDROID
         return new FirebasePerformanceMonitoringImplementation();
@@ -51,7 +51,7 @@ public sealed class CrossFirebasePerformanceMonitoring
     {
         if(_implementation != null && _implementation.IsValueCreated) {
             _implementation.Value?.Dispose();
-            _implementation = new Lazy<IFirebasePerformanceMonitoring>(
+            _implementation = new Lazy<IFirebasePerformanceMonitoring?>(
                 CreateInstance,
                 LazyThreadSafetyMode.PublicationOnly
             );

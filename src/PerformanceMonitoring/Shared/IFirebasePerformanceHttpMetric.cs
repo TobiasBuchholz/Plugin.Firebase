@@ -56,7 +56,7 @@ public interface IFirebasePerformanceHttpMetric
     /// </summary>
     /// <param name="attribute">The attribute name.</param>
     /// <returns>The attribute value.</returns>
-    string GetAttribute(string attribute);
+    string? GetAttribute(string attribute);
 
     /// <summary>
     /// Removes an HTTP metric attribute.

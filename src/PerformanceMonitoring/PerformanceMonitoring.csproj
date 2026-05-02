@@ -4,6 +4,8 @@
         <TargetFrameworks>net9.0;net9.0-android;net9.0-ios</TargetFrameworks>
         <SingleProject>true</SingleProject>
         <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
 
@@ -37,7 +39,7 @@
 
         <Owners>Tobias Buchholz</Owners>
         <Authors>Tobias Buchholz, Adam Essenmacher</Authors>
-        <Copyright>Copyright 2023</Copyright>
+        <Copyright>Copyright 2026</Copyright>
 
         <!--Version of C# to use -->
         <LangVersion>default</LangVersion>

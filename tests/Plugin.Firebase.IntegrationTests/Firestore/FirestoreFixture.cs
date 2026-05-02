@@ -610,6 +610,92 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         }
 
         [Fact]
+        public async Task reads_issue_422_crew_check_in_document()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var document = GetTestingDocument(sut, "issue-422-crew-check-in");
+            var timestamp = new DateTime(2025, 2, 27, 14, 48, 2, 625, DateTimeKind.Utc);
+            var logTimestamp = new DateTime(2025, 2, 27, 14, 49, 3, 123, DateTimeKind.Utc);
+            var assignedEquipment = new List<CrewCheckInAsset> {
+                new("bucket truck attachment", "Bucket Attachment", "Alice", "equipment")
+            };
+            var assignedVehicles = new List<CrewCheckInAsset> {
+                new("crew truck", "Truck 12", "Bob", "vehicle")
+            };
+            var yardAssets = new List<CrewCheckInAsset> {
+                new("crew truck", "Truck 12", "Bob", "vehicle"),
+                new("compressor", "Air Compressor", "Charlie", "equipment")
+            };
+            var crewCheckIn = new CrewCheckIn(
+                employees: new List<CrewCheckInEmployee> {
+                    new(
+                        "Ada Lovelace",
+                        "Foreman",
+                        7,
+                        new List<string> { "en", "de" },
+                        assignedEquipment,
+                        assignedVehicles,
+                        "07:30",
+                        "checked-in",
+                        "yard",
+                        new List<string> { "1001", "1002" },
+                        "ready")
+                },
+                yardAssets: yardAssets,
+                clockInTime: "07:30",
+                yardLocation: "north yard",
+                emergencyCheckIn: true,
+                removedAssets: new List<CrewCheckInRemovedAsset> {
+                    new("Spare Saw", "damaged chainsaw", "maintenance")
+                },
+                logEntries: new List<CrewCheckInLog> {
+                    new(logTimestamp, "created", "check-in created")
+                },
+                timestamp: timestamp);
+
+            await document.SetDataAsync(crewCheckIn);
+
+            var snapshot = await document.GetDocumentSnapshotAsync<CrewCheckIn>();
+
+            Assert.NotNull(snapshot.Data);
+            Assert.True(snapshot.Data.EmergencyCheckIn);
+            Assert.Equal("07:30", snapshot.Data.ClockInTime);
+            Assert.Equal("north yard", snapshot.Data.YardLocation);
+            Assert.InRange(Math.Abs(snapshot.Data.Timestamp.Ticks - timestamp.Ticks), 0, 10);
+
+            var employee = Assert.Single(snapshot.Data.Employees);
+            Assert.Equal("Ada Lovelace", employee.Name);
+            Assert.Equal("Foreman", employee.Clazz);
+            Assert.Equal(7, employee.Crew);
+            Assert.Equal(new[] { "en", "de" }, employee.Languages);
+            Assert.Equal(new[] { "1001", "1002" }, employee.JobNumbers);
+            Assert.Equal("yard", employee.WorkType);
+            Assert.Equal("ready", employee.Notes);
+
+            var equipment = Assert.Single(employee.AssignedEquipment);
+            Assert.Equal("Bucket Attachment", equipment.Name);
+            Assert.Equal("Alice", equipment.Operator);
+
+            var vehicle = Assert.Single(employee.AssignedVehicles);
+            Assert.Equal("Truck 12", vehicle.Name);
+            Assert.Equal("Bob", vehicle.Operator);
+
+            Assert.Equal(2, snapshot.Data.YardAssets.Count);
+            Assert.Equal("Truck 12", snapshot.Data.YardAssets[0].Name);
+            Assert.Equal("Air Compressor", snapshot.Data.YardAssets[1].Name);
+
+            var removedAsset = Assert.Single(snapshot.Data.RemovedAssets);
+            Assert.Equal("Spare Saw", removedAsset.AssetName);
+            Assert.Equal("damaged chainsaw", removedAsset.AssetDescription);
+            Assert.Equal("maintenance", removedAsset.Reason);
+
+            var log = Assert.Single(snapshot.Data.LogEntries);
+            Assert.Equal("created", log.Action);
+            Assert.Equal("check-in created", log.Message);
+            Assert.InRange(Math.Abs(log.Timestamp.Ticks - logTimestamp.Ticks), 0, 10);
+        }
+
+        [Fact]
         public async Task gets_real_time_updates_on_multiple_documents()
         {
             var sut = CrossFirebaseFirestore.Current;

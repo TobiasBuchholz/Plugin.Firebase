@@ -766,8 +766,14 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
 
             Assert.True(snapshot.Data.BooleanMaps["enabled"]);
             Assert.False(snapshot.Data.BooleanMaps["disabled"]);
-            Assert.Equal(expectedEarlyDate.ToUnixTimeMilliseconds(), snapshot.Data.DateMaps["early"].ToUnixTimeMilliseconds());
-            Assert.Equal(expectedLateDate.ToUnixTimeMilliseconds(), snapshot.Data.DateMaps["late"].ToUnixTimeMilliseconds());
+            Assert.InRange(
+                Math.Abs(snapshot.Data.DateMaps["early"].Ticks - expectedEarlyDate.Ticks),
+                0,
+                TimeSpan.FromMilliseconds(1).Ticks);
+            Assert.InRange(
+                Math.Abs(snapshot.Data.DateMaps["late"].Ticks - expectedLateDate.Ticks),
+                0,
+                TimeSpan.FromMilliseconds(1).Ticks);
         }
 
         [Fact]

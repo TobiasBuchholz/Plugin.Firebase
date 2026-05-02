@@ -59,6 +59,7 @@ public sealed class CrossFirebaseSettings
                $"{nameof(IsInstallationsEnabled)}={IsInstallationsEnabled}," +
                $"{nameof(IsRemoteConfigEnabled)}={IsRemoteConfigEnabled}," +
                $"{nameof(IsStorageEnabled)}={IsStorageEnabled}," +
+               $"{nameof(IsPerformanceMonitoringEnabled)}={IsPerformanceMonitoringEnabled}," +
                $"{nameof(AppCheckOptions)}={AppCheckOptions?.Provider}]";
     }
 
@@ -111,6 +112,11 @@ public sealed class CrossFirebaseSettings
     /// Gets whether Firebase Storage is enabled.
     /// </summary>
     public bool IsStorageEnabled { get; }
+
+    /// <summary>
+    /// Gets whether Firebase Performance Monitoring collection is enabled.
+    /// </summary>
+    public bool IsPerformanceMonitoringEnabled { get; init; }
 
     /// <summary>
     /// Gets the Google request ID token for Google Sign-In.

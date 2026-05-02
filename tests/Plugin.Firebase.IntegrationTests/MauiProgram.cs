@@ -133,7 +133,8 @@ public static class MauiProgram
                 isFunctionsEnabled: true,
                 isStorageEnabled: true,
                 appCheckOptions: AppCheckOptions.Disabled) {
-                IsInstallationsEnabled = true
+                IsInstallationsEnabled = true,
+                IsPerformanceMonitoringEnabled = true
             };
         }
 
@@ -150,7 +151,8 @@ public static class MauiProgram
             appCheckOptions: IntegrationTestEnvironment.ShouldRunAppCheckTokenTests
                 ? AppCheckOptions.Debug
                 : AppCheckOptions.Disabled) {
-            IsInstallationsEnabled = true
+            IsInstallationsEnabled = true,
+            IsPerformanceMonitoringEnabled = true
         };
     }
 

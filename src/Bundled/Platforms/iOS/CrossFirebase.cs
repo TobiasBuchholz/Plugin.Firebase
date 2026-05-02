@@ -3,6 +3,8 @@ using Plugin.Firebase.Bundled.Shared;
 using Plugin.Firebase.AppCheck;
 using Plugin.Firebase.CloudMessaging;
 using Plugin.Firebase.Crashlytics;
+using Plugin.Firebase.PerformanceMonitoring;
+using NativePerformance = Firebase.PerformanceMonitoring.Performance;
 
 namespace Plugin.Firebase.Bundled.Platforms.iOS;
 
@@ -31,6 +33,11 @@ public static class CrossFirebase
             }
         }
 
+        NativePerformance.SharedInstance.DataCollectionEnabled =
+            settings.IsPerformanceMonitoringEnabled;
+        NativePerformance.SharedInstance.InstrumentationEnabled =
+            settings.IsPerformanceMonitoringEnabled;
+
         Core.Platforms.iOS.CrossFirebase.Initialize(name, firebaseOptions);
 
         if(settings.IsCloudMessagingEnabled) {
@@ -40,6 +47,8 @@ public static class CrossFirebase
         CrossFirebaseCrashlytics.Current.SetCrashlyticsCollectionEnabled(
             settings.IsCrashlyticsEnabled
         );
+        CrossFirebasePerformanceMonitoring.Current.IsDataCollectionEnabled =
+            settings.IsPerformanceMonitoringEnabled;
 
         Console.WriteLine($"Plugin.Firebase initialized with the following settings:\n{settings}");
     }

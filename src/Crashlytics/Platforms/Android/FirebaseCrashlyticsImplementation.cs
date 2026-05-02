@@ -16,7 +16,7 @@ public sealed class FirebaseCrashlyticsImplementation : DisposableBase, IFirebas
 
     public void SetCrashlyticsCollectionEnabled(bool enabled)
     {
-        _instance.SetCrashlyticsCollectionEnabled(enabled);
+        _instance.SetCrashlyticsCollectionEnabled(Java.Lang.Boolean.ValueOf(enabled));
     }
 
     public void SetCustomKey(string key, bool value)

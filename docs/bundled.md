@@ -42,7 +42,8 @@ var settings = new CrossFirebaseSettings(
     isRemoteConfigEnabled: true,
     isStorageEnabled: true,
     googleRequestIdToken: "YOUR_GOOGLE_WEB_CLIENT_ID.apps.googleusercontent.com") {
-    IsInstallationsEnabled = true
+    IsInstallationsEnabled = true,
+    IsPerformanceMonitoringEnabled = true
 };
 
 #if IOS
@@ -53,6 +54,9 @@ CrossFirebase.Initialize(activity, () => Platform.CurrentActivity, settings);
 ```
 
 When `isAnalyticsEnabled` is `true`, the bundled package initializes Firebase Analytics automatically. Do not call `FirebaseAnalyticsImplementation.Initialize(activity)` separately when using this bundled initializer.
+
+### Performance Monitoring collection
+The Firebase Performance Monitoring SDK can automatically collect app start, screen rendering, and network data when it is linked into an app. `CrossFirebaseSettings.IsPerformanceMonitoringEnabled` controls runtime collection for the bundled package, but privacy-sensitive apps should also use Firebase's documented Android manifest and iOS plist disable keys before initialization if collection must be disabled before app startup.
 
 ## Release notes
 - Version 4.2.1

@@ -44,7 +44,76 @@ public sealed class HttpsCallableWrapper : IHttpsCallable
     /// <inheritdoc/>
     public async Task<TResponse> CallAsync<TResponse>(string dataJson = null)
     {
-        var result = await _httpsCallable.CallAsync(ConvertJsonToData(dataJson));
-        return JsonSerializer.Deserialize<TResponse>(result.Data.ToString());
+        var result = dataJson == null
+            ? await _httpsCallable.CallAsync()
+            : await _httpsCallable.CallAsync(ConvertJsonToData(dataJson));
+        return DeserializeResponse<TResponse>(result.Data);
+    }
+
+    private static TResponse DeserializeResponse<TResponse>(NSObject data)
+    {
+        if(data == null || data == NSNull.Null) {
+            return default;
+        }
+
+        if(data is NSString stringData) {
+            return DeserializeStringResponse<TResponse>(stringData.ToString());
+        }
+
+        var json = ConvertDataToJson(data);
+        if(json == null) {
+            return default;
+        }
+
+        if(typeof(TResponse) == typeof(string)) {
+            return (TResponse) (object) json;
+        }
+
+        return JsonSerializer.Deserialize<TResponse>(json);
+    }
+
+    private static TResponse DeserializeStringResponse<TResponse>(string value)
+    {
+        if(value == null) {
+            return default;
+        }
+
+        if(typeof(TResponse) == typeof(string)) {
+            return (TResponse) (object) value;
+        }
+
+        var json = IsJson(value)
+            ? value
+            : JsonSerializer.Serialize(value);
+        return JsonSerializer.Deserialize<TResponse>(json);
+    }
+
+    private static bool IsJson(string value)
+    {
+        try {
+            using var _ = JsonDocument.Parse(value);
+            return true;
+        } catch(JsonException) {
+            return false;
+        }
+    }
+
+    private static string ConvertDataToJson(NSObject data)
+    {
+        if(data == null || data == NSNull.Null) {
+            return null;
+        }
+
+        var jsonData = NSJsonSerialization.Serialize(
+            data,
+            NSJsonWritingOptions.FragmentsAllowed,
+            out var error);
+        if(error != null) {
+            throw new FirebaseException(error.LocalizedDescription);
+        }
+
+        return jsonData == null
+            ? null
+            : NSString.FromData(jsonData, NSStringEncoding.UTF8)?.ToString();
     }
 }

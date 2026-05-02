@@ -201,7 +201,9 @@ firebase emulators:exec --project demo-pluginfirebase-integrationtests --only au
 
 Default emulator ports are Auth `9099`, Firestore `8080`, Functions `5001`, and Storage `9199`. The app uses `localhost` on iOS and `10.0.2.2` on Android unless overridden with `PLUGIN_FIREBASE_<SERVICE>_EMULATOR_HOST` / `PLUGIN_FIREBASE_<SERVICE>_EMULATOR_PORT` or Android system properties such as `debug.pluginfirebase.auth.host`.
 
-Analytics, Remote Config, and App Check token tests are skipped on the emulator backend because Firebase does not provide local emulators for those products. Use the real backend below when validating them.
+Analytics, Remote Config, Performance Monitoring ingestion, and App Check token tests are skipped on the emulator backend because Firebase does not provide local emulators for those products. Use the real backend below when validating them.
+
+Performance Monitoring still runs wrapper contract tests on the default emulator-backed app because custom traces and HTTP metrics can be created with dummy Firebase options. Those tests validate the local SDK calls and wrapper behavior only; automated tests do not wait for traces or metrics to appear in the Firebase Console.
 
 The `.github/workflows/integration-emulators.yml` workflow runs the emulator-backed Android and iOS suites as PR-gated checks and still supports manual reruns with `workflow_dispatch`. Branch protection should require the `integration-emulators-android` and `integration-emulators-ios` checks.
 
@@ -395,6 +397,10 @@ App Check is disabled by default in the integration tests (`AppCheckOptions.Disa
 ### Installations (optional destructive)
 
 The Firebase Installations delete test is skipped by default. To run it, set `PLUGIN_FIREBASE_RUN_INSTALLATIONS_DELETE_TESTS=1`. This deletes the current Firebase installation ID and may affect other Firebase services tied to that installation.
+
+### Performance Monitoring
+
+Performance Monitoring real-backend tests are enabled by setting `PLUGIN_FIREBASE_TEST_BACKEND=real`. They validate that the configured Firebase project accepts custom trace and HTTP metric calls, but they do not assert Firebase Console ingestion because upload timing is controlled by the native SDK.
 
 ## Troubleshooting
 

@@ -39,6 +39,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.Firebase.UnitTests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Installations", "src\Installations\Installations.csproj", "{CAA956CC-1A22-4907-A170-A0B266496F55}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerformanceMonitoring", "src\PerformanceMonitoring\PerformanceMonitoring.csproj", "{D24103C4-6323-4068-A7FE-AB001A5730DD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -229,6 +231,18 @@ Global
 		{CAA956CC-1A22-4907-A170-A0B266496F55}.Release|x64.Build.0 = Release|Any CPU
 		{CAA956CC-1A22-4907-A170-A0B266496F55}.Release|x86.ActiveCfg = Release|Any CPU
 		{CAA956CC-1A22-4907-A170-A0B266496F55}.Release|x86.Build.0 = Release|Any CPU
+		{D24103C4-6323-4068-A7FE-AB001A5730DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D24103C4-6323-4068-A7FE-AB001A5730DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D24103C4-6323-4068-A7FE-AB001A5730DD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D24103C4-6323-4068-A7FE-AB001A5730DD}.Debug|x64.Build.0 = Debug|Any CPU
+		{D24103C4-6323-4068-A7FE-AB001A5730DD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D24103C4-6323-4068-A7FE-AB001A5730DD}.Debug|x86.Build.0 = Debug|Any CPU
+		{D24103C4-6323-4068-A7FE-AB001A5730DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D24103C4-6323-4068-A7FE-AB001A5730DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D24103C4-6323-4068-A7FE-AB001A5730DD}.Release|x64.ActiveCfg = Release|Any CPU
+		{D24103C4-6323-4068-A7FE-AB001A5730DD}.Release|x64.Build.0 = Release|Any CPU
+		{D24103C4-6323-4068-A7FE-AB001A5730DD}.Release|x86.ActiveCfg = Release|Any CPU
+		{D24103C4-6323-4068-A7FE-AB001A5730DD}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -245,5 +259,6 @@ Global
 		{807F8A49-EB98-4657-B8DC-CDFACB71692D} = {FD5845E5-6DE7-456C-AEF3-FCF0F678B7AB}
 		{511964CE-ECF1-4DD6-89A0-1CB58EA13CA1} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{CAA956CC-1A22-4907-A170-A0B266496F55} = {FD5845E5-6DE7-456C-AEF3-FCF0F678B7AB}
+		{D24103C4-6323-4068-A7FE-AB001A5730DD} = {FD5845E5-6DE7-456C-AEF3-FCF0F678B7AB}
 	EndGlobalSection
 EndGlobal

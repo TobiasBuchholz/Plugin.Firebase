@@ -243,20 +243,10 @@ public static class NSObjectExtensions
                 return new NSString(x);
             case int x:
                 return new NSNumber(x);
-            case uint x:
-                return new NSNumber(Convert.ToInt64(x));
             case long x:
                 return new NSNumber(x);
-            case ulong x:
-                return new NSNumber(Convert.ToInt64(x));
             case short x:
                 return new NSNumber(x);
-            case ushort x:
-                return new NSNumber(Convert.ToInt64(x));
-            case byte x:
-                return new NSNumber(Convert.ToInt64(x));
-            case sbyte x:
-                return new NSNumber(Convert.ToInt64(x));
             case float x:
                 return new NSNumber(x);
             case double x:
@@ -269,8 +259,6 @@ public static class NSObjectExtensions
                 return x.ToNSDate();
             case FieldValue x:
                 return x.ToNative();
-            case Plugin.Firebase.Firestore.GeoPoint x:
-                return new global::Firebase.CloudFirestore.GeoPoint(x.Latitude, x.Longitude);
             case IList x:
                 return x.ToNSArray();
             case IDictionary x:

@@ -57,26 +57,11 @@ public static class DictionaryExtensions
             case long x:
                 @this.Put(key.ToString(), x);
                 break;
-            case ulong x:
-                @this.Put(key.ToString(), Convert.ToInt64(x));
-                break;
             case int x:
                 @this.Put(key.ToString(), x);
                 break;
-            case uint x:
-                @this.Put(key.ToString(), Convert.ToInt64(x));
-                break;
             case short x:
-                @this.Put(key.ToString(), Convert.ToInt64(x));
-                break;
-            case ushort x:
-                @this.Put(key.ToString(), Convert.ToInt64(x));
-                break;
-            case byte x:
-                @this.Put(key.ToString(), Convert.ToInt64(x));
-                break;
-            case sbyte x:
-                @this.Put(key.ToString(), Convert.ToInt64(x));
+                @this.Put(key.ToString(), x);
                 break;
             case string x:
                 @this.Put(key.ToString(), x);

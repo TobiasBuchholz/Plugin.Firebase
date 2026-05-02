@@ -25,20 +25,8 @@ public static class JavaObjectExtensions
                 return x;
             case int x:
                 return x;
-            case uint x:
-                return Convert.ToInt64(x);
-            case short x:
-                return Convert.ToInt64(x);
-            case ushort x:
-                return Convert.ToInt64(x);
-            case byte x:
-                return Convert.ToInt64(x);
-            case sbyte x:
-                return Convert.ToInt64(x);
             case long x:
                 return x;
-            case ulong x:
-                return Convert.ToInt64(x);
             case float x:
                 return x;
             case double x:
@@ -67,8 +55,6 @@ public static class JavaObjectExtensions
                 return x.ToJavaList();
             case DocumentReferenceWrapper x:
                 return x.Wrapped;
-            case GeoPoint x:
-                return new global::Firebase.Firestore.GeoPoint(x.Latitude, x.Longitude);
             case IFirestoreObject x:
                 return x.ToJavaObject();
             default:

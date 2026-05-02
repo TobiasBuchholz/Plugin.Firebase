@@ -36,10 +36,9 @@ public sealed class CollectionReferenceWrapper : QueryWrapper, ICollectionRefere
     /// <inheritdoc/>
     public async Task<IDocumentReference> AddDocumentAsync(object data)
     {
-        var nativeData = data.ToDictionary().ToNSObjectDictionary();
         var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         var documentReference = _wrapped.AddDocument(
-            nativeData,
+            data.ToDictionary().ToNSObjectDictionary(),
             error => {
                 if(error == null) {
                     tcs.TrySetResult();

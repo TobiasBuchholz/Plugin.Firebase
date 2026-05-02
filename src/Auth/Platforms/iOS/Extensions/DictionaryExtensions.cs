@@ -24,6 +24,23 @@ public static class DictionaryExtensions
         return dict!;
     }
 
+    internal static object ToDictionaryObject(this NSDictionary @this, Type? targetType)
+    {
+        if(targetType == null || targetType == typeof(object)) {
+            return @this.ToDictionary();
+        }
+
+        if(targetType.IsGenericType && (
+            targetType.GetGenericTypeDefinition() == typeof(IDictionary<,>) ||
+            targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>)
+        )) {
+            var types = targetType.GenericTypeArguments;
+            return @this.ToDictionary(types[0], types[1]);
+        }
+
+        return @this.ToDictionary();
+    }
+
     /// <summary>
     /// Converts a typed NSDictionary to a .NET dictionary with string keys and object values.
     /// </summary>

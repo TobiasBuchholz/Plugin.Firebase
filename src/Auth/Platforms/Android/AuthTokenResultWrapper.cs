@@ -14,7 +14,7 @@ public sealed class AuthTokenResultWrapper : IAuthTokenResult
 
     public T GetClaim<T>(string key)
     {
-        return (T) _wrapped.Claims[key].ToObject(typeof(T));
+        return (T) _wrapped.Claims[key].ToObject(typeof(T))!;
     }
 
     public DateTimeOffset AuthDate => DateTimeOffset.FromUnixTimeSeconds(_wrapped.AuthTimestamp);

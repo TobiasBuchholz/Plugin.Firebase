@@ -40,6 +40,7 @@ View the [v4.0 pull request](https://github.com/TobiasBuchholz/Plugin.Firebase/p
 | [Firestore](https://firebase.google.com/docs/firestore)                         | [Plugin.Firebase.Firestore](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/firestore.md)            | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.firestore.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Firestore/)           |
 | [Cloud Functions](https://firebase.google.com/docs/functions)                   | [Plugin.Firebase.Functions](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/functions.md)            | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.functions.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Functions/)           |
 | [Installations](https://firebase.google.com/docs/projects/manage-installations) | [Plugin.Firebase.Installations](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/installations.md)    | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.installations.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Installations/)   |
+| [Performance Monitoring](https://firebase.google.com/docs/perf-mon)             | [Plugin.Firebase.PerformanceMonitoring](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/performance_monitoring.md) | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.performancemonitoring.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.PerformanceMonitoring/) |
 | [Remote Config](https://firebase.google.com/docs/remote-config)                 | [Plugin.Firebase.RemoteConfig](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/remote_config.md)     | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.remoteconfig.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.RemoteConfig/)     |
 | [Storage](https://firebase.google.com/docs/storage)                             | [Plugin.Firebase.Storage](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/storage.md)                | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.storage.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Storage/)               |
 | All in one                                                                      | [Plugin.Firebase](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/bundled.md)                        | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase/)                               |
@@ -74,12 +75,13 @@ When selecting package versions for iOS, best practice is to make sure that the 
 - AdamE.Firebase.iOS.Firestore
 - AdamE.Firebase.iOS.Functions
 - AdamE.Firebase.iOS.Installations
+- AdamE.Firebase.iOS.PerformanceMonitoring
 - AdamE.Firebase.iOS.RemoteConfig
 - AdamE.Firebase.iOS.Storage
 
 #### Android Dependencies
 
-When selecting package versions for Android, best practice is to [choose a Firebase BoM](https://firebase.google.com/support/release-notes/android) and select matching package versions for each dependency. As examples, if you wish to use BoM version 33.8.0, then you would want to select Xamarin.Firebase.Analytics v122.2.0 and Xamarin.Firebase.Auth v123.1.0.
+When selecting package versions for Android, best practice is to [choose a Firebase BoM](https://firebase.google.com/support/release-notes/android) and select matching package versions for each dependency. As examples, if you wish to use BoM version 33.0.0, then you would want to select Xamarin.Firebase.Auth v123.0.0 and Xamarin.Firebase.Perf v121.0.0. Microsoft does not publish a Xamarin.Firebase.Analytics binding for native firebase-analytics v22.0.0; the earliest available 22.0.x binding is Xamarin.Firebase.Analytics v122.0.2.
 
 Plugin.Firebase 4.x defaults to Firebase BoM 33.0 as its minimum Android Firebase SDK line. Newer BoM lines, such as BoM 34.x / Crashlytics 20.x, should be adopted intentionally across the full Android Firebase dependency set rather than by upgrading one `Xamarin.Firebase.*` package in isolation.
 
@@ -92,6 +94,7 @@ Plugin.Firebase 4.x defaults to Firebase BoM 33.0 as its minimum Android Firebas
 - Xamarin.Firebase.Firestore
 - Xamarin.Firebase.Functions
 - Xamarin.Firebase.Installations
+- Xamarin.Firebase.Perf
 - Xamarin.Firebase.Config
 - Xamarin.Firebase.Storage
 

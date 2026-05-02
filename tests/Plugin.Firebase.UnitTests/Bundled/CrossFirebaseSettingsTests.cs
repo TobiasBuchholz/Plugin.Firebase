@@ -34,4 +34,24 @@ public class CrossFirebaseSettingsTests
 
         Assert.True(settings.IsInstallationsEnabled);
     }
+
+    [Fact]
+    public void enables_performance_monitoring_via_initializer()
+    {
+        var settings = new CrossFirebaseSettings {
+            IsPerformanceMonitoringEnabled = true
+        };
+
+        Assert.True(settings.IsPerformanceMonitoringEnabled);
+    }
+
+    [Fact]
+    public void to_string_includes_performance_monitoring_flag()
+    {
+        var settings = new CrossFirebaseSettings {
+            IsPerformanceMonitoringEnabled = true
+        };
+
+        Assert.Contains("IsPerformanceMonitoringEnabled=True", settings.ToString());
+    }
 }

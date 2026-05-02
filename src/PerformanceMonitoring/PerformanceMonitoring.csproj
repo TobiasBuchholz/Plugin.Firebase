@@ -4,12 +4,14 @@
         <TargetFrameworks>net9.0;net9.0-android;net9.0-ios</TargetFrameworks>
         <SingleProject>true</SingleProject>
         <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
 
         <!--Assembly and Namespace info -->
-        <AssemblyName>Plugin.Firebase</AssemblyName>
-        <RootNamespace>Plugin.Firebase</RootNamespace>
+        <AssemblyName>Plugin.Firebase.PerformanceMonitoring</AssemblyName>
+        <RootNamespace>Plugin.Firebase.PerformanceMonitoring</RootNamespace>
 
         <Product>$(AssemblyName) ($(TargetFramework))</Product>
         <NeutralLanguage>en</NeutralLanguage>
@@ -21,26 +23,27 @@
         <DefineConstants>$(DefineConstants);</DefineConstants>
 
         <!--Assembly and Namespace info -->
-        <PackageId>Plugin.Firebase</PackageId>
-        <PackageVersion>4.2.1</PackageVersion>
+        <PackageId>Plugin.Firebase.PerformanceMonitoring</PackageId>
+        <PackageVersion>4.0.0</PackageVersion>
 
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/TobiasBuchholz/Plugin.Firebase</PackageProjectUrl>
         <RepositoryUrl>https://github.com/TobiasBuchholz/Plugin.Firebase</RepositoryUrl>
         <PackageIcon>icon.png</PackageIcon>
         <PackageTags>xamarin, ios, android</PackageTags>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageReadmeFile>performance_monitoring.md</PackageReadmeFile>
 
         <Title>Plugin.Firebase</Title>
         <Summary>Xamarin wrapper around the native Android and iOS Firebase SDKs.</Summary>
-        <Description>The plugin includes cross-platform APIs for Firebase Analytics, Auth, Cloud Messaging, Crashlytics, Dynamic Links, Firestore, Cloud Functions, Installations, Performance Monitoring, Remote Config and Storage.</Description>
+        <Description>The plugin includes cross-platform APIs for Firebase Performance Monitoring.</Description>
 
         <Owners>Tobias Buchholz</Owners>
-        <Authors>Tobias Buchholz</Authors>
-        <Copyright>Copyright 2023</Copyright>
+        <Authors>Tobias Buchholz, Adam Essenmacher</Authors>
+        <Copyright>Copyright 2026</Copyright>
 
         <!--Version of C# to use -->
         <LangVersion>default</LangVersion>
+        <XamarinAndroidXLifecycleProcessVersion Condition="'$(XamarinAndroidXLifecycleProcessVersion)' == ''">2.8.7.4</XamarinAndroidXLifecycleProcessVersion>
     </PropertyGroup>
 
     <!-- Define what happens on build and release -->
@@ -54,10 +57,6 @@
         <DebugType>pdbonly</DebugType>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
-    
-    <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
-        <FirebaseCrashlyticsUploadSymbolsEnabled>false</FirebaseCrashlyticsUploadSymbolsEnabled>
-    </PropertyGroup>
 
     <ItemGroup>
         <!-- This None is here so the conditionally included files show up in the Solution Explorer -->
@@ -65,8 +64,7 @@
         <None Remove=".vs\**" />
         <None Remove=".idea\**" />
         <None Include="..\..\art\icon.png" Pack="true" PackagePath="" />
-        <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
-
+        <None Include="..\..\docs\performance_monitoring.md" Pack="true" PackagePath="\" />
         <Compile Include="Shared\**\*.cs" />
     </ItemGroup>
 
@@ -80,17 +78,18 @@
 
     <!-- project references -->
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Analytics\Analytics.csproj" />
-        <ProjectReference Include="..\..\src\AppCheck\AppCheck.csproj" />
-        <ProjectReference Include="..\..\src\Auth\Auth.csproj" />
-        <ProjectReference Include="..\..\src\CloudMessaging\CloudMessaging.csproj" />
-        <ProjectReference Include="..\..\src\Core\Core.csproj" />
-        <ProjectReference Include="..\..\src\Crashlytics\Crashlytics.csproj" />
-        <ProjectReference Include="..\..\src\Firestore\Firestore.csproj" />
-        <ProjectReference Include="..\..\src\Functions\Functions.csproj" />
-        <ProjectReference Include="..\..\src\Installations\Installations.csproj" />
-        <ProjectReference Include="..\..\src\PerformanceMonitoring\PerformanceMonitoring.csproj" />
-        <ProjectReference Include="..\..\src\RemoteConfig\RemoteConfig.csproj" />
-        <ProjectReference Include="..\..\src\Storage\Storage.csproj" />
+        <ProjectReference Include="..\Core\Core.csproj" />
     </ItemGroup>
+
+    <!-- nuget packages -->
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+        <PackageReference Include="Xamarin.Firebase.Perf" Version="121.0.0" />
+        <!-- Xamarin.Firebase.Perf 121.0.0 maps to Firebase Android BoM 33.0.0. The Lifecycle.Process pin aligns AndroidX transitive dependencies without changing Firebase versions. -->
+        <PackageReference Include="Xamarin.AndroidX.Lifecycle.Process" Version="$(XamarinAndroidXLifecycleProcessVersion)" />
+    </ItemGroup>
+
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+        <PackageReference Include="AdamE.Firebase.iOS.PerformanceMonitoring" Version="[12.7.0,)" />
+    </ItemGroup>
+
 </Project>

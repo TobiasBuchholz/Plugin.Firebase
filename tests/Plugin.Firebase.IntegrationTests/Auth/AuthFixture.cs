@@ -35,6 +35,20 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         }
 
         [Fact]
+        public async Task sign_in_with_email_and_password_creates_user_automatically()
+        {
+            var sut = CrossFirebaseAuth.Current;
+            var email = CreateUniqueEmail("auto-create-sign-in");
+
+            var user = await sut.SignInWithEmailAndPasswordAsync(email, "123456");
+
+            Assert.NotNull(sut.CurrentUser);
+            Assert.Equal(email, user.Email);
+            Assert.Equal(email, sut.CurrentUser.Email);
+            Assert.Equal(user.Uid, sut.CurrentUser.Uid);
+        }
+
+        [Fact]
         public async Task throws_error_if_credentials_are_invalid_when_signing_in_user_via_email_and_password()
         {
             var sut = CrossFirebaseAuth.Current;
@@ -66,6 +80,23 @@ namespace Plugin.Firebase.IntegrationTests.Auth
             Assert.NotNull(user);
             Assert.NotNull(sut.CurrentUser);
             Assert.True(user.IsAnonymous);
+        }
+
+        [Fact]
+        public async Task links_anonymous_user_with_email_and_password()
+        {
+            var sut = CrossFirebaseAuth.Current;
+            var anonymousUser = await sut.SignInAnonymouslyAsync();
+            var email = CreateUniqueEmail("link-anonymous");
+
+            var linkedUser = await sut.LinkWithEmailAndPasswordAsync(email, "123456");
+
+            Assert.Equal(anonymousUser.Uid, linkedUser.Uid);
+            Assert.Equal(anonymousUser.Uid, sut.CurrentUser.Uid);
+            Assert.False(linkedUser.IsAnonymous);
+            Assert.False(sut.CurrentUser.IsAnonymous);
+            Assert.Equal(email, linkedUser.Email);
+            Assert.Equal(email, sut.CurrentUser.Email);
         }
 
         [Fact]
@@ -160,6 +191,26 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         }
 
         [Fact]
+        public async Task sends_password_reset_email_for_current_user()
+        {
+            var sut = CrossFirebaseAuth.Current;
+            var email = CreateUniqueEmail("pw-reset-current");
+            await sut.SignInWithEmailAndPasswordAsync(email, "123456");
+
+            await sut.SendPasswordResetEmailAsync();
+        }
+
+        [Fact]
+        public async Task sends_password_reset_email_for_explicit_email()
+        {
+            var sut = CrossFirebaseAuth.Current;
+            var email = CreateUniqueEmail("pw-reset-explicit");
+            await sut.SignInWithEmailAndPasswordAsync(email, "123456");
+
+            await sut.SendPasswordResetEmailAsync(email);
+        }
+
+        [Fact]
         public async Task reloads_current_user()
         {
             var sut = CrossFirebaseAuth.Current;
@@ -174,6 +225,34 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         }
 
         [Fact]
+        public async Task invokes_auth_state_listener_on_sign_in_and_sign_out()
+        {
+            var sut = CrossFirebaseAuth.Current;
+            var email = CreateUniqueEmail("auth-state");
+            await sut.CreateUserAsync(email, "123456");
+            await sut.SignOutAsync();
+            var sawSignedIn = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var sawSignedOutAfterSignIn = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            using var listener = sut.AddAuthStateListener(auth => {
+                if(auth.CurrentUser != null) {
+                    sawSignedIn.TrySetResult(true);
+                } else if(sawSignedIn.Task.IsCompleted) {
+                    sawSignedOutAfterSignIn.TrySetResult(true);
+                }
+            });
+
+            await sut.SignInWithEmailAndPasswordAsync(email, "123456", createsUserAutomatically: false);
+            await sawSignedIn.Task.WaitAsync(TimeSpan.FromSeconds(10));
+
+            await sut.SignOutAsync();
+            await sawSignedOutAfterSignIn.Task.WaitAsync(TimeSpan.FromSeconds(10));
+
+            await sut.SignInWithEmailAndPasswordAsync(email, "123456", createsUserAutomatically: false);
+            await sut.CurrentUser.DeleteAsync();
+        }
+
+        [Fact]
         public async Task sets_language_code()
         {
             var sut = CrossFirebaseAuth.Current;
@@ -184,6 +263,21 @@ namespace Plugin.Firebase.IntegrationTests.Auth
                 sut.UseAppLanguage();
             });
             Assert.Null(ex);
+        }
+
+        [Fact]
+        public async Task exposes_user_metadata_and_provider_infos_after_sign_in()
+        {
+            var sut = CrossFirebaseAuth.Current;
+            var email = CreateUniqueEmail("user-metadata");
+            var user = await sut.SignInWithEmailAndPasswordAsync(email, "123456");
+
+            Assert.False(string.IsNullOrWhiteSpace(user.ProviderId));
+            Assert.NotNull(user.ProviderInfos);
+            Assert.Contains(user.ProviderInfos, x => x.Email == email);
+            Assert.NotNull(user.Metadata);
+            Assert.NotEqual(default, user.Metadata.CreationDate);
+            Assert.NotEqual(default, user.Metadata.LastSignInDate);
         }
 
         [Fact]
@@ -208,6 +302,23 @@ namespace Plugin.Firebase.IntegrationTests.Auth
             Assert.True(idTokenResult.GetClaim<bool>("is_awesome"));
         }
 
+        [Fact]
+        public async Task exposes_id_token_metadata()
+        {
+            var sut = CrossFirebaseAuth.Current;
+            var email = CreateUniqueEmail("token-metadata");
+            var user = await sut.SignInWithEmailAndPasswordAsync(email, "123456");
+
+            var idTokenResult = await user.GetIdTokenResultAsync();
+
+            Assert.False(string.IsNullOrWhiteSpace(idTokenResult.Token));
+            Assert.NotNull(idTokenResult.Claims);
+            Assert.NotEmpty(idTokenResult.Claims);
+            Assert.NotEqual(default, idTokenResult.AuthDate);
+            Assert.NotEqual(default, idTokenResult.IssuedAtDate);
+            Assert.NotEqual(default, idTokenResult.ExpirationDate);
+        }
+
         public async Task DisposeAsync()
         {
             var sut = CrossFirebaseAuth.Current;
@@ -222,6 +333,11 @@ namespace Plugin.Firebase.IntegrationTests.Auth
             Assert.NotNull(exception.InnerException);
             Assert.False(string.IsNullOrWhiteSpace(exception.NativeExceptionTypeName));
             Assert.False(string.IsNullOrWhiteSpace(exception.NativeErrorMessage));
+        }
+
+        private static string CreateUniqueEmail(string prefix)
+        {
+            return $"{prefix}-{Guid.NewGuid():N}@test.com";
         }
     }
 }

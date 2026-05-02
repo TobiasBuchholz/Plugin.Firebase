@@ -39,4 +39,19 @@ public static class DictionaryExtensions
         }
         return dict;
     }
+
+    /// <summary>
+    /// Converts an untyped NSDictionary to a .NET dictionary with string keys and object values.
+    /// </summary>
+    /// <param name="this">The NSDictionary to convert.</param>
+    /// <returns>A .NET dictionary containing the converted key-value pairs.</returns>
+    public static IDictionary<string, object> ToDictionary(this NSDictionary @this)
+    {
+        var dict = new Dictionary<string, object>();
+        foreach(NSString key in @this.Keys) {
+            var value = @this.ObjectForKey(key);
+            dict[key.ToString()] = value?.ToObject()!;
+        }
+        return dict;
+    }
 }

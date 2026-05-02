@@ -34,6 +34,62 @@ public sealed class HttpsCallableWrapper : IHttpsCallable
     public async Task<TResponse> CallAsync<TResponse>(string dataJson = null)
     {
         var result = await _httpsCallable.Call(ConvertJsonToData(dataJson)).AsAsync<HttpsCallableResult>();
-        return JsonSerializer.Deserialize<TResponse>(result.Data.ToString());
+        return DeserializeResponse<TResponse>(result.Data);
+    }
+
+    private static TResponse DeserializeResponse<TResponse>(Java.Lang.Object data)
+    {
+        if(data == null) {
+            return default;
+        }
+
+        if(data is Java.Lang.String stringData) {
+            return DeserializeStringResponse<TResponse>(stringData.ToString());
+        }
+
+        var json = ConvertDataToJson(data);
+        if(json == null) {
+            return default;
+        }
+
+        if(typeof(TResponse) == typeof(string)) {
+            return (TResponse) (object) json;
+        }
+
+        return JsonSerializer.Deserialize<TResponse>(json);
+    }
+
+    private static TResponse DeserializeStringResponse<TResponse>(string value)
+    {
+        if(value == null) {
+            return default;
+        }
+
+        if(typeof(TResponse) == typeof(string)) {
+            return (TResponse) (object) value;
+        }
+
+        var json = IsJson(value)
+            ? value
+            : JsonSerializer.Serialize(value);
+        return JsonSerializer.Deserialize<TResponse>(json);
+    }
+
+    private static bool IsJson(string value)
+    {
+        try {
+            using var _ = JsonDocument.Parse(value);
+            return true;
+        } catch(JsonException) {
+            return false;
+        }
+    }
+
+    private static string ConvertDataToJson(Java.Lang.Object data)
+    {
+        return data switch {
+            null => null,
+            _ => new Gson().ToJson(data)
+        };
     }
 }

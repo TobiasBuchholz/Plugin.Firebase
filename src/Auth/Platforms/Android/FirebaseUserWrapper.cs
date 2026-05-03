@@ -32,6 +32,17 @@ public sealed class FirebaseUserWrapper : IFirebaseUser, IUserProfileChangeReque
         return FirebaseAuthExceptionFactory.Wrap(() => _wrapped.UpdatePasswordAsync(password));
     }
 
+    public Task ReauthenticateWithEmailAndPasswordAsync(string email, string password)
+    {
+        var credential = EmailAuthProvider.GetCredential(email, password);
+        return FirebaseAuthExceptionFactory.Wrap(() => _wrapped.ReauthenticateAsync(credential));
+    }
+
+    public Task ReloadAsync()
+    {
+        return FirebaseAuthExceptionFactory.Wrap(() => _wrapped.ReloadAsync());
+    }
+
     public Task UpdatePhoneNumberAsync(string verificationId, string smsCode)
     {
         return FirebaseAuthExceptionFactory.Wrap(

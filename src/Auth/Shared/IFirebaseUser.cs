@@ -21,6 +21,18 @@ public interface IFirebaseUser
     Task UpdatePasswordAsync(string password);
 
     /// <summary>
+    /// Reauthenticates the user with an email address and password.
+    /// </summary>
+    /// <param name="email">The user’s email address.</param>
+    /// <param name="password">The user’s password.</param>
+    Task ReauthenticateWithEmailAndPasswordAsync(string email, string password);
+
+    /// <summary>
+    /// Reloads the user from the backend.
+    /// </summary>
+    Task ReloadAsync();
+
+    /// <summary>
     /// Updates the phone number for the user. On success, the cached user profile data is updated.
     /// </summary>
     /// <param name="verificationId">A valid verificationId retrieved by calling VerifyPhoneNumber().</param>

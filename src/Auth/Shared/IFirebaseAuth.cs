@@ -109,6 +109,7 @@ public interface IFirebaseAuth : IDisposable
     /// Reloads the currently signed in user from the backend.
     /// </summary>
     /// <exception cref="Plugin.Firebase.Core.Exceptions.FirebaseException">Thrown when no user is signed in.</exception>
+    [Obsolete("Use CurrentUser.ReloadAsync() after checking CurrentUser is not null.")]
     Task ReloadCurrentUserAsync();
 
     /// <summary>

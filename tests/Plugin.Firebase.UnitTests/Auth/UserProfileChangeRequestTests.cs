@@ -91,6 +91,11 @@ public class UserProfileChangeRequestTests
 
         public Task UpdatePasswordAsync(string password) => Task.CompletedTask;
 
+        public Task ReauthenticateWithEmailAndPasswordAsync(string email, string password) =>
+            Task.CompletedTask;
+
+        public Task ReloadAsync() => Task.CompletedTask;
+
         public Task UpdatePhoneNumberAsync(string verificationId, string smsCode) => Task.CompletedTask;
 
 #pragma warning disable CS0618

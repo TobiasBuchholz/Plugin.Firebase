@@ -90,6 +90,23 @@ The legacy `UpdateProfileAsync(string? displayName = "", string? photoUrl = "")`
 Set `LanguageCode = "fr"` (or any BCP-47 code) before invoking an Auth flow that triggers user-facing content such as password-reset emails, email-verification emails, or phone-auth SMS.
 Call `UseAppLanguage()` to reset to the app language.
 
+## User reauthentication and reload
+
+Call `CurrentUser.ReauthenticateWithEmailAndPasswordAsync(email, password)` before sensitive email/password user operations that require recent authentication.
+Call `CurrentUser.ReloadAsync()` to refresh that user from the backend. This is the preferred thin-wrapper API because Firebase exposes reload on the user object.
+
+For example, after sending an email-verification message, reload the user before reading `IsEmailVerified` again:
+
+```csharp
+var user = CrossFirebaseAuth.Current.CurrentUser;
+if(user is not null) {
+    await user.ReloadAsync();
+    var isVerified = user.IsEmailVerified;
+}
+```
+
+`ReloadCurrentUserAsync()` remains available for existing code, but is obsolete. New code should prefer `CurrentUser.ReloadAsync()` after checking `CurrentUser` is not `null`.
+
 ## Error handling
 
 Native Firebase Auth failures are wrapped in `CrossPlatformFirebaseAuthException`. The wrapper preserves the original native exception in `InnerException` and exposes stable inspection fields for the native exception type, domain, code, and message.
@@ -124,6 +141,9 @@ In v5:
 - `SignOutAsync()` now follows the same unified exception model when the underlying native Auth SDK reports a failure.
 
 ## Release notes
+- Next
+  - Add email/password user reauthentication and user-level reload APIs.
+  - Mark `ReloadCurrentUserAsync()` obsolete; use `CurrentUser.ReloadAsync()` after checking `CurrentUser` is not `null`.
 - Version 5.0.1
   - Fix for wrong Core project version dependency at nuget.org
 - Version 5.0.0

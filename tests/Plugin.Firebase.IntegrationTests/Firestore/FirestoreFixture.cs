@@ -831,6 +831,38 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         }
 
         [Fact]
+        public async Task round_trips_typed_boolean_and_datetime_map_values()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+            var document = GetTestingDocument(sut, "typed-boolean-and-datetime-map-values");
+            var expectedEarlyDate = new DateTimeOffset(2026, 5, 2, 13, 14, 15, 123, TimeSpan.Zero);
+            var expectedLateDate = new DateTimeOffset(2026, 5, 3, 16, 17, 18, 456, TimeSpan.Zero);
+
+            await document.SetDataAsync(new TypedMapValuesDocument(
+                new Dictionary<string, bool> {
+                    { "enabled", true },
+                    { "disabled", false }
+                },
+                new Dictionary<string, DateTimeOffset> {
+                    { "early", expectedEarlyDate },
+                    { "late", expectedLateDate }
+                }));
+
+            var snapshot = await document.GetDocumentSnapshotAsync<TypedMapValuesDocument>(Source.Server);
+
+            Assert.True(snapshot.Data.BooleanMaps["enabled"]);
+            Assert.False(snapshot.Data.BooleanMaps["disabled"]);
+            Assert.InRange(
+                Math.Abs(snapshot.Data.DateMaps["early"].Ticks - expectedEarlyDate.Ticks),
+                0,
+                TimeSpan.FromMilliseconds(1).Ticks);
+            Assert.InRange(
+                Math.Abs(snapshot.Data.DateMaps["late"].Ticks - expectedLateDate.Ticks),
+                0,
+                TimeSpan.FromMilliseconds(1).Ticks);
+        }
+
+        [Fact]
         public async Task reads_ios_dictionary_object_numeric_and_boolean_values()
         {
             if(!OperatingSystem.IsIOS()) {
@@ -1771,6 +1803,29 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         private ICollectionReference GetTestingCollection(IFirebaseFirestore firestore)
         {
             return firestore.GetCollection(_testingCollectionPath);
+        }
+
+        [Preserve(AllMembers = true)]
+        private sealed class TypedMapValuesDocument : IFirestoreObject
+        {
+            public TypedMapValuesDocument()
+            {
+                // needed for firestore
+            }
+
+            public TypedMapValuesDocument(
+                Dictionary<string, bool> booleanMaps,
+                Dictionary<string, DateTimeOffset> dateMaps)
+            {
+                BooleanMaps = booleanMaps;
+                DateMaps = dateMaps;
+            }
+
+            [FirestoreProperty("boolean_maps")]
+            public Dictionary<string, bool> BooleanMaps { get; private set; }
+
+            [FirestoreProperty("date_maps")]
+            public Dictionary<string, DateTimeOffset> DateMaps { get; private set; }
         }
 
         [Preserve(AllMembers = true)]

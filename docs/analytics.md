@@ -72,6 +72,26 @@ Since code should be documenting itself you can also take a look at the followin
 - [src/.../IFirebaseAnalytics.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Analytics/Shared/IFirebaseAnalytics.cs)
 - [tests/.../AnalyticsFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Analytics/AnalyticsFixture.cs)
 
+### Default event parameters
+
+Default event parameters are included with every subsequent event. Event-specific parameters take precedence when they use the
+same name.
+
+```c#
+var analytics = CrossFirebaseAnalytics.Current;
+
+analytics.SetDefaultEventParameters(
+    ("app_theme", "dark"),
+    ("screen_depth", 3L),
+    ("cart_value", 13.37));
+
+analytics.LogEvent("screen_view");
+
+analytics.SetDefaultEventParameters((IDictionary<string, object>) null);
+```
+
+Passing a typed null to the dictionary overload clears all default event parameters.
+
 ## Release notes
 - Version 3.1.2
   - Add collections support for Analytics (PR #432)

@@ -52,6 +52,30 @@ public interface IFirebaseAnalytics : IDisposable
     void LogEvent(string eventName, params (string parameterName, object parameterValue)[] parameters);
 
     /// <summary>
+    /// Sets parameters that are included with every subsequent event. Event-specific parameters take precedence when they use
+    /// the same name. Passing null clears all default event parameters.
+    /// </summary>
+    /// <param name="parameters">
+    /// The dictionary of default event parameters. Parameter names can be up to 40 characters long and must start with an
+    /// alphabetic character and contain only alphanumeric characters and underscores. Only NSString and NSNumber (signed 64-bit
+    /// integer and 64-bit floating-point number) parameter types are supported. NSString parameter values can be up to 100
+    /// characters long. The “firebase_”, “google_”, and “ga_” prefixes are reserved and should not be used for parameter names.
+    /// </param>
+    void SetDefaultEventParameters(IDictionary<string, object> parameters);
+
+    /// <summary>
+    /// Sets parameters that are included with every subsequent event. Event-specific parameters take precedence when they use
+    /// the same name.
+    /// </summary>
+    /// <param name="parameters">
+    /// The default event parameters as tuples. Parameter names can be up to 40 characters long and must start with an alphabetic
+    /// character and contain only alphanumeric characters and underscores. Only NSString and NSNumber (signed 64-bit integer and
+    /// 64-bit floating-point number) parameter types are supported. NSString parameter values can be up to 100 characters long.
+    /// The “firebase_”, “google_”, and “ga_” prefixes are reserved and should not be used for parameter names.
+    /// </param>
+    void SetDefaultEventParameters(params (string parameterName, object parameterValue)[] parameters);
+
+    /// <summary>
     /// Sets the applicable end user consent state for this app on this device. Settings are persisted across app sessions.
     /// </summary>
     /// <param name="consentSettings">The consent type values to set. Omitting a consent type retains its previous status.</param>

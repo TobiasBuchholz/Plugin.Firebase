@@ -32,6 +32,10 @@ public static class NSObjectExtensions
     /// <returns>The converted object.</returns>
     public static object? Cast(this NSDictionary @this, Type targetType, string? documentId = null)
     {
+        if(targetType == typeof(object) || IsDictionaryType(targetType)) {
+            return @this.ToDictionaryObject(targetType);
+        }
+
         var instance = Activator.CreateInstance(targetType);
         var properties = targetType.GetProperties();
         foreach(var property in properties) {
@@ -200,6 +204,10 @@ public static class NSObjectExtensions
 
     private static Type GetGenericListType(Type targetType)
     {
+        if(targetType == null || targetType == typeof(object)) {
+            return typeof(object);
+        }
+
         var genericType = targetType.GenericTypeArguments.FirstOrDefault();
         if(genericType == null) {
             throw new ArgumentException(
@@ -207,6 +215,15 @@ public static class NSObjectExtensions
             );
         }
         return genericType;
+    }
+
+    private static bool IsDictionaryType(Type targetType)
+    {
+        return targetType.IsGenericType
+               && (
+                   targetType.GetGenericTypeDefinition() == typeof(IDictionary<,>)
+                   || targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>)
+               );
     }
 
     /// <summary>
@@ -242,6 +259,8 @@ public static class NSObjectExtensions
                 return x.ToNSDate();
             case FieldValue x:
                 return x.ToNative();
+            case Plugin.Firebase.Firestore.GeoPoint x:
+                return new global::Firebase.CloudFirestore.GeoPoint(x.Latitude, x.Longitude);
             case IList x:
                 return x.ToNSArray();
             case IDictionary x:

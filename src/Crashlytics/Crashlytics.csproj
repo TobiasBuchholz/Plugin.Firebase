@@ -41,6 +41,8 @@
 
         <!--Version of C# to use -->
         <LangVersion>default</LangVersion>
+        <XamarinFirebaseCrashlyticsVersion Condition="'$(XamarinFirebaseCrashlyticsVersion)' == ''">119.0.0</XamarinFirebaseCrashlyticsVersion>
+        <XamarinAndroidXDataStoreVersion Condition="'$(XamarinAndroidXDataStoreVersion)' == ''">1.1.1.8</XamarinAndroidXDataStoreVersion>
     </PropertyGroup>
     
     <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
@@ -85,8 +87,8 @@
 
     <!-- nuget packages -->
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
-        <PackageReference Include="Xamarin.AndroidX.DataStore" Version="1.1.1.8" />
-        <PackageReference Include="Xamarin.Firebase.Crashlytics" Version="119.0.0" />
+        <PackageReference Include="Xamarin.AndroidX.DataStore" Version="$(XamarinAndroidXDataStoreVersion)" />
+        <PackageReference Include="Xamarin.Firebase.Crashlytics" Version="$(XamarinFirebaseCrashlyticsVersion)" />
     </ItemGroup>
 
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">

@@ -1,3 +1,4 @@
+using System.Collections;
 using Android.Runtime;
 using AndroidX.Collection;
 using Java.Util;
@@ -7,7 +8,7 @@ namespace Plugin.Firebase.Auth.Platforms.Android.Extensions;
 
 public static class JavaObjectExtensions
 {
-    public static object ToObject(this Java.Lang.Object @this, Type? targetType = null)
+    public static object? ToObject(this Java.Lang.Object @this, Type? targetType = null)
     {
         switch(@this) {
             case Java.Lang.ICharSequence x:
@@ -25,9 +26,17 @@ public static class JavaObjectExtensions
             case Date x:
                 return x.ToDateTimeOffset();
             case ArrayMap x:
-                return x.ToDictionary();
+                return x.ToDictionaryObject(targetType);
+            case IMap x:
+                return x.ToDictionaryObject(targetType);
+            case IDictionary x:
+                return x.ToDictionaryObject(targetType);
+            case Java.Util.IList x:
+                return x.ToList(GetGenericListType(targetType));
             case JavaList x:
-                return x.ToList(targetType?.GenericTypeArguments[0]);
+                return x.ToList(GetGenericListType(targetType));
+            case Java.Lang.Object x when x.GetType() == typeof(Java.Lang.Object):
+                return null;
             default:
                 throw new ArgumentException(
                     $"Could not convert Java.Lang.Object of type {@this.GetType()} to object"
@@ -85,23 +94,8 @@ public static class JavaObjectExtensions
         }
     }
 
-    public static IDictionary<string, object> ToDictionary(this ArrayMap @this)
+    private static Type GetGenericListType(Type? targetType)
     {
-        var dict = new Dictionary<string, object>();
-        var keys = @this.KeySet()!;
-        foreach(var key in keys) {
-            var keyString = key.ToString();
-            if(keyString is null) {
-                throw new ArgumentException("Dictionary contains a null key.");
-            }
-
-            var value = @this.Get(keyString);
-            if(value is null) {
-                throw new ArgumentException("Dictionary contains a null value.");
-            }
-
-            dict[keyString] = value.ToObject();
-        }
-        return dict;
+        return targetType?.GenericTypeArguments?.FirstOrDefault() ?? typeof(object);
     }
 }

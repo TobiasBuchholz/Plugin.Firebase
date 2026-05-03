@@ -31,6 +31,20 @@ public sealed class FirebaseAnalyticsImplementation : DisposableBase, IFirebaseA
     }
 
     /// <inheritdoc/>
+    public void SetDefaultEventParameters(IDictionary<string, object> parameters)
+    {
+        FirebaseAnalytics.SetDefaultEventParameters(parameters?.ToNSDictionary());
+    }
+
+    /// <inheritdoc/>
+    public void SetDefaultEventParameters(
+        params (string parameterName, object parameterValue)[] parameters
+    )
+    {
+        SetDefaultEventParameters(parameters?.ToDictionary(x => x.parameterName, x => x.parameterValue));
+    }
+
+    /// <inheritdoc/>
     public void SetConsent(IDictionary<ConsentType, ConsentStatus> consentSettings)
     {
         FirebaseAnalytics.SetConsent(consentSettings.ToNativeConsentSettings());

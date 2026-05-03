@@ -24,18 +24,32 @@ namespace Plugin.Firebase.IntegrationTests.Analytics
                 var logEventException = Assert.Throws<InvalidOperationException>(
                     () => CrossFirebaseAnalytics.Current.LogEvent("test_uninitialized_analytics_guard")
                 );
-                AssertAndroidAnalyticsNotInitializedException(logEventException);
+                AssertAnalyticsNotInitializedException(logEventException);
+
+                var setDefaultEventParametersException = Assert.Throws<InvalidOperationException>(
+                    () => CrossFirebaseAnalytics.Current.SetDefaultEventParameters(new Dictionary<string, object> {
+                        { "default_string", "some_value" }
+                    })
+                );
+                AssertAnalyticsNotInitializedException(setDefaultEventParametersException);
 
                 var setConsentException = Assert.Throws<InvalidOperationException>(
                     () => CrossFirebaseAnalytics.Current.SetConsent(new Dictionary<ConsentType, ConsentStatus> {
                         { ConsentType.AnalyticsStorage, ConsentStatus.Granted }
                     })
                 );
-                AssertAndroidAnalyticsNotInitializedException(setConsentException);
+                AssertAnalyticsNotInitializedException(setConsentException);
             }
             finally {
                 firebaseAnalyticsField.SetValue(null, originalFirebaseAnalytics);
             }
+        }
+
+        private static void AssertAnalyticsNotInitializedException(InvalidOperationException exception)
+        {
+            Assert.Contains("Firebase Analytics has not been initialized on Android", exception.Message);
+            Assert.Contains("FirebaseAnalyticsImplementation.Initialize(activity)", exception.Message);
+            Assert.Contains("isAnalyticsEnabled: true", exception.Message);
         }
 #endif
 
@@ -68,6 +82,49 @@ namespace Plugin.Firebase.IntegrationTests.Analytics
                 { "some_dictionary", new Dictionary<string, object> { { "some_key", "some_value" } } },
                 { "some_dictionary_collection", new [] { new Dictionary<string, object> { { "some_key", "some_value" } } }}
             });
+        }
+
+        [RealFirebaseFact]
+        public void does_not_throw_any_exception_when_setting_default_event_parameters_via_dictionary()
+        {
+            var sut = CrossFirebaseAnalytics.Current;
+
+            try {
+                sut.SetDefaultEventParameters(new Dictionary<string, object> {
+                    { "default_string", "some_value" },
+                    { "default_long", 1337L },
+                    { "default_double", 13.37 }
+                });
+
+                sut.LogEvent("test_with_default_dictionary_parameters");
+            }
+            finally {
+                sut.SetDefaultEventParameters((IDictionary<string, object>) null);
+            }
+        }
+
+        [RealFirebaseFact]
+        public void does_not_throw_any_exception_when_setting_default_event_parameters_via_tuples()
+        {
+            var sut = CrossFirebaseAnalytics.Current;
+
+            try {
+                sut.SetDefaultEventParameters(
+                    ("default_string", "some_value"),
+                    ("default_long", 1337L),
+                    ("default_double", 13.37));
+
+                sut.LogEvent("test_with_default_tuple_parameters");
+            }
+            finally {
+                sut.SetDefaultEventParameters((IDictionary<string, object>) null);
+            }
+        }
+
+        [RealFirebaseFact]
+        public void does_not_throw_any_exception_when_clearing_default_event_parameters()
+        {
+            CrossFirebaseAnalytics.Current.SetDefaultEventParameters((IDictionary<string, object>) null);
         }
 
         [RealFirebaseFact]
@@ -232,11 +289,5 @@ namespace Plugin.Firebase.IntegrationTests.Analytics
             }
         }
 
-        private static void AssertAndroidAnalyticsNotInitializedException(InvalidOperationException exception)
-        {
-            Assert.Contains("Firebase Analytics has not been initialized on Android", exception.Message);
-            Assert.Contains("FirebaseAnalyticsImplementation.Initialize(activity)", exception.Message);
-            Assert.Contains("isAnalyticsEnabled: true", exception.Message);
-        }
     }
 }

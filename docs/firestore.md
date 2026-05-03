@@ -66,6 +66,16 @@ This class is represented in firestore like this:
 
 ![firestore_poco.png](../art/firestore_poco.png)
 
+Documents can also be read as raw dictionaries when the field set is not known at compile time:
+```c#
+var snapshot = await CrossFirebaseFirestore.Current
+    .GetDocument("pokemons/1")
+    .GetDocumentSnapshotAsync<Dictionary<string, object>>();
+
+var data = snapshot.Data;
+var name = data["name"] as string;
+```
+
 ### Further information
 
 Take a look at the [documentation](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents/blob/master/docs/Firebase/CloudFirestore/GettingStarted.md) for the AdamE.Firebase.iOS.CloudFirestore packages, because Plugin.Firebase's code is abstracted but still very similar.

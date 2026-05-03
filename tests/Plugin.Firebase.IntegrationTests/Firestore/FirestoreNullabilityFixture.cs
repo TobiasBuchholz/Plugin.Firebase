@@ -103,6 +103,34 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         }
 
         [Fact]
+        public async Task updates_nested_object_dictionary_maps_from_document_batch_and_transaction_writes()
+        {
+            var sut = CrossFirebaseFirestore.Current;
+
+            var documentUpdate = GetTestingDocument(sut, "issue-482-document-update");
+            await documentUpdate.SetDataAsync(CreateNonNullItem("issue-482-document-update-seed"));
+            await documentUpdate.UpdateDataAsync(CreateIssue482NestedMapUpdate("document-update"));
+
+            var batchUpdate = GetTestingDocument(sut, "issue-482-batch-update");
+            await batchUpdate.SetDataAsync(CreateNonNullItem("issue-482-batch-update-seed"));
+
+            var batch = sut.CreateBatch();
+            batch.UpdateData(batchUpdate, CreateIssue482NestedMapUpdate("batch-update"));
+            await batch.CommitAsync();
+
+            var transactionUpdate = GetTestingDocument(sut, "issue-482-transaction-update");
+            await transactionUpdate.SetDataAsync(CreateNonNullItem("issue-482-transaction-update-seed"));
+            await sut.RunTransactionAsync(transaction => {
+                transaction.UpdateData(transactionUpdate, CreateIssue482NestedMapUpdate("transaction-update"));
+                return true;
+            });
+
+            await AssertIssue482NestedMapAsync(documentUpdate, "document-update");
+            await AssertIssue482NestedMapAsync(batchUpdate, "batch-update");
+            await AssertIssue482NestedMapAsync(transactionUpdate, "transaction-update");
+        }
+
+        [Fact]
         public async Task queries_documents_by_null_field_values()
         {
             var sut = CrossFirebaseFirestore.Current;
@@ -267,6 +295,19 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             };
         }
 
+        private static Dictionary<object, object?> CreateIssue482NestedMapUpdate(string marker)
+        {
+            return new Dictionary<object, object?> {
+                {
+                    "nullable_map",
+                    new Dictionary<object, object?> {
+                        { "sub_field", $"{marker}-value" }
+                    }
+                },
+                { "query_marker", marker }
+            };
+        }
+
         private static Dictionary<object, object?> CreateNestedMap()
         {
             return new Dictionary<object, object?> {
@@ -295,6 +336,17 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
 
             var list = Require(item.NullableList);
             Assert.Equal(["first", null, "last"], list);
+        }
+
+        private static async Task AssertIssue482NestedMapAsync(IDocumentReference document, string expectedMarker)
+        {
+            var snapshot = await document.GetDocumentSnapshotAsync<NullableFirestoreItem>(Source.Server);
+            var item = Require(snapshot.Data);
+            Assert.Equal(expectedMarker, item.QueryMarker);
+
+            var map = Require(item.NullableMap);
+            Assert.True(map.ContainsKey("sub_field"));
+            Assert.Equal($"{expectedMarker}-value", map["sub_field"]);
         }
 
         private static T Require<T>(T? value) where T : class

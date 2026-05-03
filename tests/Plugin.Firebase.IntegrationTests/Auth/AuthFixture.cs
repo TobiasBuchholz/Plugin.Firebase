@@ -255,7 +255,9 @@ namespace Plugin.Firebase.IntegrationTests.Auth
             Assert.NotNull(sut.CurrentUser);
 
             var uid = sut.CurrentUser.Uid;
+#pragma warning disable CS0618
             await sut.ReloadCurrentUserAsync();
+#pragma warning restore CS0618
 
             Assert.NotNull(sut.CurrentUser);
             Assert.Equal(uid, sut.CurrentUser.Uid);

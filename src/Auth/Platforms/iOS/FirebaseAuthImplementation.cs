@@ -218,6 +218,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
     }
 
     /// <inheritdoc/>
+    [Obsolete("Use CurrentUser.ReloadAsync() after checking CurrentUser is not null.")]
     public async Task ReloadCurrentUserAsync()
     {
         var currentUser = _firebaseAuth.CurrentUser;

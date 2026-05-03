@@ -78,7 +78,19 @@ Call `UseAppLanguage()` to reset to the app language.
 ## User reauthentication and reload
 
 Call `CurrentUser.ReauthenticateWithEmailAndPasswordAsync(email, password)` before sensitive email/password user operations that require recent authentication.
-Call `CurrentUser.ReloadAsync()` to refresh that user from the backend, or `ReloadCurrentUserAsync()` to refresh the currently signed in user through `IFirebaseAuth`.
+Call `CurrentUser.ReloadAsync()` to refresh that user from the backend. This is the preferred thin-wrapper API because Firebase exposes reload on the user object.
+
+For example, after sending an email-verification message, reload the user before reading `IsEmailVerified` again:
+
+```csharp
+var user = CrossFirebaseAuth.Current.CurrentUser;
+if(user is not null) {
+    await user.ReloadAsync();
+    var isVerified = user.IsEmailVerified;
+}
+```
+
+`ReloadCurrentUserAsync()` remains available for existing code, but is obsolete. New code should prefer `CurrentUser.ReloadAsync()` after checking `CurrentUser` is not `null`.
 
 ## Error handling
 
@@ -116,6 +128,7 @@ In v5:
 ## Release notes
 - Next
   - Add email/password user reauthentication and user-level reload APIs.
+  - Mark `ReloadCurrentUserAsync()` obsolete; use `CurrentUser.ReloadAsync()` after checking `CurrentUser` is not `null`.
 - Version 5.0.1
   - Fix for wrong Core project version dependency at nuget.org
 - Version 5.0.0

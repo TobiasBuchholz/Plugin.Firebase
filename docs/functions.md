@@ -15,6 +15,8 @@ Cloud Functions for Firebase is a serverless framework that lets you automatical
 - [Deploy](https://firebase.google.com/docs/functions/get-started?hl=en) your own function
 - Call `CrossFirebaseFunctions.Initialize(string region)` if your functions are deployed outside the default `us-central1` region
 
+Call `CrossFirebaseFunctions.Initialize(string region)` before accessing `CrossFirebaseFunctions.Current` or `CrossFirebaseFunctions.IsSupported`. If you change the region after `Current` has already been created, reacquire `CrossFirebaseFunctions.Current` before creating new callable references. Existing `IFirebaseFunctions` and `IHttpsCallable` references keep using the instance they were created from.
+
 ## Usage
 
 Take a look at the [documentation](https://firebase.google.com/docs/functions/callable?hl=en#call_the_function) for the official Firebase Cloud Function SKDs, because Plugin.Firebase's code is abstracted but still very similar.

@@ -22,6 +22,11 @@ exports.convertToLeet = functions.https.onCall(async (data, context) =>  {
   return `{ "input_value": ${data?.input_value}, "output_value": 1337 }`;
 });
 
+exports.regionalPing = functions.region('southamerica-east1').https.onCall(async () => {
+  functions.logger.log('[+] regionalPing');
+  return '{ "input_value": 0, "output_value": 541 }';
+});
+
 exports.returnObjectPayload = functions.https.onCall(async (data, context) =>  {
   functions.logger.log('[+] returnObjectPayload:', data);
   const inputValue = data?.input_value ?? 0;

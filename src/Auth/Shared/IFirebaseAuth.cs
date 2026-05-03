@@ -3,7 +3,7 @@ namespace Plugin.Firebase.Auth;
 /// <summary>
 /// Manages authentication for Firebase apps.
 /// </summary>
-public interface IFirebaseAuth : IDisposable
+public partial interface IFirebaseAuth : IDisposable
 {
     /// <summary>
     /// Starts the phone number authentication flow by sending a verification code to the specified phone number.

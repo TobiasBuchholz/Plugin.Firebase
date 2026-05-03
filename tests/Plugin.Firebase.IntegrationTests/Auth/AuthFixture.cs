@@ -35,6 +35,23 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         }
 
         [Fact]
+        public async Task signs_in_user_with_native_credential()
+        {
+            var sut = CrossFirebaseAuth.Current;
+            var email = CreateUniqueEmail("native-sign-in");
+            await sut.CreateUserAsync(email, "123456");
+            await sut.SignOutAsync();
+            var credential = CreateNativeEmailCredential(email, "123456");
+
+            var user = await sut.SignInWithCredentialAsync(credential);
+
+            Assert.Equal(email, user.Email);
+            Assert.NotNull(sut.CurrentUser);
+            Assert.Equal(email, sut.CurrentUser.Email);
+            Assert.Equal(user.Uid, sut.CurrentUser.Uid);
+        }
+
+        [Fact]
         public async Task sign_in_with_email_and_password_creates_user_automatically()
         {
             var sut = CrossFirebaseAuth.Current;
@@ -71,6 +88,19 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         }
 
         [Fact]
+        public async Task throws_cross_platform_exception_for_invalid_native_credential()
+        {
+            var sut = CrossFirebaseAuth.Current;
+            var credential = CreateNativeEmailCredential(CreateUniqueEmail("invalid-native-sign-in"), "000000");
+
+            var ex = await Assert.ThrowsAnyAsync<CrossPlatformFirebaseAuthException>(
+                () => sut.SignInWithCredentialAsync(credential)
+            );
+
+            AssertNativeAuthExceptionCaptured(ex);
+        }
+
+        [Fact]
         public async Task signs_in_user_anonymously()
         {
             var sut = CrossFirebaseAuth.Current;
@@ -92,6 +122,25 @@ namespace Plugin.Firebase.IntegrationTests.Auth
             var linkedUser = await sut.LinkWithEmailAndPasswordAsync(email, "123456");
 
             Assert.Equal(anonymousUser.Uid, linkedUser.Uid);
+            Assert.Equal(anonymousUser.Uid, sut.CurrentUser.Uid);
+            Assert.False(linkedUser.IsAnonymous);
+            Assert.False(sut.CurrentUser.IsAnonymous);
+            Assert.Equal(email, linkedUser.Email);
+            Assert.Equal(email, sut.CurrentUser.Email);
+        }
+
+        [Fact]
+        public async Task links_anonymous_user_with_native_credential()
+        {
+            var sut = CrossFirebaseAuth.Current;
+            var anonymousUser = await sut.SignInAnonymouslyAsync();
+            var email = CreateUniqueEmail("native-link");
+            var credential = CreateNativeEmailCredential(email, "123456");
+
+            var linkedUser = await sut.LinkWithCredentialAsync(credential);
+
+            Assert.Equal(anonymousUser.Uid, linkedUser.Uid);
+            Assert.NotNull(sut.CurrentUser);
             Assert.Equal(anonymousUser.Uid, sut.CurrentUser.Uid);
             Assert.False(linkedUser.IsAnonymous);
             Assert.False(sut.CurrentUser.IsAnonymous);
@@ -476,6 +525,20 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         private static string CreateUniqueEmail(string prefix)
         {
             return $"{prefix}-{Guid.NewGuid():N}@test.com";
+        }
+
+        private static global::Firebase.Auth.AuthCredential CreateNativeEmailCredential(
+            string email,
+            string password
+        )
+        {
+#if ANDROID
+            return global::Firebase.Auth.EmailAuthProvider.GetCredential(email, password);
+#elif IOS
+            return global::Firebase.Auth.EmailAuthProvider.GetCredentialFromPassword(email, password);
+#else
+            throw new PlatformNotSupportedException();
+#endif
         }
     }
 }

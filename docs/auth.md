@@ -70,6 +70,24 @@ Since code should be documenting itself you can also take a look at the followin
 - [tests/.../AuthFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Auth/AuthFixture.cs)
 - [sample/.../AuthService.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/sample/Playground/Common/Services/Auth/AuthService.cs)
 
+### Native provider credentials
+
+Provider SDKs create native Firebase credentials in platform-specific code. After you create a native `Firebase.Auth.AuthCredential`, pass it through the cross-platform Auth entry point to keep exception handling and user conversion consistent:
+
+```csharp
+using Plugin.Firebase.Auth;
+
+#if ANDROID
+var credential = Firebase.Auth.EmailAuthProvider.GetCredential(email, password);
+#elif IOS
+var credential = Firebase.Auth.EmailAuthProvider.GetCredentialFromPassword(email, password);
+#endif
+
+var user = await CrossFirebaseAuth.Current.SignInWithCredentialAsync(credential);
+```
+
+Use `LinkWithCredentialAsync(credential)` the same way when linking a provider credential to the current user.
+
 ### Updating profile data
 
 Use `UserProfileChangeRequest.Builder` when updating profile fields. Fields omitted from the request remain unchanged, `null` clears a field, and `""` is passed through to Firebase as an explicit value.

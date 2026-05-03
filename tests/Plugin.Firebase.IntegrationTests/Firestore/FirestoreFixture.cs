@@ -1569,6 +1569,37 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         }
 
         [Fact]
+        public async Task updates_ios_transaction_dictionary_data_with_field_value_and_date_time_offset()
+        {
+            if(OperatingSystem.IsIOS() is false) {
+                return;
+            }
+
+            var sut = CrossFirebaseFirestore.Current;
+            var document = GetTestingDocument(sut, "ios-transaction-update-dictionary-field-value");
+            var seedDate = new DateTimeOffset(2025, 8, 27, 2, 9, 54, TimeSpan.Zero);
+            var expectedDate = new DateTimeOffset(2025, 8, 27, 3, 9, 54, TimeSpan.Zero);
+            await document.SetDataAsync(new Dictionary<object, object> {
+                { "array_values", new List<string> { "seed" } },
+                { "updated_at", seedDate }
+            });
+
+            await sut.RunTransactionAsync(transaction => {
+                transaction.GetDocument<Issue522TransactionUpdateDocument>(document);
+                transaction.UpdateData(document, new Dictionary<object, object> {
+                    { "array_values", FieldValue.ArrayUnion("added") },
+                    { "updated_at", expectedDate }
+                });
+                return true;
+            });
+
+            var result = (await document.GetDocumentSnapshotAsync<Issue522TransactionUpdateDocument>()).Data;
+            Assert.Contains("seed", result.ArrayValues);
+            Assert.Contains("added", result.ArrayValues);
+            Assert.Equal(expectedDate.ToUnixTimeMilliseconds(), result.UpdatedAt.ToUnixTimeMilliseconds());
+        }
+
+        [Fact]
         public async Task exposes_parent_relationships()
         {
             var sut = CrossFirebaseFirestore.Current;
@@ -1862,6 +1893,21 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
 
             [FirestoreProperty("values")]
             public Dictionary<string, Dictionary<string, short>> Values { get; private set; }
+        }
+
+        [Preserve(AllMembers = true)]
+        private sealed class Issue522TransactionUpdateDocument : IFirestoreObject
+        {
+            public Issue522TransactionUpdateDocument()
+            {
+                // needed for firestore
+            }
+
+            [FirestoreProperty("array_values")]
+            public IList<string> ArrayValues { get; private set; }
+
+            [FirestoreProperty("updated_at")]
+            public DateTimeOffset UpdatedAt { get; private set; }
         }
 
         [Preserve(AllMembers = true)]

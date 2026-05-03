@@ -57,6 +57,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         return await SignInWithCredentialAsync(credential);
     }
 
+    /// <inheritdoc/>
     public async Task<IFirebaseUser> SignInWithCredentialAsync(AuthCredential credential)
     {
         var authResult = await FirebaseAuthExceptionFactory.Wrap(
@@ -121,6 +122,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         return await LinkWithCredentialAsync(credential);
     }
 
+    /// <inheritdoc/>
     public async Task<IFirebaseUser> LinkWithCredentialAsync(AuthCredential credential)
     {
         var currentUser = _firebaseAuth.CurrentUser;

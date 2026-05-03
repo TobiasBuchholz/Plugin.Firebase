@@ -75,7 +75,9 @@ public sealed partial class StorageFixture
 
         Assert.Equal("/nested/folder/file.txt", reference.FullPath);
         Assert.Equal("file.txt", reference.Name);
-        Assert.Equal("/nested/folder", reference.Parent.FullPath);
+        var parent = reference.Parent;
+        Assert.NotNull(parent);
+        Assert.Equal("/nested/folder", parent.FullPath);
     }
 
 

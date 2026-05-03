@@ -24,10 +24,14 @@ public sealed class StorageTransferTaskWrapper<TStorageTransferTask, TCompletion
         _observerDict = new Dictionary<Action<IStorageTaskSnapshot>, string>();
 
         CompletionHandler = (result, error) => {
-            if(error == null) {
+            if(error == null && result is not null) {
                 _tcs.SetResult(result);
             } else {
-                _tcs.SetException(new Exception(error.LocalizedDescription));
+                _tcs.SetException(
+                    error != null
+                        ? new Exception(error.LocalizedDescription)
+                        : new InvalidOperationException("Firebase Storage completed without a result.")
+                );
             }
         };
     }
@@ -41,15 +45,11 @@ public sealed class StorageTransferTaskWrapper<TStorageTransferTask, TCompletion
     /// <inheritdoc/>
     public void AddObserver(StorageTaskStatus status, Action<IStorageTaskSnapshot> observer)
     {
-        if(TransferTask == null) {
-            throw new ArgumentException(
-                $"You have to set the {nameof(TransferTask)} property before calling this method"
-            );
-        }
+        var transferTask = GetTransferTask();
 
-        var handle = TransferTask.ObserveStatus(
+        var handle = transferTask.ObserveStatus(
             status.ToNative(),
-            x => observer.Invoke(x.ToAbstract())
+            x => observer.Invoke(x!.ToAbstract())
         );
         _observerDict[observer] = handle;
     }
@@ -58,7 +58,7 @@ public sealed class StorageTransferTaskWrapper<TStorageTransferTask, TCompletion
     public void RemoveObserver(Action<IStorageTaskSnapshot> observer)
     {
         if(_observerDict.ContainsKey(observer)) {
-            TransferTask.RemoveObserver(_observerDict[observer]);
+            GetTransferTask().RemoveObserver(_observerDict[observer]);
             _observerDict.Remove(observer);
         }
     }
@@ -66,19 +66,19 @@ public sealed class StorageTransferTaskWrapper<TStorageTransferTask, TCompletion
     /// <inheritdoc/>
     public void Pause()
     {
-        TransferTask.Pause();
+        GetTransferTask().Pause();
     }
 
     /// <inheritdoc/>
     public void Resume()
     {
-        TransferTask.Resume();
+        GetTransferTask().Resume();
     }
 
     /// <inheritdoc/>
     public void Cancel()
     {
-        TransferTask.Cancel();
+        GetTransferTask().Cancel();
     }
 
     /// <summary>
@@ -86,7 +86,7 @@ public sealed class StorageTransferTaskWrapper<TStorageTransferTask, TCompletion
     /// </summary>
     /// <param name="result">The completion result.</param>
     /// <param name="error">The error if the transfer failed, otherwise null.</param>
-    public delegate void StorageTransferCompletionHandler(TCompletionResult result, NSError error);
+    public delegate void StorageTransferCompletionHandler(TCompletionResult? result, NSError? error);
 
     /// <summary>
     /// Gets the completion handler for the transfer task.
@@ -96,5 +96,13 @@ public sealed class StorageTransferTaskWrapper<TStorageTransferTask, TCompletion
     /// <summary>
     /// Gets or sets the underlying native transfer task.
     /// </summary>
-    public TStorageTransferTask TransferTask { private get; set; }
+    public TStorageTransferTask? TransferTask { private get; set; }
+
+    private TStorageTransferTask GetTransferTask()
+    {
+        return TransferTask
+            ?? throw new ArgumentException(
+                $"You have to set the {nameof(TransferTask)} property before calling this method"
+            );
+    }
 }

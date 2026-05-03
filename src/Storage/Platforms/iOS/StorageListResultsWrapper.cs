@@ -26,5 +26,5 @@ public sealed class StorageListResultWrapper : IStorageListResult
     public IEnumerable<IStorageReference> Prefixes => _wrapped.Prefixes.Select(x => x.ToAbstract());
 
     /// <inheritdoc/>
-    public string PageToken => _wrapped.PageToken;
+    public string? PageToken => _wrapped.PageToken;
 }

@@ -30,6 +30,7 @@ jobs:
           dotnet build src/Firestore/Firestore.csproj -c Release
           dotnet build src/Functions/Functions.csproj -c Release
           dotnet build src/Installations/Installations.csproj -c Release
+          dotnet build src/PerformanceMonitoring/PerformanceMonitoring.csproj -c Release
           dotnet build src/RemoteConfig/RemoteConfig.csproj -c Release
           dotnet build src/Storage/Storage.csproj -c Release
           dotnet build src/Bundled/Bundled.csproj -c Release

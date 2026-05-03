@@ -90,6 +90,13 @@ Since code should be documenting itself you can also take a look at the followin
 - [tests/.../FirestoreFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Firestore/FirestoreFixture.cs)
 
 ## Release notes
+- Version 4.1.0
+  - Enable Firestore nullable annotations and preserve explicit null values in read/write paths.
+  - Add raw dictionary reads for documents, queries, and listeners.
+  - Fix Android and iOS conversion gaps for nested dictionaries, typed collections, GeoPoint list writes, and increment sentinels.
+- Version 4.0.0
+  - Upgrade baseline to **.NET 9+**.
+  - Raise minimum Firebase SDK versions (iOS 12.5+, Android BoM 33.0+).
 - Version 3.1.3
   - Added the handling of a FieldValue into a Hashmap correctly + Prevent crashing when a list on the server has a null as an entry (PR #437)
 - Version 3.1.2

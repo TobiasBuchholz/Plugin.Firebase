@@ -92,3 +92,10 @@ This is the standard .NET Android MSBuild property. It works with both APK and A
 > **Do NOT use** `AndroidPackageFormat=apk` or `EmbedAssembliesIntoApk=true` as a workaround for this issue — those properties serve different purposes (debug speed, distribution format) and are not needed to fix native library compression.
 
 See also the [sample Playground project](../sample/Playground/Playground.csproj) for a working reference.
+
+## Release notes
+- Version 4.0.1
+  - Enable nullable analysis and clean up App Check platform implementation annotations.
+  - Align iOS App Attest provider adapter nullability with the native binding contract.
+- Version 4.0.0
+  - Initial .NET 9 App Check package baseline.

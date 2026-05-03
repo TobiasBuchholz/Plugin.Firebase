@@ -109,6 +109,11 @@ In v5:
 - `SignOutAsync()` now follows the same unified exception model when the underlying native Auth SDK reports a failure.
 
 ## Release notes
+- Version 5.1.0
+  - Add user reauthentication APIs and user-level reload support.
+  - Add request-based profile updates that distinguish omitted, null, and empty string values.
+  - Expose platform-specific native credential sign-in/linking APIs for provider integrations.
+  - Preserve nested Auth token custom claims across Android and iOS.
 - Version 5.0.1
   - Fix for wrong Core project version dependency at nuget.org
 - Version 5.0.0

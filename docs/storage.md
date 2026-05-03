@@ -26,6 +26,12 @@ Since code should be documenting itself you can also take a look at the followin
 - [tests/.../StorageFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Firestore/StorageFixture.cs)
 
 ## Release notes
+- Version 4.1.0
+  - Add Firebase Storage emulator configuration support.
+  - Fix iOS `ListAllAsync()` paging so full listings are composed across pages.
+- Version 4.0.0
+  - Upgrade baseline to **.NET 9+**.
+  - Raise minimum Firebase SDK versions (iOS 12.5+, Android BoM 33.0+).
 - Version 3.1.1
   - Using AdamE.Firebase.iOS.* minimum version 11
 - Version 3.1.0

@@ -34,3 +34,7 @@ Deleting an installation can affect Firebase services that identify app instance
 - [Manage Firebase installations](https://firebase.google.com/docs/projects/manage-installations)
 - [Android FirebaseInstallations reference](https://firebase.google.com/docs/reference/android/com/google/firebase/installations/FirebaseInstallations)
 - [Apple Installations reference](https://firebase.google.com/docs/reference/swift/firebaseinstallations/api/reference/Classes/Installations)
+
+## Release notes
+- Version 4.0.0
+  - Initial Firebase Installations support for installation IDs, auth tokens, and deleting the current installation.

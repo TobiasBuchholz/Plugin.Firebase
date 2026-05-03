@@ -59,6 +59,10 @@ When `isAnalyticsEnabled` is `true`, the bundled package initializes Firebase An
 The Firebase Performance Monitoring SDK can automatically collect app start, screen rendering, and network data when it is linked into an app. `CrossFirebaseSettings.IsPerformanceMonitoringEnabled` controls runtime collection for the bundled package, but privacy-sensitive apps should also use Firebase's documented Android manifest and iOS plist disable keys before initialization if collection must be disabled before app startup.
 
 ## Release notes
+- Version 4.3.0
+  - Include `Plugin.Firebase.Installations` and `Plugin.Firebase.PerformanceMonitoring` in the bundled package.
+  - Add bundled settings for Installations and Performance Monitoring collection.
+  - Update bundled package references to the vNext package set.
 - Version 4.2.1
   - Plugin.Firebase.Auth 5.0.1
 - Version 4.2.0

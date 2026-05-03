@@ -42,7 +42,7 @@ To quickly publish a local debug pack (with the `-local` suffix), you can use th
 
 ```sh
 rm -rf output && mkdir output
-VERSION=4.2.0-local
+VERSION=4.3.0-local
 
 for proj in \
   src/Core/Core.csproj \
@@ -53,6 +53,7 @@ for proj in \
   src/Firestore/Firestore.csproj \
   src/Functions/Functions.csproj \
   src/Installations/Installations.csproj \
+  src/PerformanceMonitoring/PerformanceMonitoring.csproj \
   src/RemoteConfig/RemoteConfig.csproj \
   src/Storage/Storage.csproj \
   src/AppCheck/AppCheck.csproj \

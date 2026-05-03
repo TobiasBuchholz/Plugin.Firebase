@@ -31,8 +31,14 @@ lightweight by building `net9.0` only, and optionally adding Android/iOS builds 
 ```
 
 ## Publishing
-Use `docs/packaging-github-packages.md` for packaging and push steps.
+There is no tracked publish workflow or standalone packaging guide in this repository right now. Use the local pack/push loop in `docs/BUILDING.md` as the source of truth until a publish workflow is added.
+
+Before publishing:
+- Confirm every publishable project is included in CI and local pack validation.
+- Pack every project locally with the final `PackageVersion`.
+- Push packages with `--skip-duplicate` only after validating the generated `.nupkg` files.
+- Confirm new packages appear on NuGet or GitHub Packages after publish.
 
 ## Repository workflows
 - CI (build + unit tests): `.github/workflows/ci.yml`
-- Publish to GitHub Packages (manual): `.github/workflows/publish-github-packages.yml`
+- Integration emulator checks: `.github/workflows/integration-emulators.yml`

@@ -3,6 +3,7 @@ using Firebase.Crashlytics;
 using Plugin.Firebase.Analytics;
 using Plugin.Firebase.AppCheck;
 using Plugin.Firebase.Bundled.Shared;
+using Plugin.Firebase.PerformanceMonitoring;
 
 namespace Plugin.Firebase.Bundled.Platforms.Android;
 
@@ -46,7 +47,7 @@ public static class CrossFirebase
 
         if(!Core.Platforms.Android.CrossFirebase.TryGetDefaultApp(out _)) {
             Console.WriteLine(
-                "[Plugin.Firebase.Bundled] Skipping Analytics/Crashlytics setup: no default Firebase app. "
+                "[Plugin.Firebase.Bundled] Skipping Analytics/Crashlytics/Performance Monitoring setup: no default Firebase app. "
                     + "Ensure google-services.json is present and its package_name matches your ApplicationId."
             );
             return;
@@ -56,7 +57,11 @@ public static class CrossFirebase
             FirebaseAnalyticsImplementation.Initialize(activity);
         }
 
-        FirebaseCrashlytics.Instance.SetCrashlyticsCollectionEnabled(settings.IsCrashlyticsEnabled);
+        FirebaseCrashlytics.Instance.SetCrashlyticsCollectionEnabled(
+            Java.Lang.Boolean.ValueOf(settings.IsCrashlyticsEnabled)
+        );
+        CrossFirebasePerformanceMonitoring.Current.IsDataCollectionEnabled =
+            settings.IsPerformanceMonitoringEnabled;
 
         Console.WriteLine($"Plugin.Firebase initialized with the following settings:\n{settings}");
     }

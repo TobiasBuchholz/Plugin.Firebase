@@ -40,11 +40,16 @@ public interface IFirebaseUser
     Task UpdatePhoneNumberAsync(string verificationId, string smsCode);
 
     /// <summary>
-    /// Change the user’s profile data.
+    /// Changes the user's profile data.
     /// </summary>
-    /// <param name="displayName">The user’s display name.</param>
-    /// <param name="photoUrl">The user’s photo URL.</param>
-    Task UpdateProfileAsync(string displayName = "", string photoUrl = "");
+    /// <remarks>
+    /// This legacy overload treats <c>""</c> as omitted. Use the <see cref="UserProfileChangeRequest"/>
+    /// to pass <c>""</c> through as a value.
+    /// </remarks>
+    /// <param name="displayName">The user's display name.</param>
+    /// <param name="photoUrl">The user's photo URL.</param>
+    [Obsolete("Use UpdateProfileAsync(UserProfileChangeRequest request) to distinguish omitted, null, and empty string values.")]
+    Task UpdateProfileAsync(string? displayName = "", string? photoUrl = "");
 
     /// <summary>
     /// Initiates email verification for the user.

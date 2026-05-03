@@ -70,6 +70,21 @@ Since code should be documenting itself you can also take a look at the followin
 - [tests/.../AuthFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Auth/AuthFixture.cs)
 - [sample/.../AuthService.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/sample/Playground/Common/Services/Auth/AuthService.cs)
 
+### Updating profile data
+
+Use `UserProfileChangeRequest.Builder` when updating profile fields. Fields omitted from the request remain unchanged, `null` clears a field, and `""` is passed through to Firebase as an explicit value.
+
+```csharp
+await CrossFirebaseAuth.Current.CurrentUser.UpdateProfileAsync(
+    new UserProfileChangeRequest.Builder()
+        .SetDisplayName("Bruce Wayne")
+        .SetPhotoUrl(null)
+        .Build()
+);
+```
+
+The legacy `UpdateProfileAsync(string? displayName = "", string? photoUrl = "")` overload treats `""` as omitted and is obsolete.
+
 ## Language
 
 Set `LanguageCode = "fr"` (or any BCP-47 code) before invoking an Auth flow that triggers user-facing content such as password-reset emails, email-verification emails, or phone-auth SMS.

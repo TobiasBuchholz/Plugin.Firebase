@@ -47,7 +47,28 @@ async function main() {
   });
   await admin
     .auth()
-    .setCustomUserClaims(customClaimsUser.uid, { is_awesome: true });
+    .setCustomUserClaims(customClaimsUser.uid, {
+      is_awesome: true,
+      nested_object: {
+        enabled: true,
+        roles: ["admin", "tester"],
+        metadata: {
+          source: "emulator",
+          version: 2,
+        },
+        history: [
+          { action: "created", count: 1 },
+          { action: "updated", count: 2 },
+        ],
+        score: 7,
+        ratio: 1.5,
+        optional: null,
+      },
+      nested_array: [
+        { name: "first", flags: [true, false] },
+        { name: "second", metadata: { source: "emulator" } },
+      ],
+    });
   console.log("[auth seed] recreated custom-claims@test.com");
 }
 

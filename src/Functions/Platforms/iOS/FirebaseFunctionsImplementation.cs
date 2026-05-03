@@ -7,9 +7,13 @@ namespace Plugin.Firebase.Functions;
 /// <summary>
 /// iOS implementation of <see cref="IFirebaseFunctions"/> that wraps the native Firebase Cloud Functions SDK.
 /// </summary>
-public sealed class FirebaseFunctionsImplementation : DisposableBase, IFirebaseFunctions
+public sealed class FirebaseFunctionsImplementation :
+    DisposableBase,
+    IFirebaseFunctions,
+    IFirebaseFunctionsEmulatorSettingsProvider
 {
     private readonly CloudFunctions _functions;
+    private FirebaseFunctionsEmulatorSettings? _emulatorSettings;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="FirebaseFunctionsImplementation"/> class using the default region.
@@ -38,5 +42,9 @@ public sealed class FirebaseFunctionsImplementation : DisposableBase, IFirebaseF
     public void UseEmulator(string host, int port)
     {
         _functions.UseEmulatorWithHost(host, port);
+        _emulatorSettings = new FirebaseFunctionsEmulatorSettings(host, port);
     }
+
+    FirebaseFunctionsEmulatorSettings? IFirebaseFunctionsEmulatorSettingsProvider.EmulatorSettings =>
+        _emulatorSettings;
 }

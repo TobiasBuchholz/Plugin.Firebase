@@ -88,6 +88,21 @@ var user = await CrossFirebaseAuth.Current.SignInWithCredentialAsync(credential)
 
 Use `LinkWithCredentialAsync(credential)` the same way when linking a provider credential to the current user.
 
+### Updating profile data
+
+Use `UserProfileChangeRequest.Builder` when updating profile fields. Fields omitted from the request remain unchanged, `null` clears a field, and `""` is passed through to Firebase as an explicit value.
+
+```csharp
+await CrossFirebaseAuth.Current.CurrentUser.UpdateProfileAsync(
+    new UserProfileChangeRequest.Builder()
+        .SetDisplayName("Bruce Wayne")
+        .SetPhotoUrl(null)
+        .Build()
+);
+```
+
+The legacy `UpdateProfileAsync(string? displayName = "", string? photoUrl = "")` overload treats `""` as omitted and is obsolete.
+
 ## Language
 
 Set `LanguageCode = "fr"` (or any BCP-47 code) before invoking an Auth flow that triggers user-facing content such as password-reset emails, email-verification emails, or phone-auth SMS.

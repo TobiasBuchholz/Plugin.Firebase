@@ -3,10 +3,12 @@ using Android.Runtime;
 using Firebase.Auth;
 using Plugin.Firebase.Auth.Platforms.Android.Extensions;
 using Uri = Android.Net.Uri;
+using NativeProfileChangeRequest = Firebase.Auth.UserProfileChangeRequest;
+using ProfileChangeRequest = Plugin.Firebase.Auth.UserProfileChangeRequest;
 
 namespace Plugin.Firebase.Auth.Platforms.Android;
 
-public sealed class FirebaseUserWrapper : IFirebaseUser
+public sealed class FirebaseUserWrapper : IFirebaseUser, IUserProfileChangeRequestHandler
 {
     private readonly FirebaseUser _wrapped;
 
@@ -37,18 +39,32 @@ public sealed class FirebaseUserWrapper : IFirebaseUser
         );
     }
 
-    public Task UpdateProfileAsync(string displayName = "", string photoUrl = "")
+    public Task UpdateProfileAsync(ProfileChangeRequest request)
     {
-        var builder = new UserProfileChangeRequest.Builder();
+        var builder = new NativeProfileChangeRequest.Builder();
+        if(request.UpdatesDisplayName) {
+            builder.SetDisplayName(request.DisplayName);
+        }
+        if(request.UpdatesPhotoUrl) {
+            builder.SetPhotoUri(request.PhotoUrl == null ? null : Uri.Parse(request.PhotoUrl));
+        }
+
+        var nativeRequest = builder.Build();
+        return FirebaseAuthExceptionFactory.Wrap(() => _wrapped.UpdateProfileAsync(nativeRequest));
+    }
+
+    [Obsolete("Use UpdateProfileAsync(UserProfileChangeRequest request) to distinguish omitted, null, and empty string values.")]
+    public Task UpdateProfileAsync(string? displayName = "", string? photoUrl = "")
+    {
+        var builder = new ProfileChangeRequest.Builder();
         if(displayName != "") {
             builder.SetDisplayName(displayName);
         }
         if(photoUrl != "") {
-            builder.SetPhotoUri(string.IsNullOrEmpty(photoUrl) ? null : Uri.Parse(photoUrl));
+            builder.SetPhotoUrl(photoUrl);
         }
 
-        var request = builder.Build();
-        return FirebaseAuthExceptionFactory.Wrap(() => _wrapped.UpdateProfileAsync(request));
+        return UpdateProfileAsync(builder.Build());
     }
 
     public Task SendEmailVerificationAsync(ActionCodeSettings? actionCodeSettings = null)

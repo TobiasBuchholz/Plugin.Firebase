@@ -30,6 +30,16 @@ public sealed class FirebaseAnalyticsImplementation : DisposableBase, IFirebaseA
         LogEvent(eventName, parameters?.ToDictionary(x => x.parameterName, x => x.parameterValue));
     }
 
+    public void SetDefaultEventParameters(IDictionary<string, object> parameters)
+    {
+        GetInitializedAnalytics().SetDefaultEventParameters(parameters?.ToBundle());
+    }
+
+    public void SetDefaultEventParameters(params (string parameterName, object parameterValue)[] parameters)
+    {
+        SetDefaultEventParameters(parameters?.ToDictionary(x => x.parameterName, x => x.parameterValue));
+    }
+
     public void SetUserId(string id)
     {
         GetInitializedAnalytics().SetUserId(id);

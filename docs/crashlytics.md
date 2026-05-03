@@ -59,6 +59,9 @@ The exported symbols file must be plain UTF-8 without a byte order mark or other
 </ItemGroup>
 ```
 - After adding or changing Android resources, clean `bin` and `obj` and rebuild the app if Crashlytics still reports a missing build ID.
+- Plugin.Firebase's default Android Firebase baseline is Firebase BoM 33.0 / `Xamarin.Firebase.Crashlytics` 119.0.0. If you explicitly manage Android Firebase package versions, choose a coherent Firebase BoM and align all `Xamarin.Firebase.*` package versions to that BoM.
+- `Xamarin.Firebase.Crashlytics` 119.1.0 and later changed the .NET binding shape for `SetCrashlyticsCollectionEnabled` to prefer `Java.Lang.Boolean`. Plugin.Firebase versions containing the Android binding compatibility fix compile against tested Crashlytics 19.x packages up to 119.4.4.
+- Crashlytics 20.x maps to the Firebase BoM 34.x dependency line. Plugin.Firebase versions containing the Android binding compatibility fix are compile-compatible in targeted validation against tested Crashlytics 20.x packages up to 120.0.5, but BoM 34.x should be treated as an intentional full Firebase Android dependency upgrade rather than Plugin.Firebase's default baseline.
 - For more specific instructions take a look at the official [Firebase documentation](https://firebase.google.com/docs/crashlytics/get-started?platform=android)
 
 ## Usage

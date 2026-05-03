@@ -83,6 +83,8 @@ When selecting package versions for iOS, best practice is to make sure that the 
 
 When selecting package versions for Android, best practice is to [choose a Firebase BoM](https://firebase.google.com/support/release-notes/android) and select matching package versions for each dependency. As examples, if you wish to use BoM version 33.0.0, then you would want to select Xamarin.Firebase.Auth v123.0.0 and Xamarin.Firebase.Perf v121.0.0. Microsoft does not publish a Xamarin.Firebase.Analytics binding for native firebase-analytics v22.0.0; the earliest available 22.0.x binding is Xamarin.Firebase.Analytics v122.0.2.
 
+Plugin.Firebase 4.x defaults to Firebase BoM 33.0 as its minimum Android Firebase SDK line. Newer BoM lines, such as BoM 34.x / Crashlytics 20.x, should be adopted intentionally across the full Android Firebase dependency set rather than by upgrading one `Xamarin.Firebase.*` package in isolation.
+
 - Xamarin.Firebase.Analytics
 - Xamarin.Firebase.Auth
 - Xamarin.Firebase.AppCheck

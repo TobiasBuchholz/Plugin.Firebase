@@ -57,7 +57,9 @@ public static class CrossFirebase
             FirebaseAnalyticsImplementation.Initialize(activity);
         }
 
-        FirebaseCrashlytics.Instance.SetCrashlyticsCollectionEnabled(Java.Lang.Boolean.ValueOf(settings.IsCrashlyticsEnabled));
+        FirebaseCrashlytics.Instance.SetCrashlyticsCollectionEnabled(
+            Java.Lang.Boolean.ValueOf(settings.IsCrashlyticsEnabled)
+        );
         CrossFirebasePerformanceMonitoring.Current.IsDataCollectionEnabled =
             settings.IsPerformanceMonitoringEnabled;
 

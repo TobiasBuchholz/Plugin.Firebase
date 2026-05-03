@@ -43,6 +43,7 @@
 
         <!--Version of C# to use -->
         <LangVersion>default</LangVersion>
+        <XamarinAndroidXLifecycleProcessVersion Condition="'$(XamarinAndroidXLifecycleProcessVersion)' == ''">2.8.7.4</XamarinAndroidXLifecycleProcessVersion>
     </PropertyGroup>
 
     <!-- Define what happens on build and release -->
@@ -84,7 +85,7 @@
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
         <PackageReference Include="Xamarin.Firebase.Perf" Version="121.0.0" />
         <!-- Xamarin.Firebase.Perf 121.0.0 maps to Firebase Android BoM 33.0.0. The Lifecycle.Process pin aligns AndroidX transitive dependencies without changing Firebase versions. -->
-        <PackageReference Include="Xamarin.AndroidX.Lifecycle.Process" Version="2.8.7.4" />
+        <PackageReference Include="Xamarin.AndroidX.Lifecycle.Process" Version="$(XamarinAndroidXLifecycleProcessVersion)" />
     </ItemGroup>
 
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">

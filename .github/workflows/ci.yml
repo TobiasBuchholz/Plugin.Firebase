@@ -37,6 +37,9 @@ jobs:
       - name: Validate CloudMessaging trimming
         run: scripts/validate-cloudmessaging-trimming.sh
 
+      - name: Validate Crashlytics compatibility
+        run: scripts/validate-crashlytics-compatibility.sh
+
       - name: Run unit tests
         run: |
           dotnet restore tests/Plugin.Firebase.UnitTests/Plugin.Firebase.UnitTests.csproj

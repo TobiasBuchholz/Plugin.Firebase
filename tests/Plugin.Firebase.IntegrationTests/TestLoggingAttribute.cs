@@ -29,7 +29,7 @@ public sealed class TestLoggingAttribute : BeforeAfterTestAttribute
 
 internal static class TestLog
 {
-    private static readonly object Sync = new();
+    private static readonly Lock Sync = new();
 
     public static void Write(string message)
     {

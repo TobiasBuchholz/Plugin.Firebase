@@ -69,10 +69,11 @@ node scripts/seed-auth-emulator.js
 For one-shot local runs, wrap the device command with `emulators:exec`:
 
 ```
-cd tests/cloud-functions
-firebase emulators:exec --project demo-pluginfirebase-integrationtests --only auth,firestore,functions,storage \
-  "node scripts/seed-auth-emulator.js && <xharness command>"
+scripts/run-integration-emulators.sh android
+DEVICE_ID=<simulator-udid> scripts/run-integration-emulators.sh ios
 ```
+
+The runner script calls `scripts/check-integration-environment.sh android|ios` before launching emulators. Run the preflight directly when diagnosing setup issues; it checks required CLIs, built app output, Functions build output, emulator ports, and device/simulator availability. Set `SKIP_INTEGRATION_PREFLIGHT=1` only when a CI step has already guaranteed those conditions.
 
 Default emulator endpoints are:
 
@@ -85,9 +86,9 @@ Default emulator endpoints are:
 
 Override them with `PLUGIN_FIREBASE_<SERVICE>_EMULATOR_HOST` / `PLUGIN_FIREBASE_<SERVICE>_EMULATOR_PORT`, or Android system properties like `debug.pluginfirebase.auth.host` and `debug.pluginfirebase.auth.port`.
 
-The Auth emulator seed script recreates `custom-claims@test.com` with password `123456` and custom claims `{ "is_awesome": true }`. The `updates_user_email` test remains skipped on iOS and Android because Firebase's direct email update flow now depends on deprecated project configuration.
+The Auth emulator seed script recreates `custom-claims@test.com` with password `123456` and the nested custom claims asserted by the Auth fixture. The `updates_user_email` test remains skipped on iOS and Android because Firebase's direct email update flow now depends on deprecated project configuration.
 
-The `.github/workflows/integration-emulators.yml` workflow runs the emulator-backed Android and iOS suites on pull requests and can also be started manually with `workflow_dispatch`. Branch protection should require the `integration-emulators-android` and `integration-emulators-ios` checks.
+The `.github/workflows/integration-emulators.yml` workflow runs the emulator-backed Android and iOS suites on pull requests and can also be started manually with `workflow_dispatch`. Branch protection should require the `integration-emulators-android` and `integration-emulators-ios` checks. Its GitHub step summary includes xUnit totals, failed tests, skipped tests, slow tests, and recent `[TEST START]` breadcrumbs when logs are present.
 
 Build the iOS test app for a simulator:
 ```
@@ -105,39 +106,24 @@ dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationT
   -f net9.0-android
 ```
 
-The default integration-test host now uses the DeviceRunners XHarness runner so tests can be launched from the CLI. Install the tool once:
+The default integration-test host now uses the DeviceRunners XHarness runner so tests can be launched from the CLI. Install the local runner tools once:
 ```
-dotnet tool install --global Microsoft.DotNet.XHarness.CLI \
-  --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-eng/nuget/v3/index.json \
-  --version "11.0.0-prerelease*"
+scripts/install-integration-test-tools.sh
 ```
 
 The installed command is `xharness`. If your shell cannot find it, make sure `~/.dotnet/tools` is on your `PATH`.
 
 Run the iOS suite on a specific simulator:
 ```
-xharness apple test \
-  --target ios-simulator-64 \
-  --device <simulator-udid> \
-  --timeout="00:10:00" \
-  --launch-timeout=00:10:00 \
-  --app tests/Plugin.Firebase.IntegrationTests/bin/Debug/net9.0-ios/iossimulator-arm64/Plugin.Firebase.IntegrationTests.app \
-  --output-directory artifacts/test-results/ios
+DEVICE_ID=<simulator-udid> scripts/run-integration-emulators.sh ios
 ```
 
 Run the Android suite on the currently running emulator:
 ```
-xharness android test \
-  --timeout="00:10:00" \
-  --launch-timeout=00:10:00 \
-  --package-name <package-id> \
-  --instrumentation devicerunners.xharness.maui.XHarnessInstrumentation \
-  --app tests/Plugin.Firebase.IntegrationTests/bin/Debug/net9.0-android/<package-id>-Signed.apk \
-  --output-directory artifacts/test-results/android \
-  --verbosity=Debug
+scripts/run-integration-emulators.sh android
 ```
 
-Use `xcrun simctl list devices available` to find a simulator UDID and `adb devices` to verify the Android emulator is online before running the Android command. XHarness uses the only connected adb target by default; if `adb devices` lists more than one device or emulator, add `--device-id <adb-device-id>` to the `xharness android test` command. If you keep the default application ids, `<package-id>` is `plugin.firebase.integrationtests`. If you override the ids in `Plugin.Firebase.IntegrationTests.props.user`, use the overridden Android package id in both `--package-name` and the APK filename.
+Use `xcrun simctl list devices available` to find a simulator UDID and `adb devices` to verify the Android emulator is online before running the Android command. The preflight script performs these checks automatically before emulator-backed runs. XHarness uses the only connected adb target by default; if `adb devices` lists more than one device or emulator, add `--device-id <adb-device-id>` to the `xharness android test` command. If you keep the default application ids, `<package-id>` is `plugin.firebase.integrationtests`. If you override the ids in `Plugin.Firebase.IntegrationTests.props.user`, use the overridden Android package id in both `--package-name` and the APK filename.
 
 ### Real Firebase backend (opt-in)
 
@@ -150,9 +136,9 @@ Make sure your Firebase app registrations and generated config files match the i
 
 For real Firebase Auth integration tests:
 - Enable the `Email/Password` and `Anonymous` sign-in providers.
-- Create `custom-claims@test.com` with password `123456` and custom claims `{ "is_awesome": true }`.
+- Create `custom-claims@test.com` with password `123456` and the nested custom claims used by `tests/cloud-functions/scripts/seed-auth-emulator.js`.
 
-Real-project Remote Config tests expect published values for `remote_string`, `remote_long`, `remote_double`, and `remote_bool`; see `docs/BUILDING.md` for the full setup table.
+Real-project Cloud Functions, Storage, and Remote Config tests expect deployed test functions, bucket seed files, and published Remote Config values; see `docs/BUILDING.md` for the full setup tables.
 
 If you want the interactive visual runner instead, opt in explicitly:
 - On iOS simulators, relaunch with `SIMCTL_CHILD_PLUGIN_FIREBASE_USE_VISUAL_RUNNER=1`.

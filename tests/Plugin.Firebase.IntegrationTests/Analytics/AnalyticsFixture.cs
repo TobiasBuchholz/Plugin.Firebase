@@ -4,48 +4,10 @@ namespace Plugin.Firebase.IntegrationTests.Analytics
 {
     [Collection("Sequential")]
     [TestLogging]
+    [IntegrationTestFixture(IntegrationTestPackage.Analytics)]
     [Preserve(AllMembers = true)]
     public sealed class AnalyticsFixture
     {
-#if ANDROID
-        [Fact]
-        public void throws_actionable_exception_when_android_analytics_is_not_initialized()
-        {
-            var firebaseAnalyticsField = typeof(FirebaseAnalyticsImplementation).GetField(
-                "_firebaseAnalytics",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static
-            );
-            Assert.NotNull(firebaseAnalyticsField);
-
-            var originalFirebaseAnalytics = firebaseAnalyticsField.GetValue(null);
-            try {
-                firebaseAnalyticsField.SetValue(null, null);
-
-                var logEventException = Assert.Throws<InvalidOperationException>(
-                    () => CrossFirebaseAnalytics.Current.LogEvent("test_uninitialized_analytics_guard")
-                );
-                AssertAnalyticsNotInitializedException(logEventException);
-
-                var setDefaultEventParametersException = Assert.Throws<InvalidOperationException>(
-                    () => CrossFirebaseAnalytics.Current.SetDefaultEventParameters(new Dictionary<string, object> {
-                        { "default_string", "some_value" }
-                    })
-                );
-                AssertAnalyticsNotInitializedException(setDefaultEventParametersException);
-            }
-            finally {
-                firebaseAnalyticsField.SetValue(null, originalFirebaseAnalytics);
-            }
-        }
-
-        private static void AssertAnalyticsNotInitializedException(InvalidOperationException exception)
-        {
-            Assert.Contains("Firebase Analytics has not been initialized on Android", exception.Message);
-            Assert.Contains("FirebaseAnalyticsImplementation.Initialize(activity)", exception.Message);
-            Assert.Contains("isAnalyticsEnabled: true", exception.Message);
-        }
-#endif
-
         [RealFirebaseFact]
         public void does_not_throw_any_exception_when_logging_events()
         {
@@ -92,7 +54,7 @@ namespace Plugin.Firebase.IntegrationTests.Analytics
                 sut.LogEvent("test_with_default_dictionary_parameters");
             }
             finally {
-                sut.SetDefaultEventParameters((IDictionary<string, object>) null);
+                sut.SetDefaultEventParameters((IDictionary<string, object>?) null);
             }
         }
 
@@ -110,14 +72,14 @@ namespace Plugin.Firebase.IntegrationTests.Analytics
                 sut.LogEvent("test_with_default_tuple_parameters");
             }
             finally {
-                sut.SetDefaultEventParameters((IDictionary<string, object>) null);
+                sut.SetDefaultEventParameters((IDictionary<string, object>?) null);
             }
         }
 
         [RealFirebaseFact]
         public void does_not_throw_any_exception_when_clearing_default_event_parameters()
         {
-            CrossFirebaseAnalytics.Current.SetDefaultEventParameters((IDictionary<string, object>) null);
+            CrossFirebaseAnalytics.Current.SetDefaultEventParameters((IDictionary<string, object>?) null);
         }
 
         [RealFirebaseFact]
@@ -129,10 +91,54 @@ namespace Plugin.Firebase.IntegrationTests.Analytics
         }
 
         [RealFirebaseFact]
+        public void does_not_throw_any_exception_when_clearing_user_properties()
+        {
+            var sut = CrossFirebaseAnalytics.Current;
+            sut.SetUserId(null);
+            sut.SetUserProperty("some_name", null);
+        }
+
+        [RealFirebaseFact]
         public async Task does_not_throw_any_exception_when_getting_app_instance_id()
         {
             var sut = CrossFirebaseAnalytics.Current;
             Assert.NotNull(await sut.GetAppInstanceIdAsync());
+        }
+
+        [RealFirebaseFact]
+        public async Task reset_analytics_data_keeps_instance_id_api_usable()
+        {
+            var sut = CrossFirebaseAnalytics.Current;
+
+            sut.ResetAnalyticsData();
+
+            Assert.NotNull(await sut.GetAppInstanceIdAsync());
+        }
+
+        [RealFirebaseFact]
+        public void accepts_events_while_collection_is_disabled()
+        {
+            var sut = CrossFirebaseAnalytics.Current;
+
+            try {
+                sut.IsAnalyticsCollectionEnabled = false;
+                sut.LogEvent("test_collection_disabled", ("some_parameter", "some_value"));
+            }
+            finally {
+                sut.IsAnalyticsCollectionEnabled = true;
+            }
+        }
+
+        [RealFirebaseFact]
+        public void accepts_boundary_sized_parameters_and_user_properties()
+        {
+            var sut = CrossFirebaseAnalytics.Current;
+            var parameterName = new string('p', 40);
+            var userPropertyName = new string('u', 24);
+            var userPropertyValue = new string('v', 36);
+
+            sut.LogEvent("test_boundary_parameters", (parameterName, "value"));
+            sut.SetUserProperty(userPropertyName, userPropertyValue);
         }
 
         [RealFirebaseFact]

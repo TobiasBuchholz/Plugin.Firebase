@@ -1,64 +1,54 @@
 using System.Text.Json.Serialization;
+using JetBrains.Annotations;
 
-namespace Plugin.Firebase.IntegrationTests.Functions
+namespace Plugin.Firebase.IntegrationTests.Functions;
+
+[Preserve(AllMembers = true)]
+public sealed class CallableObjectResponseData
 {
-    [Preserve(AllMembers = true)]
-    public sealed class CallableObjectResponseData
-    {
-        public CallableObjectResponseData()
-        {
-        }
+    [JsonPropertyName("input_value")]
+    public long InputValue { get; [UsedImplicitly] set; }
 
-        [JsonPropertyName("input_value")]
-        public long InputValue { get; set; }
+    [JsonPropertyName("output_value")]
+    public long OutputValue { get; [UsedImplicitly] set; }
 
-        [JsonPropertyName("output_value")]
-        public long OutputValue { get; set; }
+    [JsonPropertyName("message")]
+    public string Message { get; [UsedImplicitly] set; } = string.Empty;
 
-        [JsonPropertyName("message")]
-        public string Message { get; set; }
+    [JsonPropertyName("is_valid")]
+    public bool IsValid { get; [UsedImplicitly] set; }
 
-        [JsonPropertyName("is_valid")]
-        public bool IsValid { get; set; }
+    [JsonPropertyName("nested")]
+    public CallableNestedResponseData Nested { get; [UsedImplicitly] set; } = new();
 
-        [JsonPropertyName("nested")]
-        public CallableNestedResponseData Nested { get; set; }
+    [JsonPropertyName("items")]
+    // ReSharper disable CollectionNeverUpdated.Global
+    public List<CallableArrayItemData> Items { get; [UsedImplicitly] set; } = [];
 
-        [JsonPropertyName("items")]
-        public List<CallableArrayItemData> Items { get; set; }
+    [JsonPropertyName("tags")]
+    public List<string> Tags { get; [UsedImplicitly] set; } = [];
 
-        [JsonPropertyName("tags")]
-        public List<string> Tags { get; set; }
+    [JsonPropertyName("scores")]
+    public List<long> Scores { get; [UsedImplicitly] set; } = [];
+    // ReSharper restore CollectionNeverUpdated.Global
+}
 
-        [JsonPropertyName("scores")]
-        public List<long> Scores { get; set; }
-    }
+[Preserve(AllMembers = true)]
+public sealed class CallableNestedResponseData
+{
+    [JsonPropertyName("name")]
+    public string Name { get; [UsedImplicitly] set; } = string.Empty;
 
-    [Preserve(AllMembers = true)]
-    public sealed class CallableNestedResponseData
-    {
-        public CallableNestedResponseData()
-        {
-        }
+    [JsonPropertyName("count")]
+    public long Count { get; [UsedImplicitly] set; }
+}
 
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
+[Preserve(AllMembers = true)]
+public sealed class CallableArrayItemData
+{
+    [JsonPropertyName("title")]
+    public string Title { get; [UsedImplicitly] set; } = string.Empty;
 
-        [JsonPropertyName("count")]
-        public long Count { get; set; }
-    }
-
-    [Preserve(AllMembers = true)]
-    public sealed class CallableArrayItemData
-    {
-        public CallableArrayItemData()
-        {
-        }
-
-        [JsonPropertyName("title")]
-        public string Title { get; set; }
-
-        [JsonPropertyName("value")]
-        public long Value { get; set; }
-    }
+    [JsonPropertyName("value")]
+    public long Value { get; [UsedImplicitly] set; }
 }

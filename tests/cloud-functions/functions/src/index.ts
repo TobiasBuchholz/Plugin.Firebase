@@ -3,6 +3,35 @@ import * as functions from 'firebase-functions/v1';
 
 admin.initializeApp();
 
+function encodeBase64Url(value: object): string {
+  return Buffer
+    .from(JSON.stringify(value))
+    .toString('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/g, '');
+}
+
+function createUnsignedEmulatorCustomToken(uid: string, claims: object): string {
+  const now = Math.floor(Date.now() / 1000);
+  const serviceAccount = 'firebase-adminsdk@demo-pluginfirebase-integrationtests.iam.gserviceaccount.com';
+  const header = {
+    alg: 'none',
+    typ: 'JWT',
+  };
+  const payload = {
+    iss: serviceAccount,
+    sub: serviceAccount,
+    aud: 'https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit',
+    iat: now,
+    exp: now + 3600,
+    uid,
+    claims,
+  };
+
+  return `${encodeBase64Url(header)}.${encodeBase64Url(payload)}.`;
+}
+
 exports.addMessage = functions.https.onRequest(async (req, res) => {
   const original = req.query.text;
   const writeResult = await admin.firestore().collection('messages').add( { original: original });
@@ -91,6 +120,45 @@ exports.returnBooleanPayload = functions.https.onCall(async (data, context) =>  
 exports.returnNullPayload = functions.https.onCall(async (data, context) =>  {
   functions.logger.log('[+] returnNullPayload:', data);
   return null;
+});
+
+exports.createCustomToken = functions.https.onCall(async (data, context) =>  {
+  functions.logger.log('[+] createCustomToken:', data);
+  const uid = data?.uid ?? `acceptance-${Date.now()}`;
+  const claims = data?.claims ?? {};
+  let token: string;
+  try {
+    token = await admin.auth().createCustomToken(uid, claims);
+  } catch (error) {
+    functions.logger.warn('[!] createCustomToken falling back to unsigned emulator token:', error);
+    token = createUnsignedEmulatorCustomToken(uid, claims);
+  }
+  return {
+    uid,
+    token,
+  };
+});
+
+exports.echoAuthContext = functions.https.onCall(async (data, context) =>  {
+  functions.logger.log('[+] echoAuthContext:', {
+    data,
+    uid: context.auth?.uid,
+  });
+  return {
+    has_auth: !!context.auth,
+    uid: context.auth?.uid ?? null,
+    token_email: context.auth?.token?.email ?? null,
+    input_value: data?.input_value ?? null,
+  };
+});
+
+exports.throwStructuredError = functions.https.onCall(async () =>  {
+  functions.logger.log('[+] throwStructuredError');
+  throw new functions.https.HttpsError(
+    'failed-precondition',
+    'Structured acceptance-test failure',
+    { reason: 'acceptance-test' }
+  );
 });
 
 exports.echo = functions.https.onRequest(async (request, response) => {

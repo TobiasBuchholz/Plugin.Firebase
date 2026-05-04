@@ -7,7 +7,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
             Assert.True(Convert.ToBoolean(nestedObject["enabled"]));
 
             var roles = Assert.IsAssignableFrom<IList<object>>(nestedObject["roles"]);
-            Assert.Equal(new[] { "admin", "tester" }, roles.Select(x => Assert.IsType<string>(x)));
+            Assert.Equal(["admin", "tester"], roles.Select(x => Assert.IsType<string>(x)));
 
             var metadata = Assert.IsAssignableFrom<IDictionary<string, object>>(
                 nestedObject["metadata"]
@@ -36,7 +36,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
                     Assert.Equal("first", Assert.IsType<string>(dict["name"]));
 
                     var flags = Assert.IsAssignableFrom<IList<object>>(dict["flags"]);
-                    Assert.Equal(new[] { true, false }, flags.Select(Convert.ToBoolean));
+                    Assert.Equal([true, false], flags.Select(Convert.ToBoolean));
                 },
                 item => {
                     var dict = Assert.IsAssignableFrom<IDictionary<string, object>>(item);

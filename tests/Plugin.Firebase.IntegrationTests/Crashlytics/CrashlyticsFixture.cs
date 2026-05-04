@@ -4,6 +4,7 @@ namespace Plugin.Firebase.IntegrationTests.Crashlytics
 {
     [Collection("Sequential")]
     [TestLogging]
+    [IntegrationTestFixture(IntegrationTestPackage.Crashlytics)]
     [Preserve(AllMembers = true)]
     public sealed class CrashlyticsFixture
     {
@@ -24,24 +25,30 @@ namespace Plugin.Firebase.IntegrationTests.Crashlytics
                 { "bulk_int", 7 },
                 { "bulk_string", "bulk-value" }
             });
-            sut.SetUserId($"integration-test-{Guid.NewGuid():N}");
+            sut.SetUserId(IntegrationTestData.UniqueId("integration-test"));
             sut.Log("Crashlytics integration smoke test");
             sut.SetCrashlyticsCollectionEnabled(true);
         }
 
-        [Fact]
+        [NonIosSimulatorFact]
         public async Task records_exception_and_queries_unsent_reports()
         {
-            if(OperatingSystem.IsIOS() && DeviceInfo.DeviceType == DeviceType.Virtual) {
-                return;
-            }
-
             var sut = CrossFirebaseCrashlytics.Current;
 
             sut.SetCrashlyticsCollectionEnabled(false);
             sut.RecordException(new InvalidOperationException("Crashlytics integration smoke test"));
-            await sut.CheckForUnsentReportsAsync().WaitAsync(TimeSpan.FromSeconds(10));
+            var hasUnsentReports = await sut.CheckForUnsentReportsAsync().WaitForTestAsync(
+                IntegrationTestTimeouts.Callback,
+                "Crashlytics unsent report check");
+            Assert.IsType<bool>(hasUnsentReports);
             sut.SetCrashlyticsCollectionEnabled(true);
+        }
+
+        [Fact]
+        public void exposes_previous_crash_state()
+        {
+            var didCrash = CrossFirebaseCrashlytics.Current.DidCrashOnPreviousExecution();
+            Assert.IsType<bool>(didCrash);
         }
 
         [Fact]
@@ -53,6 +60,22 @@ namespace Plugin.Firebase.IntegrationTests.Crashlytics
             sut.SendUnsentReports();
             sut.DeleteUnsentReports();
             sut.SetCrashlyticsCollectionEnabled(true);
+        }
+
+        [OptInFact(IntegrationTestOptions.ExpectPreviousCrashEnvironmentVariableName)]
+        public void detects_previous_forced_crash_when_enabled()
+        {
+            Assert.True(CrossFirebaseCrashlytics.Current.DidCrashOnPreviousExecution());
+        }
+
+        [OptInFact(IntegrationTestOptions.ForceCrashlyticsCrashEnvironmentVariableName)]
+        public void forces_process_crash_when_enabled()
+        {
+            var sut = CrossFirebaseCrashlytics.Current;
+            sut.SetCrashlyticsCollectionEnabled(true);
+            sut.Log("Forcing Crashlytics acceptance-test crash.");
+
+            Environment.FailFast("Forced Crashlytics acceptance-test crash.");
         }
     }
 }

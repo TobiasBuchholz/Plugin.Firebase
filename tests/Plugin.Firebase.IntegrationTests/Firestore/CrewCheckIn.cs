@@ -22,25 +22,25 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         }
 
         [FirestoreProperty("employees")]
-        public IList<CrewCheckInEmployee> Employees { get; set; }
+        public IList<CrewCheckInEmployee> Employees { get; set; } = null!;
 
         [FirestoreProperty("yardAssets")]
-        public IList<CrewCheckInAsset> YardAssets { get; set; }
+        public IList<CrewCheckInAsset> YardAssets { get; set; } = null!;
 
         [FirestoreProperty("clockInTime")]
-        public string ClockInTime { get; set; }
+        public string ClockInTime { get; set; } = null!;
 
         [FirestoreProperty("yardLocation")]
-        public string YardLocation { get; set; }
+        public string YardLocation { get; set; } = null!;
 
         [FirestoreProperty("emergencyCheckIn")]
         public bool EmergencyCheckIn { get; set; }
 
         [FirestoreProperty("removedAssets")]
-        public IList<CrewCheckInRemovedAsset> RemovedAssets { get; set; }
+        public IList<CrewCheckInRemovedAsset> RemovedAssets { get; set; } = null!;
 
         [FirestoreProperty("logs")]
-        public IList<CrewCheckInLog> LogEntries { get; set; }
+        public IList<CrewCheckInLog> LogEntries { get; set; } = null!;
 
         [FirestoreProperty("timestamp")]
         public DateTime Timestamp { get; set; }
@@ -69,37 +69,37 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         }
 
         [FirestoreProperty("name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         [FirestoreProperty("class")]
-        public string Clazz { get; set; }
+        public string Clazz { get; set; } = null!;
 
         [FirestoreProperty("crew")]
         public int Crew { get; set; }
 
         [FirestoreProperty("languages")]
-        public IList<string> Languages { get; set; }
+        public IList<string> Languages { get; set; } = null!;
 
         [FirestoreProperty("assignedEquipment")]
-        public IList<CrewCheckInAsset> AssignedEquipment { get; set; }
+        public IList<CrewCheckInAsset> AssignedEquipment { get; set; } = null!;
 
         [FirestoreProperty("assignedVehicles")]
-        public IList<CrewCheckInAsset> AssignedVehicles { get; set; }
+        public IList<CrewCheckInAsset> AssignedVehicles { get; set; } = null!;
 
         [FirestoreProperty("clockInTime")]
-        public string ClockInTime { get; set; }
+        public string ClockInTime { get; set; } = null!;
 
         [FirestoreProperty("status")]
-        public string Status { get; set; }
+        public string Status { get; set; } = null!;
 
         [FirestoreProperty("workType")]
-        public string WorkType { get; set; }
+        public string WorkType { get; set; } = null!;
 
         [FirestoreProperty("jobNumbers")]
-        public IList<string> JobNumbers { get; set; }
+        public IList<string> JobNumbers { get; set; } = null!;
 
         [FirestoreProperty("notes")]
-        public string Notes { get; set; }
+        public string Notes { get; set; } = null!;
     }
 
     public class CrewCheckInRemovedAsset : IFirestoreObject
@@ -117,13 +117,13 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         }
 
         [FirestoreProperty("assetName")]
-        public string AssetName { get; private set; }
+        public string AssetName { get; private set; } = null!;
 
         [FirestoreProperty("assetDescription")]
-        public string AssetDescription { get; private set; }
+        public string AssetDescription { get; private set; } = null!;
 
         [FirestoreProperty("reason")]
-        public string Reason { get; private set; }
+        public string Reason { get; private set; } = null!;
     }
 
     public class CrewCheckInLog : IFirestoreObject
@@ -144,10 +144,10 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         public DateTime Timestamp { get; set; } // Plugin.Firebase maps to Firestore timestamp
 
         [FirestoreProperty("action")]
-        public string Action { get; set; }
+        public string Action { get; set; } = null!;
 
         [FirestoreProperty("message")]
-        public string Message { get; set; }
+        public string Message { get; set; } = null!;
     }
 
     public class CrewCheckInAsset : IFirestoreObject
@@ -166,15 +166,15 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         }
 
         [FirestoreProperty("description")]
-        public string Description { get; set; }
+        public string Description { get; set; } = null!;
 
         [FirestoreProperty("name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         [FirestoreProperty("operator")]
-        public string Operator { get; set; }
+        public string Operator { get; set; } = null!;
 
         [FirestoreProperty("type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = null!;
     }
 }

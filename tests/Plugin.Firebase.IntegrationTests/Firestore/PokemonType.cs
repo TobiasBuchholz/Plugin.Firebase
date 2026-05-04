@@ -1,11 +1,10 @@
-namespace Plugin.Firebase.IntegrationTests.Firestore
+namespace Plugin.Firebase.IntegrationTests.Firestore;
+
+public enum PokeType : long
 {
-    public enum PokeType : long
-    {
-        Undefined,
-        Fire,
-        Water,
-        Plant,
-        Electric
-    }
+    Undefined,
+    Fire,
+    Water,
+    Plant,
+    Electric
 }

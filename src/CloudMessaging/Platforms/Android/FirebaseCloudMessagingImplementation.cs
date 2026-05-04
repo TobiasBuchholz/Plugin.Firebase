@@ -19,7 +19,9 @@ public sealed class FirebaseCloudMessagingImplementation : DisposableBase, IFire
     public static string ChannelId { get; set; }
     public static int SmallIconRef { private get; set; } = Android.Resource.Drawable.SymDefAppIcon;
     public static Func<FCMNotification, NotificationCompat.Builder> NotificationBuilderProvider { private get; set; }
-    public static Action<FCMNotification> ShowLocalNotificationAction { private get; set; }
+#nullable enable
+    public static Action<FCMNotification>? ShowLocalNotificationAction { private get; set; }
+#nullable restore
 
     private FCMNotification _missedTappedNotification;
 
@@ -68,10 +70,11 @@ public sealed class FirebaseCloudMessagingImplementation : DisposableBase, IFire
     private static void HandleShowLocalNotificationIfNeeded(FCMNotification fcmNotification)
     {
         if(!fcmNotification.IsSilentInForeground) {
-            if(ShowLocalNotificationAction == null) {
+            var showLocalNotificationAction = ShowLocalNotificationAction;
+            if(showLocalNotificationAction == null) {
                 HandleShowLocalNotification(fcmNotification);
             } else {
-                ShowLocalNotificationAction(fcmNotification);
+                showLocalNotificationAction(fcmNotification);
             }
         }
     }

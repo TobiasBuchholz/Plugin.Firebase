@@ -10,8 +10,7 @@ public static class CrossFirebase
     /// <summary>
     /// Gets the activity locator delegate used to obtain the current Android activity.
     /// </summary>
-    public static Func<Activity>? ActivityLocator
-    {
+    public static Func<Activity>? ActivityLocator {
         get;
         private set;
     }
@@ -62,7 +61,7 @@ public static class CrossFirebase
             app = FirebaseApp.Instance;
             return app != null;
         } catch(Java.Lang.IllegalStateException) {
-            app = null;
+            app = null!;
             return false;
         }
     }

@@ -1,7 +1,6 @@
-using ObjCRuntime;
 using UIKit;
 
-namespace Plugin.Firebase.IntegrationTests2;
+namespace Plugin.Firebase.IntegrationTests;
 
 public class Program
 {

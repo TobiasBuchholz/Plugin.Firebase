@@ -120,12 +120,10 @@ dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationT
   -f net9.0-android
 ```
 
-The default integration-test host now uses the DeviceRunners XHarness runner so tests can be launched from the CLI. Install the tool once:
+The default integration-test host now uses the DeviceRunners XHarness runner so tests can be launched from the CLI. Install the local runner tools once:
 
 ```sh
-dotnet tool install --global Microsoft.DotNet.XHarness.CLI \
-  --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-eng/nuget/v3/index.json \
-  --version "11.0.0-prerelease*"
+scripts/install-integration-test-tools.sh
 ```
 
 The installed command is `xharness`. If your shell cannot find it, make sure `~/.dotnet/tools` is on your `PATH`.
@@ -133,29 +131,16 @@ The installed command is `xharness`. If your shell cannot find it, make sure `~/
 iOS integration tests run on a specific simulator:
 
 ```sh
-xharness apple test \
-  --target ios-simulator-64 \
-  --device <simulator-udid> \
-  --timeout="00:10:00" \
-  --launch-timeout=00:10:00 \
-  --app tests/Plugin.Firebase.IntegrationTests/bin/Debug/net9.0-ios/iossimulator-arm64/Plugin.Firebase.IntegrationTests.app \
-  --output-directory artifacts/test-results/ios
+DEVICE_ID=<simulator-udid> scripts/run-integration-emulators.sh ios
 ```
 
 Android integration tests run on the currently running emulator:
 
 ```sh
-xharness android test \
-  --timeout="00:10:00" \
-  --launch-timeout=00:10:00 \
-  --package-name <package-id> \
-  --instrumentation devicerunners.xharness.maui.XHarnessInstrumentation \
-  --app tests/Plugin.Firebase.IntegrationTests/bin/Debug/net9.0-android/<package-id>-Signed.apk \
-  --output-directory artifacts/test-results/android \
-  --verbosity=Debug
+scripts/run-integration-emulators.sh android
 ```
 
-Use `xcrun simctl list devices available` to discover simulator UDIDs and `adb devices` to verify the Android emulator is online before running the Android command. XHarness uses the only connected adb target by default; if `adb devices` lists more than one device or emulator, add `--device-id <adb-device-id>` to the `xharness android test` command. If you keep the default application ids, `<package-id>` is `plugin.firebase.integrationtests`. If you override the ids in `Plugin.Firebase.IntegrationTests.props.user`, use the overridden Android package id in both `--package-name` and the APK filename.
+Use `xcrun simctl list devices available` to discover simulator UDIDs and `adb devices` to verify the Android emulator is online before running the Android command. `scripts/run-integration-emulators.sh` calls `scripts/check-integration-environment.sh android|ios` first to check CLIs, built app output, Functions build output, emulator ports, and target availability. Set `SKIP_INTEGRATION_PREFLIGHT=1` only for CI edge cases where another step already guarantees the environment. XHarness uses the only connected adb target by default; if `adb devices` lists more than one device or emulator, add `--device-id <adb-device-id>` to the `xharness android test` command. If you keep the default application ids, `<package-id>` is `plugin.firebase.integrationtests`. If you override the ids in `Plugin.Firebase.IntegrationTests.props.user`, use the overridden Android package id in both `--package-name` and the APK filename.
 
 The interactive visual runner is still available, but it is opt-in:
 
@@ -165,7 +150,7 @@ The interactive visual runner is still available, but it is opt-in:
 Harness notes:
 
 - The integration fixtures run sequentially on purpose. The suite shares backend state, emulator state, and cleanup code across tests, so disabling xUnit parallelization avoids order-dependent failures that are hard to reproduce on device runners.
-- Each test writes `[TEST START]` and `[TEST END]` breadcrumbs to the runner output. If a CLI run appears hung, check the xharness log, simulator console output, or Android logcat to see which test last started.
+- Each test writes `[TEST START]` and `[TEST END]` breadcrumbs to the runner output. If a CLI run appears hung, check the xharness log, simulator console output, or Android logcat to see which test last started. The CI summary includes recent breadcrumbs plus failed, skipped, and slow test details when XML/log data is available.
 - iOS simulator builds ad-hoc re-sign the generated app bundle and bundled .NET runtime libraries after `dotnet build`. This is a simulator-only workaround for Xcode 26 / macOS 26 code-signature validation and is not required for real-device builds.
 
 ## Emulator-backed integration tests (default)
@@ -192,12 +177,14 @@ Seed the Auth emulator before launching the device test app:
 node scripts/seed-auth-emulator.js
 ```
 
-For one-shot runs, wrap the XHarness command with `emulators:exec`:
+For one-shot emulator-backed runs, use the shared runner script:
 
 ```sh
-firebase emulators:exec --project demo-pluginfirebase-integrationtests --only auth,firestore,functions,storage \
-  "node scripts/seed-auth-emulator.js && <xharness command>"
+scripts/run-integration-emulators.sh android
+DEVICE_ID=<simulator-udid> scripts/run-integration-emulators.sh ios
 ```
+
+Run `scripts/check-integration-environment.sh android|ios` directly for a fast setup check without launching emulators.
 
 Default emulator ports are Auth `9099`, Firestore `8080`, Functions `5001`, and Storage `9199`. The app uses `localhost` on iOS and `10.0.2.2` on Android unless overridden with `PLUGIN_FIREBASE_<SERVICE>_EMULATOR_HOST` / `PLUGIN_FIREBASE_<SERVICE>_EMULATOR_PORT` or Android system properties such as `debug.pluginfirebase.auth.host`.
 
@@ -205,7 +192,7 @@ Analytics, Remote Config, Performance Monitoring ingestion, and App Check token 
 
 Performance Monitoring still runs wrapper contract tests on the default emulator-backed app because custom traces and HTTP metrics can be created with dummy Firebase options. Those tests validate the local SDK calls and wrapper behavior only; automated tests do not wait for traces or metrics to appear in the Firebase Console.
 
-The `.github/workflows/integration-emulators.yml` workflow runs the emulator-backed Android and iOS suites as PR-gated checks and still supports manual reruns with `workflow_dispatch`. Branch protection should require the `integration-emulators-android` and `integration-emulators-ios` checks.
+The `.github/workflows/integration-emulators.yml` workflow runs the emulator-backed Android and iOS suites as PR-gated checks and still supports manual reruns with `workflow_dispatch`. Branch protection should require the `integration-emulators-android` and `integration-emulators-ios` checks. Its summary output keeps the totals table and adds failures, skips, slow tests, and recent test breadcrumbs when available.
 
 ## Real Firebase project setup for integration tests
 
@@ -242,12 +229,33 @@ Make sure your Firebase app registrations and generated config files match the i
 
    | Email | Password | Custom Claims |
    |---|---|---|
-   | `custom-claims@test.com` | `123456` | `{ "is_awesome": true }` |
+   | `custom-claims@test.com` | `123456` | See the claim payload below |
 
    Custom claims must be set via the Firebase Admin SDK or a Cloud Function — they cannot be set from the Firebase Console UI. Example using the Admin SDK:
    ```js
    admin.auth().getUserByEmail('custom-claims@test.com')
-     .then(user => admin.auth().setCustomUserClaims(user.uid, { is_awesome: true }));
+     .then(user => admin.auth().setCustomUserClaims(user.uid, {
+       is_awesome: true,
+       nested_object: {
+         enabled: true,
+         roles: ['admin', 'tester'],
+         metadata: {
+           source: 'emulator',
+           version: 2,
+         },
+         history: [
+           { action: 'created', count: 1 },
+           { action: 'updated', count: 2 },
+         ],
+         score: 7,
+         ratio: 1.5,
+         optional: null,
+       },
+       nested_array: [
+         { name: 'first', flags: [true, false] },
+         { name: 'second', metadata: { source: 'emulator' } },
+       ],
+     }));
    ```
 
 3. All other test users (`sign-in-with-pw@test.com`, `to-delete@test.com`, etc.) are created and cleaned up automatically by the test suite via `createsUserAutomatically`.
@@ -317,6 +325,10 @@ Required functions:
 | `returnNumberPayload` | `https.onCall` | Verifies callable number response deserialization |
 | `returnBooleanPayload` | `https.onCall` | Verifies callable boolean response deserialization |
 | `returnNullPayload` | `https.onCall` | Verifies callable null response deserialization |
+| `createCustomToken` | `https.onCall` | Mints custom tokens for Auth acceptance tests |
+| `echoAuthContext` | `https.onCall` | Verifies callable auth context propagation |
+| `throwStructuredError` | `https.onCall` | Verifies callable error propagation |
+| `regionalPing` | `https.onCall`, `southamerica-east1` | Verifies configured Functions regions |
 | `addMessage` | `https.onRequest` | Writes to Firestore `messages` collection |
 | `makeUppercase` | `firestore.onCreate` | Triggered on `/messages/{documentId}` |
 | `echo` | `https.onRequest` | Echoes request body |

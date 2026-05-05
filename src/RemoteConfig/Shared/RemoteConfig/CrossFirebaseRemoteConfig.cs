@@ -5,12 +5,12 @@ namespace Plugin.Firebase.RemoteConfig;
 /// </summary>
 public sealed class CrossFirebaseRemoteConfig
 {
-    private static Lazy<IFirebaseRemoteConfig> _implementation = new Lazy<IFirebaseRemoteConfig>(
+    private static Lazy<IFirebaseRemoteConfig?> _implementation = new Lazy<IFirebaseRemoteConfig?>(
         CreateInstance,
         LazyThreadSafetyMode.PublicationOnly
     );
 
-    private static IFirebaseRemoteConfig CreateInstance()
+    private static IFirebaseRemoteConfig? CreateInstance()
     {
 #if IOS || ANDROID
         return new FirebaseRemoteConfigImplementation();
@@ -50,8 +50,8 @@ public sealed class CrossFirebaseRemoteConfig
     public static void Dispose()
     {
         if(_implementation != null && _implementation.IsValueCreated) {
-            _implementation.Value.Dispose();
-            _implementation = new Lazy<IFirebaseRemoteConfig>(
+            _implementation.Value?.Dispose();
+            _implementation = new Lazy<IFirebaseRemoteConfig?>(
                 CreateInstance,
                 LazyThreadSafetyMode.PublicationOnly
             );

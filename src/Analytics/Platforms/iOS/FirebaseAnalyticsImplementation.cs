@@ -1,3 +1,5 @@
+#nullable enable
+
 using Plugin.Firebase.Analytics.Platforms.iOS.Extensions;
 using Plugin.Firebase.Core;
 using FirebaseAnalytics = Firebase.Analytics.Analytics;
@@ -10,13 +12,13 @@ namespace Plugin.Firebase.Analytics;
 public sealed class FirebaseAnalyticsImplementation : DisposableBase, IFirebaseAnalytics
 {
     /// <inheritdoc/>
-    public Task<string> GetAppInstanceIdAsync()
+    public Task<string?> GetAppInstanceIdAsync()
     {
         return Task.FromResult(FirebaseAnalytics.AppInstanceId);
     }
 
     /// <inheritdoc/>
-    public void LogEvent(string eventName, IDictionary<string, object> parameters)
+    public void LogEvent(string eventName, IDictionary<string, object>? parameters)
     {
         FirebaseAnalytics.LogEvent(eventName, parameters?.ToNSDictionary());
     }
@@ -24,21 +26,21 @@ public sealed class FirebaseAnalyticsImplementation : DisposableBase, IFirebaseA
     /// <inheritdoc/>
     public void LogEvent(
         string eventName,
-        params (string parameterName, object parameterValue)[] parameters
+        params (string parameterName, object parameterValue)[]? parameters
     )
     {
         LogEvent(eventName, parameters?.ToDictionary(x => x.parameterName, x => x.parameterValue));
     }
 
     /// <inheritdoc/>
-    public void SetDefaultEventParameters(IDictionary<string, object> parameters)
+    public void SetDefaultEventParameters(IDictionary<string, object>? parameters)
     {
         FirebaseAnalytics.SetDefaultEventParameters(parameters?.ToNSDictionary());
     }
 
     /// <inheritdoc/>
     public void SetDefaultEventParameters(
-        params (string parameterName, object parameterValue)[] parameters
+        params (string parameterName, object parameterValue)[]? parameters
     )
     {
         SetDefaultEventParameters(parameters?.ToDictionary(x => x.parameterName, x => x.parameterValue));
@@ -51,13 +53,13 @@ public sealed class FirebaseAnalyticsImplementation : DisposableBase, IFirebaseA
     }
 
     /// <inheritdoc/>
-    public void SetUserId(string id)
+    public void SetUserId(string? id)
     {
         FirebaseAnalytics.SetUserId(id);
     }
 
     /// <inheritdoc/>
-    public void SetUserProperty(string name, string value)
+    public void SetUserProperty(string name, string? value)
     {
         FirebaseAnalytics.SetUserProperty(value, name);
     }

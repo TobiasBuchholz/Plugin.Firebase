@@ -1,3 +1,5 @@
+#nullable enable
+
 using Android.Content;
 using Android.Gms.Extensions;
 using Firebase.Analytics;
@@ -13,29 +15,29 @@ public sealed class FirebaseAnalyticsImplementation : DisposableBase, IFirebaseA
         _firebaseAnalytics = FirebaseAnalytics.GetInstance(context);
     }
 
-    private static FirebaseAnalytics _firebaseAnalytics;
+    private static FirebaseAnalytics? _firebaseAnalytics;
 
-    public async Task<string> GetAppInstanceIdAsync()
+    public async Task<string?> GetAppInstanceIdAsync()
     {
-        return (string) await GetInitializedAnalytics().GetAppInstanceId().AsAsync<Java.Lang.String>();
+        return (string?) await GetInitializedAnalytics().GetAppInstanceId().AsAsync<Java.Lang.String>();
     }
 
-    public void LogEvent(string eventName, IDictionary<string, object> parameters)
+    public void LogEvent(string eventName, IDictionary<string, object>? parameters)
     {
         GetInitializedAnalytics().LogEvent(eventName, parameters?.ToBundle());
     }
 
-    public void LogEvent(string eventName, params (string parameterName, object parameterValue)[] parameters)
+    public void LogEvent(string eventName, params (string parameterName, object parameterValue)[]? parameters)
     {
         LogEvent(eventName, parameters?.ToDictionary(x => x.parameterName, x => x.parameterValue));
     }
 
-    public void SetDefaultEventParameters(IDictionary<string, object> parameters)
+    public void SetDefaultEventParameters(IDictionary<string, object>? parameters)
     {
         GetInitializedAnalytics().SetDefaultEventParameters(parameters?.ToBundle());
     }
 
-    public void SetDefaultEventParameters(params (string parameterName, object parameterValue)[] parameters)
+    public void SetDefaultEventParameters(params (string parameterName, object parameterValue)[]? parameters)
     {
         SetDefaultEventParameters(parameters?.ToDictionary(x => x.parameterName, x => x.parameterValue));
     }
@@ -45,12 +47,12 @@ public sealed class FirebaseAnalyticsImplementation : DisposableBase, IFirebaseA
         GetInitializedAnalytics().SetConsent(consentSettings.ToNativeConsentSettings());
     }
 
-    public void SetUserId(string id)
+    public void SetUserId(string? id)
     {
         GetInitializedAnalytics().SetUserId(id);
     }
 
-    public void SetUserProperty(string name, string value)
+    public void SetUserProperty(string name, string? value)
     {
         GetInitializedAnalytics().SetUserProperty(name, value);
     }

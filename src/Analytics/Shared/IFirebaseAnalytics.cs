@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace Plugin.Firebase.Analytics;
 
 /// <summary>
@@ -9,7 +11,7 @@ public interface IFirebaseAnalytics : IDisposable
     /// Returns the unique ID for this instance of the application or null if <see cref="ConsentType.AnalyticsStorage"/> has been set
     /// to <see cref="ConsentStatus.Denied"/>.
     /// </summary>
-    Task<string> GetAppInstanceIdAsync();
+    Task<string?> GetAppInstanceIdAsync();
 
     /// <summary>
     /// Logs an app event. The event can have up to 25 parameters. Events with the same name must have the same parameters.
@@ -29,7 +31,7 @@ public interface IFirebaseAnalytics : IDisposable
     /// parameter values can be up to 100 characters long. The “firebase_”, “google_”, and “ga_” prefixes are reserved and should not
     /// be used for parameter names.
     /// </param>
-    void LogEvent(string eventName, IDictionary<string, object> parameters);
+    void LogEvent(string eventName, IDictionary<string, object>? parameters);
 
     /// <summary>
     /// Logs an app event. The event can have up to 25 parameters. Events with the same name must have the same parameters.
@@ -49,7 +51,7 @@ public interface IFirebaseAnalytics : IDisposable
     /// parameter values can be up to 100 characters long. The “firebase_”, “google_”, and “ga_” prefixes are reserved and should not
     /// be used for parameter names.
     /// </param>
-    void LogEvent(string eventName, params (string parameterName, object parameterValue)[] parameters);
+    void LogEvent(string eventName, params (string parameterName, object parameterValue)[]? parameters);
 
     /// <summary>
     /// Sets parameters that are included with every subsequent event. Event-specific parameters take precedence when they use
@@ -61,7 +63,7 @@ public interface IFirebaseAnalytics : IDisposable
     /// integer and 64-bit floating-point number) parameter types are supported. NSString parameter values can be up to 100
     /// characters long. The “firebase_”, “google_”, and “ga_” prefixes are reserved and should not be used for parameter names.
     /// </param>
-    void SetDefaultEventParameters(IDictionary<string, object> parameters);
+    void SetDefaultEventParameters(IDictionary<string, object>? parameters);
 
     /// <summary>
     /// Sets parameters that are included with every subsequent event. Event-specific parameters take precedence when they use
@@ -73,7 +75,7 @@ public interface IFirebaseAnalytics : IDisposable
     /// 64-bit floating-point number) parameter types are supported. NSString parameter values can be up to 100 characters long.
     /// The “firebase_”, “google_”, and “ga_” prefixes are reserved and should not be used for parameter names.
     /// </param>
-    void SetDefaultEventParameters(params (string parameterName, object parameterValue)[] parameters);
+    void SetDefaultEventParameters(params (string parameterName, object parameterValue)[]? parameters);
 
     /// <summary>
     /// Sets the applicable end user consent state for this app on this device. Settings are persisted across app sessions.
@@ -88,7 +90,7 @@ public interface IFirebaseAnalytics : IDisposable
     /// The user ID to ascribe to the user of this app on this device, which must be non-empty and no more than 256 characters long.
     /// Setting userID to null removes the user ID.
     /// </param>
-    void SetUserId(string id);
+    void SetUserId(string? id);
 
     /// <summary>
     /// Sets a user property to a given value. Up to 25 user property names are supported. Once set, user property values persist
@@ -101,7 +103,7 @@ public interface IFirebaseAnalytics : IDisposable
     /// <param name="value">
     /// The value of the user property. Values can be up to 36 characters long. Setting the value to null removes the user property.
     /// </param>
-    void SetUserProperty(string name, string value);
+    void SetUserProperty(string name, string? value);
 
     /// <summary>
     /// Sets the interval of inactivity in seconds that terminates the current session. The default value is 1800 seconds (30 minutes).

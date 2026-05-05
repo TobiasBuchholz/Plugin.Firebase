@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace Plugin.Firebase.Functions;
 
 /// <summary>
@@ -6,13 +8,13 @@ namespace Plugin.Firebase.Functions;
 public sealed class CrossFirebaseFunctions
 {
     private static readonly object SyncRoot = new();
-    private static string _region;
-    private static Lazy<IFirebaseFunctions> _implementation = CreateLazyImplementation();
+    private static string? _region;
+    private static Lazy<IFirebaseFunctions?> _implementation = CreateLazyImplementation();
 
-    private static Lazy<IFirebaseFunctions> CreateLazyImplementation() =>
-        new Lazy<IFirebaseFunctions>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
+    private static Lazy<IFirebaseFunctions?> CreateLazyImplementation() =>
+        new Lazy<IFirebaseFunctions?>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
 
-    private static IFirebaseFunctions CreateInstance()
+    private static IFirebaseFunctions? CreateInstance()
     {
 #if IOS || ANDROID
         return _region == null
@@ -30,8 +32,8 @@ public sealed class CrossFirebaseFunctions
     /// Call this before using <see cref="Current"/>. If the region is changed after <see cref="Current"/>
     /// was already created, reacquire <see cref="Current"/> before creating new callable references.
     /// </summary>
-    /// <param name="region">e.g. 'us-central1'</param>
-    public static void Initialize(string region)
+    /// <param name="region">e.g. 'us-central1'. Pass <c>null</c> to use the default region.</param>
+    public static void Initialize(string? region)
     {
         lock(SyncRoot) {
             if(_region == region) {

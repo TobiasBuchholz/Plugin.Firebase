@@ -230,7 +230,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         return new DisposableWithAction(() => _firebaseAuth.RemoveAuthStateListener(authStateListener));
     }
 
-    public IFirebaseUser CurrentUser => _firebaseAuth.CurrentUser?.ToAbstract();
+    public IFirebaseUser? CurrentUser => _firebaseAuth.CurrentUser?.ToAbstract();
 
     private static bool ShouldAttemptCreateUser(CrossPlatformFirebaseAuthException exception)
     {

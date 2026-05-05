@@ -10,7 +10,7 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
 {
     private readonly object _syncRoot = new();
     private AppCheckOptions _options = AppCheckOptions.Disabled;
-    private IDisposable _afterInitializeRegistration;
+    private IDisposable? _afterInitializeRegistration;
 
     public void Configure(AppCheckOptions options)
     {
@@ -59,7 +59,7 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
             $"Plugin.Firebase AppCheck: installing provider factory '{options.Provider}' (Android)."
         );
 
-        IAppCheckProviderFactory factory = null;
+        IAppCheckProviderFactory? factory = null;
         switch(options.Provider) {
             case AppCheckProviderType.Debug:
                 factory = (IAppCheckProviderFactory) DebugAppCheckProviderFactory.Instance;

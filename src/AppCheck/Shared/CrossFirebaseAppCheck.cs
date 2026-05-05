@@ -5,9 +5,9 @@ namespace Plugin.Firebase.AppCheck;
 /// </summary>
 public sealed class CrossFirebaseAppCheck
 {
-    private static Lazy<IFirebaseAppCheck> _implementation = new Lazy<IFirebaseAppCheck>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
+    private static Lazy<IFirebaseAppCheck?> _implementation = new Lazy<IFirebaseAppCheck?>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
 
-    private static IFirebaseAppCheck CreateInstance()
+    private static IFirebaseAppCheck? CreateInstance()
     {
 #if IOS || ANDROID
         return new FirebaseAppCheckImplementation();
@@ -64,8 +64,8 @@ public sealed class CrossFirebaseAppCheck
     public static void Dispose()
     {
         if(_implementation != null && _implementation.IsValueCreated) {
-            _implementation.Value.Dispose();
-            _implementation = new Lazy<IFirebaseAppCheck>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
+            _implementation.Value?.Dispose();
+            _implementation = new Lazy<IFirebaseAppCheck?>(CreateInstance, LazyThreadSafetyMode.PublicationOnly);
         }
     }
 }

@@ -51,6 +51,14 @@ public interface IFirebaseRemoteConfig : IDisposable
     Task ActivateAsync();
 
     /// <summary>
+    /// Registers a listener for real-time Remote Config updates.
+    /// </summary>
+    /// <param name="onUpdate">Callback invoked with the updated parameter keys.</param>
+    /// <param name="onError">Optional callback invoked when the listener fails.</param>
+    /// <returns>A disposable registration that removes the listener when disposed.</returns>
+    IDisposable AddOnConfigUpdateListener(Action<RemoteConfigUpdate> onUpdate, Action<Exception>? onError = null);
+
+    /// <summary>
     /// Returns the set of parameter keys that start with the given prefix, from the default namespace in the active config.
     /// </summary>
     /// <param name="prefix">The key prefix to look for. If prefix is null or empty, returns all the keys.</param>

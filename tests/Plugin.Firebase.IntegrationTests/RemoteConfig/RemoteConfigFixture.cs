@@ -1,4 +1,14 @@
+using Plugin.Firebase.Core.Exceptions;
 using Plugin.Firebase.RemoteConfig;
+#if ANDROID
+using Firebase.RemoteConfig;
+using Plugin.Firebase.RemoteConfig.Platforms.Android;
+#elif IOS
+using Plugin.Firebase.RemoteConfig.Platforms.iOS;
+using NSError = Foundation.NSError;
+using NSString = Foundation.NSString;
+using NSStringSet = Foundation.NSSet<Foundation.NSString>;
+#endif
 
 namespace Plugin.Firebase.IntegrationTests.RemoteConfig
 {
@@ -93,6 +103,88 @@ namespace Plugin.Firebase.IntegrationTests.RemoteConfig
             Assert.Equal(13.37, sut.GetDouble("remote_double"));
             Assert.True(sut.GetBoolean("remote_bool"));
         }
+
+        [RealFirebaseFact]
+        public void registers_and_disposes_config_update_listener()
+        {
+            IDisposable registration = null;
+
+            try {
+                registration = CrossFirebaseRemoteConfig.Current.AddOnConfigUpdateListener(
+                    _ => { },
+                    _ => { });
+
+                Assert.NotNull(registration);
+            }
+            finally {
+                registration?.Dispose();
+            }
+        }
+
+#if ANDROID
+        [Fact]
+        public void android_config_update_listener_maps_updated_keys()
+        {
+            RemoteConfigUpdate update = null;
+            Exception error = null;
+            var listener = new ConfigUpdateListener(
+                x => update = x,
+                x => error = x);
+            var updatedKeys = new[] { "remote_string", "remote_bool" };
+
+            listener.OnUpdate(ConfigUpdate.Create(updatedKeys));
+
+            Assert.Null(error);
+            Assert.NotNull(update);
+            Assert.Equal(
+                new[] { "remote_bool", "remote_string" },
+                update.UpdatedKeys.OrderBy(x => x).ToArray());
+        }
+
+        [Fact]
+        public void android_config_update_listener_maps_errors()
+        {
+            RemoteConfigUpdate update = null;
+            Exception error = null;
+            var listener = new ConfigUpdateListener(
+                x => update = x,
+                x => error = x);
+            using var nativeError = new FirebaseRemoteConfigException(
+                "real-time update failed",
+                FirebaseRemoteConfigException.Code.ConfigUpdateUnavailable);
+
+            listener.OnError(nativeError);
+
+            Assert.Null(update);
+            var firebaseException = Assert.IsType<FirebaseException>(error);
+            Assert.Equal("real-time update failed", firebaseException.Message);
+        }
+#elif IOS
+        [Fact]
+        public void ios_config_update_listener_maps_updated_keys()
+        {
+            using var firstKey = new NSString("remote_string");
+            using var secondKey = new NSString("remote_bool");
+            using var updatedKeys = new NSStringSet(new[] { firstKey, secondKey });
+
+            var update = ConfigUpdateListener.ToAbstract(updatedKeys);
+
+            Assert.Equal(
+                new[] { "remote_bool", "remote_string" },
+                update.UpdatedKeys.OrderBy(x => x).ToArray());
+        }
+
+        [Fact]
+        public void ios_config_update_listener_maps_errors()
+        {
+            using var domain = new NSString("remote.config.test");
+            using var nativeError = new NSError(domain, new IntPtr(7));
+
+            var firebaseException = ConfigUpdateListener.ToAbstract(nativeError);
+
+            Assert.Equal(nativeError.LocalizedDescription, firebaseException.Message);
+        }
+#endif
 
         private static string GetExpectedActivationErrorMessage()
         {

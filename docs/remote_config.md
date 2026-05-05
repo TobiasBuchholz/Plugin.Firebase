@@ -17,11 +17,28 @@ You can use Firebase Remote Config to define parameters in your app and update t
 
 Take a look at the [documentation](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents/blob/master/docs/Firebase/RemoteConfig/GettingStarted.md) for the AdamE.Firebase.iOS.RemoteConfig packages, because Plugin.Firebase's code is abstracted but still very similar.
 
+Register a real-time update listener when you want Firebase to notify the app that published Remote Config values changed. The listener returns the changed keys; call `ActivateAsync()` explicitly when your app is ready to apply fetched values.
+
+```csharp
+var registration = CrossFirebaseRemoteConfig.Current.AddOnConfigUpdateListener(
+    update => {
+        if(update.UpdatedKeys.Contains("some_remote_config_key")) {
+            _ = CrossFirebaseRemoteConfig.Current.ActivateAsync();
+        }
+    },
+    error => Console.WriteLine(error));
+
+registration.Dispose();
+```
+
 Since code should be documenting itself you can also take a look at the following classes:
 - [src/.../IFirebaseRemoteConfig.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/RemoteConfig/IFirebaseRemoteConfig.cs)
 - [tests/.../RemoteConfigFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/RemoteConfig/RemoteConfigFixture.cs)
 
 ## Release notes
+- Version 4.0.0
+  - Add real-time Remote Config update listener
+  - Using AdamE.Firebase.iOS.* minimum version 12.7.0
 - Version 3.1.1
   - Using AdamE.Firebase.iOS.* minimum version 11
 - Version 3.1.0

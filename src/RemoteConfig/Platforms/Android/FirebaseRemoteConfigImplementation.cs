@@ -1,6 +1,7 @@
 using Android.Gms.Extensions;
 using Firebase.RemoteConfig;
 using Plugin.Firebase.Core;
+using Plugin.Firebase.RemoteConfig.Platforms.Android;
 using Plugin.Firebase.RemoteConfig.Platforms.Android.Extensions;
 
 namespace Plugin.Firebase.RemoteConfig;
@@ -47,6 +48,13 @@ public sealed class FirebaseRemoteConfigImplementation : DisposableBase, IFireba
     public Task ActivateAsync()
     {
         return _remoteConfig.Activate().AsAsync();
+    }
+
+    public IDisposable AddOnConfigUpdateListener(Action<RemoteConfigUpdate> onUpdate, Action<Exception>? onError = null)
+    {
+        var listener = new ConfigUpdateListener(onUpdate, onError);
+        var registration = _remoteConfig.AddOnConfigUpdateListener(listener);
+        return new DisposableWithAction(registration.Remove);
     }
 
     public IEnumerable<string> GetKeysByPrefix(string prefix)

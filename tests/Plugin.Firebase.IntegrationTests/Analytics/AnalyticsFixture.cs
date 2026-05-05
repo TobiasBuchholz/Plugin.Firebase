@@ -32,6 +32,13 @@ namespace Plugin.Firebase.IntegrationTests.Analytics
                     })
                 );
                 AssertAnalyticsNotInitializedException(setDefaultEventParametersException);
+
+                var setConsentException = Assert.Throws<InvalidOperationException>(
+                    () => CrossFirebaseAnalytics.Current.SetConsent(new Dictionary<ConsentType, ConsentStatus> {
+                        { ConsentType.AnalyticsStorage, ConsentStatus.Granted }
+                    })
+                );
+                AssertAnalyticsNotInitializedException(setConsentException);
             }
             finally {
                 firebaseAnalyticsField.SetValue(null, originalFirebaseAnalytics);
@@ -129,6 +136,112 @@ namespace Plugin.Firebase.IntegrationTests.Analytics
         }
 
         [RealFirebaseFact]
+        public void does_not_throw_any_exception_when_setting_consent()
+        {
+            var sut = CrossFirebaseAnalytics.Current;
+
+            try {
+                sut.SetConsent(new Dictionary<ConsentType, ConsentStatus> {
+                    { ConsentType.AnalyticsStorage, ConsentStatus.Granted },
+                    { ConsentType.AdStorage, ConsentStatus.Denied },
+                    { ConsentType.AdUserData, ConsentStatus.Granted },
+                    { ConsentType.AdPersonalization, ConsentStatus.Denied }
+                });
+            }
+            finally {
+                sut.SetConsent(new Dictionary<ConsentType, ConsentStatus> {
+                    { ConsentType.AnalyticsStorage, ConsentStatus.Granted },
+                    { ConsentType.AdStorage, ConsentStatus.Granted },
+                    { ConsentType.AdUserData, ConsentStatus.Granted },
+                    { ConsentType.AdPersonalization, ConsentStatus.Granted }
+                });
+            }
+        }
+
+        [RealFirebaseFact]
+        public void does_not_throw_any_exception_when_setting_empty_consent()
+        {
+            CrossFirebaseAnalytics.Current.SetConsent(new Dictionary<ConsentType, ConsentStatus>());
+        }
+
+        [RealFirebaseFact]
+        public void does_not_throw_any_exception_when_setting_all_granted_consent()
+        {
+            CrossFirebaseAnalytics.Current.SetConsent(CreateAllConsentSettings(ConsentStatus.Granted));
+        }
+
+        [RealFirebaseFact]
+        public void does_not_throw_any_exception_when_setting_all_denied_consent()
+        {
+            SetConsentAndRestore(CreateAllConsentSettings(ConsentStatus.Denied));
+        }
+
+        [RealFirebaseFact]
+        public void does_not_throw_any_exception_when_setting_single_consent_values()
+        {
+            foreach(var consentType in AllConsentTypes) {
+                foreach(var consentStatus in AllConsentStatuses) {
+                    SetConsentAndRestore(new Dictionary<ConsentType, ConsentStatus> {
+                        { consentType, consentStatus }
+                    });
+                }
+            }
+        }
+
+        [RealFirebaseFact]
+        public void does_not_throw_any_exception_when_setting_partial_consent()
+        {
+            SetConsentAndRestore(new Dictionary<ConsentType, ConsentStatus> {
+                { ConsentType.AdStorage, ConsentStatus.Denied },
+                { ConsentType.AdPersonalization, ConsentStatus.Granted }
+            });
+        }
+
+        [RealFirebaseFact]
+        public void throws_argument_null_exception_when_setting_null_consent()
+        {
+            IDictionary<ConsentType, ConsentStatus> consentSettings = null;
+
+            var exception = Assert.Throws<ArgumentNullException>(
+                () => CrossFirebaseAnalytics.Current.SetConsent(consentSettings)
+            );
+
+            Assert.Equal("consentSettings", exception.ParamName);
+        }
+
+        [RealFirebaseFact]
+        public void throws_argument_out_of_range_exception_when_setting_invalid_consent_type()
+        {
+            var invalidConsentType = (ConsentType) 999;
+            var consentSettings = new Dictionary<ConsentType, ConsentStatus> {
+                { invalidConsentType, ConsentStatus.Granted }
+            };
+
+            var exception = Assert.Throws<ArgumentOutOfRangeException>(
+                () => CrossFirebaseAnalytics.Current.SetConsent(consentSettings)
+            );
+
+            Assert.Equal("consentType", exception.ParamName);
+            Assert.Equal(invalidConsentType, exception.ActualValue);
+        }
+
+        [RealFirebaseFact]
+        public void throws_argument_out_of_range_exception_when_setting_invalid_consent_status()
+        {
+            var invalidConsentStatus = (ConsentStatus) 999;
+            var consentSettings = new Dictionary<ConsentType, ConsentStatus> {
+                { ConsentType.AdStorage, invalidConsentStatus }
+            };
+
+            var exception = Assert.Throws<ArgumentOutOfRangeException>(
+                () => CrossFirebaseAnalytics.Current.SetConsent(consentSettings)
+            );
+
+            Assert.Equal("consentStatus", exception.ParamName);
+            Assert.Equal(invalidConsentStatus, exception.ActualValue);
+        }
+
+        [RealFirebaseFact]
         public async Task does_not_throw_any_exception_when_getting_app_instance_id()
         {
             var sut = CrossFirebaseAnalytics.Current;
@@ -143,5 +256,38 @@ namespace Plugin.Firebase.IntegrationTests.Analytics
             sut.SetSessionTimoutDuration(TimeSpan.FromSeconds(90));
             sut.ResetAnalyticsData();
         }
+
+        private static ConsentType[] AllConsentTypes => new[] {
+            ConsentType.AdStorage,
+            ConsentType.AnalyticsStorage,
+            ConsentType.AdUserData,
+            ConsentType.AdPersonalization
+        };
+
+        private static ConsentStatus[] AllConsentStatuses => new[] {
+            ConsentStatus.Granted,
+            ConsentStatus.Denied
+        };
+
+        private static Dictionary<ConsentType, ConsentStatus> CreateAllConsentSettings(
+            ConsentStatus consentStatus
+        )
+        {
+            return AllConsentTypes.ToDictionary(
+                consentType => consentType,
+                _ => consentStatus
+            );
+        }
+
+        private static void SetConsentAndRestore(IDictionary<ConsentType, ConsentStatus> consentSettings)
+        {
+            try {
+                CrossFirebaseAnalytics.Current.SetConsent(consentSettings);
+            }
+            finally {
+                CrossFirebaseAnalytics.Current.SetConsent(CreateAllConsentSettings(ConsentStatus.Granted));
+            }
+        }
+
     }
 }

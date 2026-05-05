@@ -45,6 +45,12 @@ public sealed class FirebaseAnalyticsImplementation : DisposableBase, IFirebaseA
     }
 
     /// <inheritdoc/>
+    public void SetConsent(IDictionary<ConsentType, ConsentStatus> consentSettings)
+    {
+        FirebaseAnalytics.SetConsent(consentSettings.ToNativeConsentSettings());
+    }
+
+    /// <inheritdoc/>
     public void SetUserId(string id)
     {
         FirebaseAnalytics.SetUserId(id);

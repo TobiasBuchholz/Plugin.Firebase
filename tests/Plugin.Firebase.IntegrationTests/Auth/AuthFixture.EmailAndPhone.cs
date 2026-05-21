@@ -112,7 +112,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         }
 
 
-        [Fact]
+        [EmulatorBackendFact]
         public async Task sends_verification_email_with_action_code_settings()
         {
             var sut = CrossFirebaseAuth.Current;

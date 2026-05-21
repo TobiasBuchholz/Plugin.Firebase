@@ -124,6 +124,13 @@ exports.returnNullPayload = functions.https.onCall(async (data, context) =>  {
 
 exports.createCustomToken = functions.https.onCall(async (data, context) =>  {
   functions.logger.log('[+] createCustomToken:', data);
+  if (process.env.FUNCTIONS_EMULATOR !== 'true') {
+    throw new functions.https.HttpsError(
+      'failed-precondition',
+      'createCustomToken is only available when running in the Firebase Functions emulator.'
+    );
+  }
+
   const uid = data?.uid ?? `acceptance-${Date.now()}`;
   const claims = data?.claims ?? {};
   let token: string;

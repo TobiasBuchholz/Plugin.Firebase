@@ -8,7 +8,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
 {
     public sealed partial class AuthFixture
     {
-        [Fact]
+        [EmulatorBackendFact]
         public async Task signs_in_user_via_custom_token()
         {
             var auth = CrossFirebaseAuth.Current;

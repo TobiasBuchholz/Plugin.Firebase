@@ -233,10 +233,10 @@ namespace Plugin.Firebase.IntegrationTests.Analytics
         [Fact]
         public void null_consent_settings_throw_argument_null_exception()
         {
-            IDictionary<ConsentType, ConsentStatus> settings = null;
+            IDictionary<ConsentType, ConsentStatus>? settings = null;
 
             var exception = Assert.Throws<ArgumentNullException>(
-                () => settings.ToNativeConsentSettings()
+                () => settings!.ToNativeConsentSettings()
             );
 
             Assert.Equal("consentSettings", exception.ParamName);

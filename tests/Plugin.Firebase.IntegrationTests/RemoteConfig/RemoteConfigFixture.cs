@@ -152,7 +152,7 @@ public sealed class RemoteConfigFixture
             x => error = x);
         using var nativeError = new FirebaseRemoteConfigException(
             "real-time update failed",
-            FirebaseRemoteConfigException.Code.ConfigUpdateUnavailable);
+            FirebaseRemoteConfigException.Code.ConfigUpdateUnavailable!);
 
         listener.OnError(nativeError);
 

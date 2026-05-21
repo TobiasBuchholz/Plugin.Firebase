@@ -1,4 +1,5 @@
 using Plugin.Firebase.Core;
+using Plugin.Firebase.RemoteConfig.Platforms.iOS;
 using Plugin.Firebase.RemoteConfig.Platforms.iOS.Extensions;
 using FirebaseRemoteConfig = Firebase.RemoteConfig.RemoteConfig;
 
@@ -62,6 +63,14 @@ public sealed class FirebaseRemoteConfigImplementation : DisposableBase, IFireba
     public Task ActivateAsync()
     {
         return _remoteConfig.ActivateAsync();
+    }
+
+    /// <inheritdoc/>
+    public IDisposable AddOnConfigUpdateListener(Action<RemoteConfigUpdate> onUpdate, Action<Exception>? onError = null)
+    {
+        var registration = _remoteConfig.AddOnConfigUpdateListener((configUpdate, error) =>
+            ConfigUpdateListener.OnConfigUpdate(configUpdate, error, onUpdate, onError));
+        return new DisposableWithAction(registration.Remove);
     }
 
     /// <inheritdoc/>

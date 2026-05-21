@@ -32,6 +32,13 @@ public sealed class AnalyticsAndroidFixture
                 })
             );
             AssertAnalyticsNotInitializedException(setDefaultEventParametersException);
+
+            var setConsentException = Assert.Throws<InvalidOperationException>(
+                () => CrossFirebaseAnalytics.Current.SetConsent(new Dictionary<ConsentType, ConsentStatus> {
+                    { ConsentType.AnalyticsStorage, ConsentStatus.Granted }
+                })
+            );
+            AssertAnalyticsNotInitializedException(setConsentException);
         }
         finally {
             firebaseAnalyticsField.SetValue(null, originalFirebaseAnalytics);

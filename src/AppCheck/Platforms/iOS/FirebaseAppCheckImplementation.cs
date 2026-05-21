@@ -12,7 +12,7 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
 {
     private readonly object _syncRoot = new();
     private AppCheckOptions _options = AppCheckOptions.Disabled;
-    private IDisposable _beforeConfigureRegistration;
+    private IDisposable? _beforeConfigureRegistration;
 
     /// <summary>
     /// Configures the Firebase AppCheck service with the specified options.
@@ -119,7 +119,7 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
 
     private sealed class AppAttestProviderFactoryAdapter : NSObject, IAppCheckProviderFactory
     {
-        public NSObject CreateProviderWithApp(App app)
+        public NSObject? CreateProviderWithApp(App app)
         {
             if(!OperatingSystem.IsIOSVersionAtLeast(14)) {
                 return null;

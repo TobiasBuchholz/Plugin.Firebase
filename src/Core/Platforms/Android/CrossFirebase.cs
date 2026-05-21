@@ -1,4 +1,5 @@
 using Firebase;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Plugin.Firebase.Core.Platforms.Android;
 
@@ -55,7 +56,8 @@ public static class CrossFirebase
     /// Safely checks whether a default FirebaseApp exists.
     /// FirebaseApp.Instance (getInstance()) throws IllegalStateException when no default app is configured.
     /// </summary>
-    public static bool TryGetDefaultApp(out FirebaseApp app)
+    /// <param name="app">The default Firebase app when this method returns true; otherwise null.</param>
+    public static bool TryGetDefaultApp([NotNullWhen(true)] out FirebaseApp? app)
     {
         try {
             app = FirebaseApp.Instance;

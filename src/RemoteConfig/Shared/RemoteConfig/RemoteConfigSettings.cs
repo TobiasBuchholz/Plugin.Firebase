@@ -20,7 +20,7 @@ public sealed class RemoteConfigSettings
     }
 
     /// <inheritdoc />
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if(obj is RemoteConfigSettings other) {
             return (MinimumFetchInterval, FetchTimeout).Equals(

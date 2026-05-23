@@ -1,44 +1,53 @@
 using Plugin.Firebase.Installations;
 
-namespace Plugin.Firebase.IntegrationTests.Installations
+namespace Plugin.Firebase.IntegrationTests.Installations;
+
+[Collection("Sequential")]
+[TestLogging]
+[IntegrationTestFixture(IntegrationTestPackage.Installations)]
+[Preserve(AllMembers = true)]
+public class InstallationsFixture
 {
-    [Collection("Sequential")]
-    [TestLogging]
-    [Preserve(AllMembers = true)]
-    public class InstallationsFixture
+    [Fact]
+    public void disposes_and_reacquires_installations_singleton()
     {
-        private const string RunInstallationsDeleteTestsEnvironmentVariableName =
-            "PLUGIN_FIREBASE_RUN_INSTALLATIONS_DELETE_TESTS";
+        var first = CrossFirebaseInstallations.Current;
 
-        [RealFirebaseFact]
-        public async Task gets_stable_installation_id()
-        {
-            var firstInstallationId = await CrossFirebaseInstallations.GetIdAsync();
-            var secondInstallationId = await CrossFirebaseInstallations.GetIdAsync();
+        CrossFirebaseInstallations.Dispose();
 
-            Assert.False(string.IsNullOrWhiteSpace(firstInstallationId));
-            Assert.Equal(firstInstallationId, secondInstallationId);
-        }
+        var second = CrossFirebaseInstallations.Current;
+        Assert.NotNull(second);
+        Assert.NotSame(first, second);
+    }
 
-        [RealFirebaseFact]
-        public async Task gets_installation_tokens()
-        {
-            var token = await CrossFirebaseInstallations.GetTokenAsync();
-            var refreshedToken = await CrossFirebaseInstallations.GetTokenAsync(forceRefresh: true);
+    [RealFirebaseFact]
+    public async Task gets_stable_installation_id()
+    {
+        var firstInstallationId = await CrossFirebaseInstallations.GetIdAsync();
+        var secondInstallationId = await CrossFirebaseInstallations.GetIdAsync();
 
-            Assert.False(string.IsNullOrWhiteSpace(token));
-            Assert.False(string.IsNullOrWhiteSpace(refreshedToken));
-        }
+        Assert.False(string.IsNullOrWhiteSpace(firstInstallationId));
+        Assert.Equal(firstInstallationId, secondInstallationId);
+    }
 
-        [RealFirebaseOptInFact(RunInstallationsDeleteTestsEnvironmentVariableName)]
-        public async Task deletes_installation_when_enabled_via_environment()
-        {
-            var installationIdBeforeDelete = await CrossFirebaseInstallations.GetIdAsync();
-            await CrossFirebaseInstallations.DeleteAsync();
-            var installationIdAfterDelete = await CrossFirebaseInstallations.GetIdAsync();
+    [RealFirebaseFact]
+    public async Task gets_installation_tokens()
+    {
+        var token = await CrossFirebaseInstallations.GetTokenAsync();
+        var refreshedToken = await CrossFirebaseInstallations.GetTokenAsync(forceRefresh: true);
 
-            Assert.False(string.IsNullOrWhiteSpace(installationIdAfterDelete));
-            Assert.NotEqual(installationIdBeforeDelete, installationIdAfterDelete);
-        }
+        Assert.False(string.IsNullOrWhiteSpace(token));
+        Assert.False(string.IsNullOrWhiteSpace(refreshedToken));
+    }
+
+    [RealFirebaseOptInFact(IntegrationTestOptions.RunInstallationsDeleteTestsEnvironmentVariableName)]
+    public async Task deletes_installation_when_enabled_via_environment()
+    {
+        var installationIdBeforeDelete = await CrossFirebaseInstallations.GetIdAsync();
+        await CrossFirebaseInstallations.DeleteAsync();
+        var installationIdAfterDelete = await CrossFirebaseInstallations.GetIdAsync();
+
+        Assert.False(string.IsNullOrWhiteSpace(installationIdAfterDelete));
+        Assert.NotEqual(installationIdBeforeDelete, installationIdAfterDelete);
     }
 }

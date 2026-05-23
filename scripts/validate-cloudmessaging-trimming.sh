@@ -9,11 +9,17 @@ manifest="$obj_dir/AndroidManifest.xml"
 managed_type="Plugin.Firebase.CloudMessaging.Platforms.Android.MyFirebaseMessagingService"
 messaging_action="com.google.firebase.MESSAGING_EVENT"
 
+# This probe validates the generated Android service metadata after full trimming.
+# The integration app includes broad test fixtures and runner packages that are not
+# linker-warning-clean, so do not let unrelated trim warnings skip the manifest check.
 dotnet build "$project" \
   -c Release \
   -f net9.0-android \
   /p:TrimMode=full \
-  /p:AndroidPackageFormat=apk
+  /p:AndroidPackageFormat=apk \
+  /p:TreatWarningsAsErrors=false \
+  /p:WarningsAsErrors= \
+  /p:ILLinkTreatWarningsAsErrors=false
 
 python3 - "$acw_map" "$manifest" "$managed_type" "$messaging_action" <<'PY'
 from pathlib import Path

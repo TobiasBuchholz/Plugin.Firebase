@@ -1,37 +1,36 @@
+using JetBrains.Annotations;
 using Plugin.Firebase.Firestore;
 
-namespace Plugin.Firebase.IntegrationTests.Firestore
+namespace Plugin.Firebase.IntegrationTests.Firestore;
+
+public sealed class SimpleItem : IFirestoreObject
 {
-    public sealed class SimpleItem : IFirestoreObject
+    [Preserve]
+    public SimpleItem()
     {
-        [Preserve]
-        public SimpleItem()
-        {
-            // needed for firestore
-        }
-
-        public SimpleItem(string title)
-        {
-            Title = title;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if(obj is SimpleItem other) {
-                return (Id, Title).Equals((Id, Title));
-            }
-            return false;
-        }
-
-        public override int GetHashCode()
-        {
-            return (Id, Title).GetHashCode();
-        }
-
-        [FirestoreDocumentId]
-        public string Id { get; private set; }
-
-        [FirestoreProperty("title")]
-        public string Title { get; private set; }
+        // needed for firestore
     }
+
+    public SimpleItem(string title)
+    {
+        Title = title;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is SimpleItem other && (Id, Title).Equals((other.Id, other.Title));
+    }
+
+    public override int GetHashCode()
+    {
+        // ReSharper disable NonReadonlyMemberInGetHashCode
+        return (Id, Title).GetHashCode();
+        // ReSharper restore NonReadonlyMemberInGetHashCode
+    }
+
+    [FirestoreDocumentId]
+    public string Id { get; [UsedImplicitly] private set; } = null!;
+
+    [FirestoreProperty("title")]
+    public string Title { get; [UsedImplicitly] private set; } = null!;
 }

@@ -42,6 +42,9 @@ jobs:
       - name: Install Firebase CLI and XHarness
         run: scripts/install-integration-test-tools.sh
 
+      - name: Check integration coverage metadata
+        run: scripts/check-integration-coverage.rb
+
       - name: Build Cloud Functions
         run: |
           npm ci --prefix tests/cloud-functions/functions --legacy-peer-deps

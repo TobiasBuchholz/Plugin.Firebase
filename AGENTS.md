@@ -23,6 +23,7 @@ Do **not** include private app details, proprietary business context, or secrets
 - Build (all TFMs): `dotnet build Plugin.Firebase.sln -c Release`
 - Build only `net9.0` (no mobile workloads): `dotnet build src/Auth/Auth.csproj -c Release -f net9.0`
 - Unit tests: `dotnet test tests/Plugin.Firebase.UnitTests/Plugin.Firebase.UnitTests.csproj`
+- Integration coverage audit: `scripts/check-integration-coverage.rb`
 - Integration tests are device-only. See `BUILDING.md`.
 
 ## AI workflow
@@ -30,6 +31,13 @@ Do **not** include private app details, proprietary business context, or secrets
 2) **Reference design principles**: Review [Design Philosophy](CONTRIBUTING.md#design-philosophy-thin-wrapper) and [API design principles](CONTRIBUTING.md#api-design-principles).
 3) **Propose change set**: Design a small, verifiable change before editing code.
 4) **Keep it documented**: Ensure public API changes are explicit and documented per [Documentation](CONTRIBUTING.md#documentation).
+
+## Integration test workflow
+- Before changing `tests/Plugin.Firebase.IntegrationTests`, read `tests/Plugin.Firebase.IntegrationTests/README.md` and `tests/Plugin.Firebase.IntegrationTests/ACCEPTANCE_COVERAGE.md`.
+- Keep tests close to native Firebase behavior; avoid app-specific policy, private project details, or hidden real-backend assumptions.
+- Use the harness fact attributes, fixture metadata, resource scopes, and file layout documented in the integration test README.
+- Update acceptance coverage and real-backend setup docs when public API coverage or backend requirements change.
+- Run `scripts/check-integration-coverage.rb` after adding, renaming, moving, or splitting fixtures.
 
 ## Packaging & CI
 - Packaging guidelines: `docs/packaging-github-packages.md`

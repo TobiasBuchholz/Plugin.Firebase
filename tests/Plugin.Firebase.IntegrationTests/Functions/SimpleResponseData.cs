@@ -1,18 +1,14 @@
 using System.Text.Json.Serialization;
+using JetBrains.Annotations;
 
-namespace Plugin.Firebase.IntegrationTests.Functions
+namespace Plugin.Firebase.IntegrationTests.Functions;
+
+[Preserve(AllMembers = true)]
+public sealed class SimpleResponseData
 {
-    [Preserve(AllMembers = true)]
-    public sealed class SimpleResponseData
-    {
-        public SimpleResponseData()
-        {
-        }
+    [JsonPropertyName("input_value")]
+    public long InputValue { get; [UsedImplicitly] set; }
 
-        [JsonPropertyName("input_value")]
-        public long InputValue { get; set; }
-
-        [JsonPropertyName("output_value")]
-        public long OutputValue { get; set; }
-    }
+    [JsonPropertyName("output_value")]
+    public long OutputValue { get; [UsedImplicitly] set; }
 }

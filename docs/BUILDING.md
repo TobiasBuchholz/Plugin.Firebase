@@ -325,7 +325,7 @@ Required functions:
 | `returnNumberPayload` | `https.onCall` | Verifies callable number response deserialization |
 | `returnBooleanPayload` | `https.onCall` | Verifies callable boolean response deserialization |
 | `returnNullPayload` | `https.onCall` | Verifies callable null response deserialization |
-| `createCustomToken` | `https.onCall` | Mints custom tokens for Auth acceptance tests |
+| `createCustomToken` | `https.onCall` | Emulator-only helper that mints custom tokens for Auth acceptance tests; it rejects non-emulator calls and must not be deployed as a real token-minting endpoint |
 | `echoAuthContext` | `https.onCall` | Verifies callable auth context propagation |
 | `throwStructuredError` | `https.onCall` | Verifies callable error propagation |
 | `regionalPing` | `https.onCall`, `southamerica-east1` | Verifies configured Functions regions |

@@ -159,6 +159,20 @@
       </PropertyGroup>
     </Target>
 
+    <!--
+      DeviceRunners preview.12 launches the iOS app before opening its TCP
+      listener. Supplying two loopback aliases makes the app use the runner's
+      retry path instead of abandoning its only result channel during startup.
+    -->
+    <Target
+      Name="EnableDeviceRunnersIosConnectionRetries"
+      AfterTargets="_DeviceRunnersiOSArgs"
+      Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+      <PropertyGroup>
+        <_DeviceRunnersCliArgs>$(_DeviceRunnersCliArgs) --app-host-names &quot;localhost;127.0.0.1&quot;</_DeviceRunnersCliArgs>
+      </PropertyGroup>
+    </Target>
+
     <Target
       Name="ResignSimulatorRuntimeLibraries"
       AfterTargets="Build"
@@ -171,19 +185,23 @@
         <_SimulatorAppBundlePath>$(OutputPath)$(AssemblyName).app</_SimulatorAppBundlePath>
       </PropertyGroup>
 
+      <ItemGroup>
+        <_SimulatorRuntimeLibrary Include="$(_SimulatorAppBundlePath)/*.dylib" />
+      </ItemGroup>
+
       <!--
-        Xcode 26 / macOS 26 rejects the Microsoft-signed simulator runtime dylibs
-        with "Code Signature Invalid" before the test runner starts. Re-sign them
-        ad hoc to match the generated simulator app bundle.
+        Xcode 26 / macOS 26 rejects the Microsoft-signed simulator runtime
+        dylibs with "Code Signature Invalid" before managed startup. Re-sign
+        every root runtime dylib ad hoc, then refresh and verify the app seal.
       -->
       <Exec
-        Condition="Exists('$(_SimulatorAppBundlePath)/libxamarin-dotnet.dylib')"
-        Command="codesign --force --sign - &quot;$(_SimulatorAppBundlePath)/libxamarin-dotnet.dylib&quot;" />
-      <Exec
-        Condition="Exists('$(_SimulatorAppBundlePath)/libxamarin-dotnet-debug.dylib')"
-        Command="codesign --force --sign - &quot;$(_SimulatorAppBundlePath)/libxamarin-dotnet-debug.dylib&quot;" />
+        Condition="'@(_SimulatorRuntimeLibrary)' != ''"
+        Command="codesign --force --sign - &quot;%(_SimulatorRuntimeLibrary.Identity)&quot;" />
       <Exec
         Condition="Exists('$(_SimulatorAppBundlePath)')"
         Command="codesign --force --sign - --deep &quot;$(_SimulatorAppBundlePath)&quot;" />
+      <Exec
+        Condition="Exists('$(_SimulatorAppBundlePath)')"
+        Command="codesign --verify --deep --strict &quot;$(_SimulatorAppBundlePath)&quot;" />
     </Target>
 </Project>

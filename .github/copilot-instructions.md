@@ -14,8 +14,8 @@ Do **not** include app-specific business context, private data, secrets, or toke
 - Unit tests: `dotnet test tests/Plugin.Firebase.UnitTests/Plugin.Firebase.UnitTests.csproj`
 
 ## Platform notes
-Most projects are multi-targeted (`net9.0`, `net9.0-android`, `net9.0-ios`).
-Prefer validating `net9.0` in CI unless platform-specific changes require more.
+Most projects are multi-targeted (`net10.0`, `net10.0-android`, `net10.0-ios`).
+Prefer validating `net10.0` in CI unless platform-specific changes require more.
 
 ## Integration tests
 - Before editing `tests/Plugin.Firebase.IntegrationTests`, read `tests/Plugin.Firebase.IntegrationTests/README.md`.

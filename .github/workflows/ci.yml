@@ -7,12 +7,33 @@ on:
 
 jobs:
   build:
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: '10.0.x'
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Select Xcode for .NET iOS workload
+        run: |
+          for xcode in \
+            /Applications/Xcode_26.6.app \
+            /Applications/Xcode_26.6.0.app; do
+            if [ -d "$xcode" ]; then
+              sudo xcode-select -s "$xcode/Contents/Developer"
+              xcodebuild -version
+              exit 0
+            fi
+          done
+
+          echo "No compatible Xcode 26.6 installation found." >&2
+          ls -1 /Applications/Xcode*.app >&2
+          exit 1
 
       - name: Install .NET MAUI workloads
         run: |
@@ -43,4 +64,4 @@ jobs:
       - name: Run unit tests
         run: |
           dotnet restore tests/Plugin.Firebase.UnitTests/Plugin.Firebase.UnitTests.csproj
-          dotnet test tests/Plugin.Firebase.UnitTests/Plugin.Firebase.UnitTests.csproj -c Release -f net9.0 --no-restore
+          dotnet test tests/Plugin.Firebase.UnitTests/Plugin.Firebase.UnitTests.csproj -c Release -f net10.0 --no-restore

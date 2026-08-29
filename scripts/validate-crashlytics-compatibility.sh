@@ -44,7 +44,7 @@ for version in "${versions[@]}"; do
   for project in "${projects[@]}"; do
     dotnet build "$project" \
       -c Release \
-      -f net9.0-android \
+      -f net10.0-android \
       -m:1 \
       --disable-build-servers \
       -p:UseSharedCompilation=false \

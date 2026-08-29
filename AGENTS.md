@@ -6,7 +6,7 @@ Do **not** include private app details, proprietary business context, or secrets
 **See [CONTRIBUTING.md](CONTRIBUTING.md) for the complete contribution guide**, including design philosophy, API principles, versioning, and PR expectations.
 
 ## Repository map
-- `src/`: Package implementations (multi-targeted `net9.0`, `net9.0-android`, `net9.0-ios`)
+- `src/`: Package implementations (multi-targeted `net10.0`, `net10.0-android`, `net10.0-ios`)
 - `docs/`: Feature docs and setup guides
 - `sample/`: MAUI sample app
 - `tests/`: Integration test harness (runs on device)
@@ -21,7 +21,7 @@ Do **not** include private app details, proprietary business context, or secrets
 ## Quick build & test
 - Restore: `dotnet restore Plugin.Firebase.sln`
 - Build (all TFMs): `dotnet build Plugin.Firebase.sln -c Release`
-- Build only `net9.0` (no mobile workloads): `dotnet build src/Auth/Auth.csproj -c Release -f net9.0`
+- Build only `net10.0` (no mobile workloads): `dotnet build src/Auth/Auth.csproj -c Release -f net10.0`
 - Unit tests: `dotnet test tests/Plugin.Firebase.UnitTests/Plugin.Firebase.UnitTests.csproj`
 - Integration coverage audit: `scripts/check-integration-coverage.rb`
 - Integration tests are device-only. See `BUILDING.md`.

@@ -3,7 +3,7 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 project="$repo_root/tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj"
-obj_dir="$repo_root/tests/Plugin.Firebase.IntegrationTests/obj/Release/net9.0-android"
+obj_dir="$repo_root/tests/Plugin.Firebase.IntegrationTests/obj/Release/net10.0-android"
 acw_map="$obj_dir/acw-map.txt"
 manifest="$obj_dir/AndroidManifest.xml"
 managed_type="Plugin.Firebase.CloudMessaging.Platforms.Android.MyFirebaseMessagingService"
@@ -14,7 +14,7 @@ messaging_action="com.google.firebase.MESSAGING_EVENT"
 # linker-warning-clean, so do not let unrelated trim warnings skip the manifest check.
 dotnet build "$project" \
   -c Release \
-  -f net9.0-android \
+  -f net10.0-android \
   /p:TrimMode=full \
   /p:AndroidPackageFormat=apk \
   /p:TreatWarningsAsErrors=false \

@@ -17,10 +17,14 @@ jobs:
       DOTNET_CLI_WORKLOAD_UPDATE_NOTIFICATION_LEVEL: Disable
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: '10.0.x'
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
       - name: Install Android workload
-        run: dotnet workload install android
+        run: dotnet workload install maui-android --source https://api.nuget.org/v3/index.json
       - name: Build Playground (Android)
-        run: dotnet build sample/Playground/Playground.csproj -c Debug -f net9.0-android
+        run: dotnet build sample/Playground/Playground.csproj -c Debug -f net10.0-android

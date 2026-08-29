@@ -58,13 +58,19 @@ public static class DictionaryExtensions
             return dictionary.ToObjectDictionary();
         }
 
+        if(@this is not IFirestoreObject firestoreObject) {
+            throw new ArgumentException(
+                $"Firestore model type '{@this.GetType()}' must implement {nameof(IFirestoreObject)}."
+            );
+        }
+
         var dict = new Dictionary<object, object?>();
-        var properties = @this.GetType().GetProperties();
+        var properties = firestoreObject.GetType().GetProperties();
         foreach(var property in properties) {
             var attributes = property.GetCustomAttributes(typeof(FirestorePropertyAttribute), true);
             if(attributes.Any()) {
                 var attribute = (FirestorePropertyAttribute) attributes[0];
-                var value = property.GetValue(@this);
+                var value = property.GetValue(firestoreObject);
                 if(value is Enum) {
                     dict[attribute.PropertyName] = value;
                 } else {

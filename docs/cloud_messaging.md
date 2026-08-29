@@ -84,7 +84,7 @@ public class PushNotificationFirebaseMessagingService : FirebaseMessagingService
 }
 ```
 
-Then remove the plugin-provided generated service from your app manifest. Build once and inspect `obj/<Configuration>/net9.0-android/AndroidManifest.xml` to find the generated Java service name, then remove that service with manifest merge tooling:
+Then remove the plugin-provided generated service from your app manifest. Build once and inspect `obj/<Configuration>/net10.0-android/AndroidManifest.xml` to find the generated Java service name, then remove that service with manifest merge tooling:
 
 ```xml
 <manifest

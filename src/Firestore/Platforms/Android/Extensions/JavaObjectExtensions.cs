@@ -3,6 +3,7 @@ using Java.Util;
 using Android.Runtime;
 using AndroidX.Collection;
 using Firebase.Firestore;
+using System.Diagnostics.CodeAnalysis;
 using IList = System.Collections.IList;
 using NativeFirebase = Firebase;
 using System.Diagnostics;
@@ -188,10 +189,26 @@ public static class JavaObjectExtensions
         return dict;
     }
 
+    [UnconditionalSuppressMessage(
+        "Trimming",
+        "IL2067",
+        Justification = "The method rejects non-IFirestoreObject model types, and IFirestoreObject roots public parameterless constructors on implementing types."
+    )]
+    [UnconditionalSuppressMessage(
+        "Trimming",
+        "IL2070",
+        Justification = "The method rejects non-IFirestoreObject model types, and IFirestoreObject roots public properties on implementing types."
+    )]
     private static object Cast(this IDictionary @this, Type targetType, string? documentId = null)
     {
         if(targetType == typeof(object) || IsDictionaryType(targetType)) {
             return @this.ToDictionaryObject(targetType);
+        }
+
+        if(!typeof(IFirestoreObject).IsAssignableFrom(targetType)) {
+            throw new ArgumentException(
+                $"Firestore model type '{targetType}' must implement {nameof(IFirestoreObject)}."
+            );
         }
 
         var instance = Activator.CreateInstance(targetType);

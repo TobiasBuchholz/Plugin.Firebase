@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using Firebase.CloudFirestore;
 using Firebase.Core;
 using Plugin.Firebase.Core.Platforms.iOS.Extensions;
@@ -31,26 +30,10 @@ public static class NSObjectExtensions
     /// <param name="targetType">The target type to cast to.</param>
     /// <param name="documentId">Optional document ID to set on the object.</param>
     /// <returns>The converted object.</returns>
-    [UnconditionalSuppressMessage(
-        "Trimming",
-        "IL2067",
-        Justification = "The method rejects non-IFirestoreObject model types, and IFirestoreObject roots public parameterless constructors on implementing types."
-    )]
-    [UnconditionalSuppressMessage(
-        "Trimming",
-        "IL2070",
-        Justification = "The method rejects non-IFirestoreObject model types, and IFirestoreObject roots public properties on implementing types."
-    )]
     public static object? Cast(this NSDictionary @this, Type targetType, string? documentId = null)
     {
         if(targetType == typeof(object) || IsDictionaryType(targetType)) {
             return @this.ToDictionaryObject(targetType);
-        }
-
-        if(!typeof(IFirestoreObject).IsAssignableFrom(targetType)) {
-            throw new ArgumentException(
-                $"Firestore model type '{targetType}' must implement {nameof(IFirestoreObject)}."
-            );
         }
 
         var instance = Activator.CreateInstance(targetType);

@@ -123,19 +123,13 @@ public static class DictionaryExtensions
                 return dictionary.ToHashMapFromNonGenericDict();
         }
 
-        if(@this is not IFirestoreObject firestoreObject) {
-            throw new ArgumentException(
-                $"Firestore model type '{@this.GetType()}' must implement {nameof(IFirestoreObject)}."
-            );
-        }
-
         var map = new HashMap();
-        var properties = firestoreObject.GetType().GetProperties();
+        var properties = @this.GetType().GetProperties();
         foreach(var property in properties) {
             var attributes = property.GetCustomAttributes(typeof(FirestorePropertyAttribute), true);
             if(attributes.Any()) {
                 var attribute = (FirestorePropertyAttribute) attributes[0];
-                map.Put(attribute.PropertyName, property.GetValue(firestoreObject));
+                map.Put(attribute.PropertyName, property.GetValue(@this));
             }
 
             var timestampAttributes = property.GetCustomAttributes(typeof(FirestoreServerTimestampAttribute), true);

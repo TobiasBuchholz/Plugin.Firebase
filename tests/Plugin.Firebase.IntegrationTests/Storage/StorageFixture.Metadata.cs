@@ -25,11 +25,7 @@ public sealed partial class StorageFixture
         Assert.Equal(StorageAssertions.ExpectedBucket(), metadata.Bucket);
         Assert.Equal("metadata_properties.txt", metadata.Name);
         Assert.Equal(path, metadata.Path);
-        if(OperatingSystem.IsIOS() && IntegrationTestEnvironment.UsesEmulatorBackend) {
-            Assert.Null(metadata.CacheControl);
-        } else {
-            Assert.Equal("public,max-age=60", metadata.CacheControl);
-        }
+        Assert.Equal("public,max-age=60", metadata.CacheControl);
         Assert.Equal("inline", metadata.ContentDisposition);
         Assert.Equal("identity", metadata.ContentEncoding);
         Assert.Equal("en", metadata.ContentLanguage);

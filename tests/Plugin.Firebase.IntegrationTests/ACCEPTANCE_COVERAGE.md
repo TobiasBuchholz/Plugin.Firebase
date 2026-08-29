@@ -12,7 +12,7 @@ Run `scripts/check-integration-coverage.rb` after adding or renaming fixtures. T
 | App Check | Partial | Optional | `PLUGIN_FIREBASE_RUN_APPCHECK_TOKEN_TESTS` | Disabled/debug/provider behavior is automatic; token enforcement requires a real project. |
 | Auth | Yes | Partial | `PLUGIN_FIREBASE_RUN_PHONE_AUTH_TESTS` | Email/password, anonymous, custom tokens, email links, metadata, and claims are covered. Phone auth requires external credentials. |
 | Bundled initializer | Yes | Yes | No | Verifies singleton access and dispose/reacquire behavior without reconfiguring initialized native SDKs. |
-| Cloud Messaging | Partial | Optional | `PLUGIN_FIREBASE_RUN_FCM_TOKEN_TESTS`, `PLUGIN_FIREBASE_RUN_FCM_DELIVERY_TESTS` | Synthetic events are automatic. Token and push delivery require a real project; iOS delivery requires a physical device with APNs. |
+| Cloud Messaging | Partial | Optional | `PLUGIN_FIREBASE_RUN_FCM_TOKEN_TESTS`, `PLUGIN_FIREBASE_RUN_FCM_DELIVERY_TESTS` | Native Android channel mapping, foreground forwarding, notification bundle round-trips, and synthetic events are automatic. Token and push delivery require a real project; iOS delivery requires a physical device with APNs. |
 | Crashlytics | Partial | Partial | `PLUGIN_FIREBASE_FORCE_CRASHLYTICS_CRASH`, `PLUGIN_FIREBASE_EXPECT_PREVIOUS_CRASH` | Non-crash APIs are automatic. Previous-crash detection needs a destructive two-run flow. |
 | Firestore | Yes | Yes | No | Emulator-backed PR gate covers document, query, conversion, nullability, listener, lifecycle, and offline behavior. |
 | Functions | Yes | Yes | No | Real backend requires deploying `tests/cloud-functions/functions`. |

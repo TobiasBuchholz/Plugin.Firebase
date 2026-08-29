@@ -23,7 +23,7 @@ uses emulator-safe dummy Firebase options by default.
 ### Build without mobile workloads
 If you want to validate core code without Android/iOS toolchains:
 ```
-dotnet build src/Auth/Auth.csproj -c Release -f net10.0
+dotnet build src/Auth/Auth.csproj -c Release -f net10.0 -p:TargetFrameworks=net10.0
 ```
 
 ## Tests (integration)
@@ -97,6 +97,7 @@ Run the iOS suite on a specific simulator:
 dotnet test tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
   -c Debug \
   -f net10.0-ios \
+  -p:TargetFrameworks=net10.0-ios \
   -p:RuntimeIdentifier=iossimulator-arm64 \
   -p:EnableCodeSigning=false \
   -p:DeviceRunnersDevice=<simulator-udid> \
@@ -109,6 +110,7 @@ Run the Android suite on the only connected emulator or device:
 dotnet test tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
   -c Debug \
   -f net10.0-android \
+  -p:TargetFrameworks=net10.0-android \
   --logger trx \
   --results-directory artifacts/test-results/android
 ```
@@ -120,7 +122,7 @@ scripts/run-integration-emulators.sh android
 DEVICE_ID=<simulator-udid> scripts/run-integration-emulators.sh ios
 ```
 
-Use `xcrun simctl list devices available` to find an iOS simulator UDID and `adb devices` to verify the Android emulator is online. Pass a specific Android adb serial as `-p:DeviceRunnersDevice=<adb-serial>` for a direct command, or set `ANDROID_DEVICE_ID=<adb-serial>` for the wrapper. The iOS wrapper maps `DEVICE_ID` to the same `DeviceRunnersDevice` property. Do not use `--no-build`: on Android, DeviceRunners injects its auto-run, TCP, and `PLUGIN_FIREBASE_*` settings while `dotnet test` builds the app.
+Use `xcrun simctl list devices available` to find an iOS simulator UDID and `adb devices` to verify the Android emulator is online. Pass a specific Android adb serial as both `-p:Device=<adb-serial>` and `-p:DeviceRunnersDevice=<adb-serial>` for a direct command, or set `ANDROID_DEVICE_ID=<adb-serial>` for the wrapper. The iOS wrapper maps `DEVICE_ID` to the `DeviceRunnersDevice` property. Keep the explicit `TargetFrameworks` override even with `-f`; it constrains implicit restore to the installed platform workload. Do not use `--no-build`: on Android, DeviceRunners injects its auto-run, TCP, and `PLUGIN_FIREBASE_*` settings while `dotnet test` builds the app.
 
 ### Real Firebase backend (opt-in)
 

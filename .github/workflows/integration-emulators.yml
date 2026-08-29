@@ -94,7 +94,7 @@ jobs:
           java-version: '21'
 
       - name: Install .NET MAUI workload
-        run: sudo "$DOTNET_ROOT/dotnet" workload install maui-ios --source https://api.nuget.org/v3/index.json
+        run: dotnet workload install maui-ios --source https://api.nuget.org/v3/index.json
 
       - name: Install Firebase CLI
         run: scripts/install-integration-test-tools.sh

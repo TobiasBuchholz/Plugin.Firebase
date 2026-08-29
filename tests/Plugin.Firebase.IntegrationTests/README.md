@@ -73,6 +73,7 @@ Run Android tests on the only connected emulator or device:
 dotnet test tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
   -c Debug \
   -f net10.0-android \
+  -p:TargetFrameworks=net10.0-android \
   --logger trx \
   --results-directory artifacts/test-results/android
 ```
@@ -83,6 +84,7 @@ Run iOS tests on a specific simulator:
 dotnet test tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
   -c Debug \
   -f net10.0-ios \
+  -p:TargetFrameworks=net10.0-ios \
   -p:RuntimeIdentifier=iossimulator-arm64 \
   -p:EnableCodeSigning=false \
   -p:DeviceRunnersDevice=<simulator-udid> \
@@ -97,7 +99,7 @@ scripts/run-integration-emulators.sh android
 DEVICE_ID=<simulator-udid> scripts/run-integration-emulators.sh ios
 ```
 
-Set `ANDROID_DEVICE_ID=<adb-serial>` for the wrapper when more than one Android target is connected; direct commands use `-p:DeviceRunnersDevice=<adb-serial>`. The iOS wrapper maps `DEVICE_ID` to the same property. Do not pass `--no-build`, because the Android runner configuration and host `PLUGIN_FIREBASE_*` values are injected during the `dotnet test` build.
+Set `ANDROID_DEVICE_ID=<adb-serial>` for the wrapper when more than one Android target is connected; direct commands use both `-p:Device=<adb-serial>` and `-p:DeviceRunnersDevice=<adb-serial>`. The iOS wrapper maps `DEVICE_ID` to the `DeviceRunnersDevice` property. Keep the explicit `TargetFrameworks` override even with `-f`; it constrains implicit restore to the installed platform workload. Do not pass `--no-build`, because the Android runner configuration and host `PLUGIN_FIREBASE_*` values are injected during the `dotnet test` build.
 
 For iOS app configuration, prefix variables with `SIMCTL_CHILD_`, for example `SIMCTL_CHILD_PLUGIN_FIREBASE_TEST_BACKEND=real`. For Android `dotnet test`, set `PLUGIN_FIREBASE_*` values directly in the host environment; `debug.pluginfirebase.*` system properties are still supported for direct app launches.
 

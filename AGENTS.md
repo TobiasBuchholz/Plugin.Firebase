@@ -21,7 +21,7 @@ Do **not** include private app details, proprietary business context, or secrets
 ## Quick build & test
 - Restore: `dotnet restore Plugin.Firebase.sln`
 - Build (all TFMs): `dotnet build Plugin.Firebase.sln -c Release`
-- Build only `net10.0` (no mobile workloads): `dotnet build src/Auth/Auth.csproj -c Release -f net10.0`
+- Build only `net10.0` (no mobile workloads): `dotnet build src/Auth/Auth.csproj -c Release -f net10.0 -p:TargetFrameworks=net10.0`
 - Unit tests: `dotnet test tests/Plugin.Firebase.UnitTests/Plugin.Firebase.UnitTests.csproj`
 - Integration coverage audit: `scripts/check-integration-coverage.rb`
 - Integration tests are device-only. See `BUILDING.md`.

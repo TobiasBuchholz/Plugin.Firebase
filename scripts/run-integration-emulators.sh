@@ -30,11 +30,13 @@ run_android() {
   command="node scripts/seed-auth-emulator.js && "
   command+="dotnet test $(quote "${integration_project}") "
   command+="-c Debug -f net10.0-android "
+  command+="-p:TargetFrameworks=net10.0-android "
   command+="--logger trx "
   command+="--results-directory $(quote "${output_dir}") "
   command+="-p:DeviceRunnersConnectionTimeout=600 "
   command+="-p:DeviceRunnersDataTimeout=600"
   if [ -n "${device_id}" ]; then
+    command+=" -p:Device=$(quote "${device_id}")"
     command+=" -p:DeviceRunnersDevice=$(quote "${device_id}")"
   fi
 
@@ -53,6 +55,7 @@ run_ios() {
   command="node scripts/seed-auth-emulator.js && "
   command+="dotnet test $(quote "${integration_project}") "
   command+="-c Debug -f net10.0-ios "
+  command+="-p:TargetFrameworks=net10.0-ios "
   command+="--logger trx "
   command+="--results-directory $(quote "${output_dir}") "
   command+="-p:RuntimeIdentifier=iossimulator-arm64 "

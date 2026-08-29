@@ -27,4 +27,4 @@ jobs:
       - name: Install Android workload
         run: dotnet workload install maui-android --source https://api.nuget.org/v3/index.json
       - name: Build Playground (Android)
-        run: dotnet build sample/Playground/Playground.csproj -c Debug -f net10.0-android
+        run: dotnet build sample/Playground/Playground.csproj -c Debug -f net10.0-android -p:TargetFrameworks=net10.0-android

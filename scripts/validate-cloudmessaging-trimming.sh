@@ -15,6 +15,7 @@ messaging_action="com.google.firebase.MESSAGING_EVENT"
 dotnet build "$project" \
   -c Release \
   -f net10.0-android \
+  -p:TargetFrameworks=net10.0-android \
   /p:TrimMode=full \
   /p:AndroidPackageFormat=apk \
   /p:TreatWarningsAsErrors=false \

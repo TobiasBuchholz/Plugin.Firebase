@@ -37,7 +37,7 @@ jobs:
 
       - name: Install .NET MAUI workloads
         run: |
-          sudo "$DOTNET_ROOT/dotnet" workload install maui --source https://api.nuget.org/v3/index.json
+          dotnet workload install maui --source https://api.nuget.org/v3/index.json
           dotnet workload list
 
       - name: Build packages

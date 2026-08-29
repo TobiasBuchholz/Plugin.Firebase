@@ -25,8 +25,8 @@ lightweight by building `net10.0` only, and optionally adding Android/iOS builds
   with:
     dotnet-version: '10.x'
 - run: dotnet restore tests/Plugin.Firebase.UnitTests/Plugin.Firebase.UnitTests.csproj
-- run: dotnet restore src/Auth/Auth.csproj
-- run: dotnet build src/Auth/Auth.csproj -c Release -f net10.0 --no-restore
+- run: dotnet restore src/Auth/Auth.csproj -p:TargetFrameworks=net10.0
+- run: dotnet build src/Auth/Auth.csproj -c Release -f net10.0 -p:TargetFrameworks=net10.0 --no-restore
 - run: dotnet test tests/Plugin.Firebase.UnitTests/Plugin.Firebase.UnitTests.csproj -c Release --no-restore
 ```
 

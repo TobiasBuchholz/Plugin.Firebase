@@ -111,6 +111,7 @@ iOS integration tests run on a specific simulator:
 dotnet test tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
   -c Debug \
   -f net10.0-ios \
+  -p:TargetFrameworks=net10.0-ios \
   -p:RuntimeIdentifier=iossimulator-arm64 \
   -p:EnableCodeSigning=false \
   -p:DeviceRunnersDevice=<simulator-udid> \
@@ -124,6 +125,7 @@ Android integration tests run on the only connected emulator or device:
 dotnet test tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
   -c Debug \
   -f net10.0-android \
+  -p:TargetFrameworks=net10.0-android \
   --logger trx \
   --results-directory artifacts/test-results/android
 ```
@@ -136,7 +138,7 @@ scripts/run-integration-emulators.sh android
 DEVICE_ID=<simulator-udid> scripts/run-integration-emulators.sh ios
 ```
 
-Use `xcrun simctl list devices available` to discover simulator UDIDs and `adb devices` to verify the Android emulator is online. Set `ANDROID_DEVICE_ID=<adb-serial>` for the wrapper when more than one Android target is connected; direct commands use `-p:DeviceRunnersDevice=<adb-serial>`. The iOS wrapper maps `DEVICE_ID` to that same property. The preflight checks required CLIs, Functions build output, emulator ports, and target availability. Set `SKIP_INTEGRATION_PREFLIGHT=1` only when another step already guarantees those conditions.
+Use `xcrun simctl list devices available` to discover simulator UDIDs and `adb devices` to verify the Android emulator is online. Set `ANDROID_DEVICE_ID=<adb-serial>` for the wrapper when more than one Android target is connected; direct commands use both `-p:Device=<adb-serial>` and `-p:DeviceRunnersDevice=<adb-serial>`. The iOS wrapper maps `DEVICE_ID` to the `DeviceRunnersDevice` property. Keep the explicit `TargetFrameworks` override even with `-f`; it constrains implicit restore to the installed platform workload. The preflight checks required CLIs, Functions build output, emulator ports, and target availability. Set `SKIP_INTEGRATION_PREFLIGHT=1` only when another step already guarantees those conditions.
 
 Do not pass `--no-build`: on Android, DeviceRunners injects its auto-run, TCP, and host `PLUGIN_FIREBASE_*` settings while `dotnet test` builds the app. Launching the app directly from an IDE, `xcrun simctl launch`, or `adb shell am start` opens the interactive visual runner by default; `AddCliConfiguration()` enables headless auto-run only for `dotnet test` launches.
 
@@ -291,6 +293,7 @@ SIMCTL_CHILD_PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_HOST=localhost \
 SIMCTL_CHILD_PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_PORT=5001 \
 dotnet test tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
   -c Debug -f net10.0-ios \
+  -p:TargetFrameworks=net10.0-ios \
   -p:RuntimeIdentifier=iossimulator-arm64 \
   -p:DeviceRunnersDevice=<simulator-udid> \
   --logger trx
@@ -305,6 +308,7 @@ PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_HOST=10.0.2.2 \
 PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_PORT=5001 \
 dotnet test tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
   -c Debug -f net10.0-android \
+  -p:TargetFrameworks=net10.0-android \
   --logger trx
 ```
 
@@ -399,6 +403,7 @@ SIMCTL_CHILD_PLUGIN_FIREBASE_STORAGE_EMULATOR_HOST=localhost \
 SIMCTL_CHILD_PLUGIN_FIREBASE_STORAGE_EMULATOR_PORT=9199 \
 dotnet test tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
   -c Debug -f net10.0-ios \
+  -p:TargetFrameworks=net10.0-ios \
   -p:RuntimeIdentifier=iossimulator-arm64 \
   -p:DeviceRunnersDevice=<simulator-udid> \
   --logger trx
@@ -413,6 +418,7 @@ PLUGIN_FIREBASE_STORAGE_EMULATOR_HOST=10.0.2.2 \
 PLUGIN_FIREBASE_STORAGE_EMULATOR_PORT=9199 \
 dotnet test tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
   -c Debug -f net10.0-android \
+  -p:TargetFrameworks=net10.0-android \
   --logger trx
 ```
 

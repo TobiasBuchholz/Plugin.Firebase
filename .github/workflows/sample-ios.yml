@@ -36,11 +36,12 @@ jobs:
           ls -1 /Applications/Xcode*.app >&2
           exit 1
       - name: Install iOS workload
-        run: sudo "$DOTNET_ROOT/dotnet" workload install maui-ios --source https://api.nuget.org/v3/index.json
+        run: dotnet workload install maui-ios --source https://api.nuget.org/v3/index.json
       - name: Build Playground (iOS simulator, no signing)
         run: |
           dotnet build sample/Playground/Playground.csproj \
             -c Debug \
             -f net10.0-ios \
+            -p:TargetFrameworks=net10.0-ios \
             -p:RuntimeIdentifier=iossimulator-arm64 \
             -p:EnableCodeSigning=false

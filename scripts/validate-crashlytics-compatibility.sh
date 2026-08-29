@@ -45,6 +45,7 @@ for version in "${versions[@]}"; do
     dotnet build "$project" \
       -c Release \
       -f net10.0-android \
+      -p:TargetFrameworks=net10.0-android \
       -m:1 \
       --disable-build-servers \
       -p:UseSharedCompilation=false \

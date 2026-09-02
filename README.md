@@ -1,6 +1,13 @@
 # Plugin.Firebase
 
-This is a wrapper library around the native Android and iOS Firebase SDKs which includes cross-platform APIs for most of the Firebase features. Documentation and the included sample app are MAUI-centric, but the plugin should be usable in any cross-platform .NET 10+ project.
+This is a wrapper library around the native Android and iOS Firebase SDKs which includes cross-platform APIs for most of the Firebase features. Documentation and the included sample app are MAUI-centric, but the plugin is also usable in compatible non-MAUI .NET 10 mobile projects.
+
+## Next release upgrade notes
+
+- The next release supports .NET 10 only: `net10.0`, `net10.0-android`, and `net10.0-ios`. .NET 9 is not supported.
+- MAUI apps must use .NET MAUI 10. Compatible non-MAUI .NET 10 Android and iOS apps remain supported.
+- The minimum Firebase iOS binding version increases from 12.5 to 12.7. The minimum operating-system versions remain iOS 15 and Android API level 23.
+- Review the package-specific changes and migration guidance before upgrading: [Auth](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/auth.md), [Cloud Messaging](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/cloud_messaging.md), [Firestore](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/firestore.md), [Functions](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/functions.md), and [Storage](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/storage.md).
 
 ## v4.0 Upgrade Notes
 - The experience of building projects using this plugin has been improved on Windows / Visual Studio. Issues related to hanging builds caused by XamarinBuildDownload and long path issues affecting iOS NuGet packages have been mitigated, if not commpletely resolved.
@@ -185,7 +192,7 @@ In case you would like to run the sample app or the real-Firebase integration ba
 @coop-tim has created a [.NET 8 sample project](https://github.com/coop-tim/maui-sample) with a really good and extensive description. It's targeting iOS and Android with Firebase Cloud Messaging, Analytics and the relevant build pipelines to get them built and pushed into App Center. Definitely worth checking it out!
 
 ## Using Firebase Local Emulator Suite
-If you would like to use the [Firebase Local Emulator Suite](https://firebase.google.com/docs/emulator-suite) for your tests or rapid prototyping you can do so by following the steps of the [Getting started guide](https://firebase.google.com/docs/emulator-suite/connect_and_prototype) and calling the [`UseEmulator(host, port)`](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/src/Shared/Firestore/IFirebaseFirestore.cs#L45) method of the desired firebase service before doing any other operations.
+If you would like to use the [Firebase Local Emulator Suite](https://firebase.google.com/docs/emulator-suite) for your tests or rapid prototyping you can do so by following the steps of the [Getting started guide](https://firebase.google.com/docs/emulator-suite/connect_and_prototype) and calling the [`UseEmulator(host, port)`](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/src/Firestore/Shared/IFirebaseFirestore.cs#L111) method of the desired firebase service before doing any other operations.
 
 For example the [`Plugin.Firebase.IntegrationTests`](https://github.com/TobiasBuchholz/Plugin.Firebase/tree/development/tests/Plugin.Firebase.IntegrationTests) project defaults to emulator-backed Auth, Firestore, Functions, and Storage tests. Its `DeviceRunners.Testing.Targets` reference makes the MAUI device app runnable with standard `dotnet test` commands and TRX output; `scripts/run-integration-emulators.sh` starts the Firebase emulators and seeds Auth around that run. The `integration-emulators-android` and `integration-emulators-ios` GitHub Actions checks run the same suites for pull requests. Use `SIMCTL_CHILD_PLUGIN_FIREBASE_TEST_BACKEND=real` for an iOS simulator or `PLUGIN_FIREBASE_TEST_BACKEND=real` for Android `dotnet test` to opt into a real Firebase project for products without local emulators. Launching the app directly opens the interactive visual runner.
 

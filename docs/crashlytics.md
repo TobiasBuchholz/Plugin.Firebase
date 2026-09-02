@@ -3,14 +3,14 @@
 Firebase [Firebase Crashlytics](https://firebase.google.com/docs/crashlytics) is a lightweight, realtime crash reporter that helps you track, prioritize, and fix stability issues that erode your app quality. Crashlytics saves you troubleshooting time by intelligently grouping crashes and highlighting the circumstances that lead up to them.
 
 ## Installation
-### Nuget
-[![NuGet](https://img.shields.io/nuget/v/plugin.firebase.crashlytics.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Crashlytics/)
+### NuGet
+[![NuGet](https://img.shields.io/nuget/v/Plugin.Firebase.Crashlytics.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Crashlytics/)
 
 > Install-Package Plugin.Firebase.Crashlytics
 
 ## Setup
 
-- Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/README.md#basic-setup)
+- Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/README.md#basic-setup)
 - Add the following line of code after calling `CrossFirebase.Initialize()`:
 ```c#
   CrossFirebaseCrashlytics.Current.SetCrashlyticsCollectionEnabled(true);
@@ -51,9 +51,14 @@ To test if everything is setup correctly, restart the app after a forced crash a
 Take a look at the [documentation](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents/blob/master/docs/Firebase/Crashlytics/GettingStarted.md) for the AdamE.Firebase.iOS.Crashlytics packages, because Plugin.Firebase's code is abstracted but still very similar.
 
 Since code should be documenting itself you can also take a look at the following class:
-- [src/.../IFirebaseCrashlytics.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Crashlytics/IFirebaseCrashlytics.cs)
+- [src/.../IFirebaseCrashlytics.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/src/Crashlytics/Shared/IFirebaseCrashlytics.cs)
 
 ## Release notes
+
+- Next
+  - Target .NET 10 and raise the minimum Firebase iOS binding version to 12.7; the minimum platform versions remain iOS 15 and Android 23.
+  - Document iOS symbol-export diagnostics and Android resource/build-ID troubleshooting.
+  - Support newer Android Crashlytics binding shapes and validate targeted compile compatibility across the tested `Xamarin.Firebase.Crashlytics` 119.x and 120.x packages, up to and including 120.0.5. The package still references 119.0.0 by default; override `XamarinFirebaseCrashlyticsVersion` to use a newer binding.
 - Version 3.1.1
   - Using AdamE.Firebase.iOS.* minimum version 11
 - Version 3.1.0

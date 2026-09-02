@@ -2,11 +2,15 @@ namespace Plugin.Firebase.IntegrationTests;
 
 internal static class IntegrationTestDiagnostics
 {
-    public static void WriteStartupConfiguration(bool useVisualRunner)
+    public static void WriteStartupConfiguration()
     {
+        var runner = Environment.GetEnvironmentVariable("DEVICE_RUNNERS_AUTORUN") == "1"
+            ? "dotnet-test"
+            : "visual";
+
         TestLog.Write("[INTEGRATION CONFIG] "
             + $"backend={IntegrationTestEnvironment.Backend}; "
-            + $"runner={(useVisualRunner ? "visual" : "xharness")}; "
+            + $"runner={runner}; "
             + $"platform={DeviceInfo.Platform}; "
             + $"deviceType={DeviceInfo.DeviceType}; "
             + $"appId={AppInfo.PackageName}; "

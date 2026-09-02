@@ -15,8 +15,6 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 project_path="${repo_root}/tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj"
 functions_dir="${repo_root}/tests/cloud-functions/functions"
 
-export PATH="${PATH}:${HOME}/.dotnet/tools"
-
 errors=()
 warnings=()
 errors_count=0
@@ -90,7 +88,6 @@ check_common_environment() {
   require_command node
   require_command npm
   require_command firebase
-  require_command xharness
 
   require_file "${project_path}"
   require_file "${functions_dir}/package.json"
@@ -104,33 +101,25 @@ check_common_environment() {
 check_android_environment() {
   require_command adb
 
-  local apk="${ANDROID_APK:-}"
-  if [ -z "${apk}" ]; then
-    apk="$(find "${repo_root}/tests/Plugin.Firebase.IntegrationTests/bin/Debug/net9.0-android" \
-      -name "*-Signed.apk" \
-      -type f \
-      -print \
-      -quit 2>/dev/null || true)"
-  fi
-
-  if [ -z "${apk}" ] || [ ! -f "${apk}" ]; then
-    add_error "Missing built Android test APK. Build net9.0-android first or set ANDROID_APK."
-  fi
-
   if command -v adb >/dev/null 2>&1; then
-    if ! adb devices | awk 'NR > 1 && $2 == "device" { found = 1 } END { exit found ? 0 : 1 }'; then
+    local device_id="${ANDROID_DEVICE_ID:-}"
+    local online_device_count
+    online_device_count="$(adb devices | awk 'NR > 1 && $2 == "device" { count++ } END { print count + 0 }')"
+
+    if [ -n "${device_id}" ]; then
+      if ! adb devices | awk -v device_id="${device_id}" 'NR > 1 && $1 == device_id && $2 == "device" { found = 1 } END { exit found ? 0 : 1 }'; then
+        add_error "ANDROID_DEVICE_ID '${device_id}' is not an online adb device or emulator."
+      fi
+    elif [ "${online_device_count}" -eq 0 ]; then
       add_error "No online Android adb device or emulator was found."
+    elif [ "${online_device_count}" -gt 1 ]; then
+      add_error "Multiple online Android adb devices or emulators were found. Set ANDROID_DEVICE_ID to select one."
     fi
   fi
 }
 
 check_ios_environment() {
   require_command xcrun
-
-  local app_path="${IOS_APP_PATH:-${repo_root}/tests/Plugin.Firebase.IntegrationTests/bin/Debug/net9.0-ios/iossimulator-arm64/Plugin.Firebase.IntegrationTests.app}"
-  if [ ! -d "${app_path}" ]; then
-    add_error "Missing built iOS simulator app. Build net9.0-ios iossimulator-arm64 first or set IOS_APP_PATH."
-  fi
 
   if [ -z "${DEVICE_ID:-}" ]; then
     add_error "DEVICE_ID must be set to an available iOS simulator UDID."

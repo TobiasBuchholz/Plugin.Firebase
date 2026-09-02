@@ -53,9 +53,9 @@ Maintainers may prefer to handle version bumps as part of the release process. I
 At minimum, validate compilation for the relevant targets:
 
 ```sh
-dotnet build src/Auth/Auth.csproj -f net9.0
-dotnet build src/Auth/Auth.csproj -f net9.0-android
-dotnet build src/Auth/Auth.csproj -f net9.0-ios
+dotnet build src/Auth/Auth.csproj -f net10.0 -p:TargetFrameworks=net10.0
+dotnet build src/Auth/Auth.csproj -f net10.0-android -p:TargetFrameworks=net10.0-android
+dotnet build src/Auth/Auth.csproj -f net10.0-ios -p:TargetFrameworks=net10.0-ios
 ```
 
 If you change APIs used by integration tests:

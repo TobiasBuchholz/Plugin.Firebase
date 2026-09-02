@@ -15,55 +15,30 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 project_id="${FIREBASE_PROJECT_ID:-demo-pluginfirebase-integrationtests}"
 emulators="${FIREBASE_EMULATORS:-auth,firestore,functions,storage}"
 cloud_functions_dir="${repo_root}/tests/cloud-functions"
+integration_project="${repo_root}/tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj"
 
-export PATH="${PATH}:${HOME}/.dotnet/tools"
 export FUNCTIONS_DISCOVERY_TIMEOUT="${FUNCTIONS_DISCOVERY_TIMEOUT:-30}"
 
 quote() {
   printf '%q' "$1"
 }
 
-resolve_android_metadata() {
-  if [ -z "${ANDROID_PACKAGE_ID:-}" ]; then
-    ANDROID_PACKAGE_ID="$(dotnet msbuild "${repo_root}/tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj" \
-      -getProperty:IntegrationTestsAndroidApplicationId \
-      -p:TargetFramework=net9.0-android \
-      | tr -d '\r\n')"
-  fi
-
-  if [ -z "${ANDROID_APK:-}" ]; then
-    ANDROID_APK="$(find "${repo_root}/tests/Plugin.Firebase.IntegrationTests/bin/Debug/net9.0-android" \
-      -name "${ANDROID_PACKAGE_ID}-Signed.apk" \
-      -type f \
-      -print \
-      -quit)"
-  fi
-
-  if [ -z "${ANDROID_PACKAGE_ID}" ]; then
-    echo "Could not resolve IntegrationTestsAndroidApplicationId." >&2
-    exit 1
-  fi
-
-  if [ -z "${ANDROID_APK}" ]; then
-    echo "Could not find signed Android APK for package '${ANDROID_PACKAGE_ID}'." >&2
-    exit 1
-  fi
-}
-
 run_android() {
-  resolve_android_metadata
-
   local output_dir="${ANDROID_TEST_RESULTS_DIR:-${repo_root}/artifacts/test-results/android}"
+  local device_id="${ANDROID_DEVICE_ID:-}"
   local command
   command="node scripts/seed-auth-emulator.js && "
-  command+="xharness android test "
-  command+="--timeout=00:10:00 "
-  command+="--launch-timeout=00:10:00 "
-  command+="--package-name $(quote "${ANDROID_PACKAGE_ID}") "
-  command+="--instrumentation devicerunners.xharness.maui.XHarnessInstrumentation "
-  command+="--app $(quote "${ANDROID_APK}") "
-  command+="--output-directory $(quote "${output_dir}") "
-  command+="--verbosity=Debug"
+  command+="dotnet test $(quote "${integration_project}") "
+  command+="-c Debug -f net10.0-android "
+  command+="-p:TargetFrameworks=net10.0-android "
+  command+="--logger trx "
+  command+="--results-directory $(quote "${output_dir}") "
+  command+="-p:DeviceRunnersConnectionTimeout=600 "
+  command+="-p:DeviceRunnersDataTimeout=600"
+  if [ -n "${device_id}" ]; then
+    command+=" -p:Device=$(quote "${device_id}")"
+    command+=" -p:DeviceRunnersDevice=$(quote "${device_id}")"
+  fi
 
   cd "${cloud_functions_dir}"
   firebase emulators:exec --project "${project_id}" --only "${emulators}" "${command}"
@@ -75,18 +50,19 @@ run_ios() {
     exit 1
   fi
 
-  local app_path="${IOS_APP_PATH:-${repo_root}/tests/Plugin.Firebase.IntegrationTests/bin/Debug/net9.0-ios/iossimulator-arm64/Plugin.Firebase.IntegrationTests.app}"
   local output_dir="${IOS_TEST_RESULTS_DIR:-${repo_root}/artifacts/test-results/ios}"
   local command
   command="node scripts/seed-auth-emulator.js && "
-  command+="xharness apple test "
-  command+="--target ios-simulator-64 "
-  command+="--device $(quote "${DEVICE_ID}") "
-  command+="--timeout=00:10:00 "
-  command+="--launch-timeout=00:10:00 "
-  command+="--app $(quote "${app_path}") "
-  command+="--output-directory $(quote "${output_dir}") "
-  command+="--set-env=PLUGIN_FIREBASE_TEST_BACKEND=emulator"
+  command+="dotnet test $(quote "${integration_project}") "
+  command+="-c Debug -f net10.0-ios "
+  command+="-p:TargetFrameworks=net10.0-ios "
+  command+="--logger trx "
+  command+="--results-directory $(quote "${output_dir}") "
+  command+="-p:RuntimeIdentifier=iossimulator-arm64 "
+  command+="-p:EnableCodeSigning=false "
+  command+="-p:DeviceRunnersDevice=$(quote "${DEVICE_ID}") "
+  command+="-p:DeviceRunnersConnectionTimeout=600 "
+  command+="-p:DeviceRunnersDataTimeout=600"
 
   cd "${cloud_functions_dir}"
   firebase emulators:exec --project "${project_id}" --only "${emulators}" "${command}"

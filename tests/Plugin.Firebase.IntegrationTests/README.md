@@ -61,6 +61,46 @@
 
 ## Running Locally
 
-- Use `scripts/check-integration-environment.sh android|ios` before a device run to verify CLIs, built app output, function build output, emulator ports, and target availability.
+- Use `scripts/check-integration-environment.sh android|ios` before a device run to verify CLIs, function build output, emulator ports, and target availability.
 - `scripts/run-integration-emulators.sh android|ios` calls preflight automatically. Set `SKIP_INTEGRATION_PREFLIGHT=1` only for CI edge cases where another step has already guaranteed the environment.
-- GitHub summaries from `scripts/write-xunit-github-summary.rb` include totals, failures, skips, slowest tests, and recent `[TEST START]` breadcrumbs when logs are present.
+- GitHub summaries from `scripts/write-trx-github-summary.rb` include totals, failures, skips, slowest tests, and recent `[TEST START]` breadcrumbs when logs are present.
+
+The project references `DeviceRunners.Testing.Targets`, which provides the device implementation of `dotnet test` and bundles its CLI. It builds, deploys, starts the app in headless mode, and writes TRX results without a separately installed runner tool.
+
+Run Android tests on the only connected emulator or device:
+
+```sh
+dotnet test tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
+  -c Debug \
+  -f net10.0-android \
+  -p:TargetFrameworks=net10.0-android \
+  --logger trx \
+  --results-directory artifacts/test-results/android
+```
+
+Run iOS tests on a specific simulator:
+
+```sh
+dotnet test tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
+  -c Debug \
+  -f net10.0-ios \
+  -p:TargetFrameworks=net10.0-ios \
+  -p:RuntimeIdentifier=iossimulator-arm64 \
+  -p:EnableCodeSigning=false \
+  -p:DeviceRunnersDevice=<simulator-udid> \
+  --logger trx \
+  --results-directory artifacts/test-results/ios
+```
+
+The Firebase emulator wrapper seeds Auth and runs those commands inside `firebase emulators:exec`:
+
+```sh
+scripts/run-integration-emulators.sh android
+DEVICE_ID=<simulator-udid> scripts/run-integration-emulators.sh ios
+```
+
+Set `ANDROID_DEVICE_ID=<adb-serial>` for the wrapper when more than one Android target is connected; direct commands use both `-p:Device=<adb-serial>` and `-p:DeviceRunnersDevice=<adb-serial>`. The iOS wrapper maps `DEVICE_ID` to the `DeviceRunnersDevice` property. Keep the explicit `TargetFrameworks` override even with `-f`; it constrains implicit restore to the installed platform workload. Do not pass `--no-build`, because the Android runner configuration and host `PLUGIN_FIREBASE_*` values are injected during the `dotnet test` build.
+
+For iOS app configuration, prefix variables with `SIMCTL_CHILD_`, for example `SIMCTL_CHILD_PLUGIN_FIREBASE_TEST_BACKEND=real`. For Android `dotnet test`, set `PLUGIN_FIREBASE_*` values directly in the host environment; `debug.pluginfirebase.*` system properties are still supported for direct app launches.
+
+Launching the app directly from an IDE, `xcrun simctl launch`, or `adb shell am start` opens the interactive visual runner by default. `AddCliConfiguration()` enables headless auto-run only for `dotnet test` launches.

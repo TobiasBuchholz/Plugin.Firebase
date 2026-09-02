@@ -1,17 +1,17 @@
 # CI/CD Guidance
 
-This repo targets multiple TFMs (`net9.0`, `net9.0-android`, `net9.0-ios`). CI can be kept
-lightweight by building `net9.0` only, and optionally adding Android/iOS builds on macOS.
+This repo targets multiple TFMs (`net10.0`, `net10.0-android`, `net10.0-ios`). CI can be kept
+lightweight by building `net10.0` only, and optionally adding Android/iOS builds on macOS.
 
 ## Suggested CI stages
-1) **Restore + build (net9.0 only)**  
+1) **Restore + build (net10.0 only)**
    Fast validation on Linux/Windows runners.
 
-2) **Unit tests (net9.0)**  
+2) **Unit tests (net10.0)**
    Run lightweight unit tests for core mappings and helpers.
 
 3) **Android build (optional)**  
-   Requires Android SDK and `dotnet workload install android`.
+   Requires Android SDK, JDK 21, and `dotnet workload restore`.
 
 4) **iOS build (optional, macOS)**  
    Requires Xcode + iOS workload.
@@ -21,12 +21,12 @@ lightweight by building `net9.0` only, and optionally adding Android/iOS builds 
 
 ## Example GitHub Actions steps (snippet)
 ```
-- uses: actions/setup-dotnet@v4
+- uses: actions/setup-dotnet@v5
   with:
-    dotnet-version: '9.x'
+    dotnet-version: '10.x'
 - run: dotnet restore tests/Plugin.Firebase.UnitTests/Plugin.Firebase.UnitTests.csproj
-- run: dotnet restore src/Auth/Auth.csproj
-- run: dotnet build src/Auth/Auth.csproj -c Release -f net9.0 --no-restore
+- run: dotnet restore src/Auth/Auth.csproj -p:TargetFrameworks=net10.0
+- run: dotnet build src/Auth/Auth.csproj -c Release -f net10.0 -p:TargetFrameworks=net10.0 --no-restore
 - run: dotnet test tests/Plugin.Firebase.UnitTests/Plugin.Firebase.UnitTests.csproj -c Release --no-restore
 ```
 

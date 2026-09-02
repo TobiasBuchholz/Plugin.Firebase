@@ -29,7 +29,7 @@ jobs:
 
       - uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: '10.0.x'
 
       - uses: actions/setup-java@v5
         with:
@@ -37,9 +37,9 @@ jobs:
           java-version: '21'
 
       - name: Install .NET MAUI workload
-        run: dotnet workload install maui --source https://api.nuget.org/v3/index.json
+        run: dotnet workload install maui-android --source https://api.nuget.org/v3/index.json
 
-      - name: Install Firebase CLI and XHarness
+      - name: Install Firebase CLI
         run: scripts/install-integration-test-tools.sh
 
       - name: Check integration coverage metadata
@@ -49,35 +49,6 @@ jobs:
         run: |
           npm ci --prefix tests/cloud-functions/functions --legacy-peer-deps
           npm --prefix tests/cloud-functions/functions run build
-
-      - name: Build Android integration app
-        run: dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj -c Debug -f net9.0-android
-
-      - name: Resolve Android integration app metadata
-        run: |
-          ANDROID_PACKAGE_ID=$(dotnet msbuild tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
-            -getProperty:IntegrationTestsAndroidApplicationId \
-            -p:TargetFramework=net9.0-android \
-            | tr -d '\r\n')
-          ANDROID_APK=$(find "$GITHUB_WORKSPACE/tests/Plugin.Firebase.IntegrationTests/bin/Debug/net9.0-android" \
-            -name "${ANDROID_PACKAGE_ID}-Signed.apk" \
-            -type f \
-            -print \
-            -quit)
-
-          if [ -z "$ANDROID_PACKAGE_ID" ]; then
-            echo "Could not resolve IntegrationTestsAndroidApplicationId." >&2
-            exit 1
-          fi
-
-          if [ -z "$ANDROID_APK" ]; then
-            echo "Could not find signed Android APK for package '$ANDROID_PACKAGE_ID'." >&2
-            find "$GITHUB_WORKSPACE/tests/Plugin.Firebase.IntegrationTests/bin/Debug/net9.0-android" -name "*-Signed.apk" -type f >&2
-            exit 1
-          fi
-
-          echo "ANDROID_PACKAGE_ID=$ANDROID_PACKAGE_ID" >> "$GITHUB_ENV"
-          echo "ANDROID_APK=$ANDROID_APK" >> "$GITHUB_ENV"
 
       - name: Enable KVM
         run: |
@@ -96,7 +67,7 @@ jobs:
 
       - name: Summarize Android test results
         if: always()
-        run: ruby scripts/write-xunit-github-summary.rb "Android emulator integration tests" "artifacts/test-results/android"
+        run: ruby scripts/write-trx-github-summary.rb "Android emulator integration tests" "artifacts/test-results/android"
 
       - name: Upload Android test artifacts
         if: always()
@@ -115,7 +86,7 @@ jobs:
 
       - uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: '10.0.x'
 
       - uses: actions/setup-java@v5
         with:
@@ -123,16 +94,16 @@ jobs:
           java-version: '21'
 
       - name: Install .NET MAUI workload
-        run: sudo "$DOTNET_ROOT/dotnet" workload install maui --source https://api.nuget.org/v3/index.json
+        run: dotnet workload install maui-ios --source https://api.nuget.org/v3/index.json
 
-      - name: Install Firebase CLI and XHarness
+      - name: Install Firebase CLI
         run: scripts/install-integration-test-tools.sh
 
       - name: Select Xcode for .NET iOS workload
         run: |
           for xcode in \
-            /Applications/Xcode_26.3.app \
-            /Applications/Xcode_26.3.0.app; do
+            /Applications/Xcode_26.6.app \
+            /Applications/Xcode_26.6.0.app; do
             if [ -d "$xcode" ]; then
               sudo xcode-select -s "$xcode/Contents/Developer"
               xcodebuild -version
@@ -150,7 +121,7 @@ jobs:
             fi
           done
 
-          echo "No compatible Xcode 26.3 installation found." >&2
+          echo "No compatible Xcode 26.6 installation found." >&2
           ls -1 /Applications/Xcode*.app >&2
           exit 1
 
@@ -158,14 +129,6 @@ jobs:
         run: |
           npm ci --prefix tests/cloud-functions/functions --legacy-peer-deps
           npm --prefix tests/cloud-functions/functions run build
-
-      - name: Build iOS integration app
-        run: |
-          dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
-            -c Debug \
-            -f net9.0-ios \
-            -p:RuntimeIdentifier=iossimulator-arm64 \
-            -p:EnableCodeSigning=false
 
       - name: Boot iOS simulator
         run: |
@@ -187,7 +150,7 @@ jobs:
 
       - name: Summarize iOS test results
         if: always()
-        run: ruby scripts/write-xunit-github-summary.rb "iOS emulator integration tests" "artifacts/test-results/ios"
+        run: ruby scripts/write-trx-github-summary.rb "iOS emulator integration tests" "artifacts/test-results/ios"
 
       - name: Upload iOS test artifacts
         if: always()

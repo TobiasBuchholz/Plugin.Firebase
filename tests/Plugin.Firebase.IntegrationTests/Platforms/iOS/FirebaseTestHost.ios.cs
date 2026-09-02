@@ -89,11 +89,16 @@ internal static partial class FirebaseTestHost
 
     private static NativeFirebaseOptions CreateEmulatorFirebaseOptions()
     {
+        var bundleIdentifier = NSBundle.MainBundle.BundleIdentifier
+                               ?? throw new InvalidOperationException(
+                                   "The integration test app bundle identifier is unavailable."
+                               );
+
         return new NativeFirebaseOptions(
             IntegrationTestEnvironment.IosGoogleAppId,
             IntegrationTestEnvironment.GcmSenderId) {
             ApiKey = IntegrationTestEnvironment.ApiKey,
-            BundleId = NSBundle.MainBundle.BundleIdentifier,
+            BundleId = bundleIdentifier,
             DatabaseUrl = IntegrationTestEnvironment.DatabaseUrl,
             ProjectId = IntegrationTestEnvironment.ProjectId,
             StorageBucket = IntegrationTestEnvironment.StorageBucket

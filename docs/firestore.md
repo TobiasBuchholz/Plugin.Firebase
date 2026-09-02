@@ -15,7 +15,10 @@ Cloud Firestore is a flexible, scalable database for mobile, web, and server dev
 
 ## Usage
 
-To be able to fetch your data from the firestore, you'll need to create a POCO that implements the `IFirestoreObject` interface. Use the `FirestoreDocumentId` and `FirestoreProperty` attributes to hook up its properties, for example:
+To be able to fetch your data from Firestore, create a POCO that implements the `IFirestoreObject` interface and has a public parameterless constructor. Use the `FirestoreDocumentId` and `FirestoreProperty` attributes to hook up its properties. For example:
+
+> Firestore's reflection-based model mapping is not currently compatible with full trimming or Native AOT.
+
 ```c#
 
 public sealed class Pokemon : IFirestoreObject

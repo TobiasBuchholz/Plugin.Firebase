@@ -8,11 +8,12 @@ This repo builds Firebase iOS/Android libraries and NuGet packages using .NET.
 - Xcode (for iOS components)
 - Android SDK (for Android components)
 
-## Restore packages
+## Restore workloads and packages
 
-Before building, restore NuGet packages:
+Before building, restore the workload set pinned by `global.json`, then restore NuGet packages:
 
 ```sh
+dotnet workload restore Plugin.Firebase.sln
 dotnet restore
 ```
 
@@ -102,55 +103,49 @@ Unit tests:
 dotnet test tests/Plugin.Firebase.UnitTests/Plugin.Firebase.UnitTests.csproj
 ```
 
-iOS integration tests build for simulator:
-
-```sh
-dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
-  -c Debug \
-  -f net9.0-ios \
-  -p:RuntimeIdentifier=iossimulator-arm64 \
-  -p:EnableCodeSigning=false
-```
-
-Android integration tests build for emulator:
-
-```sh
-dotnet build tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
-  -c Debug \
-  -f net9.0-android
-```
-
-The default integration-test host now uses the DeviceRunners XHarness runner so tests can be launched from the CLI. Install the local runner tools once:
-
-```sh
-scripts/install-integration-test-tools.sh
-```
-
-The installed command is `xharness`. If your shell cannot find it, make sure `~/.dotnet/tools` is on your `PATH`.
+The integration test project references `DeviceRunners.Testing.Targets`. It extends `dotnet test` for device targets, builds and deploys the MAUI app, starts its visual runner in headless mode, and writes standard TRX output. The DeviceRunners CLI is bundled with the package, so no global runner tool is required.
 
 iOS integration tests run on a specific simulator:
 
 ```sh
+dotnet test tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
+  -c Debug \
+  -f net10.0-ios \
+  -p:TargetFrameworks=net10.0-ios \
+  -p:RuntimeIdentifier=iossimulator-arm64 \
+  -p:EnableCodeSigning=false \
+  -p:DeviceRunnersDevice=<simulator-udid> \
+  --logger trx \
+  --results-directory artifacts/test-results/ios
+```
+
+Android integration tests run on the only connected emulator or device:
+
+```sh
+dotnet test tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
+  -c Debug \
+  -f net10.0-android \
+  -p:TargetFrameworks=net10.0-android \
+  --logger trx \
+  --results-directory artifacts/test-results/android
+```
+
+The emulator wrapper installs the Firebase CLI, seeds Auth, and runs those commands inside `firebase emulators:exec`:
+
+```sh
+scripts/install-integration-test-tools.sh
+scripts/run-integration-emulators.sh android
 DEVICE_ID=<simulator-udid> scripts/run-integration-emulators.sh ios
 ```
 
-Android integration tests run on the currently running emulator:
+Use `xcrun simctl list devices available` to discover simulator UDIDs and `adb devices` to verify the Android emulator is online. Set `ANDROID_DEVICE_ID=<adb-serial>` for the wrapper when more than one Android target is connected; direct commands use both `-p:Device=<adb-serial>` and `-p:DeviceRunnersDevice=<adb-serial>`. The iOS wrapper maps `DEVICE_ID` to the `DeviceRunnersDevice` property. Keep the explicit `TargetFrameworks` override even with `-f`; it constrains implicit restore to the installed platform workload. The preflight checks required CLIs, Functions build output, emulator ports, and target availability. Set `SKIP_INTEGRATION_PREFLIGHT=1` only when another step already guarantees those conditions.
 
-```sh
-scripts/run-integration-emulators.sh android
-```
-
-Use `xcrun simctl list devices available` to discover simulator UDIDs and `adb devices` to verify the Android emulator is online before running the Android command. `scripts/run-integration-emulators.sh` calls `scripts/check-integration-environment.sh android|ios` first to check CLIs, built app output, Functions build output, emulator ports, and target availability. Set `SKIP_INTEGRATION_PREFLIGHT=1` only for CI edge cases where another step already guarantees the environment. XHarness uses the only connected adb target by default; if `adb devices` lists more than one device or emulator, add `--device-id <adb-device-id>` to the `xharness android test` command. If you keep the default application ids, `<package-id>` is `plugin.firebase.integrationtests`. If you override the ids in `Plugin.Firebase.IntegrationTests.props.user`, use the overridden Android package id in both `--package-name` and the APK filename.
-
-The interactive visual runner is still available, but it is opt-in:
-
-- On iOS simulators, relaunch with `SIMCTL_CHILD_PLUGIN_FIREBASE_USE_VISUAL_RUNNER=1`.
-- On Android emulators, run `adb shell setprop debug.pluginfirebase.visual.use 1` before launching the app.
+Do not pass `--no-build`: on Android, DeviceRunners injects its auto-run, TCP, and host `PLUGIN_FIREBASE_*` settings while `dotnet test` builds the app. Launching the app directly from an IDE, `xcrun simctl launch`, or `adb shell am start` opens the interactive visual runner by default; `AddCliConfiguration()` enables headless auto-run only for `dotnet test` launches.
 
 Harness notes:
 
 - The integration fixtures run sequentially on purpose. The suite shares backend state, emulator state, and cleanup code across tests, so disabling xUnit parallelization avoids order-dependent failures that are hard to reproduce on device runners.
-- Each test writes `[TEST START]` and `[TEST END]` breadcrumbs to the runner output. If a CLI run appears hung, check the xharness log, simulator console output, or Android logcat to see which test last started. The CI summary includes recent breadcrumbs plus failed, skipped, and slow test details when XML/log data is available.
+- Each test writes `[TEST START]` and `[TEST END]` breadcrumbs to the runner output. If a run appears hung, inspect `tcp-test-events.jsonl`, `ios-device-log.txt`, or `logcat.txt` in the selected results directory to see which test last started. The CI summary includes recent breadcrumbs plus failed, skipped, and slow test details from TRX/log data.
 - iOS simulator builds ad-hoc re-sign the generated app bundle and bundled .NET runtime libraries after `dotnet build`. This is a simulator-only workaround for Xcode 26 / macOS 26 code-signature validation and is not required for real-device builds.
 
 ## Emulator-backed integration tests (default)
@@ -186,7 +181,7 @@ DEVICE_ID=<simulator-udid> scripts/run-integration-emulators.sh ios
 
 Run `scripts/check-integration-environment.sh android|ios` directly for a fast setup check without launching emulators.
 
-Default emulator ports are Auth `9099`, Firestore `8080`, Functions `5001`, and Storage `9199`. The app uses `localhost` on iOS and `10.0.2.2` on Android unless overridden with `PLUGIN_FIREBASE_<SERVICE>_EMULATOR_HOST` / `PLUGIN_FIREBASE_<SERVICE>_EMULATOR_PORT` or Android system properties such as `debug.pluginfirebase.auth.host`.
+Default emulator ports are Auth `9099`, Firestore `8080`, Functions `5001`, and Storage `9199`. The app uses `localhost` on iOS and `10.0.2.2` on Android. For an iOS simulator, override app settings with `SIMCTL_CHILD_PLUGIN_FIREBASE_<SERVICE>_EMULATOR_HOST` / `SIMCTL_CHILD_PLUGIN_FIREBASE_<SERVICE>_EMULATOR_PORT`. For Android `dotnet test`, set the corresponding `PLUGIN_FIREBASE_*` host variables; direct launches can use system properties such as `debug.pluginfirebase.auth.host`.
 
 Analytics, Remote Config, Performance Monitoring ingestion, and App Check token tests are skipped on the emulator backend because Firebase does not provide local emulators for those products. Use the real backend below when validating them.
 
@@ -196,7 +191,7 @@ The `.github/workflows/integration-emulators.yml` workflow runs the emulator-bac
 
 ## Real Firebase project setup for integration tests
 
-Set `PLUGIN_FIREBASE_TEST_BACKEND=real` on iOS, or `adb shell setprop debug.pluginfirebase.backend real` on Android, to run integration tests against a dedicated Firebase project. Below is the full real-project configuration needed.
+Set `SIMCTL_CHILD_PLUGIN_FIREBASE_TEST_BACKEND=real` before an iOS simulator run or `PLUGIN_FIREBASE_TEST_BACKEND=real` before Android `dotnet test` to use a dedicated Firebase project. Other iOS app settings use the same `SIMCTL_CHILD_` prefix; Android `PLUGIN_FIREBASE_*` settings are embedded during the test build. The documented `debug.pluginfirebase.*` system properties remain available for direct launches. Below is the full real-project configuration needed.
 
 ### Firebase config files
 
@@ -289,24 +284,38 @@ cd tests/cloud-functions
 firebase emulators:start --only functions
 ```
 
-For the iOS CLI/XHarness flow, add these flags to the `xharness apple test` command:
+For iOS `dotnet test`, pass app settings through the simulator environment:
 
 ```sh
---set-env=PLUGIN_FIREBASE_USE_FUNCTIONS_EMULATOR=1 \
---set-env=PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_HOST=localhost \
---set-env=PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_PORT=5001
+SIMCTL_CHILD_PLUGIN_FIREBASE_TEST_BACKEND=real \
+SIMCTL_CHILD_PLUGIN_FIREBASE_USE_FUNCTIONS_EMULATOR=1 \
+SIMCTL_CHILD_PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_HOST=localhost \
+SIMCTL_CHILD_PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_PORT=5001 \
+dotnet test tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
+  -c Debug -f net10.0-ios \
+  -p:TargetFrameworks=net10.0-ios \
+  -p:RuntimeIdentifier=iossimulator-arm64 \
+  -p:DeviceRunnersDevice=<simulator-udid> \
+  --logger trx
 ```
 
-For the Android CLI/XHarness flow, set system properties before invoking `xharness android test`:
+For Android, pass the same app settings through the host environment:
+
 ```sh
-adb shell setprop debug.pluginfirebase.functions.use 1
-adb shell setprop debug.pluginfirebase.functions.host 10.0.2.2
-adb shell setprop debug.pluginfirebase.functions.port 5001
+PLUGIN_FIREBASE_TEST_BACKEND=real \
+PLUGIN_FIREBASE_USE_FUNCTIONS_EMULATOR=1 \
+PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_HOST=10.0.2.2 \
+PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_PORT=5001 \
+dotnet test tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
+  -c Debug -f net10.0-android \
+  -p:TargetFrameworks=net10.0-android \
+  --logger trx
 ```
 
-For the interactive visual runner instead:
+The same `SIMCTL_CHILD_*` values apply when launching the iOS app directly; a direct launch opens the interactive visual runner without another switch:
+
 ```sh
-SIMCTL_CHILD_PLUGIN_FIREBASE_USE_VISUAL_RUNNER=1 \
+SIMCTL_CHILD_PLUGIN_FIREBASE_TEST_BACKEND=real \
 SIMCTL_CHILD_PLUGIN_FIREBASE_USE_FUNCTIONS_EMULATOR=1 \
 SIMCTL_CHILD_PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_HOST=localhost \
 SIMCTL_CHILD_PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_PORT=5001 \
@@ -385,24 +394,38 @@ cd tests/cloud-functions
 firebase emulators:start --only storage
 ```
 
-For the iOS CLI/XHarness flow, add these flags to the `xharness apple test` command:
+For iOS `dotnet test`, pass app settings through the simulator environment:
 
 ```sh
---set-env=PLUGIN_FIREBASE_USE_STORAGE_EMULATOR=1 \
---set-env=PLUGIN_FIREBASE_STORAGE_EMULATOR_HOST=localhost \
---set-env=PLUGIN_FIREBASE_STORAGE_EMULATOR_PORT=9199
+SIMCTL_CHILD_PLUGIN_FIREBASE_TEST_BACKEND=real \
+SIMCTL_CHILD_PLUGIN_FIREBASE_USE_STORAGE_EMULATOR=1 \
+SIMCTL_CHILD_PLUGIN_FIREBASE_STORAGE_EMULATOR_HOST=localhost \
+SIMCTL_CHILD_PLUGIN_FIREBASE_STORAGE_EMULATOR_PORT=9199 \
+dotnet test tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
+  -c Debug -f net10.0-ios \
+  -p:TargetFrameworks=net10.0-ios \
+  -p:RuntimeIdentifier=iossimulator-arm64 \
+  -p:DeviceRunnersDevice=<simulator-udid> \
+  --logger trx
 ```
 
-For the Android CLI/XHarness flow, set system properties before invoking `xharness android test`:
+For Android, pass the same app settings through the host environment:
+
 ```sh
-adb shell setprop debug.pluginfirebase.storage.use 1
-adb shell setprop debug.pluginfirebase.storage.host 10.0.2.2
-adb shell setprop debug.pluginfirebase.storage.port 9199
+PLUGIN_FIREBASE_TEST_BACKEND=real \
+PLUGIN_FIREBASE_USE_STORAGE_EMULATOR=1 \
+PLUGIN_FIREBASE_STORAGE_EMULATOR_HOST=10.0.2.2 \
+PLUGIN_FIREBASE_STORAGE_EMULATOR_PORT=9199 \
+dotnet test tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj \
+  -c Debug -f net10.0-android \
+  -p:TargetFrameworks=net10.0-android \
+  --logger trx
 ```
 
-For the interactive visual runner instead:
+The same `SIMCTL_CHILD_*` values apply when launching the iOS app directly; a direct launch opens the interactive visual runner without another switch:
+
 ```sh
-SIMCTL_CHILD_PLUGIN_FIREBASE_USE_VISUAL_RUNNER=1 \
+SIMCTL_CHILD_PLUGIN_FIREBASE_TEST_BACKEND=real \
 SIMCTL_CHILD_PLUGIN_FIREBASE_USE_STORAGE_EMULATOR=1 \
 SIMCTL_CHILD_PLUGIN_FIREBASE_STORAGE_EMULATOR_HOST=localhost \
 SIMCTL_CHILD_PLUGIN_FIREBASE_STORAGE_EMULATOR_PORT=9199 \
@@ -469,11 +492,11 @@ This typically occurs due to a mismatch between your .NET workload version and i
 - **Solution**: Align your .NET workload version to match your Xcode version. First, ensure you have the corresponding .NET SDK installed:
 
 ```sh
-# Install the required .NET SDK version (e.g., 9.0.306 for earlier Xcode)
+# Install the required .NET 10 SDK version (see global.json)
 # Download from https://dotnet.microsoft.com/download or use a version manager
 
 # Update workloads to the matching version
-sudo dotnet workload update --version 9.0.306
+sudo dotnet workload update --version 10.0.302.1
 sudo dotnet workload restore
 ```
 

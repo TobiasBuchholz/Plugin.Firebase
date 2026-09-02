@@ -3,16 +3,16 @@
     <Import Project="Plugin.Firebase.IntegrationTests.props.user" Condition="Exists('Plugin.Firebase.IntegrationTests.props.user')" />
 
 	<PropertyGroup>
-		<TargetFrameworks>net9.0-android;net9.0-ios</TargetFrameworks>
+		<TargetFrameworks>net10.0-android;net10.0-ios</TargetFrameworks>
 		<OutputType>Exe</OutputType>
 		<RootNamespace>Plugin.Firebase.IntegrationTests</RootNamespace>
 		<UseMaui>true</UseMaui>
-        <MauiVersion>9.0.120</MauiVersion>
+        <MauiVersion>10.0.20</MauiVersion>
 		<SingleProject>true</SingleProject>
 		<ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <RestoreAdditionalProjectSources>$(RestoreAdditionalProjectSources);https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-eng/nuget/v3/index.json</RestoreAdditionalProjectSources>
+        <GenerateTestingPlatformEntryPoint>false</GenerateTestingPlatformEntryPoint>
 
 		<!-- Display name -->
 		<ApplicationTitle>Plugin Firebase Integration Tests</ApplicationTitle>
@@ -46,13 +46,16 @@
     
     <!-- ios entitlements -->
     <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+        <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' and '$(_IsPublishing)' != 'true' and $([System.String]::Copy('$(NETCoreSdkRuntimeIdentifier)').StartsWith('osx-'))">$([System.String]::Copy('$(NETCoreSdkRuntimeIdentifier)').Replace('osx-', 'iossimulator-'))</RuntimeIdentifier>
         <ApplicationId>$(IntegrationTestsIosApplicationId)</ApplicationId>
         <CodesignEntitlements Condition="'$(CodesignEntitlements)' == ''">Platforms\iOS\Entitlements.plist</CodesignEntitlements>
+        <EnableCodeSigning Condition="'$(EnableCodeSigning)' == '' and $([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('iossimulator'))">false</EnableCodeSigning>
         <FirebaseCrashlyticsUploadSymbolsEnabled>false</FirebaseCrashlyticsUploadSymbolsEnabled>
     </PropertyGroup>
 
     <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
         <ApplicationId>$(IntegrationTestsAndroidApplicationId)</ApplicationId>
+        <DeviceRunnersAndroidActivityName>plugin.firebase.integrationtests.MainActivity</DeviceRunnersAndroidActivityName>
     </PropertyGroup>
 
     <!-- project references -->
@@ -62,11 +65,10 @@
 
     <!-- nuget packages -->
     <ItemGroup>
-        <PackageReference Include="DeviceRunners.UITesting.Maui" Version="0.1.0-preview.6" />
-        <PackageReference Include="DeviceRunners.VisualRunners.Maui" Version="0.1.0-preview.6" />
-        <PackageReference Include="DeviceRunners.VisualRunners.Xunit" Version="0.1.0-preview.6" />
-        <PackageReference Include="DeviceRunners.XHarness.Maui" Version="0.1.0-preview.6" />
-        <PackageReference Include="DeviceRunners.XHarness.Xunit" Version="0.1.0-preview.6" />
+        <PackageReference Include="DeviceRunners.UITesting.Maui" Version="0.1.0-preview.12" />
+        <PackageReference Include="DeviceRunners.Testing.Targets" Version="0.1.0-preview.12" />
+        <PackageReference Include="DeviceRunners.VisualRunners.Maui" Version="0.1.0-preview.12" />
+        <PackageReference Include="DeviceRunners.VisualRunners.Xunit" Version="0.1.0-preview.12" />
         <PackageReference Include="xunit" Version="2.9.3" />
         <PackageReference Include="xunit.runner.utility" Version="2.9.3" />
     </ItemGroup>
@@ -98,10 +100,78 @@
       <GoogleServicesJson Include="google-services.json" Condition="Exists('google-services.json')" />
     </ItemGroup>
 
-    <!-- needed for android build to work -->
-    <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-android|AnyCPU'">
-      <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
-    </PropertyGroup>
+    <!--
+      DeviceRunners injects its own runtime configuration into Android builds that
+      are launched by dotnet test. Mirror the integration-test settings so the
+      Android app receives the same host configuration as the iOS simulator.
+    -->
+    <Target
+      Name="AddPluginFirebaseAndroidTestEnvironment"
+      BeforeTargets="_GenerateEnvironmentFiles"
+      Condition="
+        $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'
+        and '$(DeviceRunnersTestRun)' == 'true'
+      ">
+      <ItemGroup>
+        <_GeneratedAndroidEnvironment Include="$([MSBuild]::Escape('PLUGIN_FIREBASE_TEST_BACKEND=$(PLUGIN_FIREBASE_TEST_BACKEND)'))" Condition="'$(PLUGIN_FIREBASE_TEST_BACKEND)' != ''" />
+
+        <_GeneratedAndroidEnvironment Include="$([MSBuild]::Escape('PLUGIN_FIREBASE_RUN_APPCHECK_TOKEN_TESTS=$(PLUGIN_FIREBASE_RUN_APPCHECK_TOKEN_TESTS)'))" Condition="'$(PLUGIN_FIREBASE_RUN_APPCHECK_TOKEN_TESTS)' != ''" />
+        <_GeneratedAndroidEnvironment Include="$([MSBuild]::Escape('PLUGIN_FIREBASE_RUN_FCM_TOKEN_TESTS=$(PLUGIN_FIREBASE_RUN_FCM_TOKEN_TESTS)'))" Condition="'$(PLUGIN_FIREBASE_RUN_FCM_TOKEN_TESTS)' != ''" />
+        <_GeneratedAndroidEnvironment Include="$([MSBuild]::Escape('PLUGIN_FIREBASE_RUN_FCM_DELIVERY_TESTS=$(PLUGIN_FIREBASE_RUN_FCM_DELIVERY_TESTS)'))" Condition="'$(PLUGIN_FIREBASE_RUN_FCM_DELIVERY_TESTS)' != ''" />
+        <_GeneratedAndroidEnvironment Include="$([MSBuild]::Escape('PLUGIN_FIREBASE_FORCE_CRASHLYTICS_CRASH=$(PLUGIN_FIREBASE_FORCE_CRASHLYTICS_CRASH)'))" Condition="'$(PLUGIN_FIREBASE_FORCE_CRASHLYTICS_CRASH)' != ''" />
+        <_GeneratedAndroidEnvironment Include="$([MSBuild]::Escape('PLUGIN_FIREBASE_EXPECT_PREVIOUS_CRASH=$(PLUGIN_FIREBASE_EXPECT_PREVIOUS_CRASH)'))" Condition="'$(PLUGIN_FIREBASE_EXPECT_PREVIOUS_CRASH)' != ''" />
+        <_GeneratedAndroidEnvironment Include="$([MSBuild]::Escape('PLUGIN_FIREBASE_RUN_INSTALLATIONS_DELETE_TESTS=$(PLUGIN_FIREBASE_RUN_INSTALLATIONS_DELETE_TESTS)'))" Condition="'$(PLUGIN_FIREBASE_RUN_INSTALLATIONS_DELETE_TESTS)' != ''" />
+
+        <_GeneratedAndroidEnvironment Include="$([MSBuild]::Escape('PLUGIN_FIREBASE_RUN_PHONE_AUTH_TESTS=$(PLUGIN_FIREBASE_RUN_PHONE_AUTH_TESTS)'))" Condition="'$(PLUGIN_FIREBASE_RUN_PHONE_AUTH_TESTS)' != ''" />
+        <_GeneratedAndroidEnvironment Include="$([MSBuild]::Escape('PLUGIN_FIREBASE_PHONE_AUTH_NUMBER=$(PLUGIN_FIREBASE_PHONE_AUTH_NUMBER)'))" Condition="'$(PLUGIN_FIREBASE_PHONE_AUTH_NUMBER)' != ''" />
+        <_GeneratedAndroidEnvironment Include="$([MSBuild]::Escape('PLUGIN_FIREBASE_PHONE_AUTH_CODE=$(PLUGIN_FIREBASE_PHONE_AUTH_CODE)'))" Condition="'$(PLUGIN_FIREBASE_PHONE_AUTH_CODE)' != ''" />
+        <_GeneratedAndroidEnvironment Include="$([MSBuild]::Escape('PLUGIN_FIREBASE_PHONE_AUTH_VERIFICATION_ID=$(PLUGIN_FIREBASE_PHONE_AUTH_VERIFICATION_ID)'))" Condition="'$(PLUGIN_FIREBASE_PHONE_AUTH_VERIFICATION_ID)' != ''" />
+
+        <_GeneratedAndroidEnvironment Include="$([MSBuild]::Escape('PLUGIN_FIREBASE_USE_AUTH_EMULATOR=$(PLUGIN_FIREBASE_USE_AUTH_EMULATOR)'))" Condition="'$(PLUGIN_FIREBASE_USE_AUTH_EMULATOR)' != ''" />
+        <_GeneratedAndroidEnvironment Include="$([MSBuild]::Escape('PLUGIN_FIREBASE_AUTH_EMULATOR_HOST=$(PLUGIN_FIREBASE_AUTH_EMULATOR_HOST)'))" Condition="'$(PLUGIN_FIREBASE_AUTH_EMULATOR_HOST)' != ''" />
+        <_GeneratedAndroidEnvironment Include="$([MSBuild]::Escape('PLUGIN_FIREBASE_AUTH_EMULATOR_PORT=$(PLUGIN_FIREBASE_AUTH_EMULATOR_PORT)'))" Condition="'$(PLUGIN_FIREBASE_AUTH_EMULATOR_PORT)' != ''" />
+
+        <_GeneratedAndroidEnvironment Include="$([MSBuild]::Escape('PLUGIN_FIREBASE_USE_FIRESTORE_EMULATOR=$(PLUGIN_FIREBASE_USE_FIRESTORE_EMULATOR)'))" Condition="'$(PLUGIN_FIREBASE_USE_FIRESTORE_EMULATOR)' != ''" />
+        <_GeneratedAndroidEnvironment Include="$([MSBuild]::Escape('PLUGIN_FIREBASE_FIRESTORE_EMULATOR_HOST=$(PLUGIN_FIREBASE_FIRESTORE_EMULATOR_HOST)'))" Condition="'$(PLUGIN_FIREBASE_FIRESTORE_EMULATOR_HOST)' != ''" />
+        <_GeneratedAndroidEnvironment Include="$([MSBuild]::Escape('PLUGIN_FIREBASE_FIRESTORE_EMULATOR_PORT=$(PLUGIN_FIREBASE_FIRESTORE_EMULATOR_PORT)'))" Condition="'$(PLUGIN_FIREBASE_FIRESTORE_EMULATOR_PORT)' != ''" />
+
+        <_GeneratedAndroidEnvironment Include="$([MSBuild]::Escape('PLUGIN_FIREBASE_USE_FUNCTIONS_EMULATOR=$(PLUGIN_FIREBASE_USE_FUNCTIONS_EMULATOR)'))" Condition="'$(PLUGIN_FIREBASE_USE_FUNCTIONS_EMULATOR)' != ''" />
+        <_GeneratedAndroidEnvironment Include="$([MSBuild]::Escape('PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_HOST=$(PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_HOST)'))" Condition="'$(PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_HOST)' != ''" />
+        <_GeneratedAndroidEnvironment Include="$([MSBuild]::Escape('PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_PORT=$(PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_PORT)'))" Condition="'$(PLUGIN_FIREBASE_FUNCTIONS_EMULATOR_PORT)' != ''" />
+
+        <_GeneratedAndroidEnvironment Include="$([MSBuild]::Escape('PLUGIN_FIREBASE_USE_STORAGE_EMULATOR=$(PLUGIN_FIREBASE_USE_STORAGE_EMULATOR)'))" Condition="'$(PLUGIN_FIREBASE_USE_STORAGE_EMULATOR)' != ''" />
+        <_GeneratedAndroidEnvironment Include="$([MSBuild]::Escape('PLUGIN_FIREBASE_STORAGE_EMULATOR_HOST=$(PLUGIN_FIREBASE_STORAGE_EMULATOR_HOST)'))" Condition="'$(PLUGIN_FIREBASE_STORAGE_EMULATOR_HOST)' != ''" />
+        <_GeneratedAndroidEnvironment Include="$([MSBuild]::Escape('PLUGIN_FIREBASE_STORAGE_EMULATOR_PORT=$(PLUGIN_FIREBASE_STORAGE_EMULATOR_PORT)'))" Condition="'$(PLUGIN_FIREBASE_STORAGE_EMULATOR_PORT)' != ''" />
+      </ItemGroup>
+    </Target>
+
+    <!--
+      DeviceRunners preview.12 assumes that the launcher is .MainActivity. The
+      Android toolchain requires a fully qualified ActivityAttribute.Name, so
+      pass that name explicitly while allowing ApplicationId to be overridden.
+    -->
+    <Target
+      Name="SetDeviceRunnersAndroidActivity"
+      AfterTargets="_DeviceRunnersAndroidArgs"
+      Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+      <PropertyGroup>
+        <_DeviceRunnersCliArgs>$(_DeviceRunnersCliArgs) --activity &quot;$(DeviceRunnersAndroidActivityName)&quot;</_DeviceRunnersCliArgs>
+      </PropertyGroup>
+    </Target>
+
+    <!--
+      DeviceRunners preview.12 launches the iOS app before opening its TCP
+      listener. Supplying two loopback aliases makes the app use the runner's
+      retry path instead of abandoning its only result channel during startup.
+    -->
+    <Target
+      Name="EnableDeviceRunnersIosConnectionRetries"
+      AfterTargets="_DeviceRunnersiOSArgs"
+      Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+      <PropertyGroup>
+        <_DeviceRunnersCliArgs>$(_DeviceRunnersCliArgs) --app-host-names &quot;localhost;127.0.0.1&quot;</_DeviceRunnersCliArgs>
+      </PropertyGroup>
+    </Target>
 
     <Target
       Name="ResignSimulatorRuntimeLibraries"
@@ -115,19 +185,23 @@
         <_SimulatorAppBundlePath>$(OutputPath)$(AssemblyName).app</_SimulatorAppBundlePath>
       </PropertyGroup>
 
+      <ItemGroup>
+        <_SimulatorRuntimeLibrary Include="$(_SimulatorAppBundlePath)/*.dylib" />
+      </ItemGroup>
+
       <!--
-        Xcode 26 / macOS 26 rejects the Microsoft-signed simulator runtime dylibs
-        with "Code Signature Invalid" before the test runner starts. Re-sign them
-        ad hoc to match the generated simulator app bundle.
+        Xcode 26 / macOS 26 rejects the Microsoft-signed simulator runtime
+        dylibs with "Code Signature Invalid" before managed startup. Re-sign
+        every root runtime dylib ad hoc, then refresh and verify the app seal.
       -->
       <Exec
-        Condition="Exists('$(_SimulatorAppBundlePath)/libxamarin-dotnet.dylib')"
-        Command="codesign --force --sign - &quot;$(_SimulatorAppBundlePath)/libxamarin-dotnet.dylib&quot;" />
-      <Exec
-        Condition="Exists('$(_SimulatorAppBundlePath)/libxamarin-dotnet-debug.dylib')"
-        Command="codesign --force --sign - &quot;$(_SimulatorAppBundlePath)/libxamarin-dotnet-debug.dylib&quot;" />
+        Condition="'@(_SimulatorRuntimeLibrary)' != ''"
+        Command="codesign --force --sign - &quot;%(_SimulatorRuntimeLibrary.Identity)&quot;" />
       <Exec
         Condition="Exists('$(_SimulatorAppBundlePath)')"
         Command="codesign --force --sign - --deep &quot;$(_SimulatorAppBundlePath)&quot;" />
+      <Exec
+        Condition="Exists('$(_SimulatorAppBundlePath)')"
+        Command="codesign --verify --deep --strict &quot;$(_SimulatorAppBundlePath)&quot;" />
     </Target>
 </Project>

@@ -147,7 +147,11 @@ public sealed class StorageReferenceWrapper : IStorageReference
             maxSize,
             (data, error) => {
                 if(error == null && data != null) {
-                    tcs.SetResult(data.AsStream());
+                    if((long)data.Length > maxSize) {
+                        tcs.SetException(CreateDownloadSizeExceededException(data.Length, maxSize));
+                    } else {
+                        tcs.SetResult(data.AsStream());
+                    }
                 } else {
                     tcs.SetException(
                         new FirebaseException(error?.LocalizedDescription ?? "Data is null")
@@ -166,7 +170,13 @@ public sealed class StorageReferenceWrapper : IStorageReference
             maxDownloadSizeBytes,
             (data, error) => {
                 if(error == null && data != null) {
-                    tcs.SetResult(data.ToArray());
+                    if((long)data.Length > maxDownloadSizeBytes) {
+                        tcs.SetException(
+                            CreateDownloadSizeExceededException(data.Length, maxDownloadSizeBytes)
+                        );
+                    } else {
+                        tcs.SetResult(data.ToArray());
+                    }
                 } else {
                     tcs.SetException(
                         new FirebaseException(error?.LocalizedDescription ?? "Data is null")
@@ -175,6 +185,13 @@ public sealed class StorageReferenceWrapper : IStorageReference
             }
         );
         return tcs.Task;
+    }
+
+    private static FirebaseException CreateDownloadSizeExceededException(nuint actualSize, long maxSize)
+    {
+        return new FirebaseException(
+            $"The downloaded data ({actualSize} bytes) exceeds the maximum allowed size ({maxSize} bytes)."
+        );
     }
 
     /// <inheritdoc/>

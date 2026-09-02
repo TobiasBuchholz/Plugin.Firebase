@@ -1,6 +1,6 @@
 # Plugin.Firebase
 
-This is a wrapper library around the native Android and iOS Firebase SDKs which includes cross-platform APIs for most of the Firebase features. Documentation and the included sample app are MAUI-centric, but the plugin should be usable in any cross-platform .NET9+ project.
+This is a wrapper library around the native Android and iOS Firebase SDKs which includes cross-platform APIs for most of the Firebase features. Documentation and the included sample app are MAUI-centric, but the plugin should be usable in any cross-platform .NET 10+ project.
 
 ## v4.0 Upgrade Notes
 - The experience of building projects using this plugin has been improved on Windows / Visual Studio. Issues related to hanging builds caused by XamarinBuildDownload and long path issues affecting iOS NuGet packages have been mitigated, if not commpletely resolved.
@@ -187,7 +187,7 @@ In case you would like to run the sample app or the real-Firebase integration ba
 ## Using Firebase Local Emulator Suite
 If you would like to use the [Firebase Local Emulator Suite](https://firebase.google.com/docs/emulator-suite) for your tests or rapid prototyping you can do so by following the steps of the [Getting started guide](https://firebase.google.com/docs/emulator-suite/connect_and_prototype) and calling the [`UseEmulator(host, port)`](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/src/Shared/Firestore/IFirebaseFirestore.cs#L45) method of the desired firebase service before doing any other operations.
 
-For example the [`Plugin.Firebase.IntegrationTests`](https://github.com/TobiasBuchholz/Plugin.Firebase/tree/development/tests/Plugin.Firebase.IntegrationTests) project defaults to emulator-backed Auth, Firestore, Functions, and Storage tests. Start the local suite from `tests/cloud-functions` with `firebase emulators:start --only auth,firestore,functions,storage`, seed Auth with `node scripts/seed-auth-emulator.js`, then run the device suite with XHarness. The `integration-emulators-android` and `integration-emulators-ios` GitHub Actions checks run the same emulator-backed suites for pull requests. Set `PLUGIN_FIREBASE_TEST_BACKEND=real` (or Android system property `debug.pluginfirebase.backend=real`) to opt into a real Firebase project for products without local emulators.
+For example the [`Plugin.Firebase.IntegrationTests`](https://github.com/TobiasBuchholz/Plugin.Firebase/tree/development/tests/Plugin.Firebase.IntegrationTests) project defaults to emulator-backed Auth, Firestore, Functions, and Storage tests. Its `DeviceRunners.Testing.Targets` reference makes the MAUI device app runnable with standard `dotnet test` commands and TRX output; `scripts/run-integration-emulators.sh` starts the Firebase emulators and seeds Auth around that run. The `integration-emulators-android` and `integration-emulators-ios` GitHub Actions checks run the same suites for pull requests. Use `SIMCTL_CHILD_PLUGIN_FIREBASE_TEST_BACKEND=real` for an iOS simulator or `PLUGIN_FIREBASE_TEST_BACKEND=real` for Android `dotnet test` to opt into a real Firebase project for products without local emulators. Launching the app directly opens the interactive visual runner.
 
 ## Troubleshooting
 ### Windows + Visual Studio + iOS long path issue

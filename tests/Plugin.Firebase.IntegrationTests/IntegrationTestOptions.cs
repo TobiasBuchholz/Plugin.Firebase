@@ -5,9 +5,6 @@ internal static class IntegrationTestOptions
     public const string BackendEnvironmentVariableName = "PLUGIN_FIREBASE_TEST_BACKEND";
     public const string BackendAndroidSystemPropertyName = "debug.pluginfirebase.backend";
 
-    public const string UseVisualRunnerEnvironmentVariableName = "PLUGIN_FIREBASE_USE_VISUAL_RUNNER";
-    public const string UseVisualRunnerAndroidSystemPropertyName = "debug.pluginfirebase.visual.use";
-
     public const string RunAppCheckTokenTestsEnvironmentVariableName = "PLUGIN_FIREBASE_RUN_APPCHECK_TOKEN_TESTS";
     public const string RunFcmTokenTestsEnvironmentVariableName = "PLUGIN_FIREBASE_RUN_FCM_TOKEN_TESTS";
     public const string RunFcmDeliveryTestsEnvironmentVariableName = "PLUGIN_FIREBASE_RUN_FCM_DELIVERY_TESTS";

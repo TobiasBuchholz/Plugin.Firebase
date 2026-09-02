@@ -14,7 +14,7 @@ public sealed class OnSuccessListener : Object, IOnSuccessListener
         _action = action;
     }
 
-    public void OnSuccess(Object snapshot)
+    public void OnSuccess(Object? snapshot)
     {
         if(snapshot != null) {
             _action.Invoke(snapshot.JavaCast<StorageTask.SnapshotBase>());

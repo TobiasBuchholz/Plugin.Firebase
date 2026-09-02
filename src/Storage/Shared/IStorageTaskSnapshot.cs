@@ -24,10 +24,10 @@ public interface IStorageTaskSnapshot
     /// <summary>
     /// Metadata returned by the task, or null if no metadata returned.
     /// </summary>
-    IStorageMetadata Metadata { get; }
+    IStorageMetadata? Metadata { get; }
 
     /// <summary>
     /// Error during task execution, or null if no error occurred.
     /// </summary>
-    Exception Error { get; }
+    Exception? Error { get; }
 }

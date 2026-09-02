@@ -8,7 +8,7 @@ internal sealed class PagedStorageListResult : IStorageListResult
     public PagedStorageListResult(
         IEnumerable<IStorageReference> items,
         IEnumerable<IStorageReference> prefixes,
-        string pageToken)
+        string? pageToken)
     {
         Items = items.ToList();
         Prefixes = prefixes.ToList();
@@ -19,5 +19,5 @@ internal sealed class PagedStorageListResult : IStorageListResult
 
     public IEnumerable<IStorageReference> Prefixes { get; }
 
-    public string PageToken { get; }
+    public string? PageToken { get; }
 }

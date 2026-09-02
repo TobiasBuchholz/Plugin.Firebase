@@ -25,20 +25,24 @@ public sealed partial class StorageFixture
         Assert.Equal(StorageAssertions.ExpectedBucket(), metadata.Bucket);
         Assert.Equal("metadata_properties.txt", metadata.Name);
         Assert.Equal(path, metadata.Path);
-        if(OperatingSystem.IsIOS() && IntegrationTestEnvironment.UsesEmulatorBackend) {
-            Assert.Null(metadata.CacheControl);
-        } else {
-            Assert.Equal("public,max-age=60", metadata.CacheControl);
-        }
+        Assert.Equal("public,max-age=60", metadata.CacheControl);
         Assert.Equal("inline", metadata.ContentDisposition);
         Assert.Equal("identity", metadata.ContentEncoding);
         Assert.Equal("en", metadata.ContentLanguage);
         Assert.Equal("text/plain", metadata.ContentType);
-        if(metadata.StorageReference != null) {
-            Assert.Equal(reference.FullPath, metadata.StorageReference.FullPath);
+        Assert.True(metadata.Generation.HasValue);
+        Assert.True(metadata.MetaGeneration.HasValue);
+        if(OperatingSystem.IsAndroid()) {
+            var storageReference = metadata.StorageReference;
+            Assert.NotNull(storageReference);
+            Assert.Equal(reference.FullPath, storageReference.FullPath);
+        } else {
+            Assert.Null(metadata.StorageReference);
         }
-        Assert.NotEqual(default, metadata.CreationTime);
-        Assert.NotEqual(default, metadata.UpdatedTime);
+        Assert.True(metadata.CreationTime.HasValue);
+        Assert.True(metadata.UpdatedTime.HasValue);
+        Assert.NotEqual(default, metadata.CreationTime.Value);
+        Assert.NotEqual(default, metadata.UpdatedTime.Value);
     }
 
 }

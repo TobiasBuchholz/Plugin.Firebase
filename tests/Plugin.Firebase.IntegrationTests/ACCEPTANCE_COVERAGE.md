@@ -19,7 +19,7 @@ Run `scripts/check-integration-coverage.rb` after adding or renaming fixtures. T
 | Installations | Partial | Yes | `PLUGIN_FIREBASE_RUN_INSTALLATIONS_DELETE_TESTS` | Delete is opt-in because it resets the shared installation identity. |
 | Performance Monitoring | Partial | Yes | No | Verifies SDK acceptance and local state; Firebase Console ingestion is not asserted. |
 | Remote Config | No | Yes | No | Requires published real-project parameters. |
-| Storage | Yes | Yes | No | Real backend requires bucket seed files and permissive test rules. |
+| Storage | Yes | Yes | No | Covers root/parent references, pagination tokens, metadata and timestamps, transfers, and success/failure snapshot nullability. Real backend requires bucket seed files and permissive test rules. |
 
 ## Expected Fixture Metadata
 

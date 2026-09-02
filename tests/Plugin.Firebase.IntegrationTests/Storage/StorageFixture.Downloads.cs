@@ -74,6 +74,7 @@ public sealed partial class StorageFixture
                 "storage download success snapshot");
 
             Assert.NotNull(snapshot);
+            Assert.Null(snapshot.Error);
             Assert.True(File.Exists(destinationFilePath));
         }
         finally {
@@ -106,6 +107,8 @@ public sealed partial class StorageFixture
                 "storage download failure snapshot");
 
             Assert.NotNull(snapshot);
+            Assert.NotNull(snapshot.Error);
+            Assert.Null(snapshot.Metadata);
         }
         finally {
             transferTask.RemoveObserver(observer);

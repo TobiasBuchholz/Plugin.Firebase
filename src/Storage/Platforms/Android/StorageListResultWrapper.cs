@@ -13,5 +13,5 @@ public sealed class StorageListResultWrapper : IStorageListResult
 
     public IEnumerable<IStorageReference> Items => _wrapped.Items.Select(x => x.ToAbstract());
     public IEnumerable<IStorageReference> Prefixes => _wrapped.Prefixes.Select(x => x.ToAbstract());
-    public string PageToken => _wrapped.PageToken;
+    public string? PageToken => _wrapped.PageToken;
 }

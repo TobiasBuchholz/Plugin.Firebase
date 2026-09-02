@@ -68,6 +68,7 @@
         <None Remove=".idea\**" />
         <None Include="..\..\art\icon.png" Pack="true" PackagePath="" />
         <None Include="..\..\docs\crashlytics.md" Pack="true" PackagePath="\"/>
+        <None Include="Plugin.Firebase.Crashlytics.targets" Pack="true" PackagePath="buildTransitive\Plugin.Firebase.Crashlytics.targets" />
 
         <Compile Include="Shared\**\*.cs" />
     </ItemGroup>

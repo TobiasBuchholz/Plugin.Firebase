@@ -20,26 +20,6 @@ Firebase [Firebase Crashlytics](https://firebase.google.com/docs/crashlytics) is
 - Make sure to start your app without the debugger attached when testing fatal crashes.
 - After forcing a crash, restart the app so Crashlytics can send the report. The crash may take several minutes to appear in the Firebase Console.
 - To enable verbose Firebase logs while diagnosing setup issues, add `-FIRDebugEnabled` to your iOS app launch arguments.
-- If the device log contains `Crashlytics could not find the symbol for the app's main function`, add the following properties to your app project:
-```xml
-<PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
-    <_ExportSymbolsExplicitly>false</_ExportSymbolsExplicitly>
-    <DebugType>full</DebugType>
-</PropertyGroup>
-```
-- If the symbol error still appears, create `Platforms/iOS/exported_symbols.txt` containing exactly:
-```text
-__mh_execute_header
-```
-Then reference that file from your app project:
-```xml
-<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
-    <_ReferencesLinkerFlags Include="-u__mh_execute_header" Visible="false" />
-    <_CustomLinkFlags Include="-exported_symbols_list" Visible="false" />
-    <_CustomLinkFlags Include="$(ProjectDir)Platforms/iOS/exported_symbols.txt" Visible="false" />
-</ItemGroup>
-```
-The exported symbols file must be plain UTF-8 without a byte order mark or other hidden characters. A hidden character before `__mh_execute_header` can cause Release builds to fail during linking.
 - For more specific instructions take a look at the official [Firebase documentation](https://firebase.google.com/docs/crashlytics/get-started?platform=ios)
 
 ### Android specifics

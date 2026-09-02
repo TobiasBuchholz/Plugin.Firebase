@@ -1,0 +1,7 @@
+<!-- Copyright (c) Microsoft Corporation. -->
+<!-- Licensed under the MIT License. -->
+<Project>
+    <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+        <ReferenceNativeSymbol Include="_mh_execute_header" SymbolType="Function" />
+    </ItemGroup>
+</Project>

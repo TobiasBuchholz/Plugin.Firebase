@@ -69,6 +69,18 @@ namespace Plugin.Firebase.CloudMessaging
         /// </summary>
         public string ImageUrl { get; }
 
+#nullable enable
+        /// <summary>
+        /// Gets the Android notification channel ID specified by the sender.
+        /// </summary>
+        /// <remarks>
+        /// This value is available only for Android notification messages. It is
+        /// <see langword="null"/> when the sender did not specify a channel or on other platforms.
+        /// The value is not validated and does not include Firebase's default-channel fallback.
+        /// </remarks>
+        public string? ChannelId { get; init; }
+#nullable restore
+
         /// <summary>
         /// Gets the additional data payload as key-value pairs.
         /// </summary>

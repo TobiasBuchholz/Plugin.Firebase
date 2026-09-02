@@ -93,6 +93,7 @@ public sealed partial class StorageFixture
 
             Assert.NotNull(snapshot);
             Assert.NotNull(snapshot.Metadata);
+            Assert.Null(snapshot.Error);
             Assert.True(snapshot.TransferredUnitCount > 0);
             Assert.InRange(snapshot.TransferredFraction, 0.99, 1.01);
         }

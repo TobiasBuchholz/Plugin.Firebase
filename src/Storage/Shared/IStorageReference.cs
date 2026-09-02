@@ -18,19 +18,19 @@ public interface IStorageReference
     /// Uploads a byte array to firebase storage bucket.<br></br>
     /// CAUTION: Although this method returns an IStorageUploadTask, which has an AwaitAsync() method, the upload will start immediately on iOS
     /// </summary>
-    IStorageTransferTask PutBytes(byte[] bytes, IStorageMetadata metaData = null);
+    IStorageTransferTask PutBytes(byte[] bytes, IStorageMetadata? metaData = null);
 
     /// <summary>
     /// Uploads a file via it's file path to firebase storage bucket.<br></br>
     /// CAUTION: Although this method returns an IStorageUploadTask, which has an AwaitAsync() method, the upload will start immediately on iOS
     /// </summary>
-    IStorageTransferTask PutFile(string filePath, IStorageMetadata metaData = null);
+    IStorageTransferTask PutFile(string filePath, IStorageMetadata? metaData = null);
 
     /// <summary>
     /// Uploads a file via it's data stream to firebase storage bucket.<br></br>
     /// CAUTION: Although this method returns an IStorageUploadTask, which has an AwaitAsync() method, the upload will start immediately on iOS
     /// </summary>
-    IStorageTransferTask PutStream(Stream stream, IStorageMetadata metaData = null);
+    IStorageTransferTask PutStream(Stream stream, IStorageMetadata? metaData = null);
 
     /// <summary>
     /// Retrieves metadata associated with an object at the current path.
@@ -99,7 +99,7 @@ public interface IStorageReference
     /// Creates a new <c>IStorageReference</c> pointing to the parent of the current reference or null if this instance references the root location.
     /// For example: path = foo/bar/baz parent = foo/bar path = foo parent = (root) path = (root) parent = null.
     /// </summary>
-    IStorageReference Parent { get; }
+    IStorageReference? Parent { get; }
 
     /// <summary>
     /// Creates a new <c>IStorageReference</c> pointing to the root object.

@@ -29,12 +29,15 @@ public sealed class StorageReferenceWrapper : IStorageReference
     }
 
     /// <inheritdoc/>
-    public IStorageTransferTask PutBytes(byte[] bytes, IStorageMetadata metadata = null)
+    public IStorageTransferTask PutBytes(byte[] bytes, IStorageMetadata? metadata = null)
     {
-        return PutData(NSData.FromArray(bytes), metadata);
+        var data = NSData.FromArray(bytes)
+            ?? throw new InvalidOperationException("Could not create upload data from the supplied bytes.");
+
+        return PutData(data, metadata);
     }
 
-    private IStorageTransferTask PutData(NSData data, IStorageMetadata metadata = null)
+    private IStorageTransferTask PutData(NSData data, IStorageMetadata? metadata = null)
     {
         var wrapper = new StorageTransferTaskWrapper<StorageUploadTask, NativeStorageMetadata>();
         wrapper.TransferTask = _wrapped.PutData(
@@ -46,34 +49,48 @@ public sealed class StorageReferenceWrapper : IStorageReference
     }
 
     /// <inheritdoc/>
-    public IStorageTransferTask PutFile(string filePath, IStorageMetadata metadata = null)
+    public IStorageTransferTask PutFile(string filePath, IStorageMetadata? metadata = null)
     {
-        return PutData(NSData.FromStream(File.Open(filePath, FileMode.Open)), metadata);
+        using var fileStream = File.Open(filePath, FileMode.Open);
+        return PutData(CreateData(fileStream), metadata);
     }
 
     /// <inheritdoc/>
-    public IStorageTransferTask PutStream(Stream stream, IStorageMetadata metadata = null)
+    public IStorageTransferTask PutStream(Stream stream, IStorageMetadata? metadata = null)
     {
-        return PutData(NSData.FromStream(stream), metadata);
+        return PutData(CreateData(stream), metadata);
+    }
+
+    private static NSData CreateData(Stream stream)
+    {
+        return NSData.FromStream(stream)
+            ?? throw new InvalidOperationException("Could not create upload data from the supplied stream.");
     }
 
     /// <inheritdoc/>
     public async Task<IStorageMetadata> GetMetadataAsync()
     {
-        return (await _wrapped.GetMetadataAsync()).ToAbstract();
+        var metadata = await _wrapped.GetMetadataAsync()
+            ?? throw new InvalidOperationException("Firebase Storage returned null metadata.");
+
+        return metadata.ToAbstract();
     }
 
     /// <inheritdoc/>
     public async Task<IStorageMetadata> UpdateMetadataAsync(IStorageMetadata metadata)
     {
-        return (await _wrapped.UpdateMetadataAsync(metadata.ToNative())).ToAbstract();
+        var updatedMetadata = await _wrapped.UpdateMetadataAsync(metadata.ToNative())
+            ?? throw new InvalidOperationException("Firebase Storage returned null metadata.");
+
+        return updatedMetadata.ToAbstract();
     }
 
     /// <inheritdoc/>
     public async Task<string> GetDownloadUrlAsync()
     {
         var uri = await _wrapped.GetDownloadUrlAsync();
-        return uri.AbsoluteString;
+        return uri.AbsoluteString
+            ?? throw new InvalidOperationException("Firebase Storage returned a null download URL string.");
     }
 
     /// <inheritdoc/>
@@ -83,10 +100,14 @@ public sealed class StorageReferenceWrapper : IStorageReference
         _wrapped.List(
             maxResults,
             (listResult, error) => {
-                if(error == null) {
+                if(error == null && listResult != null) {
                     tcs.SetResult(listResult.ToAbstract());
                 } else {
-                    tcs.SetException(new FirebaseException(error.LocalizedDescription));
+                    tcs.SetException(
+                        new FirebaseException(
+                            error?.LocalizedDescription ?? "Firebase Storage returned a null list result."
+                        )
+                    );
                 }
             }
         );
@@ -105,7 +126,7 @@ public sealed class StorageReferenceWrapper : IStorageReference
 
         var items = new List<IStorageReference>();
         var prefixes = new List<IStorageReference>();
-        string pageToken = null;
+        string? pageToken = null;
 
         do {
             var page = await ListPageAsync(maxResultsPerPage, pageToken);
@@ -117,16 +138,20 @@ public sealed class StorageReferenceWrapper : IStorageReference
         return new PagedStorageListResult(items, prefixes, pageToken: null);
     }
 
-    private Task<IStorageListResult> ListPageAsync(long maxResults, string pageToken)
+    private Task<IStorageListResult> ListPageAsync(long maxResults, string? pageToken)
     {
         var tcs = new TaskCompletionSource<IStorageListResult>();
 
-        void CompletionHandler(NativeStorageListResult listResult, NSError error)
+        void CompletionHandler(NativeStorageListResult? listResult, NSError? error)
         {
-            if(error == null) {
+            if(error == null && listResult != null) {
                 tcs.SetResult(listResult.ToAbstract());
             } else {
-                tcs.SetException(new FirebaseException(error.LocalizedDescription));
+                tcs.SetException(
+                    new FirebaseException(
+                        error?.LocalizedDescription ?? "Firebase Storage returned a null list result."
+                    )
+                );
             }
         }
 
@@ -197,9 +222,12 @@ public sealed class StorageReferenceWrapper : IStorageReference
     /// <inheritdoc/>
     public IStorageTransferTask DownloadFile(string destinationPath)
     {
+        var url = NSUrl.FromFilename(destinationPath)
+            ?? throw new InvalidOperationException("Could not create a file URL for the storage download.");
+
         var wrapper = new StorageTransferTaskWrapper<StorageDownloadTask, NSUrl>();
         wrapper.TransferTask = _wrapped.WriteToFile(
-            NSUrl.FromFilename(destinationPath),
+            url,
             (x, e) => wrapper.CompletionHandler(x, e)
         );
         return wrapper;
@@ -212,7 +240,7 @@ public sealed class StorageReferenceWrapper : IStorageReference
     }
 
     /// <inheritdoc/>
-    public IStorageReference Parent => _wrapped.Parent?.ToAbstract();
+    public IStorageReference? Parent => _wrapped.Parent?.ToAbstract();
 
     /// <inheritdoc/>
     public IStorageReference Root => _wrapped.Root.ToAbstract();

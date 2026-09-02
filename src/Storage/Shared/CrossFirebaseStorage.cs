@@ -5,12 +5,12 @@ namespace Plugin.Firebase.Storage;
 /// </summary>
 public sealed class CrossFirebaseStorage
 {
-    private static Lazy<IFirebaseStorage> _implementation = new Lazy<IFirebaseStorage>(
+    private static Lazy<IFirebaseStorage?> _implementation = new(
         CreateInstance,
         LazyThreadSafetyMode.PublicationOnly
     );
 
-    private static IFirebaseStorage CreateInstance()
+    private static IFirebaseStorage? CreateInstance()
     {
 #if IOS || ANDROID
         return new FirebaseStorageImplementation();
@@ -49,9 +49,9 @@ public sealed class CrossFirebaseStorage
     /// </summary>
     public static void Dispose()
     {
-        if(_implementation != null && _implementation.IsValueCreated) {
-            _implementation.Value.Dispose();
-            _implementation = new Lazy<IFirebaseStorage>(
+        if(_implementation.IsValueCreated) {
+            _implementation.Value?.Dispose();
+            _implementation = new Lazy<IFirebaseStorage?>(
                 CreateInstance,
                 LazyThreadSafetyMode.PublicationOnly
             );

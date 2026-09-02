@@ -30,8 +30,8 @@ public static class StorageExtensions
     {
         return new StorageMetadata(
             bucket: @this.Bucket,
-            generation: Long.ParseLong(@this.Generation),
-            metaGeneration: Long.ParseLong(@this.MetadataGeneration),
+            generation: ParseLongOrNull(@this.Generation),
+            metaGeneration: ParseLongOrNull(@this.MetadataGeneration),
             name: @this.Name,
             path: @this.Path,
             size: @this.SizeBytes,
@@ -40,7 +40,10 @@ public static class StorageExtensions
             contentEncoding: @this.ContentEncoding,
             contentLanguage: @this.ContentLanguage,
             contentType: @this.ContentType,
-            customMetadata: @this.CustomMetadataKeys?.Select(x => (x, @this.GetCustomMetadata(x))).ToDictionary(x => x.Item1, x => x.Item2),
+            customMetadata: @this.CustomMetadataKeys?
+                .Select(x => (Key: x, Value: @this.GetCustomMetadata(x)))
+                .Where(x => x.Value != null)
+                .ToDictionary(x => x.Key, x => x.Value!),
             md5Hash: @this.Md5Hash,
             storageReference: @this.Reference?.ToAbstract(),
             creationTime: DateTimeOffset.FromUnixTimeMilliseconds(@this.CreationTimeMillis),
@@ -62,5 +65,12 @@ public static class StorageExtensions
             .ForEach(x => builder.SetCustomMetadata(x.Key, x.Value));
 
         return builder.Build();
+    }
+
+    private static long? ParseLongOrNull(string? value)
+    {
+        return string.IsNullOrEmpty(value)
+            ? null
+            : Long.ParseLong(value);
     }
 }

@@ -1,4 +1,5 @@
 using Firebase.Storage;
+using Foundation;
 using Plugin.Firebase.Storage.Platforms.iOS.Extensions;
 
 namespace Plugin.Firebase.Storage.Platforms.iOS;
@@ -29,8 +30,8 @@ public class StorageTaskTaskSnapshotWrapper : IStorageTaskSnapshot
     }
 
     private StorageTaskTaskSnapshotWrapper(
-        StorageTaskSnapshot snapshot = null,
-        Exception error = null
+        StorageTaskSnapshot? snapshot = null,
+        Exception? error = null
     )
     {
         if(snapshot?.Progress != null) {
@@ -40,7 +41,8 @@ public class StorageTaskTaskSnapshotWrapper : IStorageTaskSnapshot
         }
 
         Metadata = snapshot?.Metadata?.ToAbstract();
-        Error = error;
+        Error = error
+            ?? (snapshot?.Error is { } nativeError ? new NSErrorException(nativeError) : null);
     }
 
     /// <inheritdoc/>
@@ -53,8 +55,8 @@ public class StorageTaskTaskSnapshotWrapper : IStorageTaskSnapshot
     public double TransferredFraction { get; }
 
     /// <inheritdoc/>
-    public IStorageMetadata Metadata { get; }
+    public IStorageMetadata? Metadata { get; }
 
     /// <inheritdoc/>
-    public Exception Error { get; }
+    public Exception? Error { get; }
 }

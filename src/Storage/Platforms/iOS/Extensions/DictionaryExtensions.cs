@@ -16,7 +16,7 @@ public static class DictionaryExtensions
     {
         var dict = new Dictionary<string, string>();
         foreach(var (key, value) in @this) {
-            dict[key.ToString()] = new NSString(value.ToString());
+            dict[key.ToString()] = value.ToString();
         }
         return dict;
     }

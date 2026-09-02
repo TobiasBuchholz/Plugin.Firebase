@@ -87,8 +87,8 @@ public static class StorageExtensions
             contentType: @this.ContentType,
             customMetadata: @this.CustomMetadata?.ToDictionary(),
             md5Hash: @this.Md5Hash,
-            creationTime: @this.TimeCreated.ToDateTimeOffset(),
-            updatedTime: @this.Updated.ToDateTimeOffset()
+            creationTime: ToDateTimeOffsetOrNull(@this.TimeCreated),
+            updatedTime: ToDateTimeOffsetOrNull(@this.Updated)
         );
     }
 
@@ -100,11 +100,17 @@ public static class StorageExtensions
     public static NativeStorageMetadata ToNative(this IStorageMetadata @this)
     {
         return new NativeStorageMetadata {
+            CacheControl = @this.CacheControl,
             ContentDisposition = @this.ContentDisposition,
             ContentEncoding = @this.ContentEncoding,
             ContentLanguage = @this.ContentLanguage,
             ContentType = @this.ContentType,
             CustomMetadata = @this.CustomMetadata?.ToNSDictionary(),
         };
+    }
+
+    private static DateTimeOffset? ToDateTimeOffsetOrNull(NSDate? date)
+    {
+        return date?.ToDateTimeOffset();
     }
 }

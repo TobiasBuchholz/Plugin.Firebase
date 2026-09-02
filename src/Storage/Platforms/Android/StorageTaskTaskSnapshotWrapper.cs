@@ -23,8 +23,8 @@ public sealed class StorageTaskTaskSnapshotWrapper : IStorageTaskSnapshot
     }
 
     private StorageTaskTaskSnapshotWrapper(
-        UploadTask.TaskSnapshot snapshot = null,
-        Exception error = null)
+        UploadTask.TaskSnapshot? snapshot = null,
+        Exception? error = null)
         : this(error)
     {
         if(snapshot != null) {
@@ -37,8 +37,8 @@ public sealed class StorageTaskTaskSnapshotWrapper : IStorageTaskSnapshot
     }
 
     private StorageTaskTaskSnapshotWrapper(
-        FileDownloadTask.TaskSnapshot snapshot = null,
-        Exception error = null)
+        FileDownloadTask.TaskSnapshot? snapshot = null,
+        Exception? error = null)
         : this(error)
     {
         if(snapshot != null) {
@@ -48,7 +48,7 @@ public sealed class StorageTaskTaskSnapshotWrapper : IStorageTaskSnapshot
         }
     }
 
-    private StorageTaskTaskSnapshotWrapper(Exception error = null)
+    private StorageTaskTaskSnapshotWrapper(Exception? error = null)
     {
         Error = error;
     }
@@ -56,6 +56,6 @@ public sealed class StorageTaskTaskSnapshotWrapper : IStorageTaskSnapshot
     public long TransferredUnitCount { get; }
     public long TotalUnitCount { get; }
     public double TransferredFraction { get; }
-    public IStorageMetadata Metadata { get; }
-    public Exception Error { get; }
+    public IStorageMetadata? Metadata { get; }
+    public Exception? Error { get; }
 }

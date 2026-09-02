@@ -79,6 +79,32 @@ var data = snapshot.Data;
 var name = data["name"] as string;
 ```
 
+Firestore stores whole numbers as 64-bit integers and fractional numbers as doubles. Reading a
+document into a property of a numeric type (`byte`, `sbyte`, `short`, `ushort`, `int`, `uint`,
+`long`, `ulong`, `char`, `float`, `double`, `decimal`, and their nullable forms) converts the
+stored value with `Convert.ChangeType` on both platforms, so:
+
+- A value outside the property's range throws an `OverflowException` rather than silently
+  wrapping to an unrelated number.
+- A fractional value read into an integral property is rounded to even, not truncated, so a
+  stored `13.5` read into a `long` gives `14` and `12.5` gives `12`.
+- `decimal` and `decimal?` properties are supported.
+- A conversion that has no meaning at all throws an `InvalidCastException`, for example a
+  fractional value read into a `char`.
+
+```c#
+// "quantity" holds 300 in Firestore
+[FirestoreProperty("quantity")]
+public byte Quantity { get; private set; } // throws OverflowException on read
+```
+
+Conversion happens when you read `snapshot.Data`, not when the snapshot arrives, so guard that
+access inside snapshot listener callbacks if documents may hold values your model can't
+represent.
+
+Writing a `decimal` property is not supported on either platform and throws an
+`ArgumentException`; store the value as a `double` or `long` instead.
+
 ### Further information
 
 Take a look at the [documentation](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents/blob/master/docs/Firebase/CloudFirestore/GettingStarted.md) for the AdamE.Firebase.iOS.CloudFirestore packages, because Plugin.Firebase's code is abstracted but still very similar.

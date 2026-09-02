@@ -3,14 +3,16 @@
 You can use Firebase Remote Config to define parameters in your app and update their values in the cloud, allowing you to modify the appearance and behavior of your app without distributing an app update.
 
 ## Installation
-### Nuget
-[![NuGet](https://img.shields.io/nuget/v/plugin.firebase.remote_config.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.RemoteConfig/)
+
+### NuGet
+
+[![NuGet](https://img.shields.io/nuget/v/Plugin.Firebase.RemoteConfig.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.RemoteConfig/)
 
 > Install-Package Plugin.Firebase.RemoteConfig
 
 ## Setup
 
-- Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/README.md#basic-setup)
+- Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/README.md#basic-setup)
 - Add a Remote Config key-value pair at your project in the [Firebase Console](https://console.firebase.google.com/)
 
 ## Usage
@@ -32,13 +34,16 @@ registration.Dispose();
 ```
 
 Since code should be documenting itself you can also take a look at the following classes:
-- [src/.../IFirebaseRemoteConfig.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/RemoteConfig/IFirebaseRemoteConfig.cs)
-- [tests/.../RemoteConfigFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/RemoteConfig/RemoteConfigFixture.cs)
+
+- [IFirebaseRemoteConfig.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/src/RemoteConfig/Shared/RemoteConfig/IFirebaseRemoteConfig.cs)
+- [Remote Config integration tests](https://github.com/TobiasBuchholz/Plugin.Firebase/tree/development/tests/Plugin.Firebase.IntegrationTests/RemoteConfig)
 
 ## Release notes
-- Version 4.0.0
-  - Add real-time Remote Config update listener
-  - Using AdamE.Firebase.iOS.* minimum version 12.7.0
+
+- Next
+  - Target .NET 10 and raise the minimum Firebase iOS binding version to 12.7; the minimum platform versions remain iOS 15 and Android 23.
+  - Corrected nullable contracts and native dictionary conversions.
+  - Added real-time Remote Config update listeners; retain and dispose the returned registration to remove a listener.
 - Version 3.1.1
   - Using AdamE.Firebase.iOS.* minimum version 11
 - Version 3.1.0

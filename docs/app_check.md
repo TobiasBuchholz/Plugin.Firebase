@@ -3,12 +3,14 @@
 Firebase App Check helps protect backend resources from abuse by ensuring requests come from your authentic app.
 
 ## Installation
-### Nuget
+### NuGet
+[![NuGet](https://img.shields.io/nuget/v/Plugin.Firebase.AppCheck.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.AppCheck/)
+
 > Install-Package Plugin.Firebase.AppCheck
 
 ## Setup
 
-- Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/README.md#basic-setup).
+- Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/README.md#basic-setup).
 - Configure App Check **before** calling `CrossFirebase.Initialize()`. The plugin uses initialization hooks internally to install the provider factory at the correct moment on each platform (before `Configure()` on iOS, after `InitializeApp()` on Android).
 
 ```c#
@@ -92,3 +94,9 @@ This is the standard .NET Android MSBuild property. It works with both APK and A
 > **Do NOT use** `AndroidPackageFormat=apk` or `EmbedAssembliesIntoApk=true` as a workaround for this issue — those properties serve different purposes (debug speed, distribution format) and are not needed to fix native library compression.
 
 See also the [sample Playground project](../sample/Playground/Playground.csproj) for a working reference.
+
+## Release notes
+
+- Next
+  - Target .NET 10 and raise the minimum Firebase iOS binding version to 12.7; the minimum platform versions remain iOS 15 and Android 23.
+  - Enable nullable reference-type analysis and correct nullable provider-factory, registration, and cross-platform implementation contracts.

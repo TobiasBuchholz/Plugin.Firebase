@@ -41,4 +41,41 @@ public sealed partial class FirestoreFixture
         var references = (await referenceDocument.GetDocumentSnapshotAsync<Dictionary<string, IDocumentReference>>()).Data!;
         Assert.Equal(documentReference.Path, references["original"].Path);
     }
+
+
+    [Fact]
+    public async Task round_trips_datetime_offsets_with_non_zero_utc_offsets()
+    {
+        var sut = CrossFirebaseFirestore.Current;
+        // 2026-01-01 12:00:00 -05:00 is the instant 17:00:00 UTC; a discarded offset would store 12:00 UTC instead.
+        var expected = new DateTimeOffset(2026, 1, 1, 12, 0, 0, TimeSpan.FromHours(-5));
+        var lowerBound = new DateTimeOffset(2026, 1, 1, 11, 59, 0, TimeSpan.FromHours(-5));
+        var upperBound = new DateTimeOffset(2026, 1, 1, 12, 1, 0, TimeSpan.FromHours(-5));
+        var document = GetTestingDocument(sut, "typed-datetime-offset-non-zero-offset");
+
+        await document.SetDataAsync(new Dictionary<object, object?> {
+            { "observed", expected }
+        });
+
+        // Reads come back with a zero offset, so instants are compared through UtcTicks instead of wall-clock ticks.
+        var typed = (await document.GetDocumentSnapshotAsync<Dictionary<string, DateTimeOffset>>()).Data!;
+        Assert.InRange(
+            Math.Abs(typed["observed"].UtcTicks - expected.UtcTicks),
+            0,
+            IntegrationTestTimeouts.OneMillisecondTicks);
+
+        var raw = (await document.GetDocumentSnapshotAsync<Dictionary<string, object?>>()).Data!;
+        var rawObserved = Assert.IsType<DateTimeOffset>(raw["observed"]);
+        Assert.InRange(
+            Math.Abs(rawObserved.UtcTicks - expected.UtcTicks),
+            0,
+            IntegrationTestTimeouts.OneMillisecondTicks);
+
+        var windowSnapshot = await GetTestingCollection(sut)
+            .WhereGreaterThan("observed", lowerBound)
+            .WhereLessThan("observed", upperBound)
+            .GetDocumentsAsync<Dictionary<string, object?>>();
+        var match = Assert.Single(windowSnapshot.Documents);
+        Assert.Equal(document.Id, match.Reference.Id);
+    }
 }

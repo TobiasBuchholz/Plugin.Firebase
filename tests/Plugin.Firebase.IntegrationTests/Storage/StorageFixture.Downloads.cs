@@ -13,8 +13,11 @@ public sealed partial class StorageFixture
             .Current
             .GetReferenceFromPath("files_to_keep/text_1.txt");
 
-        var stream = await reference.GetStreamAsync(1 * 1024 * 1024);
-        Assert.NotNull(stream);
+        using var stream = await reference.GetStreamAsync(1 * 1024 * 1024);
+        using var contents = new MemoryStream();
+        await stream.CopyToAsync(contents);
+
+        Assert.Equal(34, contents.Length);
     }
 
 
@@ -39,6 +42,16 @@ public sealed partial class StorageFixture
             .GetReferenceFromPath("files_to_keep/text_1.txt");
 
         await Assert.ThrowsAnyAsync<Exception>(() => reference.GetBytesAsync(1));
+    }
+
+    [Fact]
+    public async Task fails_when_stream_download_exceeds_max_size()
+    {
+        var reference = CrossFirebaseStorage
+            .Current
+            .GetReferenceFromPath("files_to_keep/text_1.txt");
+
+        await Assert.ThrowsAnyAsync<Exception>(() => reference.GetStreamAsync(1));
     }
 
 

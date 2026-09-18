@@ -219,12 +219,10 @@ public static class JavaObjectExtensions
                     property.SetValue(instance, null);
                 } else if(value is Java.Lang.Object javaValue) {
                     property.SetValue(instance, javaValue.ToObject(property.PropertyType));
-                } else if(property.PropertyType == typeof(float)) {
-                    property.SetValue(instance, Convert.ToSingle(value));
-                } else if((Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType) == typeof(int)) {
-                    property.SetValue(instance, Convert.ToInt32(value));
                 } else {
-                    property.SetValue(instance, value);
+                    // values that aren't java peers arrive as CTS-mapped CLR types (e.g. long, double), so they
+                    // still need to be narrowed to the declared property type, like the dictionary path does
+                    property.SetValue(instance, value.ConvertToTargetType(property.PropertyType));
                 }
             }
 

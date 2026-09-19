@@ -51,11 +51,7 @@ public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseF
             result = await _firestore.RunTransactionAsync(
                 (Transaction transaction, ref NSError? error) => {
                     try {
-                        if(error == null) {
-                            return updateFunc(transaction.ToAbstract())?.ToNSObject();
-                        } else {
-                            exception = new FirebaseException(error.LocalizedDescription);
-                        }
+                        return updateFunc(transaction.ToAbstract())?.ToNSObject();
                     } catch(Exception e) {
                         exception = new FirebaseException(e.Message, e);
                         // Only an error assigned to the ref parameter aborts the native transaction. A domain
@@ -65,15 +61,15 @@ public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseF
                             TransactionUpdateErrorDomain,
                             -1,
                             new NSDictionary<NSString, NSObject>(NSError.LocalizedDescriptionKey, new NSString(e.Message)));
+                        return null;
                     }
-                    return null;
                 }
             );
         } catch(Exception) when(exception != null) {
             // the task faulted with the native error assigned above; surface the original managed failure instead
             throw exception;
         }
-        return exception is null ? (TResult?) result?.ToObject(typeof(TResult)) : throw exception;
+        return (TResult?) result?.ToObject(typeof(TResult));
     }
 
     /// <inheritdoc/>

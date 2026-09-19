@@ -10,9 +10,12 @@ versions=(
   "120.0.0"
   "120.0.5"
 )
+# PerformanceMonitoring is built alongside Crashlytics because it pins the AndroidX Lifecycle.Process version
+# that has to co-resolve with the Crashlytics binding. Their combined restore is otherwise only exercised by
+# the integration test app.
 projects=(
   "$repo_root/src/Crashlytics/Crashlytics.csproj"
-  "$repo_root/src/Bundled/Bundled.csproj"
+  "$repo_root/src/PerformanceMonitoring/PerformanceMonitoring.csproj"
 )
 
 for version in "${versions[@]}"; do

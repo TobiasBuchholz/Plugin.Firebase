@@ -15,6 +15,23 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
     private IDisposable? _beforeConfigureRegistration;
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="FirebaseAppCheckImplementation"/> class and registers the hook that
+    /// installs the configured provider (<see cref="AppCheckOptions.Disabled"/> until <see cref="Configure"/> is called)
+    /// before Firebase configures.
+    /// </summary>
+    public FirebaseAppCheckImplementation()
+    {
+        // Register the BeforeConfigure hook as soon as the implementation exists, so the Disabled default is installed
+        // even when Configure is never called. When the native FirebaseAppCheck framework is linked into the app binary,
+        // its component auto-registers with Firebase using eager instantiation and the SDK defaults to a
+        // DeviceCheckProviderFactory, which produces placeholder tokens on failure. Auth/Functions then attach these
+        // invalid tokens to every request, causing server-side rejection ("The supplied auth credential is malformed
+        // or has expired"). Calling SetAppCheckProviderFactory(null) before FirebaseApp.configure() ensures
+        // initWithApp: returns nil and no App Check tokens are attached to requests.
+        _beforeConfigureRegistration = FirebaseInitializationHooks.RegisterBeforeConfigure(InstallProviderFactory);
+    }
+
+    /// <summary>
     /// Configures the Firebase AppCheck service with the specified options.
     /// </summary>
     /// <param name="options">The AppCheck configuration options.</param>
@@ -28,16 +45,7 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
             _options = options;
         }
 
-        // Always register the BeforeConfigure hook, even for Disabled.
-        // When the native FirebaseAppCheck framework is linked into the app binary,
-        // its component auto-registers with Firebase using eager instantiation.
-        // Without an explicit call to SetAppCheckProviderFactory(null), the SDK may
-        // use a default DeviceCheckProviderFactory which produces placeholder tokens
-        // on failure. Auth/Functions then attach these invalid tokens to every request,
-        // causing server-side rejection ("The supplied auth credential is malformed
-        // or has expired"). Calling SetAppCheckProviderFactory(null) before
-        // FirebaseApp.configure() ensures initWithApp: returns nil and no App Check
-        // tokens are attached to requests.
+        // The constructor registers the hook; re-register only if this instance was disposed in the meantime.
         _beforeConfigureRegistration ??= FirebaseInitializationHooks.RegisterBeforeConfigure(InstallProviderFactory);
     }
 

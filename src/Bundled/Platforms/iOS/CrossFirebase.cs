@@ -31,6 +31,11 @@ public static class CrossFirebase
             } catch(NotSupportedException) {
                 Console.WriteLine("Plugin.Firebase AppCheck is not supported for this iOS build. Continuing without AppCheck.");
             }
+        } else {
+            // The bundled package links the native App Check framework, which defaults to DeviceCheck. Creating the App
+            // Check implementation registers the hook that installs the documented Disabled default before Firebase
+            // configures; options already passed to CrossFirebaseAppCheck.Configure are kept.
+            _ = CrossFirebaseAppCheck.IsSupported;
         }
 
         NativePerformance.SharedInstance.DataCollectionEnabled =

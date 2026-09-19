@@ -36,9 +36,11 @@ CrossFirebase.Initialize(activity, activityProvider);      // hook fires here
 
 Configuring a provider that is not supported on the current platform throws a `NotSupportedException`.
 
+On iOS, the bundled `CrossFirebase.Initialize(settings)` applies the `Disabled` default when `CrossFirebaseSettings` has no `appCheckOptions`. Options you already passed to `CrossFirebaseAppCheck.Configure` are kept. If you reference `Plugin.Firebase.AppCheck` without the bundled initializer and don't use App Check, call `CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled)` before initializing Firebase. Otherwise the native SDK uses its default `DeviceCheckProviderFactory` (see below).
+
 ### iOS — `Cannot instantiate FIRAppCheck` log message
 
-When App Check is configured with `AppCheckOptions.Disabled`, the plugin explicitly clears the native provider factory by calling `SetAppCheckProviderFactory(null)` before `FirebaseApp.Configure()`. The native Firebase iOS SDK then logs:
+When App Check is disabled, whether configured with `AppCheckOptions.Disabled` or left at the bundled default, the plugin explicitly clears the native provider factory by calling `SetAppCheckProviderFactory(null)` before `FirebaseApp.Configure()`. The native Firebase iOS SDK then logs:
 
 ```
 [FirebaseAppCheck][I-FAA002001] Cannot instantiate `FIRAppCheck` for app: __FIRAPP_DEFAULT

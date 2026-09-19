@@ -17,6 +17,21 @@ namespace Plugin.Firebase.IntegrationTests.AppCheck
             Assert.Throws<ArgumentNullException>(() => CrossFirebaseAppCheck.Configure(null!));
         }
 
+        [IosFact]
+        public void installs_the_native_provider_chosen_by_bundled_initialization()
+        {
+#if IOS
+            // The native SDK can only create FIRAppCheck when a provider factory is installed before Firebase configures.
+            // Its DeviceCheck default would create one, so with omitted options there must be no native instance.
+            var nativeAppCheck = global::Firebase.AppCheck.AppCheck.SharedInstance;
+            if(FirebaseTestHost.BundledAppCheckOptions is null) {
+                Assert.Null(nativeAppCheck);
+            } else {
+                Assert.NotNull(nativeAppCheck);
+            }
+#endif
+        }
+
         [Fact]
         public void transitions_between_disabled_and_debug_providers()
         {

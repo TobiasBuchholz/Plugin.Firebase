@@ -18,6 +18,13 @@ internal static partial class FirebaseTestHost
 
     private static partial void ConfigureFirebaseLifecycleEvents(ILifecycleBuilder events);
 
+    // App Check is only configured for the opt-in debug token tests, which need a provider installed at startup.
+    // Otherwise the options are omitted, so every run exercises the bundled initializer's Disabled default.
+    internal static AppCheckOptions? BundledAppCheckOptions =>
+        IntegrationTestEnvironment.UsesRealBackend && IntegrationTestEnvironment.ShouldRunAppCheckTokenTests
+            ? AppCheckOptions.Debug
+            : null;
+
     private static CrossFirebaseSettings CreateCrossFirebaseSettings()
     {
         if(IntegrationTestEnvironment.UsesEmulatorBackend) {
@@ -26,7 +33,7 @@ internal static partial class FirebaseTestHost
                 isFirestoreEnabled: true,
                 isFunctionsEnabled: true,
                 isStorageEnabled: true,
-                appCheckOptions: AppCheckOptions.Disabled) {
+                appCheckOptions: BundledAppCheckOptions) {
                 IsInstallationsEnabled = true,
                 IsPerformanceMonitoringEnabled = true
             };
@@ -42,9 +49,7 @@ internal static partial class FirebaseTestHost
             isFunctionsEnabled: true,
             isRemoteConfigEnabled: true,
             isStorageEnabled: true,
-            appCheckOptions: IntegrationTestEnvironment.ShouldRunAppCheckTokenTests
-                ? AppCheckOptions.Debug
-                : AppCheckOptions.Disabled) {
+            appCheckOptions: BundledAppCheckOptions) {
             IsInstallationsEnabled = true,
             IsPerformanceMonitoringEnabled = true
         };

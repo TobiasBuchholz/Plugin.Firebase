@@ -14,17 +14,16 @@ using Playground.Features.RemoteConfig;
 using Playground.Features.Storage;
 using Plugin.Firebase.AppCheck;
 using Plugin.Firebase.Auth;
-using Plugin.Firebase.Bundled.Shared;
 using Plugin.Firebase.CloudMessaging;
 using Plugin.Firebase.Functions;
 using Plugin.Firebase.Installations;
 using Plugin.Firebase.RemoteConfig;
 using Plugin.Firebase.Storage;
 #if IOS
-using Plugin.Firebase.Bundled.Platforms.iOS;
+using CrossFirebase = Plugin.Firebase.Core.Platforms.iOS.CrossFirebase;
 using Playground.Platforms.iOS.Services.UserInteraction;
 #elif ANDROID
-using Plugin.Firebase.Bundled.Platforms.Android;
+using CrossFirebase = Plugin.Firebase.Core.Platforms.Android.CrossFirebase;
 using Playground.Platforms.Android.Services.UserInteraction;
 #endif
 
@@ -72,7 +71,9 @@ public static class MauiProgram
                 iOS.WillFinishLaunching(
                     (app, launchOptions) =>
                     {
-                        CrossFirebase.Initialize(CreateCrossFirebaseSettings());
+                        CrossFirebaseAppCheck.Configure(GetConfiguredAppCheckOptions());
+                        CrossFirebase.Initialize();
+                        FirebaseCloudMessagingImplementation.Initialize();
                         return false;
                     }
                 )
@@ -81,12 +82,8 @@ public static class MauiProgram
             events.AddAndroid(android =>
                 android.OnCreate(
                     (activity, _) => {
-                        var settings = CreateCrossFirebaseSettings();
-                        CrossFirebase.Initialize(
-                            activity,
-                            () => Platform.CurrentActivity,
-                            settings
-                        );
+                        CrossFirebaseAppCheck.Configure(GetConfiguredAppCheckOptions());
+                        CrossFirebase.Initialize(activity, () => Platform.CurrentActivity);
                     }
                 )
             );
@@ -136,25 +133,6 @@ public static class MauiProgram
             "Device Check" => AppCheckOptions.DeviceCheck,
             "App Attest" => AppCheckOptions.AppAttest,
             _ => AppCheckOptions.Debug // Default to Debug
-        };
-    }
-
-    private static CrossFirebaseSettings CreateCrossFirebaseSettings()
-    {
-        var appCheckOptions = GetConfiguredAppCheckOptions();
-        return new CrossFirebaseSettings(
-            isAnalyticsEnabled: true,
-            isAuthEnabled: true,
-            isCloudMessagingEnabled: true,
-            isDynamicLinksEnabled: true,
-            isFirestoreEnabled: true,
-            isFunctionsEnabled: true,
-            isRemoteConfigEnabled: true,
-            isStorageEnabled: true,
-            appCheckOptions: appCheckOptions,
-            googleRequestIdToken: "537235599720-723cgj10dtm47b4ilvuodtp206g0q0fg.apps.googleusercontent.com"
-        ) {
-            IsInstallationsEnabled = true
         };
     }
 }

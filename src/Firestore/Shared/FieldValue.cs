@@ -31,7 +31,7 @@ public sealed class FieldValue
     /// </summary>
     /// <param name="incrementValue">The value to increment.</param>
     public static FieldValue IntegerIncrement(long incrementValue) =>
-        new FieldValue(FieldValueType.IntegerIncrement, incrementValue);
+        new FieldValue(FieldValueType.IntegerIncrement, incrementValue, integerIncrementValue: incrementValue);
 
     /// <summary>
     /// Returns a special value that can be used with <c>Set()</c> or <c>Update()</c> that tells the server to increment the field's current value by
@@ -52,11 +52,16 @@ public sealed class FieldValue
     /// <returns></returns>
     public static FieldValue ServerTimestamp() => new FieldValue(FieldValueType.ServerTimestamp);
 
-    private FieldValue(FieldValueType type, double incrementValue = 0, object?[]? elements = null)
+    private FieldValue(
+        FieldValueType type,
+        double incrementValue = 0,
+        long integerIncrementValue = 0,
+        object?[]? elements = null)
     {
         Type = type;
         Elements = elements;
         IncrementValue = incrementValue;
+        IntegerIncrementValue = integerIncrementValue;
     }
 
     /// <summary>
@@ -72,5 +77,12 @@ public sealed class FieldValue
     /// <summary>
     /// Gets the increment value for numeric increment operations.
     /// </summary>
+    /// <remarks>
+    /// For <see cref="FieldValueType.IntegerIncrement"/> this is the nearest <see cref="double"/> to the requested value, so it is
+    /// approximate beyond ±2^53. The exact <see cref="long"/> value is what gets sent to Firestore.
+    /// </remarks>
     public double IncrementValue { get; }
+
+    // A double can't represent every long beyond ±2^53, so integer increments keep their exact value separately.
+    internal long IntegerIncrementValue { get; }
 }

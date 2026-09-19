@@ -173,7 +173,7 @@ namespace Plugin.Firebase.Firestore.Platforms.iOS.Extensions
                         @this.Elements?.Select(x => x.ToNSObject()).ToArray() ?? []
                     );
                 case FieldValueType.IntegerIncrement:
-                    return NativeFieldValue.FromIntegerIncrement((long) @this.IncrementValue);
+                    return NativeFieldValue.FromIntegerIncrement(@this.IntegerIncrementValue);
                 case FieldValueType.DoubleIncrement:
                     return NativeFieldValue.FromDoubleIncrement(@this.IncrementValue);
                 case FieldValueType.Delete:

@@ -50,6 +50,9 @@ internal sealed class NumericWidthsDocument : IFirestoreObject
 
     [FirestoreProperty("char_value")]
     public char CharValue { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("byte_list_value")]
+    public IList<byte>? ByteListValue { get; [UsedImplicitly] private set; }
 }
 
 [Preserve(AllMembers = true)]
@@ -86,4 +89,20 @@ internal sealed class EnumModelDocument : IFirestoreObject
 
     [FirestoreProperty("rating_value")]
     public NumericRating RatingValue { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("rating_from_double_value")]
+    public NumericRating RatingFromDoubleValue { get; [UsedImplicitly] private set; }
+}
+
+[Preserve(AllMembers = true)]
+internal sealed class CultureConversionDocument : IFirestoreObject
+{
+    [FirestoreProperty("double_from_text_value")]
+    public double DoubleFromTextValue { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("text_from_double_value")]
+    public string? TextFromDoubleValue { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("texts_from_doubles_value")]
+    public IList<string>? TextsFromDoublesValue { get; [UsedImplicitly] private set; }
 }

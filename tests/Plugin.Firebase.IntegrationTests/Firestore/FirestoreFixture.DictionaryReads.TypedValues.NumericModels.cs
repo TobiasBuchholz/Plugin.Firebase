@@ -1,3 +1,4 @@
+using System.Globalization;
 using Plugin.Firebase.Firestore;
 
 namespace Plugin.Firebase.IntegrationTests.Firestore;
@@ -24,26 +25,29 @@ public sealed partial class FirestoreFixture
             { "whole_double_value", 2L },
             { "decimal_from_whole_value", 5L },
             { "decimal_from_fraction_value", 5.25 },
-            { "char_value", 65L }
+            { "char_value", 65L },
+            { "byte_list_value", new[] { 0L, 255L } }
         });
 
         var snapshot = await document.GetDocumentSnapshotAsync<NumericWidthsDocument>();
+        var data = snapshot.Data!;
 
-        Assert.Equal((byte) 255, snapshot.Data!.ByteValue);
-        Assert.Equal((sbyte) -128, snapshot.Data.SbyteValue);
-        Assert.Equal((short) -32768, snapshot.Data.ShortValue);
-        Assert.Equal((ushort) 65535, snapshot.Data.UshortValue);
-        Assert.Equal(2147483647, snapshot.Data.IntValue);
-        Assert.Equal(4294967295U, snapshot.Data.UintValue);
-        Assert.Equal(9223372036854775807L, snapshot.Data.LongValue);
-        Assert.Equal(9223372036854775807UL, snapshot.Data.UlongValue);
-        Assert.Equal(2.5f, snapshot.Data.FloatValue);
-        Assert.Equal(2.0f, snapshot.Data.WholeFloatValue);
-        Assert.Equal(2.25, snapshot.Data.DoubleValue);
-        Assert.Equal(2.0, snapshot.Data.WholeDoubleValue);
-        Assert.Equal(5m, snapshot.Data.DecimalFromWholeValue);
-        Assert.Equal(5.25m, snapshot.Data.DecimalFromFractionValue);
-        Assert.Equal('A', snapshot.Data.CharValue);
+        Assert.Equal((byte) 255, data.ByteValue);
+        Assert.Equal((sbyte) -128, data.SbyteValue);
+        Assert.Equal((short) -32768, data.ShortValue);
+        Assert.Equal((ushort) 65535, data.UshortValue);
+        Assert.Equal(2147483647, data.IntValue);
+        Assert.Equal(4294967295U, data.UintValue);
+        Assert.Equal(9223372036854775807L, data.LongValue);
+        Assert.Equal(9223372036854775807UL, data.UlongValue);
+        Assert.Equal(2.5f, data.FloatValue);
+        Assert.Equal(2.0f, data.WholeFloatValue);
+        Assert.Equal(2.25, data.DoubleValue);
+        Assert.Equal(2.0, data.WholeDoubleValue);
+        Assert.Equal(5m, data.DecimalFromWholeValue);
+        Assert.Equal(5.25m, data.DecimalFromFractionValue);
+        Assert.Equal('A', data.CharValue);
+        Assert.Equal(new byte[] { 0, 255 }, data.ByteListValue);
     }
 
     [AndroidFact]
@@ -59,12 +63,13 @@ public sealed partial class FirestoreFixture
         });
 
         var snapshot = await document.GetDocumentSnapshotAsync<NullableNumericDocument>();
+        var data = snapshot.Data!;
 
-        Assert.Equal((byte?) 200, snapshot.Data!.NullableByteValue);
-        Assert.Null(snapshot.Data.NullableIntValue);
-        Assert.Equal((float?) 1.5f, snapshot.Data.NullableFloatValue);
-        Assert.Equal(2.0, snapshot.Data.NullableDoubleValue);
-        Assert.Null(snapshot.Data.AbsentValue);
+        Assert.Equal((byte?) 200, data.NullableByteValue);
+        Assert.Null(data.NullableIntValue);
+        Assert.Equal((float?) 1.5f, data.NullableFloatValue);
+        Assert.Equal(2.0, data.NullableDoubleValue);
+        Assert.Null(data.AbsentValue);
     }
 
     [AndroidFact]
@@ -74,13 +79,47 @@ public sealed partial class FirestoreFixture
         var document = GetTestingDocument(sut, "android-typed-model-enum-values");
         await document.SetDataAsync(new Dictionary<object, object?> {
             { "poke_type_value", 4L },
-            { "rating_value", 2L }
+            { "rating_value", 2L },
+            { "rating_from_double_value", 2.0 }
         });
 
         var snapshot = await document.GetDocumentSnapshotAsync<EnumModelDocument>();
+        var data = snapshot.Data!;
 
-        Assert.Equal(PokeType.Electric, snapshot.Data!.PokeTypeValue);
-        Assert.Equal(NumericRating.High, snapshot.Data.RatingValue);
+        Assert.Equal(PokeType.Electric, data.PokeTypeValue);
+        Assert.Equal(NumericRating.High, data.RatingValue);
+        Assert.Equal(NumericRating.High, data.RatingFromDoubleValue);
+    }
+
+    [AndroidFact]
+    public async Task reads_android_typed_model_text_and_number_conversions_independent_of_culture()
+    {
+        var sut = CrossFirebaseFirestore.Current;
+        var document = GetTestingDocument(sut, "android-typed-model-culture");
+        await document.SetDataAsync(new Dictionary<object, object?> {
+            { "double_from_text_value", "2.5" },
+            { "text_from_double_value", 2.5 },
+            { "texts_from_doubles_value", new[] { 2.5, 0.75 } }
+        });
+
+        var modelSnapshot = await document.GetDocumentSnapshotAsync<CultureConversionDocument>();
+        var textSnapshot = await document.GetDocumentSnapshotAsync<Dictionary<string, string>>();
+
+        var originalCulture = CultureInfo.CurrentCulture;
+        // de-DE uses ',' as the decimal separator, so a culture-sensitive conversion would read "2.5" as 25
+        CultureInfo.CurrentCulture = new CultureInfo("de-DE");
+        try {
+            // snapshot data is converted when it is read, so the conversions below run under de-DE
+            var data = modelSnapshot.Data!;
+            Assert.Equal(2.5, data.DoubleFromTextValue);
+            Assert.Equal("2.5", data.TextFromDoubleValue);
+            Assert.Equal(new[] { "2.5", "0.75" }, data.TextsFromDoublesValue);
+
+            Assert.Equal("2.5", textSnapshot.Data!["text_from_double_value"]);
+        }
+        finally {
+            CultureInfo.CurrentCulture = originalCulture;
+        }
     }
 
     [AndroidFact]
@@ -103,6 +142,15 @@ public sealed partial class FirestoreFixture
         });
         await Assert.ThrowsAsync<OverflowException>(async () => {
             var snapshot = await shortDocument.GetDocumentSnapshotAsync<NumericWidthsDocument>();
+            _ = snapshot.Data;
+        });
+
+        var unsignedDocument = GetTestingDocument(sut, "android-typed-model-negative-unsigned");
+        await unsignedDocument.SetDataAsync(new Dictionary<object, object?> {
+            { "uint_value", -1L }
+        });
+        await Assert.ThrowsAsync<OverflowException>(async () => {
+            var snapshot = await unsignedDocument.GetDocumentSnapshotAsync<NumericWidthsDocument>();
             _ = snapshot.Data;
         });
     }

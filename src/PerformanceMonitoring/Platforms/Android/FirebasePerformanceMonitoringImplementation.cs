@@ -7,6 +7,10 @@ namespace Plugin.Firebase.PerformanceMonitoring;
 
 public sealed class FirebasePerformanceMonitoringImplementation : DisposableBase, IFirebasePerformanceMonitoring
 {
+    private const string InstrumentationNotSupportedMessage =
+        "Performance Monitoring instrumentation can't be toggled at runtime on Android. Use IsDataCollectionEnabled, "
+        + "or the firebase_performance_collection_enabled / firebase_performance_collection_deactivated manifest keys.";
+
     private readonly FirebasePerformance _instance;
 
     public FirebasePerformanceMonitoringImplementation()
@@ -17,6 +21,12 @@ public sealed class FirebasePerformanceMonitoringImplementation : DisposableBase
     public bool IsDataCollectionEnabled {
         get => _instance.PerformanceCollectionEnabled;
         set => _instance.PerformanceCollectionEnabled = value;
+    }
+
+    // The Android SDK instruments at build time and exposes no runtime switch, so there is nothing to map this to.
+    public bool IsInstrumentationEnabled {
+        get => throw new NotSupportedException(InstrumentationNotSupportedMessage);
+        set => throw new NotSupportedException(InstrumentationNotSupportedMessage);
     }
 
     public IFirebasePerformanceTrace NewTrace(string traceName)

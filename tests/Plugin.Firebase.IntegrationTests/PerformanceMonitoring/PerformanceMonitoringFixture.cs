@@ -39,6 +39,33 @@ public sealed class PerformanceMonitoringFixture
         }
     }
 
+    [IosFact]
+    public void round_trips_instrumentation_enabled_state_on_ios()
+    {
+        var sut = CrossFirebasePerformanceMonitoring.Current;
+        var originalValue = sut.IsInstrumentationEnabled;
+
+        try {
+            sut.IsInstrumentationEnabled = false;
+            Assert.False(sut.IsInstrumentationEnabled);
+
+            sut.IsInstrumentationEnabled = true;
+            Assert.True(sut.IsInstrumentationEnabled);
+        }
+        finally {
+            sut.IsInstrumentationEnabled = originalValue;
+        }
+    }
+
+    [AndroidFact]
+    public void rejects_instrumentation_toggling_on_android()
+    {
+        var sut = CrossFirebasePerformanceMonitoring.Current;
+
+        Assert.Throws<NotSupportedException>(() => { _ = sut.IsInstrumentationEnabled; });
+        Assert.Throws<NotSupportedException>(() => { sut.IsInstrumentationEnabled = false; });
+    }
+
     [Fact]
     public void records_custom_trace_attributes_and_metrics()
     {

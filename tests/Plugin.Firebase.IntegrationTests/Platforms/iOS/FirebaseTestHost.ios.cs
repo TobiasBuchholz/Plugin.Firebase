@@ -1,5 +1,7 @@
 using Foundation;
 using Microsoft.Maui.LifecycleEvents;
+using Plugin.Firebase.CloudMessaging;
+using CoreCrossFirebase = Plugin.Firebase.Core.Platforms.iOS.CrossFirebase;
 using NativeFirebaseOptions = Firebase.Core.Options;
 
 namespace Plugin.Firebase.IntegrationTests;
@@ -11,49 +13,24 @@ internal static partial class FirebaseTestHost
         events.AddiOS(iOS => iOS.WillFinishLaunching((_, _) => {
             if(IntegrationTestEnvironment.UsesRealBackend) {
                 EnsureFirebaseConfigPresent();
-                InitializeBundledFirebase(CreateCrossFirebaseSettings());
-            } else {
-                InitializeBundledFirebase(
-                    CreateCrossFirebaseSettings(),
-                    CreateEmulatorFirebaseOptions());
             }
 
+            ConfigureAppCheckBeforeInitialize();
+            CoreCrossFirebase.Initialize(
+                name: null,
+                firebaseOptions: IntegrationTestEnvironment.UsesRealBackend
+                    ? null
+                    : CreateEmulatorFirebaseOptions());
+
+            if(IntegrationTestEnvironment.UsesRealBackend) {
+                // Registers the APNs and Messaging delegates the opt-in token and delivery tests need.
+                FirebaseCloudMessagingImplementation.Initialize();
+            }
+
+            ConfigureCollectionAfterInitialize();
             ConfigureEmulatorsIfRequested();
             return false;
         }));
-    }
-
-    [System.Diagnostics.CodeAnalysis.DynamicDependency(
-        System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods,
-        "Plugin.Firebase.Bundled.Platforms.iOS.CrossFirebase",
-        "Plugin.Firebase")]
-    private static void InitializeBundledFirebase(
-        Plugin.Firebase.Bundled.Shared.CrossFirebaseSettings settings,
-        NativeFirebaseOptions? firebaseOptions = null)
-    {
-        const string initializerTypeName = "Plugin.Firebase.Bundled.Platforms.iOS.CrossFirebase";
-
-        var initializerType = typeof(Plugin.Firebase.Bundled.Shared.CrossFirebaseSettings)
-            .Assembly
-            .GetType(initializerTypeName, throwOnError: true);
-        if(initializerType == null) {
-            throw new InvalidOperationException($"Unable to find type '{initializerTypeName}'.");
-        }
-        var initialize = initializerType.GetMethod(
-            "Initialize",
-            [
-                typeof(Plugin.Firebase.Bundled.Shared.CrossFirebaseSettings),
-                typeof(NativeFirebaseOptions),
-                typeof(string)
-            ]);
-
-        if(initialize == null) {
-            throw new MissingMethodException(
-                initializerTypeName,
-                "Initialize(CrossFirebaseSettings, Firebase.Core.Options, string)");
-        }
-
-        initialize.Invoke(null, [settings, firebaseOptions, null]);
     }
 
     private static void EnsureFirebaseConfigPresent()

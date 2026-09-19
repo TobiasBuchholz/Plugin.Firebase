@@ -1,9 +1,10 @@
 using Microsoft.Maui.LifecycleEvents;
 using Plugin.Firebase.AppCheck;
 using Plugin.Firebase.Auth;
-using Plugin.Firebase.Bundled.Shared;
+using Plugin.Firebase.Crashlytics;
 using Plugin.Firebase.Firestore;
 using Plugin.Firebase.Functions;
+using Plugin.Firebase.PerformanceMonitoring;
 using Plugin.Firebase.Storage;
 
 namespace Plugin.Firebase.IntegrationTests;
@@ -18,36 +19,27 @@ internal static partial class FirebaseTestHost
 
     private static partial void ConfigureFirebaseLifecycleEvents(ILifecycleBuilder events);
 
-    private static CrossFirebaseSettings CreateCrossFirebaseSettings()
+    /// <summary>
+    /// Installs the App Check provider the run needs. This has to happen before Firebase configures: on iOS a
+    /// provider factory installed later never takes effect, and the app links App Check, so leaving it unconfigured
+    /// would hand every request to the native DeviceCheck default.
+    /// </summary>
+    private static void ConfigureAppCheckBeforeInitialize()
     {
-        if(IntegrationTestEnvironment.UsesEmulatorBackend) {
-            return new CrossFirebaseSettings(
-                isAuthEnabled: true,
-                isFirestoreEnabled: true,
-                isFunctionsEnabled: true,
-                isStorageEnabled: true,
-                appCheckOptions: AppCheckOptions.Disabled) {
-                IsInstallationsEnabled = true,
-                IsPerformanceMonitoringEnabled = true
-            };
-        }
-
-        return new CrossFirebaseSettings(
-            isAnalyticsEnabled: true,
-            isAuthEnabled: true,
-            isCloudMessagingEnabled: true,
-            isCrashlyticsEnabled: true,
-            isDynamicLinksEnabled: true,
-            isFirestoreEnabled: true,
-            isFunctionsEnabled: true,
-            isRemoteConfigEnabled: true,
-            isStorageEnabled: true,
-            appCheckOptions: IntegrationTestEnvironment.ShouldRunAppCheckTokenTests
+        CrossFirebaseAppCheck.Configure(
+            IntegrationTestEnvironment.UsesRealBackend && IntegrationTestEnvironment.ShouldRunAppCheckTokenTests
                 ? AppCheckOptions.Debug
-                : AppCheckOptions.Disabled) {
-            IsInstallationsEnabled = true,
-            IsPerformanceMonitoringEnabled = true
-        };
+                : AppCheckOptions.Disabled);
+    }
+
+    /// <summary>
+    /// Applies the collection settings the suite expects once Firebase is initialized. Crash reports are only sent on
+    /// the real backend, and Performance Monitoring stays on so its fixture can round-trip the flag.
+    /// </summary>
+    private static void ConfigureCollectionAfterInitialize()
+    {
+        CrossFirebaseCrashlytics.Current.SetCrashlyticsCollectionEnabled(IntegrationTestEnvironment.UsesRealBackend);
+        CrossFirebasePerformanceMonitoring.Current.IsDataCollectionEnabled = true;
     }
 
     private static void ConfigureEmulatorsIfRequested()

@@ -252,6 +252,15 @@ internal static class FirestoreAssertions
         Assert.InRange(Math.Abs(log.Timestamp.Ticks - logTimestamp.Ticks), 0, 10);
     }
 
+    public static void SameInstant(DateTimeOffset expected, DateTimeOffset actual)
+    {
+        // Reads come back with a zero offset, so instants are compared through UtcTicks instead of wall-clock ticks.
+        Assert.InRange(
+            Math.Abs(actual.UtcTicks - expected.UtcTicks),
+            0,
+            IntegrationTestTimeouts.OneMillisecondTicks);
+    }
+
     public static T Require<T>(T? value) where T : class
     {
         return value ?? throw new InvalidOperationException("Expected a non-null value.");

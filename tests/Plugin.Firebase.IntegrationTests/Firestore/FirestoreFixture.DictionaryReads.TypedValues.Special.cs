@@ -42,34 +42,26 @@ public sealed partial class FirestoreFixture
         Assert.Equal(documentReference.Path, references["original"].Path);
     }
 
-
     [Fact]
     public async Task round_trips_datetime_offsets_with_non_zero_utc_offsets()
     {
         var sut = CrossFirebaseFirestore.Current;
         // 2026-01-01 12:00:00 -05:00 is the instant 17:00:00 UTC; a discarded offset would store 12:00 UTC instead.
         var expected = new DateTimeOffset(2026, 1, 1, 12, 0, 0, TimeSpan.FromHours(-5));
-        var lowerBound = new DateTimeOffset(2026, 1, 1, 11, 59, 0, TimeSpan.FromHours(-5));
-        var upperBound = new DateTimeOffset(2026, 1, 1, 12, 1, 0, TimeSpan.FromHours(-5));
+        // The bounds use a zero offset so a discarded offset on the stored value cannot shift them by the same amount.
+        var lowerBound = new DateTimeOffset(2026, 1, 1, 16, 59, 0, TimeSpan.Zero);
+        var upperBound = new DateTimeOffset(2026, 1, 1, 17, 1, 0, TimeSpan.Zero);
         var document = GetTestingDocument(sut, "typed-datetime-offset-non-zero-offset");
 
         await document.SetDataAsync(new Dictionary<object, object?> {
             { "observed", expected }
         });
 
-        // Reads come back with a zero offset, so instants are compared through UtcTicks instead of wall-clock ticks.
         var typed = (await document.GetDocumentSnapshotAsync<Dictionary<string, DateTimeOffset>>()).Data!;
-        Assert.InRange(
-            Math.Abs(typed["observed"].UtcTicks - expected.UtcTicks),
-            0,
-            IntegrationTestTimeouts.OneMillisecondTicks);
+        FirestoreAssertions.SameInstant(expected, typed["observed"]);
 
         var raw = (await document.GetDocumentSnapshotAsync<Dictionary<string, object?>>()).Data!;
-        var rawObserved = Assert.IsType<DateTimeOffset>(raw["observed"]);
-        Assert.InRange(
-            Math.Abs(rawObserved.UtcTicks - expected.UtcTicks),
-            0,
-            IntegrationTestTimeouts.OneMillisecondTicks);
+        FirestoreAssertions.SameInstant(expected, Assert.IsType<DateTimeOffset>(raw["observed"]));
 
         var windowSnapshot = await GetTestingCollection(sut)
             .WhereGreaterThan("observed", lowerBound)

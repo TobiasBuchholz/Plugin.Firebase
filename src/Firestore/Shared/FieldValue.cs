@@ -52,6 +52,8 @@ public sealed class FieldValue
     /// <returns></returns>
     public static FieldValue ServerTimestamp() => new FieldValue(FieldValueType.ServerTimestamp);
 
+    private readonly long _integerIncrementValue;
+
     private FieldValue(
         FieldValueType type,
         double incrementValue = 0,
@@ -61,7 +63,7 @@ public sealed class FieldValue
         Type = type;
         Elements = elements;
         IncrementValue = incrementValue;
-        IntegerIncrementValue = integerIncrementValue;
+        _integerIncrementValue = integerIncrementValue;
     }
 
     /// <summary>
@@ -83,6 +85,17 @@ public sealed class FieldValue
     /// </remarks>
     public double IncrementValue { get; }
 
-    // A double can't represent every long beyond ±2^53, so integer increments keep their exact value separately.
-    internal long IntegerIncrementValue { get; }
+    // A double can't represent every long beyond ±2^53, so integer increments keep their exact value separately. The
+    // native converters read operands through these checked accessors, so reading the wrong increment type fails loudly
+    // instead of sending 0 or a rounded value.
+    internal long IntegerIncrementValue => Type == FieldValueType.IntegerIncrement
+        ? _integerIncrementValue
+        : throw CreateOperandMismatchException(FieldValueType.IntegerIncrement);
+
+    internal double DoubleIncrementValue => Type == FieldValueType.DoubleIncrement
+        ? IncrementValue
+        : throw CreateOperandMismatchException(FieldValueType.DoubleIncrement);
+
+    private InvalidOperationException CreateOperandMismatchException(FieldValueType operandType) =>
+        new InvalidOperationException($"The {operandType} operand isn't available on a {Type} field value.");
 }

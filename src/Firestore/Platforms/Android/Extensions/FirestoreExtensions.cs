@@ -84,7 +84,7 @@ namespace Plugin.Firebase.Firestore.Platforms.Android.Extensions
                 case FieldValueType.IntegerIncrement:
                     return NativeFieldValue.Increment(@this.IntegerIncrementValue);
                 case FieldValueType.DoubleIncrement:
-                    return NativeFieldValue.Increment(@this.IncrementValue);
+                    return NativeFieldValue.Increment(@this.DoubleIncrementValue);
                 case FieldValueType.Delete:
                     return NativeFieldValue.Delete();
                 case FieldValueType.ServerTimestamp:

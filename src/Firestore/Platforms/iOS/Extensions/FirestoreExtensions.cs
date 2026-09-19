@@ -175,7 +175,7 @@ namespace Plugin.Firebase.Firestore.Platforms.iOS.Extensions
                 case FieldValueType.IntegerIncrement:
                     return NativeFieldValue.FromIntegerIncrement(@this.IntegerIncrementValue);
                 case FieldValueType.DoubleIncrement:
-                    return NativeFieldValue.FromDoubleIncrement(@this.IncrementValue);
+                    return NativeFieldValue.FromDoubleIncrement(@this.DoubleIncrementValue);
                 case FieldValueType.Delete:
                     return NativeFieldValue.Delete;
                 case FieldValueType.ServerTimestamp:

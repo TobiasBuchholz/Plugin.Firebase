@@ -14,11 +14,16 @@ public interface IFirebasePerformanceMonitoring : IDisposable
 
     /// <summary>
     /// Gets or sets whether the native SDK's automatic instrumentation (app start, screen rendering and network
-    /// request traces) is enabled. Set it before <c>CrossFirebase.Initialize()</c> so it covers app startup.
+    /// request traces) is enabled.
     /// </summary>
     /// <remarks>
     /// iOS only. The Android SDK has no runtime instrumentation switch, so both the getter and the setter throw
     /// <see cref="NotSupportedException"/> there; use <c>IsDataCollectionEnabled</c> or the manifest keys instead.
+    /// <para>
+    /// The value is persisted and overrides the <c>Info.plist</c> keys. Setting it only takes effect immediately when
+    /// it happens before <c>CrossFirebase.Initialize()</c>; otherwise it applies from the next app start, and the
+    /// getter keeps reporting the value the running app started with.
+    /// </para>
     /// </remarks>
     bool IsInstrumentationEnabled { get; set; }
 

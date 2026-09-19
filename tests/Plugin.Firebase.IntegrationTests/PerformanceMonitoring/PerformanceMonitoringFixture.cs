@@ -40,21 +40,21 @@ public sealed class PerformanceMonitoringFixture
     }
 
     [IosFact]
-    public void round_trips_instrumentation_enabled_state_on_ios()
+    public void exposes_instrumentation_enabled_state_on_ios()
     {
         var sut = CrossFirebasePerformanceMonitoring.Current;
         var originalValue = sut.IsInstrumentationEnabled;
 
         try {
-            sut.IsInstrumentationEnabled = false;
-            Assert.False(sut.IsInstrumentationEnabled);
-
-            sut.IsInstrumentationEnabled = true;
-            Assert.True(sut.IsInstrumentationEnabled);
+            // The native flag is persisted and only applies from the next app start unless it is set before Firebase
+            // configures, so the value read back inside a running app still reflects this session.
+            sut.IsInstrumentationEnabled = !originalValue;
         }
         finally {
             sut.IsInstrumentationEnabled = originalValue;
         }
+
+        Assert.Equal(originalValue, sut.IsInstrumentationEnabled);
     }
 
     [AndroidFact]

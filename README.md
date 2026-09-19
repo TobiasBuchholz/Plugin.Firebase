@@ -43,7 +43,7 @@ View the [v4.0 pull request](https://github.com/TobiasBuchholz/Plugin.Firebase/p
 | [Performance Monitoring](https://firebase.google.com/docs/perf-mon)             | [Plugin.Firebase.PerformanceMonitoring](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/performance_monitoring.md) | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.performancemonitoring.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.PerformanceMonitoring/) |
 | [Remote Config](https://firebase.google.com/docs/remote-config)                 | [Plugin.Firebase.RemoteConfig](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/remote_config.md)     | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.remoteconfig.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.RemoteConfig/)     |
 | [Storage](https://firebase.google.com/docs/storage)                             | [Plugin.Firebase.Storage](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/storage.md)                | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.storage.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Storage/)               |
-| All in one                                                                      | [Plugin.Firebase](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/bundled.md)                        | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase/)                               |
+| All in one *(deprecated)*                                                        | [Plugin.Firebase](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/bundled.md)                        | [![NuGet](https://img.shields.io/nuget/v/plugin.firebase.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase/)                               |
 
 ## Basic setup
 This plugin is a thin wrapper around the native Firebase binding packages, which are, in turn, wrappers around the native platform SDKs. As such, developers should not primarily rely on documentation in this plugin for Firebase project configuration or SDK usage. [The official Firebase docs](https://firebase.google.com/docs) should be your primary Firebase resource.
@@ -154,7 +154,7 @@ public static class MauiProgram
     
 }
 ```
-This is the core setup used with the standalone feature packages. If you use the bundled `Plugin.Firebase` package, use `CrossFirebaseSettings` with the bundled initializer described in [docs/bundled.md](docs/bundled.md).
+This is the core setup used with the feature packages. The bundled `Plugin.Firebase` package is deprecated and gets no further versions; [docs/bundled.md](docs/bundled.md) explains how to move off it.
 
 Ensure the `ApplicationId` in your `.csproj` file matches the `bundle_id` and `package_name` inside of the `[GoogleService-Info.plist|google-services.json]` files:
 ```xml
@@ -164,8 +164,8 @@ Ensure the `ApplicationId` in your `.csproj` file matches the `bundle_id` and `p
 The plugin doesn't support Windows or Mac catalyst, so either remove their targets from your `.csproj` file or use  [preprocessor directives](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/preprocessor-directives#conditional-compilation) and [MSBuild conditions](https://learn.microsoft.com/de-de/visualstudio/msbuild/msbuild-conditions?view=vs-2022), e.g:
 
 ```xml
-<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' OR Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
-    <PackageReference Include="Plugin.Firebase" Version="4.0.0" />
+<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' OR $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+    <PackageReference Include="Plugin.Firebase.Auth" Version="5.0.1" />
 </ItemGroup>
 ```
 

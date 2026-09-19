@@ -23,12 +23,12 @@ CrossFirebase.Initialize(activity, activityProvider);      // hook fires here
 #endif
 ```
 
-> **Note:** Calling `Configure()` _after_ `CrossFirebase.Initialize()` also works — the hook detects that initialization already happened and fires immediately. But calling it before is the recommended pattern because it is consistent across platforms and avoids a window where Firebase is alive without a provider.
+> **Note:** Configure App Check before `CrossFirebase.Initialize()`. On iOS the provider factory has to be installed before Firebase configures, so a later `Configure()` call has no effect until the next initialization. On Android a later call still installs the provider, but switching back to `Disabled` afterwards does not remove one that is already installed.
 
 ### Providers
 | Provider | Platforms | Typical usage |
 |---|---|---|
-| `Disabled` | All | No provider installed (default) |
+| `Disabled` | All | No provider installed. On iOS this is also what you need when App Check is referenced but unused, because the native SDK otherwise falls back to DeviceCheck. |
 | `Debug` | iOS, Android | Development / CI — prints a debug token to the console |
 | `DeviceCheck` | iOS | Production fallback on older devices |
 | `AppAttest` | iOS (14+) | Production (preferred on iOS) |

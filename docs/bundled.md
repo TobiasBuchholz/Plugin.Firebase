@@ -1,31 +1,23 @@
-# All in one
-This package bundles all features into a single nuget package for people who were using prior versions of the plugin before the features were separated into single packages.  
+# All in one (deprecated)
 
-## Installation
-### NuGet
-[![NuGet](https://img.shields.io/nuget/v/plugin.firebase.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase/)
+> **The bundled `Plugin.Firebase` package is deprecated and will not receive further versions.** Its last release is
+> 4.2.1. See [#733](https://github.com/TobiasBuchholz/Plugin.Firebase/issues/733) for the reasoning. Existing versions
+> keep working and stay on NuGet, but new features and fixes only ship in the `Plugin.Firebase.*` component packages.
 
-> Install-Package Plugin.Firebase
+The bundled package installed every feature at once, for people who used the plugin before the features were split into
+separate packages. It also linked every native Firebase SDK, even the ones an app never used, and on iOS linking an SDK
+is enough to activate it. That is why its settings could not reliably switch features off, and why App Check and
+Analytics behaved differently from what `CrossFirebaseSettings` promised.
 
-#### Visual Studio 2022 on Windows:
-If you encounter a build error, try to add the package via `dotnet add package Plugin.Firebase`, see [issue #69](https://github.com/TobiasBuchholz/Plugin.Firebase/issues/65) for more information.
+## Migrating
 
-## Setup
-- Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/README.md#basic-setup)
-- At `Platforms/Android/Resources/values` add the following line to your `strings.xml`:
-```
-<resources>
-    ...
-    <string name="com.google.firebase.crashlytics.mapping_file_id">none</string>
-    ...
-</resources>
-```
-- For Crashlytics troubleshooting, including Android resource setup and iOS `__mh_execute_header` setup, see the [Crashlytics documentation](crashlytics.md).
-- Add the following line of code to the place where your app gets bootstrapped:
+Reference the packages you actually use, then initialize Firebase with `Plugin.Firebase.Core` and call the per-feature
+setup you need.
+
+**Before**
+
 ```c#
-using Microsoft.Maui.ApplicationModel;
 using Plugin.Firebase.Bundled.Shared;
-
 #if IOS
 using Plugin.Firebase.Bundled.Platforms.iOS;
 #elif ANDROID
@@ -36,15 +28,7 @@ var settings = new CrossFirebaseSettings(
     isAnalyticsEnabled: true,
     isAuthEnabled: true,
     isCloudMessagingEnabled: true,
-    isDynamicLinksEnabled: true,
-    isFirestoreEnabled: true,
-    isFunctionsEnabled: true,
-    isRemoteConfigEnabled: true,
-    isStorageEnabled: true,
-    googleRequestIdToken: "YOUR_GOOGLE_WEB_CLIENT_ID.apps.googleusercontent.com") {
-    IsInstallationsEnabled = true,
-    IsPerformanceMonitoringEnabled = true
-};
+    isCrashlyticsEnabled: true);
 
 #if IOS
 CrossFirebase.Initialize(settings);
@@ -53,12 +37,61 @@ CrossFirebase.Initialize(activity, () => Platform.CurrentActivity, settings);
 #endif
 ```
 
-When `isAnalyticsEnabled` is `true`, the bundled package initializes Firebase Analytics automatically. Do not call `FirebaseAnalyticsImplementation.Initialize(activity)` separately when using this bundled initializer.
+**After**
 
-### Performance Monitoring collection
-The Firebase Performance Monitoring SDK can automatically collect app start, screen rendering, and network data when it is linked into an app. `CrossFirebaseSettings.IsPerformanceMonitoringEnabled` controls runtime collection for the bundled package, but privacy-sensitive apps should also use Firebase's documented Android manifest and iOS plist disable keys before initialization if collection must be disabled before app startup.
+```c#
+using Plugin.Firebase.Analytics;
+using Plugin.Firebase.AppCheck;
+using Plugin.Firebase.CloudMessaging;
+using Plugin.Firebase.Crashlytics;
+#if IOS
+using Plugin.Firebase.Core.Platforms.iOS;
+#elif ANDROID
+using Plugin.Firebase.Core.Platforms.Android;
+#endif
+
+// App Check must be configured before Firebase is initialized.
+CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
+
+#if IOS
+CrossFirebase.Initialize();
+FirebaseCloudMessagingImplementation.Initialize();
+#elif ANDROID
+CrossFirebase.Initialize(activity, () => Platform.CurrentActivity);
+FirebaseAnalyticsImplementation.Initialize(activity);
+#endif
+
+CrossFirebaseCrashlytics.Current.SetCrashlyticsCollectionEnabled(true);
+```
+
+## Settings and their replacements
+
+| `CrossFirebaseSettings` | Replacement |
+|---|---|
+| `appCheckOptions` | `CrossFirebaseAppCheck.Configure(options)` **before** `CrossFirebase.Initialize(...)`. See [app_check.md](app_check.md). |
+| `isAnalyticsEnabled` | Android: `FirebaseAnalyticsImplementation.Initialize(activity)` after initialization. Use `CrossFirebaseAnalytics.Current.IsAnalyticsCollectionEnabled` to control collection. iOS needs no initialization. See [analytics.md](analytics.md). |
+| `isCloudMessagingEnabled` | iOS: `FirebaseCloudMessagingImplementation.Initialize()` after initialization. Android needs the manifest and intent setup in [cloud_messaging.md](cloud_messaging.md), which the bundled package never did for you. |
+| `isCrashlyticsEnabled` | `CrossFirebaseCrashlytics.Current.SetCrashlyticsCollectionEnabled(value)` after initialization. **Read the note below.** |
+| `IsPerformanceMonitoringEnabled` | `CrossFirebasePerformanceMonitoring.Current.IsDataCollectionEnabled`. See [performance_monitoring.md](performance_monitoring.md). Never shipped in a bundled release. |
+| `isAuthEnabled`, `isFirestoreEnabled`, `isFunctionsEnabled`, `isRemoteConfigEnabled`, `isStorageEnabled`, `isDynamicLinksEnabled`, `IsInstallationsEnabled`, `googleRequestIdToken` | None. These flags were never read: referencing the package was what enabled the feature. |
+
+## Things to check after migrating
+
+- **Crashlytics collection is remembered.** `isCrashlyticsEnabled` defaulted to `false`, and the bundled initializer
+  applied it on every launch. Firebase persists that choice, so an app that never passed the flag has crash reporting
+  switched off on existing installs. Call `SetCrashlyticsCollectionEnabled(true)` explicitly to turn it back on.
+- **App Check on iOS.** Referencing `Plugin.Firebase.AppCheck` links the native SDK, which defaults to the DeviceCheck
+  provider. If you don't want App Check, call `CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled)` before
+  initialization, or drop the package reference.
+- **Android without a default app.** The bundled initializer skipped Analytics, Crashlytics and Performance setup when
+  no default Firebase app existed, usually a missing or mismatched `google-services.json`. Calling those APIs directly
+  will now surface the underlying error instead.
+- **Staying on 4.1.0–4.2.1 for now?** Those versions carry the App Check
+  ([#698](https://github.com/TobiasBuchholz/Plugin.Firebase/issues/698)) and Analytics
+  ([#701](https://github.com/TobiasBuchholz/Plugin.Firebase/issues/701)) behavior described above.
 
 ## Release notes
+- Deprecated: no further versions; 4.2.1 is the last release.
 - Version 4.2.1
   - Plugin.Firebase.Auth 5.0.1
 - Version 4.2.0

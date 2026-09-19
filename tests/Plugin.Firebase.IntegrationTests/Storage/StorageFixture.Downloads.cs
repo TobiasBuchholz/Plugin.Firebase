@@ -18,6 +18,7 @@ public sealed partial class StorageFixture
         await stream.CopyToAsync(contents);
 
         Assert.Equal(34, contents.Length);
+        Assert.Equal(await reference.GetBytesAsync(1 * 1024 * 1024), contents.ToArray());
     }
 
 
@@ -51,7 +52,11 @@ public sealed partial class StorageFixture
             .Current
             .GetReferenceFromPath("files_to_keep/text_1.txt");
 
-        await Assert.ThrowsAnyAsync<Exception>(() => reference.GetStreamAsync(1));
+        // The object is exactly 34 bytes, so the only difference between these calls is the size limit.
+        using var atLimit = await reference.GetStreamAsync(34);
+        Assert.Equal(34, atLimit.Length);
+
+        await Assert.ThrowsAnyAsync<Exception>(() => reference.GetStreamAsync(33));
     }
 
 

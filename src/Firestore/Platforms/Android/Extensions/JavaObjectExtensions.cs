@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Globalization;
 using Java.Util;
 using Android.Runtime;
 using AndroidX.Collection;
@@ -214,18 +215,9 @@ public static class JavaObjectExtensions
                     continue;
                 }
 
-                var value = @this[attribute.PropertyName];
-                if(value is null) {
-                    property.SetValue(instance, null);
-                } else if(value is Java.Lang.Object javaValue) {
-                    property.SetValue(instance, javaValue.ToObject(property.PropertyType));
-                } else if(property.PropertyType == typeof(float)) {
-                    property.SetValue(instance, Convert.ToSingle(value));
-                } else if((Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType) == typeof(int)) {
-                    property.SetValue(instance, Convert.ToInt32(value));
-                } else {
-                    property.SetValue(instance, value);
-                }
+                // values that aren't java peers arrive as CTS-mapped CLR types (e.g. long, double), so they still need
+                // to be narrowed to the declared property type; sharing the dictionary path's conversion keeps both identical
+                property.SetValue(instance, ConvertToObject(property.PropertyType, @this[attribute.PropertyName]));
             }
 
             var timestampAttributes = property.GetCustomAttributes(typeof(FirestoreServerTimestampAttribute), true);
@@ -253,7 +245,7 @@ public static class JavaObjectExtensions
         } else if(conversionType == typeof(string)) {
             return value is Java.Lang.ICharSequence charSequence
                 ? charSequence.ToString()
-                : value.ToString();
+                : Convert.ToString(value, CultureInfo.InvariantCulture);
         } else if(value is IDictionary dictionary) {
             return dictionary.ToDictionaryObject(targetType);
         } else if(value is Java.Lang.Object javaValue) {

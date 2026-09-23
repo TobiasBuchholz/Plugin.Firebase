@@ -17,25 +17,8 @@ public static class ListExtensions
 
         for(var i = 0; i < @this.Size(); i++) {
             var value = @this[i];
-            if(value is Java.Lang.Object javaValue) {
-                list.AddConvertedValue(javaValue.ToObject(targetType), targetType);
-            } else if(targetType == typeof(string)) {
-                list.AddConvertedValue(Convert.ToString(value), targetType);
-            } else if(targetType == typeof(int)) {
-                list.AddConvertedValue(Convert.ToInt32(value), targetType);
-            } else if(targetType == typeof(long)) {
-                list.AddConvertedValue(Convert.ToInt64(value), targetType);
-            } else if(targetType == typeof(float)) {
-                list.AddConvertedValue(Convert.ToSingle(value), targetType);
-            } else if(targetType == typeof(double)) {
-                list.AddConvertedValue(Convert.ToDouble(value), targetType);
-            } else if(targetType == typeof(decimal)) {
-                list.AddConvertedValue(Convert.ToDecimal(value), targetType);
-            } else if(targetType == typeof(bool)) {
-                list.AddConvertedValue(Convert.ToBoolean(value), targetType);
-            } else {
-                list.AddConvertedValue(value, targetType);
-            }
+            // CTS-mapped CLR values (e.g. long, double) are narrowed by the same conversion as dictionary and model reads
+            list.AddConvertedValue(value is Java.Lang.Object javaValue ? javaValue.ToObject(targetType) : value, targetType);
         }
         return list;
     }

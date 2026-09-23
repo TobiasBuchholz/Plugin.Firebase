@@ -56,12 +56,16 @@ CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
 #if IOS
 CrossFirebase.Initialize();
 FirebaseCloudMessagingImplementation.Initialize();
+CrossFirebaseCrashlytics.Current.SetCrashlyticsCollectionEnabled(true);
 #elif ANDROID
 CrossFirebase.Initialize(activity, () => Platform.CurrentActivity);
-FirebaseAnalyticsImplementation.Initialize(activity);
+// Like the bundled initializer, skip these when there is no default app (no matching google-services.json).
+// `out var _` is always a discard; inside OnCreate((activity, _) => ...) a bare `out _` would bind to the Bundle.
+if(CrossFirebase.TryGetDefaultApp(out var _)) {
+    FirebaseAnalyticsImplementation.Initialize(activity);
+    CrossFirebaseCrashlytics.Current.SetCrashlyticsCollectionEnabled(true);
+}
 #endif
-
-CrossFirebaseCrashlytics.Current.SetCrashlyticsCollectionEnabled(true);
 ```
 
 ## Settings and their replacements
@@ -83,9 +87,9 @@ CrossFirebaseCrashlytics.Current.SetCrashlyticsCollectionEnabled(true);
 - **App Check on iOS.** Referencing `Plugin.Firebase.AppCheck` links the native SDK, which defaults to the DeviceCheck
   provider. If you don't want App Check, call `CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled)` before
   initialization, or drop the package reference.
-- **Android without a default app.** The bundled initializer skipped Analytics, Crashlytics and Performance setup when
-  no default Firebase app existed, usually a missing or mismatched `google-services.json`. Calling those APIs directly
-  will now surface the underlying error instead.
+- **Android without a default app.** The bundled initializer skipped Analytics and Crashlytics setup when no default
+  Firebase app existed, usually because of a missing or mismatched `google-services.json`. If your app can start
+  without one, keep the `TryGetDefaultApp` check from the snippet above. Without it, those calls throw instead.
 - **Staying on 4.1.0–4.2.1 for now?** Those versions carry the App Check
   ([#698](https://github.com/TobiasBuchholz/Plugin.Firebase/issues/698)) and Analytics
   ([#701](https://github.com/TobiasBuchholz/Plugin.Firebase/issues/701)) behavior described above.

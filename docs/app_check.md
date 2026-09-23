@@ -23,7 +23,7 @@ CrossFirebase.Initialize(activity, activityProvider);      // hook fires here
 #endif
 ```
 
-> **Note:** Configure App Check before `CrossFirebase.Initialize()`. On iOS the provider factory has to be installed before Firebase configures, so a later `Configure()` call has no effect until the next initialization. On Android a later call still installs the provider, but switching back to `Disabled` afterwards does not remove one that is already installed.
+> **Note:** Configure App Check before `CrossFirebase.Initialize()`. On iOS the provider factory has to be installed before Firebase configures, so a later `Configure()` call has no effect until the next initialization. On Android a later call installs its provider only if no provider was requested earlier. It does not replace one, and switching to `Disabled` does not remove one that is already installed.
 
 ### Providers
 | Provider | Platforms | Typical usage |

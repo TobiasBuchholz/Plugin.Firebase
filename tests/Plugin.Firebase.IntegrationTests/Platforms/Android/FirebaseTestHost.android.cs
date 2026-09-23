@@ -21,7 +21,8 @@ internal static partial class FirebaseTestHost
                 () => Platform.CurrentActivity!,
                 IntegrationTestEnvironment.UsesEmulatorBackend ? CreateEmulatorFirebaseOptions() : null);
 
-            if(CoreCrossFirebase.TryGetDefaultApp(out var defaultApp) && defaultApp != null) {
+            // `out var _` is always a discard; a bare `out _` would bind to the lambda's Bundle parameter.
+            if(CoreCrossFirebase.TryGetDefaultApp(out var _)) {
                 if(IntegrationTestEnvironment.UsesRealBackend) {
                     // Android Analytics throws until it is initialized with an activity.
                     FirebaseAnalyticsImplementation.Initialize(activity);

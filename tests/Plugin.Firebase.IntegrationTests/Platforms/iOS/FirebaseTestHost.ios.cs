@@ -1,6 +1,7 @@
 using Foundation;
 using Microsoft.Maui.LifecycleEvents;
 using Plugin.Firebase.CloudMessaging;
+using Plugin.Firebase.PerformanceMonitoring;
 using CoreCrossFirebase = Plugin.Firebase.Core.Platforms.iOS.CrossFirebase;
 using NativeFirebaseOptions = Firebase.Core.Options;
 
@@ -16,6 +17,9 @@ internal static partial class FirebaseTestHost
             }
 
             ConfigureAppCheckBeforeInitialize();
+            // The native SDK persists this flag and only honors a disable before Firebase configures, so enable it on
+            // every launch. A disable left behind by an interrupted run would otherwise carry into the next one.
+            CrossFirebasePerformanceMonitoring.Current.IsInstrumentationEnabled = true;
             CoreCrossFirebase.Initialize(
                 name: null,
                 firebaseOptions: IntegrationTestEnvironment.UsesRealBackend

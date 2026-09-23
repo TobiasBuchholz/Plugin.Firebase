@@ -34,7 +34,8 @@ internal static partial class FirebaseTestHost
 
     /// <summary>
     /// Applies the collection settings the suite expects once Firebase is initialized. Crash reports are only sent on
-    /// the real backend, and Performance Monitoring stays on so its fixture can round-trip the flag.
+    /// the real backend. Performance collection is switched on explicitly, as the bundled host did: the flag persists,
+    /// so this clears a disable left by an interrupted run, and the real-backend tests send their traces.
     /// </summary>
     private static void ConfigureCollectionAfterInitialize()
     {

@@ -46,16 +46,20 @@ public sealed class PerformanceMonitoringFixture
 
         // The iOS test host enables instrumentation before Firebase configures, so this run is instrumented.
         Assert.True(sut.IsInstrumentationEnabled);
+        PerformanceAssertions.PersistedInstrumentationEnabled(true);
 
         try {
             // A disable after Firebase configures is persisted for the next app start. The running app stays
             // instrumented, and the native getter keeps reporting that.
             sut.IsInstrumentationEnabled = false;
+            PerformanceAssertions.PersistedInstrumentationEnabled(false);
             Assert.True(sut.IsInstrumentationEnabled);
         }
         finally {
             sut.IsInstrumentationEnabled = true;
         }
+
+        PerformanceAssertions.PersistedInstrumentationEnabled(true);
     }
 
     [AndroidFact]

@@ -79,6 +79,8 @@ var data = snapshot.Data;
 var name = data["name"] as string;
 ```
 
+A snapshot converts its data the first time `Data` is read. Later reads of the same snapshot return that same instance, so changes you make to it stay visible through the snapshot, but they are not written to Firestore. If the conversion fails, every read of `Data` throws the same exception. Query snapshots likewise return the same document snapshots each time you enumerate `Documents`, `DocumentChanges` or `GetDocumentChanges(...)`.
+
 ### Further information
 
 Take a look at the [documentation](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents/blob/master/docs/Firebase/CloudFirestore/GettingStarted.md) for the AdamE.Firebase.iOS.CloudFirestore packages, because Plugin.Firebase's code is abstracted but still very similar.

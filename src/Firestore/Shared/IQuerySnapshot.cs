@@ -10,6 +10,10 @@ public interface IQuerySnapshot<T>
     /// Returns an enumerable of the documents that changed since the last snapshot. If this is the first snapshot, all documents will be
     /// in the list as Added changes.
     /// </summary>
+    /// <remarks>
+    /// Calls with the same <paramref name="includeMetadataChanges"/> value return the same <c>DocumentChange</c> instances.
+    /// Passing <c>false</c> returns the same instances as <see cref="DocumentChanges"/>.
+    /// </remarks>
     /// <param name="includeMetadataChanges">
     /// Whether metadata-only changes (i.e. only <c>IDocumentSnapshot.Metadata</c> changed) should be included.
     /// </param>
@@ -18,6 +22,10 @@ public interface IQuerySnapshot<T>
     /// <summary>
     /// An enumerable of the <c>IDocumentSnapshots</c> that make up this document set.
     /// </summary>
+    /// <remarks>
+    /// Every read returns the same <c>IDocumentSnapshot</c> instances. They are separate from the snapshots in
+    /// <see cref="DocumentChanges"/>, so a change made through one snapshot's <c>Data</c> isn't visible through the other.
+    /// </remarks>
     IEnumerable<IDocumentSnapshot<T>> Documents { get; }
 
     /// <summary>
@@ -29,6 +37,9 @@ public interface IQuerySnapshot<T>
     /// An enumerable of the documents that changed since the last snapshot. If this is the first snapshot, all documents will be in the
     /// list as Added changes.
     /// </summary>
+    /// <remarks>
+    /// Every read returns the same <c>DocumentChange</c> instances as <c>GetDocumentChanges(false)</c>.
+    /// </remarks>
     IEnumerable<DocumentChange<T>> DocumentChanges { get; }
 
     /// <summary>

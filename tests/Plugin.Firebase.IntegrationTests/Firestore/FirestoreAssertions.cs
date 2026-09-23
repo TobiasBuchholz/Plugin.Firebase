@@ -35,6 +35,17 @@ internal static class FirestoreAssertions
         Assert.NotEmpty(snapshot.GetDocumentChanges(includeMetadataChanges: false));
     }
 
+    public static void SameDocumentChanges<T>(IReadOnlyList<DocumentChange<T>> expected, IEnumerable<DocumentChange<T>> actual)
+        where T : class
+    {
+        var actualChanges = actual.ToList();
+        Assert.Equal(expected.Count, actualChanges.Count);
+        for(var i = 0; i < expected.Count; i++) {
+            Assert.Same(expected[i], actualChanges[i]);
+            Assert.Same(expected[i].DocumentSnapshot.Data, actualChanges[i].DocumentSnapshot.Data);
+        }
+    }
+
     public static void WrittenDocument<T>(
         IDocumentSnapshot<T> snapshot,
         string expectedId,

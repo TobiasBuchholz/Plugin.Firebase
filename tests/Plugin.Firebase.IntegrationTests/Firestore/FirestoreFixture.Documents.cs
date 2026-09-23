@@ -101,6 +101,31 @@ public sealed partial class FirestoreFixture
     }
 
     [Fact]
+    public async Task increments_integer_field_values_beyond_double_precision()
+    {
+        var sut = CrossFirebaseFirestore.Current;
+        var document = GetTestingDocument(sut, "integer-increment-precision");
+        // 2^53 + 1 is the smallest positive long a double can't represent; long.MaxValue - 1 rounds up to 2^63 as a double
+        const long beyondDoublePrecision = 9_007_199_254_740_993L;
+        const long belowMaxValue = long.MaxValue - 1;
+        await document.SetDataAsync(new Dictionary<object, object?> {
+            { "positive", 0L },
+            { "negative", 0L },
+            { "below_max", 0L }
+        });
+
+        await document.UpdateDataAsync(
+            ("positive", FieldValue.IntegerIncrement(beyondDoublePrecision)),
+            ("negative", FieldValue.IntegerIncrement(-beyondDoublePrecision)),
+            ("below_max", FieldValue.IntegerIncrement(belowMaxValue)));
+
+        var data = (await document.GetDocumentSnapshotAsync<Dictionary<string, long>>()).Data!;
+        Assert.Equal(beyondDoublePrecision, data["positive"]);
+        Assert.Equal(-beyondDoublePrecision, data["negative"]);
+        Assert.Equal(belowMaxValue, data["below_max"]);
+    }
+
+    [Fact]
     public async Task runs_transaction()
     {
         var sut = CrossFirebaseFirestore.Current;

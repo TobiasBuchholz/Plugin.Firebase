@@ -130,9 +130,14 @@ public static class MauiProgram
         var modeString = Preferences.Get(PreferenceKeys.AppCheckMode, "Debug");
         return modeString switch {
             "Disabled" => AppCheckOptions.Disabled,
+#if IOS
             "Device Check" => AppCheckOptions.DeviceCheck,
             "App Attest" => AppCheckOptions.AppAttest,
-            _ => AppCheckOptions.Debug // Default to Debug
+#elif ANDROID
+            "Play Integrity" => AppCheckOptions.PlayIntegrity,
+#endif
+            // Default to Debug, also for a saved mode this platform doesn't support.
+            _ => AppCheckOptions.Debug
         };
     }
 }

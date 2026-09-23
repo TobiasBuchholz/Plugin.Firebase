@@ -20,9 +20,9 @@ public interface IFirebasePerformanceMonitoring : IDisposable
     /// iOS only. The Android SDK has no runtime instrumentation switch, so both the getter and the setter throw
     /// <see cref="NotSupportedException"/> there; use <c>IsDataCollectionEnabled</c> or the manifest keys instead.
     /// <para>
-    /// The value is persisted and overrides the <c>Info.plist</c> keys. Setting it only takes effect immediately when
-    /// it happens before <c>CrossFirebase.Initialize()</c>; otherwise it applies from the next app start, and the
-    /// getter keeps reporting the value the running app started with.
+    /// The value is persisted and overrides the <c>Info.plist</c> keys. Enabling it takes effect immediately. Disabling
+    /// it only takes effect immediately before <c>CrossFirebase.Initialize()</c>; after that it applies from the next
+    /// app start, and the getter keeps returning <c>true</c> while instrumentation is still running.
     /// </para>
     /// </remarks>
     bool IsInstrumentationEnabled { get; set; }

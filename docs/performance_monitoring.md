@@ -13,7 +13,11 @@ Firebase [Performance Monitoring](https://firebase.google.com/docs/perf-mon) hel
 - Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/README.md#basic-setup).
 - Use Firebase's official [Performance Monitoring setup docs](https://firebase.google.com/docs/perf-mon/get-started) for Firebase Console and platform configuration.
 - The native Firebase Performance Monitoring SDK starts automatic collection as soon as it is linked into the app. To disable it before startup, set `firebase_performance_collection_enabled` to `false` (runtime re-enabling stays possible) or `firebase_performance_collection_deactivated` to `true` (it does not) in `AndroidManifest.xml` or `Info.plist`. See Firebase's [disable guide](https://firebase.google.com/docs/perf-mon/disable-sdk).
-- At runtime, `IsDataCollectionEnabled` controls custom traces and metrics. On iOS, `IsInstrumentationEnabled` controls the automatic app start, screen rendering and network traces. Set it before `CrossFirebase.Initialize()` to take effect in the current session; otherwise the native SDK persists it and applies it from the next app start, and the getter keeps reporting the value this session started with. Android has no runtime instrumentation switch and throws `NotSupportedException`; use the manifest keys above instead.
+- At runtime, `IsDataCollectionEnabled` turns all Performance Monitoring data collection on or off, automatic traces included, on both platforms.
+- On iOS, `IsInstrumentationEnabled` also controls whether the SDK instruments the app for the automatic app start, screen rendering and network traces. The native SDK persists the value:
+  - Enabling it takes effect immediately.
+  - Disabling it takes effect immediately only when it happens before `CrossFirebase.Initialize()`. Otherwise it applies from the next app start, and the getter keeps returning `true` while instrumentation is still running.
+- Android has no runtime instrumentation switch: `IsInstrumentationEnabled` throws `NotSupportedException` there. Use `IsDataCollectionEnabled` or the manifest keys above instead.
 - On Android, `Plugin.Firebase.PerformanceMonitoring` uses `Xamarin.Firebase.Perf` v121.0.0, which maps to Firebase Android BoM 33.0.0.
 
 ## Usage
@@ -55,5 +59,6 @@ Since code should be documenting itself you can also take a look at the followin
 ## Release notes
 - Next
   - Added `IsInstrumentationEnabled` to control the native automatic instrumentation on iOS.
+  - Breaking for custom implementations: `IFirebasePerformanceMonitoring` gained this member, so hand-written implementations (for example test fakes) have to add it.
 - Version 4.0.0
   - Initial Firebase Performance Monitoring support for collection control, custom code traces, and custom HTTP metrics.

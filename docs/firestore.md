@@ -3,14 +3,14 @@
 Cloud Firestore is a flexible, scalable database for mobile, web, and server development from Firebase and Google Cloud. Like Firebase Realtime Database, it keeps your data in sync across client apps through realtime listeners and offers offline support for mobile and web so you can build responsive apps that work regardless of network latency or Internet connectivity. Cloud Firestore also offers seamless integration with other Firebase and Google Cloud products, including Cloud Functions.
 
 ## Installation
-### Nuget
-[![NuGet](https://img.shields.io/nuget/v/plugin.firebase.firestore.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Firestore/)
+### NuGet
+[![NuGet](https://img.shields.io/nuget/v/Plugin.Firebase.Firestore.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Firestore/)
 
 > Install-Package Plugin.Firebase.Firestore
 
 ## Setup
 
-- Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/README.md#basic-setup)
+- Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/README.md#basic-setup)
 - Enable Cloud Firestore at your project in the [Firebase Console](https://console.firebase.google.com/)
 
 ## Usage
@@ -84,15 +84,21 @@ var name = data["name"] as string;
 Take a look at the [documentation](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents/blob/master/docs/Firebase/CloudFirestore/GettingStarted.md) for the AdamE.Firebase.iOS.CloudFirestore packages, because Plugin.Firebase's code is abstracted but still very similar.
 
 Since code should be documenting itself you can also take a look at the following classes:
-- [src/.../IFirebaseFirestore.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Firestore/IFirebaseFirestore.cs)
-- [src/.../ICollectionReference.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Firestore/ICollectionReference.cs)
-- [src/.../IDocumentReference.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Firestore/IDocumentReference.cs)
-- [src/.../IQuery.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Firestore/IQuery.cs)
-- [src/.../ITransaction.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Firestore/ITransaction.cs)
-- [src/.../IWriteBatch.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Firestore/IWriteBatch.cs)
-- [tests/.../FirestoreFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Firestore/FirestoreFixture.cs)
+- [src/.../IFirebaseFirestore.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/src/Firestore/Shared/IFirebaseFirestore.cs)
+- [src/.../ICollectionReference.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/src/Firestore/Shared/ICollectionReference.cs)
+- [src/.../IDocumentReference.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/src/Firestore/Shared/IDocumentReference.cs)
+- [src/.../IQuery.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/src/Firestore/Shared/IQuery.cs)
+- [src/.../ITransaction.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/src/Firestore/Shared/ITransaction.cs)
+- [src/.../IWriteBatch.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/src/Firestore/Shared/IWriteBatch.cs)
+- [tests/.../FirestoreFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/tests/Plugin.Firebase.IntegrationTests/Firestore/FirestoreFixture.cs)
 
 ## Release notes
+
+- Next
+  - Target .NET 10 and raise the minimum Firebase iOS binding version to 12.7; the minimum platform versions remain iOS 15 and Android 23.
+  - Correct nullable contracts across snapshots, references, queries, transactions, batches, sentinels, listeners, and data values. `FirestoreSettings` now requires an explicit `host` argument.
+  - Support raw dictionary reads and fix cross-platform conversion of nulls, nested dictionaries, typed collections, enum dictionaries, GeoPoint lists, numeric sentinels, and `SetData` payloads.
+  - Full trimming and Native AOT remain unsupported because POCO mapping relies on reflection; the package is explicitly marked non-trimmable.
 - Version 3.1.3
   - Added the handling of a FieldValue into a Hashmap correctly + Prevent crashing when a list on the server has a null as an entry (PR #437)
 - Version 3.1.2

@@ -3,13 +3,15 @@
 Firebase Installations provides a stable app installation identifier, auth tokens for the installation, and a client API for deleting the current installation.
 
 ## Installation
-### Nuget
-[![NuGet](https://img.shields.io/nuget/v/plugin.firebase.installations.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Installations/)
+
+### NuGet
+
+[![NuGet](https://img.shields.io/nuget/v/Plugin.Firebase.Installations.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Installations/)
 
 > Install-Package Plugin.Firebase.Installations
 
 ## Setup
-- Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/README.md#basic-setup).
+- Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/README.md#basic-setup).
 - No service-specific initialization is required beyond `CrossFirebase.Initialize(...)`.
 
 ```c#
@@ -31,6 +33,13 @@ await CrossFirebaseInstallations.Current.DeleteAsync();
 Deleting an installation can affect Firebase services that identify app instances by Firebase installation ID, including Cloud Messaging, Remote Config, Analytics, A/B Testing, and In-App Messaging. Use it only for explicit user or test flows where resetting the installation is intended.
 
 ## Further reading
+
 - [Manage Firebase installations](https://firebase.google.com/docs/projects/manage-installations)
 - [Android FirebaseInstallations reference](https://firebase.google.com/docs/reference/android/com/google/firebase/installations/FirebaseInstallations)
 - [Apple Installations reference](https://firebase.google.com/docs/reference/swift/firebaseinstallations/api/reference/Classes/Installations)
+
+## Release notes
+
+- Next
+  - Initial public release targeting .NET 10 with Firebase iOS 12.7, iOS 15, and Android 23 as its initial baselines.
+  - Add installation ID retrieval, auth-token retrieval and forced refresh, and installation deletion.

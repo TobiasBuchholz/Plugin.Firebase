@@ -3,7 +3,7 @@ This package bundles all features into a single nuget package for people who wer
 
 ## Installation
 ### NuGet
-[![NuGet](https://img.shields.io/nuget/v/plugin.firebase.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase/)
+[![NuGet](https://img.shields.io/nuget/v/Plugin.Firebase.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase/)
 
 > Install-Package Plugin.Firebase
 
@@ -11,7 +11,7 @@ This package bundles all features into a single nuget package for people who wer
 If you encounter a build error, try to add the package via `dotnet add package Plugin.Firebase`, see [issue #69](https://github.com/TobiasBuchholz/Plugin.Firebase/issues/65) for more information.
 
 ## Setup
-- Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/README.md#basic-setup)
+- Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/README.md#basic-setup)
 - At `Platforms/Android/Resources/values` add the following line to your `strings.xml`:
 ```
 <resources>
@@ -59,6 +59,13 @@ When `isAnalyticsEnabled` is `true`, the bundled package initializes Firebase An
 The Firebase Performance Monitoring SDK can automatically collect app start, screen rendering, and network data when it is linked into an app. `CrossFirebaseSettings.IsPerformanceMonitoringEnabled` controls runtime collection for the bundled package, but privacy-sensitive apps should also use Firebase's documented Android manifest and iOS plist disable keys before initialization if collection must be disabled before app startup.
 
 ## Release notes
+
+- Next
+  - Support .NET 10 only; MAUI consumers must use .NET MAUI 10.
+  - Raise the minimum Firebase iOS binding version to 12.7 while retaining iOS 15 and Android 23 as the minimum platform versions.
+  - Bundle Plugin.Firebase.Installations and Plugin.Firebase.PerformanceMonitoring.
+  - Add `CrossFirebaseSettings.IsInstallationsEnabled` and `CrossFirebaseSettings.IsPerformanceMonitoringEnabled` to control bundled initialization and Performance Monitoring collection.
+  - Review the next-release migration guidance for [Auth](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/auth.md), [Cloud Messaging](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/cloud_messaging.md), [Firestore](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/firestore.md), [Functions](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/functions.md), and [Storage](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/storage.md).
 - Version 4.2.1
   - Plugin.Firebase.Auth 5.0.1
 - Version 4.2.0

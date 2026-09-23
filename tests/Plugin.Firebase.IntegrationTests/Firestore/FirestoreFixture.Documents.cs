@@ -159,6 +159,27 @@ public sealed partial class FirestoreFixture
     }
 
     [Fact]
+    public async Task does_not_commit_transaction_when_update_function_throws()
+    {
+        var sut = CrossFirebaseFirestore.Current;
+        var charmander = PokemonFactory.CreateCharmander();
+        var document = GetTestingDocument(sut, "4");
+        await document.SetDataAsync(charmander);
+
+        var exception = await Record.ExceptionAsync(() => sut.RunTransactionAsync<string?>(transaction => {
+            transaction.UpdateData(document, (Pokemon.SightingCountField, charmander.SightingCount + 100));
+            throw new InvalidOperationException("transaction aborted by update function");
+        }));
+
+        // iOS wraps the failure in FirebaseException and Android surfaces the native task's RuntimeException;
+        // both keep the exception thrown by the update function as the inner exception.
+        Assert.NotNull(exception);
+        var original = Assert.IsType<InvalidOperationException>(exception.InnerException);
+        Assert.Equal("transaction aborted by update function", original.Message);
+        Assert.Equal(charmander, (await document.GetDocumentSnapshotAsync<Pokemon>()).Data);
+    }
+
+    [Fact]
     public async Task writes_data_as_batch()
     {
         var sut = CrossFirebaseFirestore.Current;

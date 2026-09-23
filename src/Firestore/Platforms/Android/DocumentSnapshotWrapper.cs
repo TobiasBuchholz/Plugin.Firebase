@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Firebase.Firestore;
 using Plugin.Firebase.Firestore.Platforms.Android.Extensions;
 
@@ -5,20 +6,23 @@ namespace Plugin.Firebase.Firestore.Platforms.Android;
 
 public sealed class DocumentSnapshotWrapper<T> : DocumentSnapshotWrapper, IDocumentSnapshot<T>
 {
-    private readonly Lazy<T?> _data;
+    // set on the first successful read; no lock is held while the model is built, and a failed conversion isn't
+    // stored, so the next read converts again
+    private StrongBox<T?>? _data;
 
     public DocumentSnapshotWrapper(DocumentSnapshot documentSnapshot)
         : base(documentSnapshot)
     {
-        _data = new Lazy<T?>(ConvertData);
     }
 
-    public new T? Data => _data.Value;
+    public new T? Data => (Volatile.Read(ref _data) ?? ConvertData()).Value;
 
-    private T? ConvertData()
+    private StrongBox<T?> ConvertData()
     {
         var data = Wrapped.Data;
-        return data == null ? default(T) : data.Cast<T>(Wrapped.Id);
+        var converted = new StrongBox<T?>(data == null ? default(T) : data.Cast<T>(Wrapped.Id));
+        // when two threads convert at once, both return the instance that was stored first
+        return Interlocked.CompareExchange(ref _data, converted, null) ?? converted;
     }
 }
 

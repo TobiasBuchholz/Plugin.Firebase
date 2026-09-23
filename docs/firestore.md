@@ -79,7 +79,7 @@ var data = snapshot.Data;
 var name = data["name"] as string;
 ```
 
-A snapshot converts its data the first time `Data` is read. Later reads of the same snapshot return that same instance, so changes you make to it stay visible through the snapshot, but they are not written to Firestore. If the conversion fails, every read of `Data` throws the same exception. Query snapshots likewise return the same document snapshots each time you enumerate `Documents`, `DocumentChanges` or `GetDocumentChanges(...)`.
+A snapshot converts its data the first time `Data` is read. For a class model, later reads of the same snapshot return that same instance, so changes you make to it stay visible through the snapshot, but they are not written to Firestore. A failed conversion isn't kept, so the next read of `Data` tries again. Query snapshots likewise return the same document snapshots each time you enumerate `Documents`, `DocumentChanges` or `GetDocumentChanges(...)`, and a change for an added or modified document uses the same snapshot as `Documents`.
 
 ### Further information
 

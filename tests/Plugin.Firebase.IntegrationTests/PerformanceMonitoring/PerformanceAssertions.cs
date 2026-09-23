@@ -13,6 +13,20 @@ internal static class PerformanceAssertions
         Assert.Equal(expectedValue, monitoring.IsDataCollectionEnabled);
     }
 
+    public static void PersistedInstrumentationEnabled(bool expectedValue)
+    {
+#if IOS
+        // FPRConfigurations persists the flag in the standard user defaults under this key, misspelled upstream. The
+        // key is internal to the SDK, so a rename fails here instead of leaving the setter unchecked.
+        const string key = "com.firebase.performanceInsrumentationEnabled";
+        var value = Foundation.NSUserDefaults.StandardUserDefaults[key] as Foundation.NSNumber;
+        Assert.True(value != null, $"The native SDK no longer persists instrumentation under '{key}'.");
+        Assert.Equal(expectedValue, value!.BoolValue);
+#else
+        throw new PlatformNotSupportedException();
+#endif
+    }
+
     public static void TraceName(IFirebasePerformanceTrace trace, string expectedName)
     {
         Assert.Equal(expectedName, trace.Name);

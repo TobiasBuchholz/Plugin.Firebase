@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!--
+        Restores Crashlytics and Performance Monitoring into one package graph, the way an app that references both
+        packages does. scripts/validate-crashlytics-compatibility.sh builds it once per Crashlytics version it checks;
+        the version properties it passes flow to the referenced projects as global properties.
+    -->
+    <PropertyGroup>
+        <TargetFramework>net10.0-android</TargetFramework>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\Crashlytics\Crashlytics.csproj" />
+        <ProjectReference Include="..\..\src\PerformanceMonitoring\PerformanceMonitoring.csproj" />
+    </ItemGroup>
+
+</Project>

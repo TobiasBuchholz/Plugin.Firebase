@@ -1,7 +1,8 @@
 using Microsoft.Maui.LifecycleEvents;
+using Plugin.Firebase.Analytics;
+using CoreCrossFirebase = Plugin.Firebase.Core.Platforms.Android.CrossFirebase;
 using NativeFirebaseApp = Firebase.FirebaseApp;
 using NativeFirebaseOptions = Firebase.FirebaseOptions;
-using PlatformCrossFirebase = Plugin.Firebase.Bundled.Platforms.Android.CrossFirebase;
 
 namespace Plugin.Firebase.IntegrationTests;
 
@@ -14,11 +15,22 @@ internal static partial class FirebaseTestHost
                 DeleteDefaultFirebaseAppIfInitialized();
             }
 
-            PlatformCrossFirebase.Initialize(
+            ConfigureAppCheckBeforeInitialize();
+            CoreCrossFirebase.Initialize(
                 activity,
                 () => Platform.CurrentActivity!,
-                CreateCrossFirebaseSettings(),
                 IntegrationTestEnvironment.UsesEmulatorBackend ? CreateEmulatorFirebaseOptions() : null);
+
+            // `out var _` is always a discard; a bare `out _` would bind to the lambda's Bundle parameter.
+            if(CoreCrossFirebase.TryGetDefaultApp(out var _)) {
+                if(IntegrationTestEnvironment.UsesRealBackend) {
+                    // Android Analytics throws until it is initialized with an activity.
+                    FirebaseAnalyticsImplementation.Initialize(activity);
+                }
+
+                ConfigureCollectionAfterInitialize();
+            }
+
             ConfigureEmulatorsIfRequested();
         }));
     }

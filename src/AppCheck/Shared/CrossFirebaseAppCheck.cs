@@ -40,6 +40,13 @@ public sealed class CrossFirebaseAppCheck
     /// Configures Firebase AppCheck with the specified options.
     /// </summary>
     /// <param name="options">The AppCheck options to apply.</param>
+    /// <exception cref="NotSupportedException">
+    /// On Android, <paramref name="options"/> selects a provider that Android does not support.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// On Android, <paramref name="options"/> is <see cref="AppCheckOptions.Disabled"/> while a provider factory is
+    /// installed on the default Firebase app. The native SDK cannot remove an installed provider factory.
+    /// </exception>
     public static void Configure(AppCheckOptions options)
     {
         Current.Configure(options);
@@ -61,6 +68,11 @@ public sealed class CrossFirebaseAppCheck
     /// <summary>
     /// Dispose of everything 
     /// </summary>
+    /// <remarks>
+    /// On Android, the configured provider is kept, because it belongs to the default Firebase app and an installed
+    /// provider factory cannot be removed. To drop a provider before the first <c>CrossFirebase.Initialize()</c>,
+    /// configure <see cref="AppCheckOptions.Disabled"/> instead.
+    /// </remarks>
     public static void Dispose()
     {
         if(_implementation != null && _implementation.IsValueCreated) {

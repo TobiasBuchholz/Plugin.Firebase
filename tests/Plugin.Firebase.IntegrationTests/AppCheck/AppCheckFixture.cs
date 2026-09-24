@@ -17,7 +17,7 @@ namespace Plugin.Firebase.IntegrationTests.AppCheck
             Assert.Throws<ArgumentNullException>(() => CrossFirebaseAppCheck.Configure(null!));
         }
 
-        [Fact]
+        [IosFact]
         public void transitions_between_disabled_and_debug_providers()
         {
             try {
@@ -30,25 +30,64 @@ namespace Plugin.Firebase.IntegrationTests.AppCheck
             }
         }
 
+        [AndroidFact]
+        public void installs_each_provider_change_after_initialization_on_android()
+        {
+            try {
+                CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
+                AppCheckAssertions.InstalledAndroidProviderFactoryIs(AppCheckProviderType.Debug);
+
+                CrossFirebaseAppCheck.Configure(AppCheckOptions.PlayIntegrity);
+                AppCheckAssertions.InstalledAndroidProviderFactoryIs(AppCheckProviderType.PlayIntegrity);
+            }
+            finally {
+                // Android cannot remove a provider factory, so leave Debug installed for the rest of the run.
+                CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
+            }
+
+            AppCheckAssertions.InstalledAndroidProviderFactoryIs(AppCheckProviderType.Debug);
+        }
+
+        [AndroidFact]
+        public void rejects_disabling_after_a_provider_factory_is_installed_on_android()
+        {
+            CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
+
+            Assert.Throws<InvalidOperationException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled));
+            AppCheckAssertions.InstalledAndroidProviderFactoryIs(AppCheckProviderType.Debug);
+        }
+
+        [AndroidFact]
+        public void keeps_the_installed_provider_after_dispose_on_android()
+        {
+            CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
+
+            CrossFirebaseAppCheck.Dispose();
+
+            AppCheckAssertions.InstalledAndroidProviderFactoryIs(AppCheckProviderType.Debug);
+            Assert.Throws<InvalidOperationException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled));
+        }
+
         [Fact]
         public void covers_platform_specific_unsupported_provider_behavior()
         {
-            try {
-                if(OperatingSystem.IsAndroid()) {
-                    Assert.Throws<NotSupportedException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.DeviceCheck));
-                    Assert.Throws<NotSupportedException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.AppAttest));
-                }
+            if(OperatingSystem.IsAndroid()) {
+                Assert.Throws<NotSupportedException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.DeviceCheck));
+                Assert.Throws<NotSupportedException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.AppAttest));
+            }
 
-                if(OperatingSystem.IsIOS()) {
+            if(OperatingSystem.IsIOS()) {
+                try {
                     CrossFirebaseAppCheck.Configure(AppCheckOptions.PlayIntegrity);
                 }
-            }
-            finally {
-                CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled);
+                finally {
+                    CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled);
+                }
             }
         }
 
-        [EmulatorBackendFact]
+        // iOS only: Android cannot return to Disabled once another test in the run has installed a provider.
+        [EmulatorBackendIosFact]
         public async Task disabled_app_check_does_not_break_auth_or_functions_on_emulator()
         {
             var auth = CrossFirebaseAuth.Current;

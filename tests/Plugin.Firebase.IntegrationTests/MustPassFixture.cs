@@ -31,16 +31,17 @@ public class MustPassFixture
         Assert.True(CrossFirebaseStorage.IsSupported);
         Assert.True(CrossFirebaseRemoteConfig.IsSupported);
         Assert.True(CrossFirebaseAppCheck.IsSupported);
-        CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled);
 
         if(OperatingSystem.IsAndroid()) {
             Assert.Throws<NotSupportedException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.DeviceCheck));
             Assert.Throws<NotSupportedException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.AppAttest));
-            CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
+            // Android cannot remove a provider factory, so finish on Debug for the rest of the run.
             CrossFirebaseAppCheck.Configure(AppCheckOptions.PlayIntegrity);
+            CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
         }
 
         if(OperatingSystem.IsIOS()) {
+            CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled);
             CrossFirebaseAppCheck.Configure(AppCheckOptions.PlayIntegrity);
             CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
             CrossFirebaseAppCheck.Configure(AppCheckOptions.DeviceCheck);

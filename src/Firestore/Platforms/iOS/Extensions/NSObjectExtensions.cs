@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Diagnostics;
+using System.Globalization;
 using Firebase.CloudFirestore;
 using Firebase.Core;
 using Plugin.Firebase.Core.Platforms.iOS.Extensions;
@@ -163,7 +164,7 @@ public static class NSObjectExtensions
             case TypeCode.Single:
             case TypeCode.Double:
             case TypeCode.Decimal:
-                return Convert.ChangeType(@this.ToConversionSource(), conversionType);
+                return Convert.ChangeType(@this.ToConversionSource(), conversionType, CultureInfo.InvariantCulture);
             default:
                 return null;
         }
@@ -171,7 +172,7 @@ public static class NSObjectExtensions
 
     /// <summary>
     /// Gets the stored value in its widest .NET representation, so that
-    /// <see cref="Convert.ChangeType(object, Type)"/> range checks the target conversion
+    /// <see cref="Convert.ChangeType(object, Type, IFormatProvider)"/> range checks the target conversion
     /// instead of the NSNumber accessors silently truncating it.
     /// </summary>
     /// <remarks>

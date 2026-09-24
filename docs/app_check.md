@@ -23,7 +23,7 @@ CrossFirebase.Initialize(activity, activityProvider);      // hook fires here
 #endif
 ```
 
-> **Note:** Calling `Configure()` _after_ `CrossFirebase.Initialize()` also works — the hook detects that initialization already happened and fires immediately. But calling it before is the recommended pattern because it is consistent across platforms and avoids a window where Firebase is alive without a provider.
+> **Note:** On Android, calling `Configure()` _after_ `CrossFirebase.Initialize()` also works: the provider factory is installed immediately (see [Changing the provider after initialization (Android)](#changing-the-provider-after-initialization-android)). On iOS the provider factory has to be set before `CrossFirebase.Initialize()`; a later `Configure()` call currently has no native effect ([#699](https://github.com/TobiasBuchholz/Plugin.Firebase/issues/699)). Calling it before initialization is the recommended pattern because it behaves the same on both platforms and avoids a window where Firebase is alive without a provider.
 
 ### Providers
 | Provider | Platforms | Typical usage |
@@ -35,6 +35,21 @@ CrossFirebase.Initialize(activity, activityProvider);      // hook fires here
 | `PlayIntegrity` | Android | Production (required for Google Play) |
 
 Configuring a provider that is not supported on the current platform throws a `NotSupportedException`.
+
+### Changing the provider after initialization (Android)
+
+On Android, `Configure()` maps to the native `FirebaseAppCheck.installAppCheckProviderFactory()`, which may be called at any time after Firebase is initialized:
+
+- Configuring `Debug` or `PlayIntegrity` after `CrossFirebase.Initialize()` installs that provider factory right away. Each later call installs the new factory in place of the previous one.
+- The native SDK has no API to remove an installed provider factory. Once one is installed, `Configure(AppCheckOptions.Disabled)` throws an `InvalidOperationException` and the installed provider stays active until the app restarts. To run without App Check, don't configure a provider at all (or configure `Disabled` before `CrossFirebase.Initialize()`).
+- Configuring `Disabled` while no provider factory is installed does not throw. Before `CrossFirebase.Initialize()`, it cancels a provider that was configured earlier.
+
+```c#
+CrossFirebase.Initialize(activity, activityProvider);
+CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);          // installs the debug provider factory
+CrossFirebaseAppCheck.Configure(AppCheckOptions.PlayIntegrity);  // replaces it with Play Integrity
+CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled);       // throws InvalidOperationException
+```
 
 ### iOS — `Cannot instantiate FIRAppCheck` log message
 

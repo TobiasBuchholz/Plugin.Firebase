@@ -3,8 +3,12 @@ using Plugin.Firebase.Core;
 
 namespace Plugin.Firebase.UnitTests;
 
+[Collection(CollectionName)]
 public class FirebaseInitializationHooksTests
 {
+    // Tests that reset or invoke the static hooks share this collection so they never run in parallel.
+    public const string CollectionName = "FirebaseInitializationHooks";
+
     public FirebaseInitializationHooksTests()
     {
         // Reset the static state before each test to ensure test isolation

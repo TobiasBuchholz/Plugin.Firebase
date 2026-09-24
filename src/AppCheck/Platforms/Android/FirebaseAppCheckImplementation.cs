@@ -2,15 +2,14 @@ using Android.Gms.Extensions;
 using Firebase.AppCheck;
 using Firebase.AppCheck.Debug;
 using Firebase.AppCheck.PlayIntegrity;
-using Plugin.Firebase.Core;
 
 namespace Plugin.Firebase.AppCheck;
 
 public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
 {
-    private readonly object _syncRoot = new();
-    private AppCheckOptions _options = AppCheckOptions.Disabled;
-    private IDisposable? _afterInitializeRegistration;
+    // The native provider factory is process-wide and cannot be removed, so every implementation instance,
+    // including one created after CrossFirebaseAppCheck.Dispose(), shares the same installation state.
+    private static readonly AppCheckProviderInstaller ProviderInstaller = new(InstallProviderFactory);
 
     public void Configure(AppCheckOptions options)
     {
@@ -18,32 +17,17 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
             throw new ArgumentNullException(nameof(options));
         }
 
-        lock(_syncRoot) {
-            _options = options;
+        if(options.Provider is AppCheckProviderType.DeviceCheck or AppCheckProviderType.AppAttest) {
+            throw new NotSupportedException(
+                $"AppCheck provider '{options.Provider}' is not supported on Android."
+            );
         }
 
-        if(options.Provider == AppCheckProviderType.Disabled) {
-            _afterInitializeRegistration?.Dispose();
-            _afterInitializeRegistration = null;
-            return;
-        }
-
-        _afterInitializeRegistration ??= FirebaseInitializationHooks.RegisterAfterInitialize(
-            InstallProviderFactory
-        );
+        ProviderInstaller.Configure(options);
     }
 
-    private void InstallProviderFactory()
+    private static bool InstallProviderFactory(AppCheckProviderType provider)
     {
-        AppCheckOptions options;
-        lock(_syncRoot) {
-            options = _options;
-        }
-
-        if(options.Provider == AppCheckProviderType.Disabled) {
-            return;
-        }
-
         global::Firebase.FirebaseApp firebaseApp;
         try {
             firebaseApp = global::Firebase.FirebaseApp.Instance;
@@ -52,33 +36,23 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
                 "[Plugin.Firebase.AppCheck] Skipping provider installation: Firebase default app not initialized. "
                     + "Check your google-services.json or provide explicit FirebaseOptions to CrossFirebase.Initialize()."
             );
-            return;
+            return false;
         }
 
         Console.WriteLine(
-            $"Plugin.Firebase AppCheck: installing provider factory '{options.Provider}' (Android)."
+            $"Plugin.Firebase AppCheck: installing provider factory '{provider}' (Android)."
         );
 
-        IAppCheckProviderFactory? factory = null;
-        switch(options.Provider) {
-            case AppCheckProviderType.Debug:
-                factory = (IAppCheckProviderFactory) DebugAppCheckProviderFactory.Instance;
-                break;
-            case AppCheckProviderType.PlayIntegrity:
-                factory = (IAppCheckProviderFactory) PlayIntegrityAppCheckProviderFactory.Instance;
-                break;
-            case AppCheckProviderType.DeviceCheck:
-            case AppCheckProviderType.AppAttest:
-                throw new NotSupportedException(
-                    $"AppCheck provider '{options.Provider}' is not supported on Android."
-                );
-        }
+        IAppCheckProviderFactory factory = provider switch {
+            AppCheckProviderType.Debug => (IAppCheckProviderFactory) DebugAppCheckProviderFactory.Instance,
+            AppCheckProviderType.PlayIntegrity => (IAppCheckProviderFactory) PlayIntegrityAppCheckProviderFactory.Instance,
+            _ => throw new NotSupportedException($"AppCheck provider '{provider}' is not supported on Android.")
+        };
 
-        if(factory != null) {
-            global::Firebase
-                .AppCheck.FirebaseAppCheck.GetInstance(firebaseApp)
-                .InstallAppCheckProviderFactory(factory);
-        }
+        global::Firebase
+            .AppCheck.FirebaseAppCheck.GetInstance(firebaseApp)
+            .InstallAppCheckProviderFactory(factory);
+        return true;
     }
 
     public async Task<string> GetTokenAsync(bool forceRefresh = false)
@@ -101,7 +75,6 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
 
     public void Dispose()
     {
-        _afterInitializeRegistration?.Dispose();
-        _afterInitializeRegistration = null;
+        ProviderInstaller.CancelPendingInstallation();
     }
 }

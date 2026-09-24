@@ -9,6 +9,13 @@ public interface IFirebaseAppCheck : IDisposable
     /// Configures Firebase AppCheck with the specified options.
     /// </summary>
     /// <param name="options">The AppCheck options to apply.</param>
+    /// <exception cref="NotSupportedException">
+    /// On Android, <paramref name="options"/> selects a provider that Android does not support.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// On Android, <paramref name="options"/> is <see cref="AppCheckOptions.Disabled"/> after a provider factory was
+    /// installed. The native SDK cannot remove an installed provider factory.
+    /// </exception>
     void Configure(AppCheckOptions options);
 
     /// <summary>

@@ -8,6 +8,7 @@
 - Use `EmulatorBackendFact` / `EmulatorBackendTheory` when the test requires local emulators.
 - Use `RealFirebaseFact` or `RealFirebaseOptInFact` when Firebase has no local emulator or the test needs a configured real project.
 - Use `AndroidFact`, `IosFact`, or `IosDeviceFact` for platform-only behavior instead of returning early from the test body.
+- Use `EmulatorBackendIosFact` when iOS-only behavior also requires local emulators.
 - Use `OptInFact` for destructive, paid, external-delivery, or manually coordinated tests.
 - Use `IntegrationTestCase` only when a plain xUnit attribute needs explicit backend/platform/opt-in metadata.
 

@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using Firebase.CloudFirestore;
 using Plugin.Firebase.Firestore.Platforms.iOS.Extensions;
 
@@ -10,9 +9,7 @@ namespace Plugin.Firebase.Firestore.Platforms.iOS;
 /// <typeparam name="T">The type to deserialize the document data into.</typeparam>
 public sealed class DocumentSnapshotWrapper<T> : DocumentSnapshotWrapper, IDocumentSnapshot<T>
 {
-    // set on the first successful read; no lock is held while the model is built, and a failed conversion isn't
-    // stored, so the next read converts again
-    private StrongBox<T?>? _data;
+    private ConvertedData<T>? _data;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DocumentSnapshotWrapper{T}"/> class.
@@ -22,14 +19,12 @@ public sealed class DocumentSnapshotWrapper<T> : DocumentSnapshotWrapper, IDocum
         : base(documentSnapshot) { }
 
     /// <inheritdoc/>
-    public new T? Data => (Volatile.Read(ref _data) ?? ConvertData()).Value;
+    public new T? Data => ConvertedData<T>.GetOrConvert(ref _data, Wrapped, ConvertData);
 
-    private StrongBox<T?> ConvertData()
+    private static T? ConvertData(DocumentSnapshot snapshot)
     {
-        var data = Wrapped.Data;
-        var converted = new StrongBox<T?>(data == null ? default(T) : data.Cast<T>(Wrapped.Id));
-        // when two threads convert at once, both return the instance that was stored first
-        return Interlocked.CompareExchange(ref _data, converted, null) ?? converted;
+        var data = snapshot.Data;
+        return data == null ? default(T) : data.Cast<T>(snapshot.Id);
     }
 }
 

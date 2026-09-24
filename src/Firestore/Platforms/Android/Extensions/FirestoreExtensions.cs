@@ -43,13 +43,8 @@ namespace Plugin.Firebase.Firestore.Platforms.Android.Extensions
 
         public static DocumentChange<T> ToAbstract<T>(this NativeDocumentChange @this)
         {
-            return @this.ToAbstract(@this.Document.ToAbstract<T>());
-        }
-
-        internal static DocumentChange<T> ToAbstract<T>(this NativeDocumentChange @this, IDocumentSnapshot<T> documentSnapshot)
-        {
             return new DocumentChange<T>(
-                documentSnapshot,
+                @this.Document.ToAbstract<T>(),
                 @this.GetType().ToAbstract(),
                 @this.NewIndex,
                 @this.OldIndex);

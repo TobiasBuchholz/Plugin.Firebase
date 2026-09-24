@@ -85,8 +85,23 @@ namespace Plugin.Firebase.Firestore.Platforms.iOS.Extensions
         /// <returns>A typed abstract document change.</returns>
         public static DocumentChange<T> ToAbstract<T>(this NativeDocumentChange @this)
         {
+            return @this.ToAbstract(@this.Document.ToAbstract<T>());
+        }
+
+        /// <summary>
+        /// Converts a native iOS document change to an abstract typed document change that carries the given snapshot.
+        /// </summary>
+        /// <typeparam name="T">The type to deserialize the document data into.</typeparam>
+        /// <param name="this">The native document change.</param>
+        /// <param name="documentSnapshot">The abstract snapshot of the changed document.</param>
+        /// <returns>A typed abstract document change.</returns>
+        internal static DocumentChange<T> ToAbstract<T>(
+            this NativeDocumentChange @this,
+            IDocumentSnapshot<T> documentSnapshot
+        )
+        {
             return new DocumentChange<T>(
-                @this.Document.ToAbstract<T>(),
+                documentSnapshot,
                 @this.Type.ToAbstract(),
                 (int) @this.NewIndex,
                 (int) @this.OldIndex

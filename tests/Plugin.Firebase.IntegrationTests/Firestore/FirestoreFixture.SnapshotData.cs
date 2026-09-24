@@ -88,7 +88,7 @@ public sealed partial class FirestoreFixture
     }
 
     [Fact]
-    public async Task gives_removed_documents_their_own_snapshot_in_a_query_listener()
+    public async Task gives_a_removed_document_one_snapshot_across_change_lists_in_a_query_listener()
     {
         var sut = CrossFirebaseFirestore.Current;
         await GetTestingDocument(sut, "snapshot-data-listener-kept").SetDataAsync(NullableFirestoreItemFactory.CreateNonNullItem("snapshot-data"));
@@ -96,14 +96,16 @@ public sealed partial class FirestoreFixture
 
         var initialSnapshot = new CallbackProbe<bool>();
         var removalSnapshot = new CallbackProbe<IQuerySnapshot<NullableFirestoreItem>>();
-        using var listener = GetTestingCollection(sut).AddSnapshotListener<NullableFirestoreItem>(x => {
-            if(x.Count == 2) {
-                initialSnapshot.TrySetResult(true);
-            }
-            if(x.DocumentChanges.Any(y => y.ChangeType == DocumentChangeType.Removed)) {
-                removalSnapshot.TrySetResult(x);
-            }
-        });
+        using var listener = GetTestingCollection(sut).AddSnapshotListener<NullableFirestoreItem>(
+            x => {
+                if(x.Count == 2) {
+                    initialSnapshot.TrySetResult(true);
+                }
+                if(x.DocumentChanges.Any(y => y.ChangeType == DocumentChangeType.Removed)) {
+                    removalSnapshot.TrySetResult(x);
+                }
+            },
+            includeMetaDataChanges: true);
         await initialSnapshot.WaitAsync(IntegrationTestTimeouts.Callback, "initial Firestore query listener snapshot");
 
         await GetTestingDocument(sut, "snapshot-data-listener-removed").DeleteDocumentAsync();
@@ -112,9 +114,42 @@ public sealed partial class FirestoreFixture
         var removal = Assert.Single(snapshot.DocumentChanges);
         Assert.Equal(DocumentChangeType.Removed, removal.ChangeType);
         Assert.Equal("snapshot-data-listener-removed", FirestoreAssertions.Require(removal.DocumentSnapshot.Data).Id);
+        var removalWithMetadata = Assert.Single(snapshot.GetDocumentChanges(includeMetadataChanges: true));
+        Assert.Same(removal.DocumentSnapshot, removalWithMetadata.DocumentSnapshot);
+
+        // a removed document isn't in Documents, so it doesn't share a snapshot with it
         var remaining = Assert.Single(snapshot.Documents);
         Assert.Equal("snapshot-data-listener-kept", FirestoreAssertions.Require(remaining.Data).Id);
         Assert.NotSame(remaining, removal.DocumentSnapshot);
+    }
+
+    [Fact]
+    public async Task shares_a_modified_document_snapshot_with_documents_in_a_query_listener()
+    {
+        var sut = CrossFirebaseFirestore.Current;
+        var document = GetTestingDocument(sut, "snapshot-data-listener-modified");
+        await document.SetDataAsync(NullableFirestoreItemFactory.CreateNonNullItem("snapshot-data"));
+
+        var initialSnapshot = new CallbackProbe<bool>();
+        var modificationSnapshot = new CallbackProbe<IQuerySnapshot<NullableFirestoreItem>>();
+        using var listener = GetTestingCollection(sut).AddSnapshotListener<NullableFirestoreItem>(x => {
+            // Documents is read before DocumentChanges, so the change list has to reuse the snapshots it already built
+            if(x.Documents.Count() == 1) {
+                initialSnapshot.TrySetResult(true);
+            }
+            if(x.DocumentChanges.Any(y => y.ChangeType == DocumentChangeType.Modified)) {
+                modificationSnapshot.TrySetResult(x);
+            }
+        });
+        await initialSnapshot.WaitAsync(IntegrationTestTimeouts.Callback, "initial Firestore query listener snapshot");
+
+        await document.UpdateDataAsync((NullableFirestoreItem.NullableStringField, "changed"));
+        var snapshot = await modificationSnapshot.WaitAsync(IntegrationTestTimeouts.Callback, "Firestore query listener modification");
+
+        var modification = Assert.Single(snapshot.DocumentChanges);
+        Assert.Equal(DocumentChangeType.Modified, modification.ChangeType);
+        Assert.Same(Assert.Single(snapshot.Documents), modification.DocumentSnapshot);
+        Assert.Equal("changed", FirestoreAssertions.Require(modification.DocumentSnapshot.Data).NullableString);
     }
 
     [Fact]

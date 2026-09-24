@@ -11,10 +11,14 @@ namespace Plugin.Firebase.Firestore.Platforms.iOS;
 public sealed class QuerySnapshotWrapper<T> : IQuerySnapshot<T>
 {
     private readonly QuerySnapshot _wrapped;
-    private readonly Lazy<IReadOnlyList<IDocumentSnapshot<T>>> _documents;
-    private readonly Lazy<Dictionary<string, IDocumentSnapshot<T>>> _documentsByPath;
-    private readonly Lazy<IReadOnlyList<DocumentChange<T>>> _documentChanges;
-    private readonly Lazy<IReadOnlyList<DocumentChange<T>>> _documentChangesWithMetadata;
+    // guards the lists below; building them only creates wrappers, so no model code runs while it's held. A list
+    // stays null if building it throws, so a native error is raised again on the next read
+    private readonly object _lock = new();
+    private IReadOnlyList<DocumentSnapshotWrapper<T>>? _documents;
+    private IReadOnlyList<DocumentChange<T>>? _documentChanges;
+    private IReadOnlyList<DocumentChange<T>>? _documentChangesWithMetadata;
+    // created with the first change list, so reading only Documents never looks up document paths
+    private Dictionary<string, DocumentSnapshotWrapper<T>>? _snapshotsByPath;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="QuerySnapshotWrapper{T}"/> class.
@@ -23,29 +27,32 @@ public sealed class QuerySnapshotWrapper<T> : IQuerySnapshot<T>
     public QuerySnapshotWrapper(QuerySnapshot querySnapshot)
     {
         _wrapped = querySnapshot;
-        _documents = CreateList(() => _wrapped.Documents.Select(x => x.ToAbstract<T>()));
-        _documentsByPath = new Lazy<Dictionary<string, IDocumentSnapshot<T>>>(
-            () => _documents.Value.ToDictionary(x => x.Reference.Path),
-            LazyThreadSafetyMode.PublicationOnly
-        );
-        _documentChanges = CreateList(() => _wrapped.DocumentChanges.Select(WrapChange));
-        _documentChangesWithMetadata = CreateList(() => _wrapped.GetDocumentChanges(true).Select(WrapChange));
     }
 
     /// <inheritdoc/>
     public IEnumerable<DocumentChange<T>> GetDocumentChanges(bool includeMetadataChanges)
     {
-        return includeMetadataChanges ? _documentChangesWithMetadata.Value : _documentChanges.Value;
+        lock(_lock) {
+            return includeMetadataChanges
+                ? _documentChangesWithMetadata ??= WrapChanges(_wrapped.GetDocumentChanges(true))
+                : _documentChanges ??= WrapChanges(_wrapped.DocumentChanges);
+        }
     }
 
     /// <inheritdoc/>
-    public IEnumerable<IDocumentSnapshot<T>> Documents => _documents.Value;
+    public IEnumerable<IDocumentSnapshot<T>> Documents {
+        get {
+            lock(_lock) {
+                return _documents ??= _wrapped.Documents.Select(GetSnapshot).ToList().AsReadOnly();
+            }
+        }
+    }
 
     /// <inheritdoc/>
     public ISnapshotMetadata Metadata => _wrapped.Metadata.ToAbstract();
 
     /// <inheritdoc/>
-    public IEnumerable<DocumentChange<T>> DocumentChanges => _documentChanges.Value;
+    public IEnumerable<DocumentChange<T>> DocumentChanges => GetDocumentChanges(false);
 
     /// <inheritdoc/>
     public IQuery Query => _wrapped.Query.ToAbstract();
@@ -56,26 +63,26 @@ public sealed class QuerySnapshotWrapper<T> : IQuerySnapshot<T>
     /// <inheritdoc/>
     public int Count => (int) _wrapped.Count;
 
-    private DocumentChange<T> WrapChange(NativeDocumentChange change)
+    private IReadOnlyList<DocumentChange<T>> WrapChanges(IEnumerable<NativeDocumentChange> changes)
     {
-        // added and modified documents are also in Documents, so they share its snapshots; removed ones get their own
-        var document = _documentsByPath.Value.TryGetValue(change.Document.Reference.Path, out var current)
-            ? current
-            : change.Document.ToAbstract<T>();
-        return new DocumentChange<T>(
-            document,
-            change.Type.ToAbstract(),
-            (int) change.NewIndex,
-            (int) change.OldIndex
-        );
+        // index Documents if it's already built, so added and modified documents reuse its snapshots
+        _snapshotsByPath ??=
+            _documents?.ToDictionary(x => x.Wrapped.Reference.Path)
+            ?? new Dictionary<string, DocumentSnapshotWrapper<T>>();
+        return changes.Select(x => x.ToAbstract<T>(GetSnapshot(x.Document))).ToList().AsReadOnly();
     }
 
-    // PublicationOnly doesn't store a failed build, so a native error is raised again on the next read
-    private static Lazy<IReadOnlyList<TItem>> CreateList<TItem>(Func<IEnumerable<TItem>> items)
+    private DocumentSnapshotWrapper<T> GetSnapshot(DocumentSnapshot document)
     {
-        return new Lazy<IReadOnlyList<TItem>>(
-            () => items().ToList().AsReadOnly(),
-            LazyThreadSafetyMode.PublicationOnly
-        );
+        if(_snapshotsByPath == null) {
+            return new DocumentSnapshotWrapper<T>(document);
+        }
+
+        var path = document.Reference.Path;
+        if(!_snapshotsByPath.TryGetValue(path, out var snapshot)) {
+            snapshot = new DocumentSnapshotWrapper<T>(document);
+            _snapshotsByPath.Add(path, snapshot);
+        }
+        return snapshot;
     }
 }

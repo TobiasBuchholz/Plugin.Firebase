@@ -13,7 +13,8 @@ public interface IQuerySnapshot<T>
     /// <remarks>
     /// Calls with the same <paramref name="includeMetadataChanges"/> value return the same <c>DocumentChange</c> instances.
     /// Passing <c>false</c> returns the same instances as <see cref="DocumentChanges"/>. Added and modified documents use
-    /// the same <c>IDocumentSnapshot</c> instances as <see cref="Documents"/>; removed documents have their own.
+    /// the same <c>IDocumentSnapshot</c> instances as <see cref="Documents"/>, and a removed document uses the same
+    /// instance with either <paramref name="includeMetadataChanges"/> value.
     /// </remarks>
     /// <param name="includeMetadataChanges">
     /// Whether metadata-only changes (i.e. only <c>IDocumentSnapshot.Metadata</c> changed) should be included.
@@ -24,8 +25,9 @@ public interface IQuerySnapshot<T>
     /// An enumerable of the <c>IDocumentSnapshots</c> that make up this document set.
     /// </summary>
     /// <remarks>
-    /// Every read returns the same <c>IDocumentSnapshot</c> instances. This query snapshot keeps them, and any data already
-    /// read from them, in memory for as long as it is referenced.
+    /// Every read returns the same <c>IDocumentSnapshot</c> instances. This query snapshot keeps the snapshots it has
+    /// returned from this property and from its document changes, and any data already read from them, in memory for as
+    /// long as it is referenced.
     /// </remarks>
     IEnumerable<IDocumentSnapshot<T>> Documents { get; }
 

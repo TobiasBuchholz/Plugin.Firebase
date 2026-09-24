@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Diagnostics;
+using System.Globalization;
 using Firebase.CloudFirestore;
 using Firebase.Core;
 using Plugin.Firebase.Core.Platforms.iOS.Extensions;
@@ -130,6 +131,13 @@ public static class NSObjectExtensions
     /// <param name="this">The NSNumber to convert.</param>
     /// <param name="targetType">Optional target type for the conversion.</param>
     /// <returns>The converted numeric value.</returns>
+    /// <exception cref="OverflowException">
+    /// Thrown if the stored value doesn't fit into <paramref name="targetType"/>.
+    /// </exception>
+    /// <exception cref="InvalidCastException">
+    /// Thrown if the stored value can't be converted to <paramref name="targetType"/> at all,
+    /// for example a fractional value read into a <see cref="char"/>.
+    /// </exception>
     public static object? ToObject(this NSNumber @this, Type? targetType = null)
     {
         if(targetType == null || targetType == typeof(object)) {
@@ -145,29 +153,47 @@ public static class NSObjectExtensions
             case TypeCode.Boolean:
                 return @this.BoolValue;
             case TypeCode.Char:
-                return Convert.ToChar(@this.ByteValue);
             case TypeCode.SByte:
-                return @this.SByteValue;
             case TypeCode.Byte:
-                return @this.ByteValue;
             case TypeCode.Int16:
-                return @this.Int16Value;
             case TypeCode.UInt16:
-                return @this.UInt16Value;
             case TypeCode.Int32:
-                return @this.Int32Value;
             case TypeCode.UInt32:
-                return @this.UInt32Value;
             case TypeCode.Int64:
-                return @this.Int64Value;
             case TypeCode.UInt64:
-                return @this.UInt64Value;
             case TypeCode.Single:
-                return @this.FloatValue;
             case TypeCode.Double:
-                return @this.DoubleValue;
+            case TypeCode.Decimal:
+                return Convert.ChangeType(@this.ToConversionSource(), conversionType, CultureInfo.InvariantCulture);
             default:
                 return null;
+        }
+    }
+
+    /// <summary>
+    /// Gets the stored value in its widest .NET representation, so that
+    /// <see cref="Convert.ChangeType(object, Type, IFormatProvider)"/> range checks the target conversion
+    /// instead of the NSNumber accessors silently truncating it.
+    /// </summary>
+    /// <remarks>
+    /// This deliberately widens where <see cref="ToUntypedObject"/> preserves the stored width:
+    /// an untyped read hands the caller the value's own type, while a typed read only needs a
+    /// source wide enough for the target's range check. The bool type codes differ for the same
+    /// reason - the typed path resolves <see cref="TypeCode.Boolean"/> before it gets here, so
+    /// "c" is treated as a number rather than guessed to be a bool.
+    /// </remarks>
+    private static object ToConversionSource(this NSNumber @this)
+    {
+        switch(@this.ObjCType) {
+            case "f":
+                return @this.FloatValue;
+            case "d":
+                return @this.DoubleValue;
+            case "Q":
+            case "L":
+                return @this.UInt64Value;
+            default:
+                return @this.Int64Value;
         }
     }
 

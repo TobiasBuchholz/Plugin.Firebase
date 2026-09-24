@@ -33,6 +33,10 @@ public static class FirebaseInitializationHooks
     /// Registers a callback to be executed after Firebase initialization.
     /// If initialization has already occurred, the callback is executed immediately.
     /// </summary>
+    /// <remarks>
+    /// A callback registered before initialization stays registered and runs again after every later initialization,
+    /// until the returned registration is disposed. A callback registered after initialization runs only once.
+    /// </remarks>
     /// <param name="callback">The callback action to execute after initialization.</param>
     /// <returns>An <see cref="IDisposable"/> that unregisters the callback when disposed.</returns>
     public static IDisposable RegisterAfterInitialize(Action callback)

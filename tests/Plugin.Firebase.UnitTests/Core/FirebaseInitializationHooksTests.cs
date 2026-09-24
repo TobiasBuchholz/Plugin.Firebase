@@ -65,6 +65,30 @@ public class FirebaseInitializationHooksTests
     }
 
     [Fact]
+    public void register_after_initialize_before_invoke_runs_after_every_invoke()
+    {
+        var callCount = 0;
+        using var registration = FirebaseInitializationHooks.RegisterAfterInitialize(() => callCount++);
+
+        InvokeInternal("InvokeAfterInitialize");
+        InvokeInternal("InvokeAfterInitialize");
+
+        Assert.Equal(2, callCount);
+    }
+
+    [Fact]
+    public void register_after_initialize_after_invoke_runs_only_once()
+    {
+        InvokeInternal("InvokeAfterInitialize");
+
+        var callCount = 0;
+        using var registration = FirebaseInitializationHooks.RegisterAfterInitialize(() => callCount++);
+        InvokeInternal("InvokeAfterInitialize");
+
+        Assert.Equal(1, callCount);
+    }
+
+    [Fact]
     public void disposed_after_initialize_callback_is_not_called()
     {
         var callCount = 0;

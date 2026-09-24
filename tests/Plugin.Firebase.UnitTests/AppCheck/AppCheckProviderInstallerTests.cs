@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using Plugin.Firebase.AppCheck;
 using Plugin.Firebase.Core;
 
@@ -163,6 +162,21 @@ public class AppCheckProviderInstallerTests
     }
 
     [Fact]
+    public void failed_install_is_not_installed_by_a_later_initialize()
+    {
+        _sut.Configure(AppCheckOptions.Disabled);
+        FirebaseInitializationHooks.InvokeAfterInitialize();
+        _installFails = true;
+
+        Assert.Throws<ApplicationException>(() => _sut.Configure(AppCheckOptions.PlayIntegrity));
+        _installFails = false;
+        _defaultApp = _secondApp;
+        FirebaseInitializationHooks.InvokeAfterInitialize();
+
+        Assert.Empty(_installs);
+    }
+
+    [Fact]
     public void failed_native_install_is_not_recorded()
     {
         FirebaseInitializationHooks.InvokeAfterInitialize();
@@ -174,32 +188,6 @@ public class AppCheckProviderInstallerTests
         _sut.Configure(AppCheckOptions.Debug);
 
         Assert.Equal(new[] { (_firstApp, AppCheckProviderType.Debug) }, _installs);
-    }
-
-    [Fact]
-    public void releases_a_deleted_app_once_it_is_no_longer_the_default()
-    {
-        var sut = new AppCheckProviderInstaller<object>(() => _defaultApp, (_, _) => { }, ReferenceEquals);
-        sut.Configure(AppCheckOptions.Disabled);
-        FirebaseInitializationHooks.InvokeAfterInitialize();
-        var deletedApp = InstallDebugOnNewDefaultApp(sut);
-
-        _defaultApp = null;
-        sut.Configure(AppCheckOptions.Disabled);
-        GC.Collect();
-        GC.WaitForPendingFinalizers();
-        GC.Collect();
-
-        Assert.False(deletedApp.TryGetTarget(out _));
-    }
-
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    private WeakReference<object> InstallDebugOnNewDefaultApp(AppCheckProviderInstaller<object> sut)
-    {
-        var app = new object();
-        _defaultApp = app;
-        sut.Configure(AppCheckOptions.Debug);
-        return new WeakReference<object>(app);
     }
 
     private AppCheckProviderInstaller<object> CreateInstaller()

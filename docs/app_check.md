@@ -108,3 +108,13 @@ This is the standard .NET Android MSBuild property. It works with both APK and A
 > **Do NOT use** `AndroidPackageFormat=apk` or `EmbedAssembliesIntoApk=true` as a workaround for this issue — those properties serve different purposes (debug speed, distribution format) and are not needed to fix native library compression.
 
 See also the [sample Playground project](../sample/Playground/Playground.csproj) for a working reference.
+
+## Next-release migration notes
+
+On Android, `CrossFirebaseAppCheck.Configure` now reaches the native SDK after initialization, and fails explicitly where the native SDK can't do what was asked:
+
+- Configuring `Debug` or `PlayIntegrity` after `CrossFirebase.Initialize()` installs that provider factory. Previously only the first provider was installed and later changes were silently ignored.
+- Configuring `Disabled` while a provider factory is installed throws `InvalidOperationException`. Previously the call succeeded but the provider stayed active. The bundled initializer logs this and keeps the installed provider.
+- `DeviceCheck` and `AppAttest` throw `NotSupportedException` from `Configure` itself. Previously, when configured before initialization, the exception came from `CrossFirebase.Initialize()`. The bundled initializer now logs it and continues without App Check.
+- `CrossFirebaseAppCheck.Dispose()` no longer cancels a provider configured before initialization. Configure `Disabled` instead.
+- Configuring the provider that is already installed does nothing.

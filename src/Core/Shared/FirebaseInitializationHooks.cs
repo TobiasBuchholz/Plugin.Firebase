@@ -34,7 +34,8 @@ public static class FirebaseInitializationHooks
     /// If initialization has already occurred, the callback is executed immediately.
     /// </summary>
     /// <remarks>
-    /// A callback registered before initialization stays registered and runs again after every later initialization,
+    /// Only the Android <c>CrossFirebase.Initialize()</c> runs these callbacks; on iOS they are never invoked. On Android,
+    /// a callback registered before initialization stays registered and runs again after every later initialization,
     /// until the returned registration is disposed. A callback registered after initialization runs only once.
     /// </remarks>
     /// <param name="callback">The callback action to execute after initialization.</param>

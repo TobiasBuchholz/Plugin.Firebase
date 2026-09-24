@@ -12,6 +12,7 @@ public class AppCheckProviderInstallerTests
     private readonly AppCheckProviderInstaller<object> _sut;
     private object? _defaultApp;
     private bool _installFails;
+    private int _defaultAppLookups;
 
     public AppCheckProviderInstallerTests()
     {
@@ -80,6 +81,21 @@ public class AppCheckProviderInstallerTests
         _sut.Configure(AppCheckOptions.Debug);
 
         Assert.Equal(new[] { (_firstApp, AppCheckProviderType.Debug) }, _installs);
+    }
+
+    [Fact]
+    public void looks_up_the_default_app_only_when_installing_or_checking_a_factory()
+    {
+        _sut.Configure(AppCheckOptions.Debug);
+        _sut.Configure(AppCheckOptions.Disabled);
+        FirebaseInitializationHooks.InvokeAfterInitialize();
+
+        Assert.Equal(0, _defaultAppLookups);
+
+        _sut.Configure(AppCheckOptions.Debug);
+        _sut.Configure(AppCheckOptions.PlayIntegrity);
+
+        Assert.Equal(2, _defaultAppLookups);
     }
 
     [Fact]
@@ -193,7 +209,10 @@ public class AppCheckProviderInstallerTests
     private AppCheckProviderInstaller<object> CreateInstaller()
     {
         return new AppCheckProviderInstaller<object>(
-            () => _defaultApp,
+            () => {
+                _defaultAppLookups++;
+                return _defaultApp;
+            },
             (app, provider) => {
                 if(_installFails) {
                     throw new ApplicationException("Native install failed.");

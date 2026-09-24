@@ -115,6 +115,6 @@ On Android, `CrossFirebaseAppCheck.Configure` now reaches the native SDK after i
 
 - Configuring `Debug` or `PlayIntegrity` after `CrossFirebase.Initialize()` installs that provider factory. Previously only the first provider was installed and later changes were silently ignored.
 - Configuring `Disabled` while a provider factory is installed throws `InvalidOperationException`. Previously the call succeeded but the provider stayed active. The bundled initializer logs this and keeps the installed provider.
-- `DeviceCheck` and `AppAttest` throw `NotSupportedException` from `Configure` itself. Previously, when configured before initialization, the exception came from `CrossFirebase.Initialize()`. The bundled initializer now logs it and continues without App Check.
+- `DeviceCheck` and `AppAttest` throw `NotSupportedException` from `Configure` itself. Previously, when configured before initialization, the exception came from `CrossFirebase.Initialize()`. The bundled initializer now logs it and leaves App Check as it was.
 - `CrossFirebaseAppCheck.Dispose()` no longer cancels a provider configured before initialization. Configure `Disabled` instead.
 - Configuring the provider that is already installed does nothing.

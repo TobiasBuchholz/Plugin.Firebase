@@ -51,12 +51,15 @@ internal sealed class AppCheckProviderInstaller<TApp> where TApp : class
         }
 
         lock(_syncRoot) {
-            if(options.Provider == AppCheckProviderType.Disabled && GetInstalledProvider() is { } installedProvider) {
-                throw new InvalidOperationException(
-                    $"App Check cannot be disabled after the '{installedProvider}' provider factory was installed on the "
-                        + "default Firebase app, because the native Firebase SDK cannot remove an installed provider factory. "
-                        + "It stays active until the app process restarts."
-                );
+            if(options.Provider == AppCheckProviderType.Disabled && _installed != null) {
+                DropRecordIfAppReplaced(_getDefaultApp());
+                if(_installed is { } installed) {
+                    throw new InvalidOperationException(
+                        $"App Check cannot be disabled after the '{installed.Provider}' provider factory was installed on the "
+                            + "default Firebase app, because the native Firebase SDK cannot remove an installed provider factory. "
+                            + "It stays active until the app process restarts."
+                    );
+                }
             }
 
             var previousOptions = _options;
@@ -87,15 +90,20 @@ internal sealed class AppCheckProviderInstaller<TApp> where TApp : class
     private void InstallConfiguredProvider()
     {
         var provider = _options.Provider;
-        if(provider == AppCheckProviderType.Disabled || GetInstalledProvider() == provider) {
+        if(provider == AppCheckProviderType.Disabled) {
             return;
         }
 
         var app = _getDefaultApp();
+        DropRecordIfAppReplaced(app);
         if(app == null) {
             Console.WriteLine(
                 "[Plugin.Firebase.AppCheck] Skipping provider installation: Firebase default app not initialized."
             );
+            return;
+        }
+
+        if(_installed?.Provider == provider) {
             return;
         }
 
@@ -105,18 +113,10 @@ internal sealed class AppCheckProviderInstaller<TApp> where TApp : class
 
     // Callers hold _syncRoot. A factory belongs to the app it was installed on, and a deleted app never becomes the
     // default again, so once that app is no longer the default the record is dropped, which also releases the app.
-    private AppCheckProviderType? GetInstalledProvider()
+    private void DropRecordIfAppReplaced(TApp? defaultApp)
     {
-        if(_installed is not { } installed) {
-            return null;
+        if(_installed is { } installed && (defaultApp == null || !_isSameApp(installed.App, defaultApp))) {
+            _installed = null;
         }
-
-        var defaultApp = _getDefaultApp();
-        if(defaultApp != null && _isSameApp(installed.App, defaultApp)) {
-            return installed.Provider;
-        }
-
-        _installed = null;
-        return null;
     }
 }

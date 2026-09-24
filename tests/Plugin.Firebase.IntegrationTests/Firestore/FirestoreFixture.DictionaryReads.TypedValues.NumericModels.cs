@@ -5,11 +5,11 @@ namespace Plugin.Firebase.IntegrationTests.Firestore;
 
 public sealed partial class FirestoreFixture
 {
-    [AndroidFact]
-    public async Task reads_android_typed_model_with_full_width_numeric_values()
+    [Fact]
+    public async Task reads_typed_model_with_full_width_numeric_values()
     {
         var sut = CrossFirebaseFirestore.Current;
-        var document = GetTestingDocument(sut, "android-typed-model-numeric-widths");
+        var document = GetTestingDocument(sut, "typed-model-numeric-widths");
         await document.SetDataAsync(new Dictionary<object, object?> {
             { "byte_value", 255L },
             { "sbyte_value", -128L },
@@ -50,11 +50,11 @@ public sealed partial class FirestoreFixture
         Assert.Equal(new byte[] { 0, 255 }, data.ByteListValue);
     }
 
-    [AndroidFact]
-    public async Task reads_android_typed_model_with_nullable_numeric_values()
+    [Fact]
+    public async Task reads_typed_model_with_nullable_numeric_values()
     {
         var sut = CrossFirebaseFirestore.Current;
-        var document = GetTestingDocument(sut, "android-typed-model-nullable-numerics");
+        var document = GetTestingDocument(sut, "typed-model-nullable-numerics");
         await document.SetDataAsync(new Dictionary<object, object?> {
             { "nullable_byte_value", 200L },
             { "nullable_int_value", null },
@@ -72,11 +72,11 @@ public sealed partial class FirestoreFixture
         Assert.Null(data.AbsentValue);
     }
 
-    [AndroidFact]
-    public async Task reads_android_typed_model_with_enum_values()
+    [Fact]
+    public async Task reads_typed_model_with_enum_values()
     {
         var sut = CrossFirebaseFirestore.Current;
-        var document = GetTestingDocument(sut, "android-typed-model-enum-values");
+        var document = GetTestingDocument(sut, "typed-model-enum-values");
         await document.SetDataAsync(new Dictionary<object, object?> {
             { "poke_type_value", 4L },
             { "rating_value", 2L },
@@ -91,6 +91,7 @@ public sealed partial class FirestoreFixture
         Assert.Equal(NumericRating.High, data.RatingFromDoubleValue);
     }
 
+    // Android only: iOS typed reads don't convert between text and numbers (numbers to text is #711).
     [AndroidFact]
     public async Task reads_android_typed_model_text_and_number_conversions_independent_of_culture()
     {
@@ -120,38 +121,5 @@ public sealed partial class FirestoreFixture
         finally {
             CultureInfo.CurrentCulture = originalCulture;
         }
-    }
-
-    [AndroidFact]
-    public async Task rejects_out_of_range_values_in_android_typed_model_numeric_reads()
-    {
-        var sut = CrossFirebaseFirestore.Current;
-
-        var byteDocument = GetTestingDocument(sut, "android-typed-model-out-of-range-byte");
-        await byteDocument.SetDataAsync(new Dictionary<object, object?> {
-            { "byte_value", 300L }
-        });
-        await Assert.ThrowsAsync<OverflowException>(async () => {
-            var snapshot = await byteDocument.GetDocumentSnapshotAsync<NumericWidthsDocument>();
-            _ = snapshot.Data;
-        });
-
-        var shortDocument = GetTestingDocument(sut, "android-typed-model-out-of-range-short");
-        await shortDocument.SetDataAsync(new Dictionary<object, object?> {
-            { "short_value", 40000L }
-        });
-        await Assert.ThrowsAsync<OverflowException>(async () => {
-            var snapshot = await shortDocument.GetDocumentSnapshotAsync<NumericWidthsDocument>();
-            _ = snapshot.Data;
-        });
-
-        var unsignedDocument = GetTestingDocument(sut, "android-typed-model-negative-unsigned");
-        await unsignedDocument.SetDataAsync(new Dictionary<object, object?> {
-            { "uint_value", -1L }
-        });
-        await Assert.ThrowsAsync<OverflowException>(async () => {
-            var snapshot = await unsignedDocument.GetDocumentSnapshotAsync<NumericWidthsDocument>();
-            _ = snapshot.Data;
-        });
     }
 }

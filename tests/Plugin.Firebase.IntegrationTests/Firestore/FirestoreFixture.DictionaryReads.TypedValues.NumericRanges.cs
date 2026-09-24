@@ -49,8 +49,9 @@ public sealed partial class FirestoreFixture
     }
 
     [Fact]
-    public async Task gets_document_data_with_decimal_values()
+    public async Task gets_nullable_and_dictionary_decimal_values()
     {
+        // Non-nullable decimal properties are covered by reads_typed_model_with_full_width_numeric_values.
         var sut = CrossFirebaseFirestore.Current;
         var document = GetTestingDocument(sut, "numeric-decimals");
         await document.SetDataAsync(new Dictionary<object, object?> {
@@ -60,10 +61,8 @@ public sealed partial class FirestoreFixture
             { "nullable_missing", null }
         });
 
-        var data = (await document.GetDocumentSnapshotAsync<DecimalValuesDocument>()).Data!;
+        var data = (await document.GetDocumentSnapshotAsync<NullableDecimalDocument>()).Data!;
 
-        Assert.Equal(12345m, data.Integral);
-        Assert.Equal(12.5m, data.Fractional);
         Assert.Equal(67890m, data.NullablePresent);
         Assert.Null(data.NullableMissing);
 
@@ -81,6 +80,7 @@ public sealed partial class FirestoreFixture
         // Both platforms convert through Convert.ChangeType, which rounds to even instead of
         // truncating. Firestore only stores fractional numbers as doubles, so this is reachable
         // whenever a document holds a double for a property declared as an integral type.
+        // Whether to keep rounding or reject these values instead is tracked in #727.
         var sut = CrossFirebaseFirestore.Current;
         var document = GetTestingDocument(sut, "numeric-rounding");
         await document.SetDataAsync(new Dictionary<object, object?> {
@@ -99,18 +99,14 @@ public sealed partial class FirestoreFixture
     }
 
     [Fact]
-    public async Task gets_document_data_with_char_values()
+    public async Task rejects_out_of_range_and_fractional_char_values()
     {
         var sut = CrossFirebaseFirestore.Current;
         var document = GetTestingDocument(sut, "numeric-chars");
         await document.SetDataAsync(new Dictionary<object, object?> {
-            { "letter", 65L },
             { "above_char", 70000L },
             { "fractional", 65.5 }
         });
-
-        var data = (await document.GetDocumentSnapshotAsync<CharValuesDocument>()).Data!;
-        Assert.Equal('A', data.Letter);
 
         await AssertOutOfRangeAsync<CharRangeDocument>(document);
 

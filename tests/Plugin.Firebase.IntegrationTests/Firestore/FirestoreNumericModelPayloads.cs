@@ -106,3 +106,158 @@ internal sealed class CultureConversionDocument : IFirestoreObject
     [FirestoreProperty("texts_from_doubles_value")]
     public IList<string>? TextsFromDoublesValue { get; [UsedImplicitly] private set; }
 }
+
+[Preserve(AllMembers = true)]
+internal sealed class NumericBoundariesDocument : IFirestoreObject
+{
+    [FirestoreProperty("byte_min")]
+    public byte ByteMin { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("byte_max")]
+    public byte ByteMax { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("sbyte_min")]
+    public sbyte SByteMin { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("sbyte_max")]
+    public sbyte SByteMax { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("short_min")]
+    public short ShortMin { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("short_max")]
+    public short ShortMax { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("ushort_min")]
+    public ushort UShortMin { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("ushort_max")]
+    public ushort UShortMax { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("int_min")]
+    public int IntMin { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("int_max")]
+    public int IntMax { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("uint_min")]
+    public uint UIntMin { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("uint_max")]
+    public uint UIntMax { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("long_min")]
+    public long LongMin { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("long_max")]
+    public long LongMax { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("ulong_min")]
+    public ulong ULongMin { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("ulong_max")]
+    public ulong ULongMax { get; [UsedImplicitly] private set; }
+}
+
+[Preserve(AllMembers = true)]
+internal sealed class NullableDecimalDocument : IFirestoreObject
+{
+    [FirestoreProperty("nullable_present")]
+    public decimal? NullablePresent { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("nullable_missing")]
+    public decimal? NullableMissing { get; [UsedImplicitly] private set; }
+}
+
+[Preserve(AllMembers = true)]
+internal sealed class RoundedIntegralsDocument : IFirestoreObject
+{
+    [FirestoreProperty("round_down")]
+    public long RoundDown { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("round_up")]
+    public long RoundUp { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("half_to_even_down")]
+    public long HalfToEvenDown { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("half_to_even_up")]
+    public long HalfToEvenUp { get; [UsedImplicitly] private set; }
+}
+
+[Preserve(AllMembers = true)]
+internal sealed class ByteWithinRangeDocument : IFirestoreObject
+{
+    [FirestoreProperty("within_byte")]
+    public byte Value { get; [UsedImplicitly] private set; }
+}
+
+[Preserve(AllMembers = true)]
+internal sealed class ByteRangeDocument : IFirestoreObject
+{
+    [FirestoreProperty("above_byte")]
+    public byte Value { get; [UsedImplicitly] private set; }
+}
+
+[Preserve(AllMembers = true)]
+internal sealed class SByteRangeDocument : IFirestoreObject
+{
+    [FirestoreProperty("above_sbyte")]
+    public sbyte Value { get; [UsedImplicitly] private set; }
+}
+
+[Preserve(AllMembers = true)]
+internal sealed class ShortRangeDocument : IFirestoreObject
+{
+    [FirestoreProperty("above_short")]
+    public short Value { get; [UsedImplicitly] private set; }
+}
+
+[Preserve(AllMembers = true)]
+internal sealed class UShortRangeDocument : IFirestoreObject
+{
+    [FirestoreProperty("above_ushort")]
+    public ushort Value { get; [UsedImplicitly] private set; }
+}
+
+[Preserve(AllMembers = true)]
+internal sealed class IntRangeDocument : IFirestoreObject
+{
+    [FirestoreProperty("above_int")]
+    public int Value { get; [UsedImplicitly] private set; }
+}
+
+[Preserve(AllMembers = true)]
+internal sealed class NullableIntRangeDocument : IFirestoreObject
+{
+    [FirestoreProperty("above_int")]
+    public int? Value { get; [UsedImplicitly] private set; }
+}
+
+[Preserve(AllMembers = true)]
+internal sealed class UIntRangeDocument : IFirestoreObject
+{
+    [FirestoreProperty("below_unsigned")]
+    public uint Value { get; [UsedImplicitly] private set; }
+}
+
+[Preserve(AllMembers = true)]
+internal sealed class ULongRangeDocument : IFirestoreObject
+{
+    [FirestoreProperty("below_unsigned")]
+    public ulong Value { get; [UsedImplicitly] private set; }
+}
+
+[Preserve(AllMembers = true)]
+internal sealed class CharRangeDocument : IFirestoreObject
+{
+    [FirestoreProperty("above_char")]
+    public char Value { get; [UsedImplicitly] private set; }
+}
+
+[Preserve(AllMembers = true)]
+internal sealed class FractionalCharDocument : IFirestoreObject
+{
+    [FirestoreProperty("fractional")]
+    public char Value { get; [UsedImplicitly] private set; }
+}

@@ -23,9 +23,10 @@ public sealed class QuerySnapshotWrapper<T> : IQuerySnapshot<T>
 
     public IEnumerable<DocumentChange<T>> GetDocumentChanges(bool includeMetadataChanges)
     {
+        // the fields are checked first so that reading a built list doesn't allocate a delegate
         return includeMetadataChanges
-            ? LazyInitializer.EnsureInitialized(ref _documentChangesWithMetadata, () => WrapChanges(_wrapped.GetDocumentChanges(MetadataChanges.Include)))
-            : LazyInitializer.EnsureInitialized(ref _documentChanges, () => WrapChanges(_wrapped.DocumentChanges));
+            ? _documentChangesWithMetadata ?? LazyInitializer.EnsureInitialized(ref _documentChangesWithMetadata, () => WrapChanges(_wrapped.GetDocumentChanges(MetadataChanges.Include)))
+            : _documentChanges ?? LazyInitializer.EnsureInitialized(ref _documentChanges, () => WrapChanges(_wrapped.DocumentChanges));
     }
 
     public IEnumerable<IDocumentSnapshot<T>> Documents => _snapshots.Documents;

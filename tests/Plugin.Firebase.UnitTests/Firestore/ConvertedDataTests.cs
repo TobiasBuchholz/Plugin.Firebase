@@ -58,15 +58,18 @@ public class ConvertedDataTests
     public async Task concurrent_first_reads_return_the_instance_stored_first()
     {
         var holder = new Holder();
+        var conversions = 0;
         using var bothConverting = new Barrier(2);
 
         // both threads convert before either stores, so one of them has to hand back the other's instance
         object? Read() => ConvertedData<object>.GetOrConvert(ref holder.Field, bothConverting, barrier => {
-            barrier.SignalAndWait(TimeSpan.FromSeconds(10));
+            Interlocked.Increment(ref conversions);
+            Assert.True(barrier.SignalAndWait(TimeSpan.FromSeconds(10)), "the other thread never started converting");
             return new object();
         });
         var reads = await Task.WhenAll(Task.Run(Read), Task.Run(Read));
 
+        Assert.Equal(2, conversions);
         Assert.Same(reads[0], reads[1]);
         Assert.Same(reads[0], ConvertedData<object>.GetOrConvert(ref holder.Field, bothConverting, _ => new object()));
     }

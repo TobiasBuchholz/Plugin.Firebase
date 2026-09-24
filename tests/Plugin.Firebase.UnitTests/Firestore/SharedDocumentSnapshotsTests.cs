@@ -22,7 +22,7 @@ public class SharedDocumentSnapshotsTests
     }
 
     [Fact]
-    public void reading_only_changes_wraps_only_the_changed_documents()
+    public void reading_one_change_list_wraps_only_the_changed_documents_without_looking_up_paths()
     {
         var native = new NativeQuery(A, B);
 
@@ -31,6 +31,7 @@ public class SharedDocumentSnapshotsTests
         Assert.Equal(new[] { B }, changed.Select(x => x.Document));
         Assert.Equal(0, native.DocumentReads);
         Assert.Equal(1, native.Wraps);
+        Assert.Equal(0, native.PathLookups);
     }
 
     [Fact]
@@ -67,6 +68,21 @@ public class SharedDocumentSnapshotsTests
         var withMetadata = native.Snapshots.GetChangedDocuments([A, Removed]);
 
         Assert.Same(withoutMetadata[0], withMetadata[1]);
+    }
+
+    [Fact]
+    public void a_third_list_reuses_the_snapshots_of_the_first_two()
+    {
+        var native = new NativeQuery(A, B);
+        var withoutMetadata = native.Snapshots.GetChangedDocuments([A, Removed]);
+        var documents = native.Snapshots.Documents;
+
+        var withMetadata = native.Snapshots.GetChangedDocuments([A, B, Removed]);
+
+        Assert.Same(documents[0], withMetadata[0]);
+        Assert.Same(documents[1], withMetadata[1]);
+        Assert.Same(withoutMetadata[1], withMetadata[2]);
+        Assert.Same(withoutMetadata[0], documents[0]);
     }
 
     [Fact]

@@ -5,8 +5,10 @@ namespace Plugin.Firebase.Firestore;
 /// snapshot per document.
 /// </summary>
 /// <remarks>
-/// Native calls, such as reading the document list or looking up a document's path, run outside the lock; it only guards
-/// publishing the document list and the path cache. <c>wrap</c> runs under the lock, so it must only create the wrapper.
+/// The first list that is built wraps its documents without looking up any paths. Only when a second list is built does
+/// a path cache get created, indexing the first list, so reading a single list never looks up a path. Native calls, such
+/// as reading the document list or looking up a document's path, run outside the lock; it only guards the path cache.
+/// <c>wrap</c> can run under the lock, so it must only create the wrapper.
 /// </remarks>
 /// <typeparam name="TNativeDocument">The native document snapshot type.</typeparam>
 /// <typeparam name="TSnapshot">The snapshot handed out for each document.</typeparam>
@@ -17,9 +19,9 @@ internal sealed class SharedDocumentSnapshots<TNativeDocument, TSnapshot>
     private readonly Func<TNativeDocument, TSnapshot> _wrap;
     private readonly Func<TNativeDocument, string> _getPath;
     private readonly object _lock = new();
-    private IReadOnlyList<TNativeDocument>? _nativeDocuments;
     private IReadOnlyList<TSnapshot>? _documents;
-    // created with the first change list, so reading only the document list never looks up a path
+    // the first list that was built, kept without paths until a second list needs to share with it
+    private WrappedList? _firstList;
     private Dictionary<string, TSnapshot>? _snapshotsByPath;
 
     public SharedDocumentSnapshots(
@@ -34,8 +36,8 @@ internal sealed class SharedDocumentSnapshots<TNativeDocument, TSnapshot>
     }
 
     /// <summary>
-    /// The snapshots of the query's documents, built on the first read. Building fails without storing anything if the
-    /// native call throws, so the next read tries again.
+    /// The snapshots of the query's documents, built on the first read. Nothing is stored if the native call throws, so
+    /// the next read tries again.
     /// </summary>
     public IReadOnlyList<TSnapshot> Documents {
         get {
@@ -44,56 +46,55 @@ internal sealed class SharedDocumentSnapshots<TNativeDocument, TSnapshot>
                 return documents;
             }
 
-            var nativeDocuments = _getNativeDocuments().ToList();
-            var wrapped = nativeDocuments.Select(_wrap).ToList().AsReadOnly();
-            string[]? paths = null;
-            while(true) {
-                lock(_lock) {
-                    if(_documents != null) {
-                        return _documents;
-                    }
-                    if(_snapshotsByPath == null) {
-                        // no change list has been built yet, so there is nothing to share with
-                        _nativeDocuments = nativeDocuments;
-                        return _documents = wrapped;
-                    }
-                    if(paths != null) {
-                        return _documents = nativeDocuments.Select((x, i) => GetOrAdd(paths[i], x)).ToList().AsReadOnly();
-                    }
-                }
-                // a change list was built meanwhile, so look up the paths and try again
-                paths = nativeDocuments.Select(_getPath).ToArray();
-            }
+            var built = Share(_getNativeDocuments().ToList()).AsReadOnly();
+            return Interlocked.CompareExchange(ref _documents, built, null) ?? built;
         }
     }
 
     /// <summary>
     /// Returns the snapshots for the documents of a change list, reusing the snapshot of any document that is in
-    /// <see cref="Documents"/> or that another change list has already wrapped.
+    /// <see cref="Documents"/> or in another change list.
     /// </summary>
     public IReadOnlyList<TSnapshot> GetChangedDocuments(IReadOnlyList<TNativeDocument> nativeDocuments)
     {
-        var paths = nativeDocuments.Select(_getPath).ToArray();
-        string[]? documentPaths = null;
+        return Share(nativeDocuments);
+    }
+
+    private List<TSnapshot> Share(IReadOnlyList<TNativeDocument> nativeDocuments)
+    {
+        string[]? paths = null;
+        string[]? firstListPaths = null;
         while(true) {
-            IReadOnlyList<TNativeDocument>? documentsToIndex;
+            WrappedList? firstListToIndex = null;
             lock(_lock) {
-                if(_snapshotsByPath == null && (_documents == null || documentPaths != null)) {
-                    // index the document list in the same step that creates the cache, so no change can wrap one of
-                    // its documents first
-                    _snapshotsByPath = new Dictionary<string, TSnapshot>();
-                    if(documentPaths != null) {
-                        for(var i = 0; i < documentPaths.Length; i++) {
-                            _snapshotsByPath.Add(documentPaths[i], _documents![i]);
+                if(_snapshotsByPath == null) {
+                    if(_firstList == null) {
+                        // nothing else has been built, so there is nothing to share with yet
+                        var wrapped = nativeDocuments.Select(_wrap).ToList();
+                        _firstList = new WrappedList(nativeDocuments, wrapped);
+                        return wrapped;
+                    }
+                    if(paths != null && firstListPaths != null) {
+                        // index the first list in the same step that creates the cache, so no other list can wrap one
+                        // of its documents first
+                        _snapshotsByPath = new Dictionary<string, TSnapshot>();
+                        for(var i = 0; i < firstListPaths.Length; i++) {
+                            _snapshotsByPath.Add(firstListPaths[i], _firstList.Snapshots[i]);
                         }
+                        _firstList = null;
+                    } else {
+                        firstListToIndex = _firstList;
                     }
                 }
-                if(_snapshotsByPath != null) {
+                if(_snapshotsByPath != null && paths != null) {
                     return nativeDocuments.Select((x, i) => GetOrAdd(paths[i], x)).ToList();
                 }
-                documentsToIndex = _nativeDocuments;
             }
-            documentPaths = documentsToIndex!.Select(_getPath).ToArray();
+            // another list exists, so look up the paths outside the lock and try again
+            paths ??= nativeDocuments.Select(_getPath).ToArray();
+            if(firstListToIndex != null) {
+                firstListPaths = firstListToIndex.NativeDocuments.Select(_getPath).ToArray();
+            }
         }
     }
 
@@ -105,4 +106,6 @@ internal sealed class SharedDocumentSnapshots<TNativeDocument, TSnapshot>
         }
         return snapshot;
     }
+
+    private sealed record WrappedList(IReadOnlyList<TNativeDocument> NativeDocuments, IReadOnlyList<TSnapshot> Snapshots);
 }

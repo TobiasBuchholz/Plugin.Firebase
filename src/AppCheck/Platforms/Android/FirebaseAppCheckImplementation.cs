@@ -1,4 +1,5 @@
 using Android.Gms.Extensions;
+using Android.Runtime;
 using Firebase.AppCheck;
 using Firebase.AppCheck.Debug;
 using Firebase.AppCheck.PlayIntegrity;
@@ -7,9 +8,13 @@ namespace Plugin.Firebase.AppCheck;
 
 public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
 {
-    // The native provider factory is process-wide and cannot be removed, so every implementation instance,
-    // including one created after CrossFirebaseAppCheck.Dispose(), shares the same installation state.
-    private static readonly AppCheckProviderInstaller ProviderInstaller = new(InstallProviderFactory);
+    // The configured provider applies to the default Firebase app rather than to one wrapper instance, so every
+    // implementation instance, including one created after CrossFirebaseAppCheck.Dispose(), shares this state.
+    private static readonly AppCheckProviderInstaller<global::Firebase.FirebaseApp> ProviderInstaller = new(
+        () => Core.Platforms.Android.CrossFirebase.TryGetDefaultApp(out var app) ? app : null,
+        InstallProviderFactory,
+        (first, second) => JNIEnv.IsSameObject(first.Handle, second.Handle)
+    );
 
     public void Configure(AppCheckOptions options)
     {
@@ -17,7 +22,7 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
             throw new ArgumentNullException(nameof(options));
         }
 
-        if(options.Provider is AppCheckProviderType.DeviceCheck or AppCheckProviderType.AppAttest) {
+        if(options.Provider is not (AppCheckProviderType.Disabled or AppCheckProviderType.Debug or AppCheckProviderType.PlayIntegrity)) {
             throw new NotSupportedException(
                 $"AppCheck provider '{options.Provider}' is not supported on Android."
             );
@@ -26,19 +31,11 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
         ProviderInstaller.Configure(options);
     }
 
-    private static bool InstallProviderFactory(AppCheckProviderType provider)
+    private static void InstallProviderFactory(
+        global::Firebase.FirebaseApp firebaseApp,
+        AppCheckProviderType provider
+    )
     {
-        global::Firebase.FirebaseApp firebaseApp;
-        try {
-            firebaseApp = global::Firebase.FirebaseApp.Instance;
-        } catch(Java.Lang.IllegalStateException) {
-            Console.WriteLine(
-                "[Plugin.Firebase.AppCheck] Skipping provider installation: Firebase default app not initialized. "
-                    + "Check your google-services.json or provide explicit FirebaseOptions to CrossFirebase.Initialize()."
-            );
-            return false;
-        }
-
         Console.WriteLine(
             $"Plugin.Firebase AppCheck: installing provider factory '{provider}' (Android)."
         );
@@ -46,13 +43,12 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
         IAppCheckProviderFactory factory = provider switch {
             AppCheckProviderType.Debug => (IAppCheckProviderFactory) DebugAppCheckProviderFactory.Instance,
             AppCheckProviderType.PlayIntegrity => (IAppCheckProviderFactory) PlayIntegrityAppCheckProviderFactory.Instance,
-            _ => throw new NotSupportedException($"AppCheck provider '{provider}' is not supported on Android.")
+            _ => throw new ArgumentOutOfRangeException(nameof(provider), provider, "Configure only accepts Android providers.")
         };
 
         global::Firebase
             .AppCheck.FirebaseAppCheck.GetInstance(firebaseApp)
             .InstallAppCheckProviderFactory(factory);
-        return true;
     }
 
     public async Task<string> GetTokenAsync(bool forceRefresh = false)
@@ -75,6 +71,7 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
 
     public void Dispose()
     {
-        ProviderInstaller.CancelPendingInstallation();
+        // The configured provider belongs to the default Firebase app, not to this instance, so disposing an
+        // instance leaves it in place. Configure AppCheckOptions.Disabled before initialization to drop it.
     }
 }

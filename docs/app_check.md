@@ -40,9 +40,10 @@ Configuring a provider that is not supported on the current platform throws a `N
 
 On Android, `Configure()` maps to the native `FirebaseAppCheck.installAppCheckProviderFactory()`, which may be called at any time after Firebase is initialized:
 
-- Configuring `Debug` or `PlayIntegrity` after `CrossFirebase.Initialize()` installs that provider factory right away. Each later call installs the new factory in place of the previous one.
-- The native SDK has no API to remove an installed provider factory. Once one is installed, `Configure(AppCheckOptions.Disabled)` throws an `InvalidOperationException` and the installed provider stays active until the app restarts. To run without App Check, don't configure a provider at all (or configure `Disabled` before `CrossFirebase.Initialize()`).
-- Configuring `Disabled` while no provider factory is installed does not throw. Before `CrossFirebase.Initialize()`, it cancels a provider that was configured earlier.
+- Configuring `Debug` or `PlayIntegrity` after `CrossFirebase.Initialize()` installs that provider factory right away, in place of any factory installed before. Configuring the provider that is already installed does nothing.
+- The native SDK has no API to remove an installed provider factory. While one is installed on the default Firebase app, `Configure(AppCheckOptions.Disabled)` throws an `InvalidOperationException`, and the provider stays active until the app process restarts. To run without App Check, don't configure a provider in that process.
+- Android can recreate the activity without restarting the process (for example after a language or font-size change), so code in `OnCreate` runs again. A `Configure(AppCheckOptions.Disabled)` there throws if an earlier activity in the same process installed a provider, even when it comes before `CrossFirebase.Initialize()`. The bundled initializer logs this and keeps the installed provider.
+- Configuring `Disabled` while no provider factory is installed does not throw. Before the first `CrossFirebase.Initialize()`, it replaces a provider that was configured earlier. A factory belongs to the Firebase app it was installed on, so after that app is deleted, `Disabled` is accepted again.
 
 ```c#
 CrossFirebase.Initialize(activity, activityProvider);

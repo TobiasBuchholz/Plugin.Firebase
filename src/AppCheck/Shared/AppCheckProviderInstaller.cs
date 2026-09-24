@@ -16,10 +16,10 @@ internal sealed class AppCheckProviderInstaller<TApp> where TApp : class
     private readonly Func<TApp?> _getDefaultApp;
     private readonly Action<TApp, AppCheckProviderType> _installProviderFactory;
     private readonly Func<TApp, TApp, bool> _isSameApp;
+    private int _registered;
     private AppCheckOptions _options = AppCheckOptions.Disabled;
     private bool _initialized;
-    private TApp? _appWithFactory;
-    private AppCheckProviderType _installedProvider;
+    private (TApp App, AppCheckProviderType Provider)? _installed;
 
     /// <param name="getDefaultApp">Returns the default Firebase app, or <c>null</c> when there is none.</param>
     /// <param name="installProviderFactory">Installs the native factory for a provider on an app.</param>
@@ -32,10 +32,6 @@ internal sealed class AppCheckProviderInstaller<TApp> where TApp : class
         _getDefaultApp = getDefaultApp;
         _installProviderFactory = installProviderFactory;
         _isSameApp = isSameApp;
-
-        // Registered once for the installer's lifetime. Registered before the first initialization, it also runs
-        // after every later CrossFirebase.Initialize(), so a re-created default app gets the configured provider.
-        _ = FirebaseInitializationHooks.RegisterAfterInitialize(OnFirebaseInitialized);
     }
 
     /// <summary>
@@ -47,11 +43,19 @@ internal sealed class AppCheckProviderInstaller<TApp> where TApp : class
     /// </exception>
     public void Configure(AppCheckOptions options)
     {
+        // Registered on first use rather than in the constructor, so a static installer never takes the hooks lock
+        // during type initialization. Registered before the first initialization, the callback also runs after every
+        // later CrossFirebase.Initialize(), so a re-created default app gets the configured provider.
+        if(Interlocked.Exchange(ref _registered, 1) == 0) {
+            _ = FirebaseInitializationHooks.RegisterAfterInitialize(OnFirebaseInitialized);
+        }
+
         lock(_syncRoot) {
-            if(options.Provider == AppCheckProviderType.Disabled
-                && GetInstalledProvider(_getDefaultApp()) is { } installedProvider) {
+            var app = _getDefaultApp();
+            ForgetReplacedApp(app);
+            if(options.Provider == AppCheckProviderType.Disabled && _installed is { } installed) {
                 throw new InvalidOperationException(
-                    $"App Check cannot be disabled after the '{installedProvider}' provider factory was installed on the "
+                    $"App Check cannot be disabled after the '{installed.Provider}' provider factory was installed on the "
                         + "default Firebase app, because the native Firebase SDK cannot remove an installed provider factory. "
                         + "It stays active until the app process restarts."
                 );
@@ -59,7 +63,7 @@ internal sealed class AppCheckProviderInstaller<TApp> where TApp : class
 
             _options = options;
             if(_initialized) {
-                InstallConfiguredProvider();
+                InstallConfiguredProvider(app);
             }
         }
     }
@@ -68,19 +72,20 @@ internal sealed class AppCheckProviderInstaller<TApp> where TApp : class
     {
         lock(_syncRoot) {
             _initialized = true;
-            InstallConfiguredProvider();
+            var app = _getDefaultApp();
+            ForgetReplacedApp(app);
+            InstallConfiguredProvider(app);
         }
     }
 
-    // Callers hold _syncRoot.
-    private void InstallConfiguredProvider()
+    // Callers hold _syncRoot and have called ForgetReplacedApp(app).
+    private void InstallConfiguredProvider(TApp? app)
     {
         var provider = _options.Provider;
-        if(provider == AppCheckProviderType.Disabled) {
+        if(provider == AppCheckProviderType.Disabled || _installed?.Provider == provider) {
             return;
         }
 
-        var app = _getDefaultApp();
         if(app == null) {
             Console.WriteLine(
                 "[Plugin.Firebase.AppCheck] Skipping provider installation: Firebase default app not initialized."
@@ -88,20 +93,16 @@ internal sealed class AppCheckProviderInstaller<TApp> where TApp : class
             return;
         }
 
-        if(GetInstalledProvider(app) == provider) {
-            return;
-        }
-
         _installProviderFactory(app, provider);
-        _appWithFactory = app;
-        _installedProvider = provider;
+        _installed = (app, provider);
     }
 
-    // A factory belongs to the app it was installed on, so it no longer counts once that app is deleted.
-    private AppCheckProviderType? GetInstalledProvider(TApp? app)
+    // Callers hold _syncRoot. A factory belongs to the app it was installed on, and a deleted app never becomes the
+    // default again, so the record is dropped once that app is no longer the default. That also releases the app.
+    private void ForgetReplacedApp(TApp? defaultApp)
     {
-        return app != null && _appWithFactory != null && _isSameApp(_appWithFactory, app)
-            ? _installedProvider
-            : null;
+        if(_installed is { } installed && (defaultApp == null || !_isSameApp(installed.App, defaultApp))) {
+            _installed = null;
+        }
     }
 }

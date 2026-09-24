@@ -57,6 +57,17 @@ namespace Plugin.Firebase.IntegrationTests.AppCheck
             AppCheckAssertions.InstalledAndroidProviderFactoryIs(AppCheckProviderType.Debug);
         }
 
+        [AndroidFact]
+        public void keeps_the_installed_provider_after_dispose_on_android()
+        {
+            CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
+
+            CrossFirebaseAppCheck.Dispose();
+
+            AppCheckAssertions.InstalledAndroidProviderFactoryIs(AppCheckProviderType.Debug);
+            Assert.Throws<InvalidOperationException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled));
+        }
+
         [Fact]
         public void covers_platform_specific_unsupported_provider_behavior()
         {

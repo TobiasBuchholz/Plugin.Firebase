@@ -72,6 +72,7 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
     public void Dispose()
     {
         // The configured provider belongs to the default Firebase app, not to this instance, so disposing an
-        // instance leaves it in place. Configure AppCheckOptions.Disabled before initialization to drop it.
+        // instance leaves it in place. Before the first initialization, configuring AppCheckOptions.Disabled drops
+        // a provider that is not installed yet.
     }
 }

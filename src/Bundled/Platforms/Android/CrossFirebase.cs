@@ -35,7 +35,7 @@ public static class CrossFirebase
                 Console.WriteLine(
                     "Plugin.Firebase AppCheck is not supported for this build. Continuing without AppCheck."
                 );
-            } catch(InvalidOperationException e) {
+            } catch(InvalidOperationException e) when(e is not ObjectDisposedException) {
                 // Initialize runs again when Android recreates the activity in the same process, and an installed
                 // App Check provider factory cannot be removed.
                 Console.WriteLine(

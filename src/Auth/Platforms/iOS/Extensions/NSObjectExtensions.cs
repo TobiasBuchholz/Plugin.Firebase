@@ -1,3 +1,4 @@
+using System.Globalization;
 using Plugin.Firebase.Core.Platforms.iOS.Extensions;
 
 namespace Plugin.Firebase.Auth.Platforms.iOS.Extensions;
@@ -50,7 +51,14 @@ public static class NSObjectExtensions
 
         var conversionType = Nullable.GetUnderlyingType(targetType) ?? targetType;
         if(conversionType.IsEnum) {
-            return Enum.ToObject(conversionType, @this.Int64Value);
+            // converting through the underlying type lets ChangeType throw OverflowException for
+            // stored values that don't fit the enum, instead of Enum.ToObject silently wrapping
+            var underlyingType = Enum.GetUnderlyingType(conversionType);
+            object value = @this.ObjCType is "Q" or "L" ? @this.UInt64Value : @this.Int64Value;
+            return Enum.ToObject(
+                conversionType,
+                Convert.ChangeType(value, underlyingType, CultureInfo.InvariantCulture)
+            );
         }
 
         switch(Type.GetTypeCode(conversionType)) {

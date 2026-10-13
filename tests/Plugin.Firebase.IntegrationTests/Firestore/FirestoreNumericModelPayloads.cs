@@ -94,6 +94,44 @@ internal sealed class EnumModelDocument : IFirestoreObject
     public NumericRating RatingFromDoubleValue { get; [UsedImplicitly] private set; }
 }
 
+internal enum EdgeByteRating : byte
+{
+    Min = 0,
+    Max = 255
+}
+
+internal enum EdgeIntRating : int
+{
+    Min = -2147483648,
+    Max = 2147483647
+}
+
+[Preserve(AllMembers = true)]
+internal sealed class ByteEnumRangeDocument : IFirestoreObject
+{
+    [FirestoreProperty("byte_enum")]
+    public NumericRating ByteEnum { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("byte_min")]
+    public EdgeByteRating ByteMin { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("byte_max")]
+    public EdgeByteRating ByteMax { get; [UsedImplicitly] private set; }
+}
+
+[Preserve(AllMembers = true)]
+internal sealed class IntEnumRangeDocument : IFirestoreObject
+{
+    [FirestoreProperty("int_enum")]
+    public PokeType IntEnum { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("int_min")]
+    public EdgeIntRating IntMin { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("int_max")]
+    public EdgeIntRating IntMax { get; [UsedImplicitly] private set; }
+}
+
 [Preserve(AllMembers = true)]
 internal sealed class CultureConversionDocument : IFirestoreObject
 {

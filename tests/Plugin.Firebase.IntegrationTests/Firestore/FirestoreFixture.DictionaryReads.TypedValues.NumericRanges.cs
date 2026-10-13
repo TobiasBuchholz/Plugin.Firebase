@@ -144,6 +144,48 @@ public sealed partial class FirestoreFixture
         Assert.Equal((byte) 200, withinRange.Value);
     }
 
+    [Fact]
+    public async Task rejects_enum_values_outside_the_underlying_type_range()
+    {
+        var sut = CrossFirebaseFirestore.Current;
+        var document = GetTestingDocument(sut, "enum-out-of-range");
+        await document.SetDataAsync(new Dictionary<object, object?> {
+            // without a range check Enum.ToObject narrows these to 44 and 705032704
+            { "byte_enum", 300L },
+            { "int_enum", 5000000000L },
+            { "byte_min", 0L },
+            { "byte_max", 255L },
+            { "int_min", (long) int.MinValue },
+            { "int_max", (long) int.MaxValue }
+        });
+
+        await AssertOutOfRangeAsync<ByteEnumRangeDocument>(document);
+        await AssertOutOfRangeAsync<IntEnumRangeDocument>(document);
+    }
+
+    [Fact]
+    public async Task reads_enum_values_at_the_underlying_type_edges()
+    {
+        var sut = CrossFirebaseFirestore.Current;
+        var document = GetTestingDocument(sut, "enum-edges");
+        await document.SetDataAsync(new Dictionary<object, object?> {
+            { "byte_enum", 0L },
+            { "int_enum", 0L },
+            { "byte_min", 0L },
+            { "byte_max", 255L },
+            { "int_min", (long) int.MinValue },
+            { "int_max", (long) int.MaxValue }
+        });
+
+        var byteData = (await document.GetDocumentSnapshotAsync<ByteEnumRangeDocument>()).Data!;
+        Assert.Equal(EdgeByteRating.Min, byteData.ByteMin);
+        Assert.Equal(EdgeByteRating.Max, byteData.ByteMax);
+
+        var intData = (await document.GetDocumentSnapshotAsync<IntEnumRangeDocument>()).Data!;
+        Assert.Equal(EdgeIntRating.Min, intData.IntMin);
+        Assert.Equal(EdgeIntRating.Max, intData.IntMax);
+    }
+
     private static async Task AssertOutOfRangeAsync<T>(IDocumentReference document)
     {
         var snapshot = await document.GetDocumentSnapshotAsync<T>();

@@ -146,7 +146,13 @@ public static class NSObjectExtensions
 
         var conversionType = Nullable.GetUnderlyingType(targetType) ?? targetType;
         if(conversionType.IsEnum) {
-            return Enum.ToObject(conversionType, @this.Int64Value);
+            // converting through the underlying type lets ChangeType throw OverflowException for
+            // stored values that don't fit the enum, instead of Enum.ToObject silently wrapping
+            var underlyingType = Enum.GetUnderlyingType(conversionType);
+            var value = Convert.ChangeType(
+                @this.ToConversionSource(), underlyingType, CultureInfo.InvariantCulture
+            );
+            return Enum.ToObject(conversionType, value);
         }
 
         switch(Type.GetTypeCode(conversionType)) {

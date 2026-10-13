@@ -73,10 +73,10 @@ public static class DictionaryExtensions
                 @this.Put(key.ToString(), x.ToJavaList());
                 break;
             case DateTime x:
-                @this.Put(key.ToString(), x.ToJavaDate());
+                @this.Put(key.ToString(), x.ToTimestamp());
                 break;
             case DateTimeOffset x:
-                @this.Put(key.ToString(), x.ToJavaDate());
+                @this.Put(key.ToString(), x.ToTimestamp());
                 break;
             case IFirestoreObject x:
                 @this.Put(key.ToString(), x.ToJavaObject());

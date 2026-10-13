@@ -9,8 +9,10 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         {
             var sut = CrossFirebaseFirestore.Current;
             var document = GetTestingDocument(sut, "typed-boolean-and-datetime-map-values");
-            var expectedEarlyDate = new DateTimeOffset(2026, 5, 2, 13, 14, 15, 123, TimeSpan.Zero);
-            var expectedLateDate = new DateTimeOffset(2026, 5, 3, 16, 17, 18, 456, TimeSpan.Zero);
+            var expectedEarlyDate = new DateTimeOffset(2026, 5, 2, 13, 14, 15, TimeSpan.Zero)
+                .AddTicks(1234567);
+            var expectedLateDate = new DateTimeOffset(2026, 5, 3, 16, 17, 18, TimeSpan.Zero)
+                .AddTicks(4567890);
 
             await document.SetDataAsync(new TypedMapValuesDocument(
                 new Dictionary<string, bool> {
@@ -29,11 +31,11 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
             Assert.InRange(
                 Math.Abs(snapshot.Data!.DateMaps["early"].Ticks - expectedEarlyDate.Ticks),
                 0,
-                IntegrationTestTimeouts.OneMillisecondTicks);
+                10);
             Assert.InRange(
                 Math.Abs(snapshot.Data!.DateMaps["late"].Ticks - expectedLateDate.Ticks),
                 0,
-                IntegrationTestTimeouts.OneMillisecondTicks);
+                10);
         }
 
 

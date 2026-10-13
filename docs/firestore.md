@@ -112,9 +112,9 @@ Transactions follow the same rules, with one addition. If the update function pa
 throws, the transaction is aborted without committing and `RunTransactionAsync` throws a `FirebaseException` whose
 `InnerException` is the original exception, on both platforms. A `CrossPlatformFirebaseFirestoreException` that
 the update function lets propagate, for example from a failed `ITransaction.GetDocument`, isn't wrapped again:
-`RunTransactionAsync` throws a `CrossPlatformFirebaseFirestoreException` for the same native error. On Android the
-native transaction runner first applies its retry rules to that error; on iOS the transaction isn't retried. On
-Android the same applies to a native `FirebaseFirestoreException` that the update function throws directly.
+`RunTransactionAsync` throws a `CrossPlatformFirebaseFirestoreException` for the same native error. The native
+transaction runner first applies its retry rules to that error, on both platforms. On Android the same applies to a
+native `FirebaseFirestoreException` that the update function throws directly.
 
 ### Further information
 

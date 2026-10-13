@@ -51,8 +51,16 @@ public sealed class StorageReferenceWrapper : IStorageReference
     /// <inheritdoc/>
     public IStorageTransferTask PutFile(string filePath, IStorageMetadata? metadata = null)
     {
-        using var fileStream = File.Open(filePath, FileMode.Open);
-        return PutData(CreateData(fileStream), metadata);
+        var url = NSUrl.FromFilename(filePath)
+            ?? throw new InvalidOperationException("Could not create a file URL for the storage upload.");
+
+        var wrapper = new StorageTransferTaskWrapper<StorageUploadTask, NativeStorageMetadata>();
+        wrapper.TransferTask = _wrapped.PutFile(
+            url,
+            metadata?.ToNative(),
+            (x, e) => wrapper.CompletionHandler(x, e)
+        );
+        return wrapper;
     }
 
     /// <inheritdoc/>
@@ -172,7 +180,7 @@ public sealed class StorageReferenceWrapper : IStorageReference
             maxSize,
             (data, error) => {
                 if(error == null && data != null) {
-                    if((long)data.Length > maxSize) {
+                    if((long) data.Length > maxSize) {
                         tcs.SetException(CreateDownloadSizeExceededException(data.Length, maxSize));
                     } else {
                         tcs.SetResult(data.AsStream());
@@ -195,7 +203,7 @@ public sealed class StorageReferenceWrapper : IStorageReference
             maxDownloadSizeBytes,
             (data, error) => {
                 if(error == null && data != null) {
-                    if((long)data.Length > maxDownloadSizeBytes) {
+                    if((long) data.Length > maxDownloadSizeBytes) {
                         tcs.SetException(
                             CreateDownloadSizeExceededException(data.Length, maxDownloadSizeBytes)
                         );

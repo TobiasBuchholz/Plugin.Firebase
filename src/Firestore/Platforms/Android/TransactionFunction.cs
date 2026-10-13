@@ -22,11 +22,19 @@ public class TransactionFunction<TResult> : Object, Transaction.IFunction
     /// </summary>
     internal Exception? UpdateException { get; private set; }
 
+    /// <summary>
+    /// The value returned by the update function during the last successful <see cref="Apply"/>
+    /// invocation. The result never needs to be a Firestore value: it stays in .NET so any TResult
+    /// works and nothing can fail after the commit.
+    /// </summary>
+    internal TResult? Result { get; private set; }
+
     public Object? Apply(Transaction transaction)
     {
         UpdateException = null;
         try {
-            return _func(transaction.ToAbstract()).ToJavaObject();
+            Result = _func(transaction.ToAbstract());
+            return null;
         } catch(CrossPlatformFirebaseFirestoreException e) when(e.InnerException is FirebaseFirestoreException native) {
             // Hand the native exception back to the transaction runner: it retries only a
             // FirebaseFirestoreException with a retryable code. RunTransactionAsync wraps it again when

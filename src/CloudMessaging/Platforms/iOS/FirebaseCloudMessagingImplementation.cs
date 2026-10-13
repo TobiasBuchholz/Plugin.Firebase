@@ -114,22 +114,41 @@ public sealed class FirebaseCloudMessagingImplementation
         Action<UNNotificationPresentationOptions> completionHandler
     )
     {
-        var fcmNotification = notification.ToFCMNotification();
-        OnNotificationReceived(fcmNotification);
-        if(!fcmNotification.IsSilentInForeground) {
-            if(OperatingSystem.IsIOSVersionAtLeast(14)) {
-                completionHandler(
-                    UNNotificationPresentationOptions.Banner
-                        | UNNotificationPresentationOptions.List
-                        | UNNotificationPresentationOptions.Sound
-                );
-            } else {
-                completionHandler(
-                    UNNotificationPresentationOptions.Alert
-                        | UNNotificationPresentationOptions.Sound
-                );
-            }
+        CompleteForegroundNotification(
+            notification.ToFCMNotification(),
+            completionHandler
+        );
+    }
+
+    internal void CompleteForegroundNotification(
+        FCMNotification notification,
+        Action<UNNotificationPresentationOptions> completionHandler
+    )
+    {
+        var presentationOptions = GetPresentationOptions(notification);
+        try {
+            OnNotificationReceived(notification);
         }
+        finally {
+            // the delegate contract requires completing exactly once on every path,
+            // including silent notifications and throwing event subscribers
+            completionHandler(presentationOptions);
+        }
+    }
+
+    internal static UNNotificationPresentationOptions GetPresentationOptions(
+        FCMNotification notification
+    )
+    {
+        if(notification.IsSilentInForeground) {
+            return UNNotificationPresentationOptions.None;
+        }
+        return OperatingSystem.IsIOSVersionAtLeast(14)
+            ? UNNotificationPresentationOptions.Banner
+                | UNNotificationPresentationOptions.List
+                | UNNotificationPresentationOptions.Sound
+            : UNNotificationPresentationOptions.Alert
+                | UNNotificationPresentationOptions.Sound;
     }
 
     /// <summary>

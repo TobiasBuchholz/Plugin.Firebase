@@ -91,7 +91,6 @@ public sealed partial class FirestoreFixture
         Assert.Equal(NumericRating.High, data.RatingFromDoubleValue);
     }
 
-    // Android only: iOS typed reads don't convert between text and numbers (numbers to text is #711).
     [Fact]
     public async Task reads_typed_model_text_and_number_conversions_independent_of_culture()
     {

@@ -126,6 +126,51 @@ public sealed partial class FirestoreFixture
     }
 
     [Fact]
+    public async Task increments_integer_field_values_beyond_double_precision_in_batch_transaction_and_merge()
+    {
+        // Every write path converts FieldValue through the same ToNative helper, but batch,
+        // transaction, and merge writes each have their own entry point - this guards them all.
+        var sut = CrossFirebaseFirestore.Current;
+        const long beyondDoublePrecision = 9_007_199_254_740_993L;
+
+        var batchDocument = GetTestingDocument(sut, "integer-increment-batch");
+        await batchDocument.SetDataAsync(new Dictionary<object, object?> { { "value", 0L } });
+        var batch = sut.CreateBatch();
+        batch.UpdateData(batchDocument, ("value", FieldValue.IntegerIncrement(beyondDoublePrecision)));
+        await batch.CommitAsync();
+
+        var batchData = (await batchDocument.GetDocumentSnapshotAsync<Dictionary<string, long>>()).Data!;
+        Assert.Equal(beyondDoublePrecision, batchData["value"]);
+
+        var transactionDocument = GetTestingDocument(sut, "integer-increment-transaction");
+        await transactionDocument.SetDataAsync(new Dictionary<object, object?> { { "value", 0L } });
+        await sut.RunTransactionAsync(transaction => {
+            transaction.UpdateData(
+                transactionDocument, ("value", FieldValue.IntegerIncrement(beyondDoublePrecision)));
+            return true;
+        });
+
+        var transactionData =
+            (await transactionDocument.GetDocumentSnapshotAsync<Dictionary<string, long>>()).Data!;
+        Assert.Equal(beyondDoublePrecision, transactionData["value"]);
+
+        var mergeDocument = GetTestingDocument(sut, "integer-increment-merge");
+        await mergeDocument.SetDataAsync(new Dictionary<object, object?> {
+            { "value", 0L },
+            { "untouched", "kept-by-merge" }
+        });
+        await mergeDocument.SetDataAsync(
+            new Dictionary<object, object?> {
+                { "value", FieldValue.IntegerIncrement(beyondDoublePrecision) }
+            },
+            SetOptions.Merge());
+
+        var mergeData = (await mergeDocument.GetDocumentSnapshotAsync<Dictionary<string, object>>()).Data!;
+        Assert.Equal(beyondDoublePrecision, mergeData["value"]);
+        Assert.Equal("kept-by-merge", mergeData["untouched"]);
+    }
+
+    [Fact]
     public async Task runs_transaction()
     {
         var sut = CrossFirebaseFirestore.Current;

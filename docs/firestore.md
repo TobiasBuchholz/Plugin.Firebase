@@ -86,8 +86,9 @@ stored value with `Convert.ChangeType` on both platforms, so:
 
 - A value outside the property's range throws an `OverflowException` rather than silently
   wrapping to an unrelated number.
-- A fractional value read into an integral property is rounded to even, not truncated, so a
-  stored `13.5` read into a `long` gives `14` and `12.5` gives `12`.
+- A fractional value read into an integral property or an enum throws an
+  `InvalidCastException` rather than silently rounding or truncating. A double with no
+  fractional part, like `2.0`, still converts.
 - `decimal` and `decimal?` properties are supported.
 - A conversion that has no meaning at all throws an `InvalidCastException`, for example a
   fractional value read into a `char`.

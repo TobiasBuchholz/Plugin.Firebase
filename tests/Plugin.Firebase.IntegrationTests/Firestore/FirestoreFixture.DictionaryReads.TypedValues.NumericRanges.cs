@@ -75,27 +75,50 @@ public sealed partial class FirestoreFixture
     }
 
     [Fact]
-    public async Task rounds_fractional_values_read_into_integral_properties()
+    public async Task rejects_fractional_values_read_into_integral_targets()
     {
-        // Both platforms convert through Convert.ChangeType, which rounds to even instead of
-        // truncating. Firestore only stores fractional numbers as doubles, so this is reachable
-        // whenever a document holds a double for a property declared as an integral type.
-        // Whether to keep rounding or reject these values instead is tracked in #727.
+        // Firestore only stores fractional numbers as doubles. Reading one into an integral
+        // property throws instead of silently rounding (Android) or truncating (iOS).
         var sut = CrossFirebaseFirestore.Current;
-        var document = GetTestingDocument(sut, "numeric-rounding");
+        var document = GetTestingDocument(sut, "numeric-fractional");
         await document.SetDataAsync(new Dictionary<object, object?> {
-            { "round_down", 1.4 },
-            { "round_up", 1.9 },
-            { "half_to_even_down", 12.5 },
-            { "half_to_even_up", 13.5 }
+            { "f27", 2.7 },
+            { "f25", 2.5 },
+            { "f35", 3.5 },
+            { "fm27", -2.7 }
         });
 
-        var data = (await document.GetDocumentSnapshotAsync<RoundedIntegralsDocument>()).Data!;
+        var longs = await document.GetDocumentSnapshotAsync<FractionalLongsDocument>();
+        Assert.Throws<InvalidCastException>(() => _ = longs.Data);
 
-        Assert.Equal(1L, data.RoundDown);
-        Assert.Equal(2L, data.RoundUp);
-        Assert.Equal(12L, data.HalfToEvenDown);
-        Assert.Equal(14L, data.HalfToEvenUp);
+        var ints = await document.GetDocumentSnapshotAsync<FractionalIntsDocument>();
+        Assert.Throws<InvalidCastException>(() => _ = ints.Data);
+
+        var enums = await document.GetDocumentSnapshotAsync<FractionalEnumDocument>();
+        Assert.Throws<InvalidCastException>(() => _ = enums.Data);
+
+        var dictionary = await document.GetDocumentSnapshotAsync<Dictionary<string, long>>();
+        Assert.Throws<InvalidCastException>(() => _ = dictionary.Data);
+    }
+
+    [Fact]
+    public async Task reads_integral_doubles_into_integral_targets()
+    {
+        // Doubles without a fractional part lose nothing, so they still convert.
+        var sut = CrossFirebaseFirestore.Current;
+        var document = GetTestingDocument(sut, "numeric-integral-doubles");
+        await document.SetDataAsync(new Dictionary<object, object?> {
+            { "positive", 2.0 },
+            { "negative", -3.0 }
+        });
+
+        var data = (await document.GetDocumentSnapshotAsync<IntegralDoublesDocument>()).Data!;
+        Assert.Equal(2L, data.Positive);
+        Assert.Equal(-3L, data.Negative);
+
+        var dictionary = (await document.GetDocumentSnapshotAsync<Dictionary<string, long>>()).Data!;
+        Assert.Equal(2L, dictionary["positive"]);
+        Assert.Equal(-3L, dictionary["negative"]);
     }
 
     [Fact]

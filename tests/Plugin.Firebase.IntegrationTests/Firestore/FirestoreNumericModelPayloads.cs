@@ -208,19 +208,52 @@ internal sealed class NullableDecimalDocument : IFirestoreObject
 }
 
 [Preserve(AllMembers = true)]
-internal sealed class RoundedIntegralsDocument : IFirestoreObject
+internal sealed class FractionalLongsDocument : IFirestoreObject
 {
-    [FirestoreProperty("round_down")]
-    public long RoundDown { get; [UsedImplicitly] private set; }
+    [FirestoreProperty("f27")]
+    public long F27 { get; [UsedImplicitly] private set; }
 
-    [FirestoreProperty("round_up")]
-    public long RoundUp { get; [UsedImplicitly] private set; }
+    [FirestoreProperty("f25")]
+    public long F25 { get; [UsedImplicitly] private set; }
 
-    [FirestoreProperty("half_to_even_down")]
-    public long HalfToEvenDown { get; [UsedImplicitly] private set; }
+    [FirestoreProperty("f35")]
+    public long F35 { get; [UsedImplicitly] private set; }
 
-    [FirestoreProperty("half_to_even_up")]
-    public long HalfToEvenUp { get; [UsedImplicitly] private set; }
+    [FirestoreProperty("fm27")]
+    public long Fm27 { get; [UsedImplicitly] private set; }
+}
+
+[Preserve(AllMembers = true)]
+internal sealed class FractionalIntsDocument : IFirestoreObject
+{
+    [FirestoreProperty("f27")]
+    public int F27 { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("f25")]
+    public int F25 { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("f35")]
+    public int F35 { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("fm27")]
+    public int Fm27 { get; [UsedImplicitly] private set; }
+}
+
+[Preserve(AllMembers = true)]
+internal sealed class FractionalEnumDocument : IFirestoreObject
+{
+    [FirestoreProperty("f27")]
+    public NumericRating Rating { get; [UsedImplicitly] private set; }
+}
+
+[Preserve(AllMembers = true)]
+internal sealed class IntegralDoublesDocument : IFirestoreObject
+{
+    [FirestoreProperty("positive")]
+    public long Positive { get; [UsedImplicitly] private set; }
+
+    [FirestoreProperty("negative")]
+    public long Negative { get; [UsedImplicitly] private set; }
 }
 
 [Preserve(AllMembers = true)]

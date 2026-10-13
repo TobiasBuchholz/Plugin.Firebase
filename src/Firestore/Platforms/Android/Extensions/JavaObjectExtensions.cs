@@ -24,16 +24,12 @@ public static class JavaObjectExtensions
                 return null;
             case string x:
                 return x;
-            case int x:
-                return x;
-            case long x:
-                return x;
-            case float x:
-                return x;
-            case double x:
-                return x;
             case bool x:
                 return x;
+            case byte or sbyte or short or ushort or int or uint or long or char or ulong:
+            case float or double or decimal:
+            case Enum:
+                return @this.ToFirestoreNumber();
             case Java.Lang.ICharSequence x:
                 return x.ToString();
             case DateTime x:
@@ -61,28 +57,32 @@ public static class JavaObjectExtensions
             case IFirestoreObject x:
                 return x.ToJavaObject();
             default:
-                if(@this is Enum) {
-                    var enumType = Enum.GetUnderlyingType(@this.GetType());
-                    if(enumType == typeof(int)) {
-                        return Convert.ToInt32(@this);
-                    } else if(enumType == typeof(uint)) {
-                        return (int) Convert.ToUInt32(@this);
-                    } else if(enumType == typeof(long)) {
-                        return Convert.ToInt64(@this);
-                    } else if(enumType == typeof(ulong)) {
-                        return (long) Convert.ToUInt64(@this);
-                    } else if(enumType == typeof(sbyte)) {
-                        return Convert.ToSByte(@this);
-                    } else if(enumType == typeof(byte)) {
-                        return (sbyte) Convert.ToByte(@this);
-                    } else if(enumType == typeof(short)) {
-                        return Convert.ToInt16(@this);
-                    } else if(enumType == typeof(ushort)) {
-                        return (short) Convert.ToUInt16(@this);
-                    }
-                }
                 throw new ArgumentException($"Could not convert object of type {@this.GetType()} to Java.Lang.Object. Does it extend {nameof(IFirestoreObject)}?");
         }
+    }
+
+    /// <summary>
+    /// Converts a CLR numeric value (including enums) to the Firestore wire representation:
+    /// integral values widen to int64, fractional values to double. ulong values above
+    /// <see cref="long.MaxValue"/> have no Firestore representation and fail here instead of
+    /// wrapping or throwing inside the native SDK.
+    /// </summary>
+    internal static Java.Lang.Object ToFirestoreNumber(this object @this)
+    {
+        var valueType = @this.GetType();
+        var conversionType = valueType.IsEnum ? Enum.GetUnderlyingType(valueType) : valueType;
+        if(conversionType == typeof(ulong)) {
+            var unsigned = Convert.ToUInt64(@this, CultureInfo.InvariantCulture);
+            if(unsigned > long.MaxValue) {
+                throw new ArgumentException(
+                    $"Could not convert {valueType} value {unsigned} to a Firestore number: values above {long.MaxValue} have no representation."
+                );
+            }
+        }
+
+        return conversionType == typeof(float) || conversionType == typeof(double) || conversionType == typeof(decimal)
+            ? (Java.Lang.Number) Convert.ToDouble(@this, CultureInfo.InvariantCulture)
+            : (Java.Lang.Number) Convert.ToInt64(@this, CultureInfo.InvariantCulture);
     }
 
     public static Java.Lang.Object ToJavaObject(this IFirestoreObject @this)

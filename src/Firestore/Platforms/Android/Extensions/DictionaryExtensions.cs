@@ -45,29 +45,13 @@ public static class DictionaryExtensions
             case bool x:
                 @this.Put(key.ToString(), x);
                 break;
-            case char x:
-                @this.Put(key.ToString(), x);
-                break;
-            case double x:
-                @this.Put(key.ToString(), x);
-                break;
-            case float x:
-                @this.Put(key.ToString(), x);
-                break;
-            case long x:
-                @this.Put(key.ToString(), x);
-                break;
-            case int x:
-                @this.Put(key.ToString(), x);
-                break;
-            case short x:
-                @this.Put(key.ToString(), x);
+            case byte or sbyte or short or ushort or int or uint or long or char or ulong:
+            case float or double or decimal:
+            case Enum:
+                @this.Put(key.ToString(), value.ToFirestoreNumber());
                 break;
             case string x:
                 @this.Put(key.ToString(), x);
-                break;
-            case Enum x:
-                @this.Put(key.ToString(), Convert.ToInt64(x));
                 break;
             case IList x:
                 @this.Put(key.ToString(), x.ToJavaList());

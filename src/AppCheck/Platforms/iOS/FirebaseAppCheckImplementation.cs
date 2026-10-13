@@ -24,6 +24,14 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
             throw new ArgumentNullException(nameof(options));
         }
 
+        if(FirebaseInitializationHooks.BeforeConfigureInvoked) {
+            throw new InvalidOperationException(
+                "CrossFirebaseAppCheck.Configure() must be called before CrossFirebase.Initialize() on iOS. "
+                    + "The native provider factory can only be installed before FirebaseApp.configure() runs; "
+                    + "configuring afterwards cannot take effect."
+            );
+        }
+
         lock(_syncRoot) {
             _options = options;
         }

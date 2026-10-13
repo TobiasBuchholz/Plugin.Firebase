@@ -15,6 +15,8 @@ public interface IFirebaseAppCheck : IDisposable
     /// <exception cref="InvalidOperationException">
     /// On Android, <paramref name="options"/> is <see cref="AppCheckOptions.Disabled"/> while a provider factory is
     /// installed on the default Firebase app. The native SDK cannot remove an installed provider factory.
+    /// On iOS, called after Firebase initialization: the native provider factory can only be installed before
+    /// `FirebaseApp.configure()` runs.
     /// </exception>
     void Configure(AppCheckOptions options);
 

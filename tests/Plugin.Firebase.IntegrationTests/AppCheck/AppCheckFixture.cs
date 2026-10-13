@@ -18,16 +18,13 @@ namespace Plugin.Firebase.IntegrationTests.AppCheck
         }
 
         [IosFact]
-        public void transitions_between_disabled_and_debug_providers()
+        public void throws_when_configured_after_firebase_initialization()
         {
-            try {
-                CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled);
-                CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
-                CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled);
-            }
-            finally {
-                CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled);
-            }
+            // On iOS the native provider factory can only be installed before
+            // FirebaseApp.configure() runs; configuring afterwards cannot take effect
+            // and must fail loudly instead of silently dropping the provider.
+            Assert.Throws<InvalidOperationException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug));
+            Assert.Throws<InvalidOperationException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled));
         }
 
         [AndroidFact]
@@ -68,51 +65,44 @@ namespace Plugin.Firebase.IntegrationTests.AppCheck
             Assert.Throws<InvalidOperationException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled));
         }
 
-        [Fact]
-        public void covers_platform_specific_unsupported_provider_behavior()
+        [AndroidFact]
+        public void rejects_unsupported_providers_on_android()
         {
-            if(OperatingSystem.IsAndroid()) {
+            try {
                 Assert.Throws<NotSupportedException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.DeviceCheck));
                 Assert.Throws<NotSupportedException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.AppAttest));
-            }
-
-            if(OperatingSystem.IsIOS()) {
-                try {
-                    CrossFirebaseAppCheck.Configure(AppCheckOptions.PlayIntegrity);
-                }
-                finally {
-                    CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled);
-                }
-            }
-        }
-
-        // iOS only: Android cannot return to Disabled once another test in the run has installed a provider.
-        [EmulatorBackendIosFact]
-        public async Task disabled_app_check_does_not_break_auth_or_functions_on_emulator()
-        {
-            var auth = CrossFirebaseAuth.Current;
-            var email = IntegrationTestData.UniqueEmail("app-check-disabled");
-
-            try {
-                CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled);
-                await using var user = await AuthTestUserScope.SignInWithEmailAndPasswordAsync(auth, email);
-
-                var response = await CrossFirebaseFunctions.Current
-                    .GetHttpsCallable("convertToLeet")
-                    .CallAsync<SimpleResponseData>("{\"input_value\":777}");
-
-                Assert.Equal(777, response.InputValue);
-                Assert.Equal(1337, response.OutputValue);
             }
             finally {
                 CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled);
             }
         }
 
+        [EmulatorBackendIosFact]
+        public async Task auth_and_functions_work_when_app_check_is_not_installed_on_ios()
+        {
+            // On iOS, Configure() after initialization is rejected, so App Check simply
+            // remains uninstalled here; Auth and Functions must still work.
+            var auth = CrossFirebaseAuth.Current;
+            var email = IntegrationTestData.UniqueEmail("app-check-disabled");
+
+            await using var user = await AuthTestUserScope.SignInWithEmailAndPasswordAsync(auth, email);
+
+            var response = await CrossFirebaseFunctions.Current
+                .GetHttpsCallable("convertToLeet")
+                .CallAsync<SimpleResponseData>("{\"input_value\":777}");
+
+            Assert.Equal(777, response.InputValue);
+            Assert.Equal(1337, response.OutputValue);
+        }
+
         [RealFirebaseOptInFact(IntegrationTestEnvironment.RunAppCheckTokenTestsEnvironmentVariableName)]
         public async Task fetches_cached_and_forced_debug_tokens_when_enabled()
         {
-            CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
+            // Post-initialization Configure() is only supported on Android; on iOS this
+            // test relies on the provider already being installed at launch time.
+            if(OperatingSystem.IsAndroid()) {
+                CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
+            }
 
             var cachedToken = await CrossFirebaseAppCheck.GetTokenAsync();
             var forcedToken = await CrossFirebaseAppCheck.GetTokenAsync(forceRefresh: true);

@@ -41,18 +41,20 @@ public class MustPassFixture
         }
 
         if(OperatingSystem.IsIOS()) {
-            CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled);
-            CrossFirebaseAppCheck.Configure(AppCheckOptions.PlayIntegrity);
-            CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
-            CrossFirebaseAppCheck.Configure(AppCheckOptions.DeviceCheck);
-            CrossFirebaseAppCheck.Configure(AppCheckOptions.AppAttest);
+            // On iOS the provider factory can only be installed before FirebaseApp.configure()
+            // runs, so Configure() rejects calls made after initialization.
+            Assert.Throws<InvalidOperationException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug));
         }
     }
 
     [RealFirebaseOptInFact(IntegrationTestEnvironment.RunAppCheckTokenTestsEnvironmentVariableName)]
     public async Task fetches_app_check_token_when_enabled_via_environment()
     {
-        CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
+        // Post-initialization Configure() is only supported on Android; on iOS the
+        // provider must already have been installed at launch time.
+        if(OperatingSystem.IsAndroid()) {
+            CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
+        }
         var token = await CrossFirebaseAppCheck.GetTokenAsync(forceRefresh: true);
 
         Assert.False(string.IsNullOrWhiteSpace(token));

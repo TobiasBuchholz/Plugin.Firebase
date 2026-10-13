@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Diagnostics;
+using System.Globalization;
 using Firebase.CloudFirestore;
 using Firebase.Core;
 using Plugin.Firebase.Core.Platforms.iOS.Extensions;
@@ -241,18 +242,12 @@ public static class NSObjectExtensions
                 return x;
             case string x:
                 return new NSString(x);
-            case int x:
-                return new NSNumber(x);
-            case long x:
-                return new NSNumber(x);
-            case short x:
-                return new NSNumber(x);
-            case float x:
-                return new NSNumber(x);
-            case double x:
-                return new NSNumber(x);
             case bool x:
                 return new NSNumber(x);
+            case byte or sbyte or short or ushort or int or uint or long or char or ulong:
+            case float or double or decimal:
+            case Enum:
+                return @this.ToFirestoreNumber();
             case DateTime x:
                 return x.ToNSDate();
             case DateTimeOffset x:
@@ -270,30 +265,36 @@ public static class NSObjectExtensions
             case IFirestoreObject x:
                 return x.ToNSObject();
             default:
-                if(@this is Enum) {
-                    var enumType = Enum.GetUnderlyingType(@this.GetType());
-                    if(enumType == typeof(int)) {
-                        return new NSNumber(Convert.ToInt32(@this));
-                    } else if(enumType == typeof(uint)) {
-                        return new NSNumber(Convert.ToUInt32(@this));
-                    } else if(enumType == typeof(long)) {
-                        return new NSNumber(Convert.ToInt64(@this));
-                    } else if(enumType == typeof(ulong)) {
-                        return new NSNumber(Convert.ToUInt64(@this));
-                    } else if(enumType == typeof(sbyte)) {
-                        return new NSNumber(Convert.ToSByte(@this));
-                    } else if(enumType == typeof(byte)) {
-                        return new NSNumber(Convert.ToByte(@this));
-                    } else if(enumType == typeof(short)) {
-                        return new NSNumber(Convert.ToInt16(@this));
-                    } else if(enumType == typeof(ushort)) {
-                        return new NSNumber(Convert.ToUInt16(@this));
-                    }
-                }
                 throw new ArgumentException(
                     $"Could not convert object of type {@this.GetType()} to NSObject. Does it extend {nameof(IFirestoreObject)}?"
                 );
         }
+    }
+
+    /// <summary>
+    /// Converts a CLR numeric value (including enums) to the Firestore wire representation:
+    /// integral values widen to int64, fractional values to double. The <see cref="long"/>
+    /// <see cref="NSNumber"/> overload is used deliberately: the native SDK stores NSNumbers
+    /// with objCType 'c'/'C' (byte/sbyte/char) as Firestore booleans. ulong values above
+    /// <see cref="long.MaxValue"/> have no Firestore representation and fail here instead of
+    /// wrapping.
+    /// </summary>
+    internal static NSNumber ToFirestoreNumber(this object @this)
+    {
+        var valueType = @this.GetType();
+        var conversionType = valueType.IsEnum ? Enum.GetUnderlyingType(valueType) : valueType;
+        if(conversionType == typeof(ulong)) {
+            var unsigned = Convert.ToUInt64(@this, CultureInfo.InvariantCulture);
+            if(unsigned > long.MaxValue) {
+                throw new ArgumentException(
+                    $"Could not convert {valueType} value {unsigned} to a Firestore number: values above {long.MaxValue} have no representation."
+                );
+            }
+        }
+
+        return conversionType == typeof(float) || conversionType == typeof(double) || conversionType == typeof(decimal)
+            ? new NSNumber(Convert.ToDouble(@this, CultureInfo.InvariantCulture))
+            : new NSNumber(Convert.ToInt64(@this, CultureInfo.InvariantCulture));
     }
 
     /// <summary>

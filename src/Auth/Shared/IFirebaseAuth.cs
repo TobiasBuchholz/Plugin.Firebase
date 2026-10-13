@@ -7,6 +7,8 @@ public partial interface IFirebaseAuth : IDisposable
 {
     /// <summary>
     /// Starts the phone number authentication flow by sending a verification code to the specified phone number.
+    /// The returned task completes when the flow reaches a usable state (verification ID available or instant
+    /// verification), so a following sign-in call is reliably ordered. Verification failures fault the task.
     /// </summary>
     /// <param name="phoneNumber">The phone number to be verified.</param>
     Task VerifyPhoneNumberAsync(string phoneNumber);

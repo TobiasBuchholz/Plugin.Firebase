@@ -55,6 +55,21 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         [OptInFact(
             IntegrationTestOptions.RunPhoneAuthTestsEnvironmentVariableName,
             IntegrationTestOptions.RunPhoneAuthTestsAndroidSystemPropertyName)]
+        public async Task verify_phone_number_faults_for_invalid_number_when_enabled()
+        {
+            // OnVerificationFailed must fault the returned task, not leave it completed
+            var sut = CrossFirebaseAuth.Current;
+            var ex = await Assert.ThrowsAnyAsync<CrossPlatformFirebaseAuthException>(
+                () => sut.VerifyPhoneNumberAsync("not-a-phone-number")
+            );
+
+            AuthAssertions.NativeAuthExceptionCaptured(ex);
+        }
+
+
+        [OptInFact(
+            IntegrationTestOptions.RunPhoneAuthTestsEnvironmentVariableName,
+            IntegrationTestOptions.RunPhoneAuthTestsAndroidSystemPropertyName)]
         public async Task links_signed_in_user_with_phone_number_when_enabled()
         {
             var sut = CrossFirebaseAuth.Current;

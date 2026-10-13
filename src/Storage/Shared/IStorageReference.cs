@@ -72,8 +72,8 @@ public interface IStorageReference
     /// object size. For downloading large files, <c>DownloadFile(destinationPath)</c> may be a better option.
     /// </summary>
     /// <param name="maxSize">
-    /// The maximum size in bytes to download. If the object exceeds this size the task fails. The exception type differs by
-    /// platform: Android surfaces the native <c>StorageException</c>, iOS throws a <c>FirebaseException</c>.
+    /// The maximum size in bytes to download. If the object exceeds this size the task fails with a
+    /// <c>CrossPlatformFirebaseStorageException</c>.
     /// </param>
     Task<Stream> GetStreamAsync(long maxSize);
 
@@ -84,8 +84,7 @@ public interface IStorageReference
     /// </summary>
     /// <param name="maxDownloadSizeBytes">
     /// The maximum size in bytes to download. Set this parameter to prevent out of memory conditions from occurring. If the object exceeds
-    /// this size the task fails. The exception type differs by platform: Android surfaces the native <c>StorageException</c>, iOS throws a
-    /// <c>FirebaseException</c>.
+    /// this size the task fails with a <c>CrossPlatformFirebaseStorageException</c>.
     /// </param>
     Task<byte[]> GetBytesAsync(long maxDownloadSizeBytes);
 

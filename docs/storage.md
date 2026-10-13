@@ -41,7 +41,7 @@ The .NET 10 release enables nullable-reference analysis for Storage and aligns t
 
 The release also corrects `StorageMetadata` so `creationTime` and `updatedTime` populate their matching properties, and forwards `CacheControl` when metadata is sent to the iOS SDK. These are breaking behavior and signature changes; update callers and any custom implementations of the Storage interfaces before upgrading.
 
-On Android, `GetStreamAsync(maxSize)` now returns a readable stream and enforces `maxSize`. The object is downloaded into memory, as on iOS, and the task fails when it is larger than `maxSize`. Previously the returned stream was already closed and `maxSize` was ignored. The public Android-only `StreamProcessor` class that caused this is removed; it has no replacement.
+On Android, `GetStreamAsync(maxSize)` now returns a readable stream and enforces `maxSize`. The object is copied into .NET memory in chunks while the native download streams in the background, as on iOS, and the task fails when it is larger than `maxSize`. Previously the returned stream was already closed and `maxSize` was ignored. The public Android-only `StreamProcessor` class that caused this is removed; it has no replacement. `GetBytesAsync(maxDownloadSizeBytes)` uses the same streaming download, so neither method buffers the whole object in a Java byte array on the Android heap anymore.
 
 Storage failures that come from the native SDKs now surface as `CrossPlatformFirebaseStorageException`
 (`Plugin.Firebase.Core.Exceptions`) on both platforms, instead of the platform-specific

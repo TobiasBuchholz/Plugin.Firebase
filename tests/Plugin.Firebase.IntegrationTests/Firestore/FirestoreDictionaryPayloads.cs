@@ -72,6 +72,9 @@ internal sealed class AndroidNumericCollectionsDocument : IFirestoreObject
     [FirestoreProperty("nullable_counts")]
     public IList<int?> NullableCounts { get; private set; } = null!;
 
+    [FirestoreProperty("nullable_strings")]
+    public IList<string?> NullableStrings { get; private set; } = null!;
+
     [FirestoreProperty("types")]
     public Dictionary<string, PokeType> Types { get; private set; } = null!;
 }

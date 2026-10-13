@@ -111,6 +111,8 @@ To get started add the `GoogleService-Info.plist` and the `google-services.json`
 </ItemGroup>
 ```
 
+> **Troubleshooting:** If `FirebaseApp.configure()` reports that it could not find a valid `GoogleService-Info.plist`, verify the file is (a) in your app project's root folder, (b) included as `<BundleResource Include="GoogleService-Info.plist" />` — not `None`, `Content`, or just sitting in the folder — and (c) that its `BUNDLE_ID` entry matches your app's `ApplicationId`. You can confirm the embedding worked by checking that the file exists at the root of the built `.app` bundle (e.g., `bin/Release/net10.0-ios/.../*.app/GoogleService-Info.plist`).
+
 Initialize the plugin in your `MauiProgram.cs` like this:
 
 ```c#

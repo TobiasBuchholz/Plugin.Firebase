@@ -126,9 +126,12 @@ public class CrossPlatformFirebaseExceptionTests
 
         var auth = new CrossPlatformFirebaseAuthException("type", "message", inner);
         var firestore = new CrossPlatformFirebaseFirestoreException("type", "message", inner);
+        var storage = new CrossPlatformFirebaseStorageException("type", "message", inner);
 
         Assert.IsAssignableFrom<CrossPlatformFirebaseException>(auth);
         Assert.IsAssignableFrom<CrossPlatformFirebaseException>(firestore);
+        Assert.IsAssignableFrom<CrossPlatformFirebaseException>(storage);
         Assert.IsAssignableFrom<FirebaseException>(firestore);
+        Assert.IsAssignableFrom<FirebaseException>(storage);
     }
 }

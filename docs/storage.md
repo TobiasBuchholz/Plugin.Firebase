@@ -43,6 +43,14 @@ The release also corrects `StorageMetadata` so `creationTime` and `updatedTime` 
 
 On Android, `GetStreamAsync(maxSize)` now returns a readable stream and enforces `maxSize`. The object is downloaded into memory, as on iOS, and the task fails when it is larger than `maxSize`. Previously the returned stream was already closed and `maxSize` was ignored. The public Android-only `StreamProcessor` class that caused this is removed; it has no replacement.
 
+Storage failures that come from the native SDKs now surface as `CrossPlatformFirebaseStorageException`
+(`Plugin.Firebase.Core.Exceptions`) on both platforms, instead of the platform-specific
+`StorageException`, `NSErrorException`, `FirebaseException` or `Exception` types each method used
+before. It keeps the native exception as `InnerException` together with the native type name, error
+domain and code (the Android `StorageException.ErrorCode`), so shared code can catch
+`FirebaseException` or `CrossPlatformFirebaseStorageException` without losing native detail.
+Errors on `IStorageTaskSnapshot`s surface the same type.
+
 ## Release notes
 
 - Version 3.1.1

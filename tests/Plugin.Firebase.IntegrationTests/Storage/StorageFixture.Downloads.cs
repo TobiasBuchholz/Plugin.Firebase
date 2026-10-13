@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text;
+using Plugin.Firebase.Core.Exceptions;
 using Plugin.Firebase.Storage;
 
 namespace Plugin.Firebase.IntegrationTests.Storage;
@@ -42,7 +43,9 @@ public sealed partial class StorageFixture
             .Current
             .GetReferenceFromPath("files_to_keep/text_1.txt");
 
-        await Assert.ThrowsAnyAsync<Exception>(() => reference.GetBytesAsync(1));
+        await Assert.ThrowsAsync<CrossPlatformFirebaseStorageException>(
+            () => reference.GetBytesAsync(1)
+        );
     }
 
     [Fact]
@@ -56,7 +59,9 @@ public sealed partial class StorageFixture
         using var atLimit = await reference.GetStreamAsync(34);
         Assert.Equal(34, atLimit.Length);
 
-        await Assert.ThrowsAnyAsync<Exception>(() => reference.GetStreamAsync(33));
+        await Assert.ThrowsAsync<CrossPlatformFirebaseStorageException>(
+            () => reference.GetStreamAsync(33)
+        );
     }
 
 
@@ -116,7 +121,7 @@ public sealed partial class StorageFixture
         transferTask.AddObserver(StorageTaskStatus.Failure, observer);
 
         try {
-            await Assert.ThrowsAnyAsync<Exception>(
+            await Assert.ThrowsAsync<CrossPlatformFirebaseStorageException>(
                 () => transferTask.AwaitAsync().WaitForTestAsync(
                     IntegrationTestTimeouts.LongCallback,
                     "missing storage download failure"));
@@ -125,7 +130,7 @@ public sealed partial class StorageFixture
                 "storage download failure snapshot");
 
             Assert.NotNull(snapshot);
-            Assert.NotNull(snapshot.Error);
+            Assert.IsType<CrossPlatformFirebaseStorageException>(snapshot.Error);
             Assert.Null(snapshot.Metadata);
         }
         finally {

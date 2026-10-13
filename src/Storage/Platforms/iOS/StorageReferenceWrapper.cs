@@ -70,27 +70,39 @@ public sealed class StorageReferenceWrapper : IStorageReference
     /// <inheritdoc/>
     public async Task<IStorageMetadata> GetMetadataAsync()
     {
-        var metadata = await _wrapped.GetMetadataAsync()
-            ?? throw new InvalidOperationException("Firebase Storage returned null metadata.");
+        try {
+            var metadata = await _wrapped.GetMetadataAsync()
+                ?? throw new InvalidOperationException("Firebase Storage returned null metadata.");
 
-        return metadata.ToAbstract();
+            return metadata.ToAbstract();
+        } catch(NSErrorException e) {
+            throw e.ToStorageException();
+        }
     }
 
     /// <inheritdoc/>
     public async Task<IStorageMetadata> UpdateMetadataAsync(IStorageMetadata metadata)
     {
-        var updatedMetadata = await _wrapped.UpdateMetadataAsync(metadata.ToNative())
-            ?? throw new InvalidOperationException("Firebase Storage returned null metadata.");
+        try {
+            var updatedMetadata = await _wrapped.UpdateMetadataAsync(metadata.ToNative())
+                ?? throw new InvalidOperationException("Firebase Storage returned null metadata.");
 
-        return updatedMetadata.ToAbstract();
+            return updatedMetadata.ToAbstract();
+        } catch(NSErrorException e) {
+            throw e.ToStorageException();
+        }
     }
 
     /// <inheritdoc/>
     public async Task<string> GetDownloadUrlAsync()
     {
-        var uri = await _wrapped.GetDownloadUrlAsync();
-        return uri.AbsoluteString
-            ?? throw new InvalidOperationException("Firebase Storage returned a null download URL string.");
+        try {
+            var uri = await _wrapped.GetDownloadUrlAsync();
+            return uri.AbsoluteString
+                ?? throw new InvalidOperationException("Firebase Storage returned a null download URL string.");
+        } catch(NSErrorException e) {
+            throw e.ToStorageException();
+        }
     }
 
     /// <inheritdoc/>
@@ -104,9 +116,8 @@ public sealed class StorageReferenceWrapper : IStorageReference
                     tcs.SetResult(listResult.ToAbstract());
                 } else {
                     tcs.SetException(
-                        new FirebaseException(
-                            error?.LocalizedDescription ?? "Firebase Storage returned a null list result."
-                        )
+                        error?.ToStorageException()
+                            ?? new FirebaseException("Firebase Storage returned a null list result.")
                     );
                 }
             }
@@ -148,9 +159,8 @@ public sealed class StorageReferenceWrapper : IStorageReference
                 tcs.SetResult(listResult.ToAbstract());
             } else {
                 tcs.SetException(
-                    new FirebaseException(
-                        error?.LocalizedDescription ?? "Firebase Storage returned a null list result."
-                    )
+                    error?.ToStorageException()
+                        ?? new FirebaseException("Firebase Storage returned a null list result.")
                 );
             }
         }
@@ -172,14 +182,14 @@ public sealed class StorageReferenceWrapper : IStorageReference
             maxSize,
             (data, error) => {
                 if(error == null && data != null) {
-                    if((long)data.Length > maxSize) {
+                    if((long) data.Length > maxSize) {
                         tcs.SetException(CreateDownloadSizeExceededException(data.Length, maxSize));
                     } else {
                         tcs.SetResult(data.AsStream());
                     }
                 } else {
                     tcs.SetException(
-                        new FirebaseException(error?.LocalizedDescription ?? "Data is null")
+                        error?.ToStorageException() ?? new FirebaseException("Data is null")
                     );
                 }
             }
@@ -195,7 +205,7 @@ public sealed class StorageReferenceWrapper : IStorageReference
             maxDownloadSizeBytes,
             (data, error) => {
                 if(error == null && data != null) {
-                    if((long)data.Length > maxDownloadSizeBytes) {
+                    if((long) data.Length > maxDownloadSizeBytes) {
                         tcs.SetException(
                             CreateDownloadSizeExceededException(data.Length, maxDownloadSizeBytes)
                         );
@@ -204,7 +214,7 @@ public sealed class StorageReferenceWrapper : IStorageReference
                     }
                 } else {
                     tcs.SetException(
-                        new FirebaseException(error?.LocalizedDescription ?? "Data is null")
+                        error?.ToStorageException() ?? new FirebaseException("Data is null")
                     );
                 }
             }
@@ -234,9 +244,13 @@ public sealed class StorageReferenceWrapper : IStorageReference
     }
 
     /// <inheritdoc/>
-    public Task DeleteAsync()
+    public async Task DeleteAsync()
     {
-        return _wrapped.DeleteAsync();
+        try {
+            await _wrapped.DeleteAsync();
+        } catch(NSErrorException e) {
+            throw e.ToStorageException();
+        }
     }
 
     /// <inheritdoc/>

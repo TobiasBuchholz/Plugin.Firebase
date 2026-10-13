@@ -46,29 +46,35 @@ public sealed class StorageReferenceWrapper : IStorageReference
 
     public async Task<IStorageMetadata> GetMetadataAsync()
     {
-        return (await _wrapped.GetMetadata().AsAsync<NativeStorageMetadata>()).ToAbstract();
+        var metadata = await WrapNativeAsync(_wrapped.GetMetadata().AsAsync<NativeStorageMetadata>());
+        return metadata.ToAbstract();
     }
 
     public async Task<IStorageMetadata> UpdateMetadataAsync(IStorageMetadata metadata)
     {
-        return (await _wrapped.UpdateMetadata(metadata.ToNative()).AsAsync<NativeStorageMetadata>()).ToAbstract();
+        var updated = await WrapNativeAsync(
+            _wrapped.UpdateMetadata(metadata.ToNative()).AsAsync<NativeStorageMetadata>()
+        );
+        return updated.ToAbstract();
     }
 
     public async Task<string> GetDownloadUrlAsync()
     {
-        var uri = await _wrapped.GetDownloadUrlAsync();
+        var uri = await WrapNativeAsync(_wrapped.GetDownloadUrlAsync());
         return uri.ToString()
             ?? throw new InvalidOperationException("Firebase Storage returned a null download URL string.");
     }
 
     public async Task<IStorageListResult> ListAsync(long maxResults)
     {
-        return (await _wrapped.List((int) maxResults).AsAsync<ListResult>()).ToAbstract();
+        var result = await WrapNativeAsync(_wrapped.List((int) maxResults).AsAsync<ListResult>());
+        return result.ToAbstract();
     }
 
     public async Task<IStorageListResult> ListAllAsync()
     {
-        return (await _wrapped.ListAll().AsAsync<ListResult>()).ToAbstract();
+        var result = await WrapNativeAsync(_wrapped.ListAll().AsAsync<ListResult>());
+        return result.ToAbstract();
     }
 
     public async Task<Stream> GetStreamAsync(long maxSize)
@@ -79,7 +85,7 @@ public sealed class StorageReferenceWrapper : IStorageReference
 
     public async Task<byte[]> GetBytesAsync(long maxDownloadSizeBytes)
     {
-        return (byte[]?) await _wrapped.GetBytes(maxDownloadSizeBytes)
+        return (byte[]?) await WrapNativeAsync(_wrapped.GetBytes(maxDownloadSizeBytes))
             ?? throw new InvalidOperationException("Firebase Storage returned null download data.");
     }
 
@@ -91,9 +97,36 @@ public sealed class StorageReferenceWrapper : IStorageReference
         return _wrapped.GetFile(uri).ToAbstract();
     }
 
-    public Task DeleteAsync()
+    public async Task DeleteAsync()
     {
-        return _wrapped.DeleteAsync();
+        await WrapNativeAsync(_wrapped.DeleteAsync());
+    }
+
+    private static async Task<T> WrapNativeAsync<T>(Task<T> task)
+    {
+        try {
+            return await task;
+        } catch(Java.Lang.Throwable e) {
+            throw e.ToStorageException();
+        }
+    }
+
+    private static async Task<Java.Lang.Object?> WrapNativeAsync(global::Android.Gms.Tasks.Task task)
+    {
+        try {
+            return await task;
+        } catch(Java.Lang.Throwable e) {
+            throw e.ToStorageException();
+        }
+    }
+
+    private static async Task WrapNativeAsync(Task task)
+    {
+        try {
+            await task;
+        } catch(Java.Lang.Throwable e) {
+            throw e.ToStorageException();
+        }
     }
 
     public IStorageReference? Parent => _wrapped.Parent?.ToAbstract();

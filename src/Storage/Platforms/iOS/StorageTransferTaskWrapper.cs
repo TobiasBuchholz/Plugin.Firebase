@@ -1,4 +1,5 @@
 using Firebase.Storage;
+using Plugin.Firebase.Core.Exceptions;
 using Plugin.Firebase.Storage.Platforms.iOS.Extensions;
 
 namespace Plugin.Firebase.Storage.Platforms.iOS;
@@ -29,7 +30,7 @@ public sealed class StorageTransferTaskWrapper<TStorageTransferTask, TCompletion
             } else {
                 _tcs.SetException(
                     error != null
-                        ? new Exception(error.LocalizedDescription)
+                        ? error.ToStorageException()
                         : new InvalidOperationException("Firebase Storage completed without a result.")
                 );
             }

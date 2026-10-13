@@ -1,5 +1,6 @@
 using Firebase.Storage;
 using Java.Lang;
+using Plugin.Firebase.Core.Exceptions;
 using NativeStorageMetadata = Firebase.Storage.StorageMetadata;
 
 namespace Plugin.Firebase.Storage.Platforms.Android;
@@ -65,6 +66,25 @@ public static class StorageExtensions
             .ForEach(x => builder.SetCustomMetadata(x.Key, x.Value));
 
         return builder.Build();
+    }
+
+    /// <summary>
+    /// Wraps a native Android Storage failure in a cross-platform exception, preserving the native
+    /// type name, the Storage error code and the native exception as the inner exception.
+    /// </summary>
+    /// <param name="this">The native failure to wrap.</param>
+    /// <returns>A cross-platform storage exception.</returns>
+    internal static CrossPlatformFirebaseStorageException ToStorageException(
+        this Java.Lang.Throwable @this
+    )
+    {
+        return new CrossPlatformFirebaseStorageException(
+            @this.GetType().FullName ?? nameof(Java.Lang.Throwable),
+            @this.Message,
+            @this,
+            nativeErrorCode: (@this as StorageException)?.ErrorCode.ToString(),
+            nativeHttpResultCode: (@this as StorageException)?.HttpResultCode
+        );
     }
 
     private static long? ParseLongOrNull(string? value)

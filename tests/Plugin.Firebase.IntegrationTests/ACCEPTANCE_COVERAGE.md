@@ -9,7 +9,7 @@ Run `scripts/check-integration-coverage.rb` after adding or renaming fixtures. T
 | Package | Default emulator gate | Real backend | Opt-in/manual | Notes |
 |---|---:|---:|---:|---|
 | Analytics | No | Yes | No | Verifies SDK acceptance and observable local state; Firebase Console ingestion is not asserted. |
-| App Check | Partial | Optional | `PLUGIN_FIREBASE_RUN_APPCHECK_TOKEN_TESTS` | Disabled/debug/provider behavior is automatic; token enforcement requires a real project. |
+| App Check | Partial | Optional | `PLUGIN_FIREBASE_RUN_APPCHECK_TOKEN_TESTS` | Disabled/debug/provider behavior is automatic. On Android, provider changes after initialization and the `Disabled`-after-install rejection are checked against the installed native factory. Token enforcement requires a real project. |
 | Auth | Yes | Partial | `PLUGIN_FIREBASE_RUN_PHONE_AUTH_TESTS` | Email/password, anonymous, custom tokens, email links, metadata, and claims are covered. Phone auth requires external credentials. |
 | Bundled initializer | Yes | Yes | No | Verifies singleton access and dispose/reacquire behavior without reconfiguring initialized native SDKs. |
 | Cloud Messaging | Partial | Optional | `PLUGIN_FIREBASE_RUN_FCM_TOKEN_TESTS`, `PLUGIN_FIREBASE_RUN_FCM_DELIVERY_TESTS` | Native Android channel mapping, foreground forwarding, notification bundle round-trips, and synthetic events are automatic. Token and push delivery require a real project; iOS delivery requires a physical device with APNs. |

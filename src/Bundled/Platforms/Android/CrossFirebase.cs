@@ -15,6 +15,10 @@ public static class CrossFirebase
     /// <summary>
     /// Initializes Firebase with all configured services on Android.
     /// </summary>
+    /// <remarks>
+    /// App Check options that can't be applied are logged instead of thrown: a provider Android doesn't support,
+    /// or <c>Disabled</c> while a provider factory installed earlier in the process is still active.
+    /// </remarks>
     /// <param name="activity">The current activity.</param>
     /// <param name="activityLocator">A delegate that returns the current Android activity.</param>
     /// <param name="settings">The bundled settings specifying which services to enable.</param>
@@ -34,6 +38,12 @@ public static class CrossFirebase
             } catch(NotSupportedException) {
                 Console.WriteLine(
                     "Plugin.Firebase AppCheck is not supported for this build. Continuing without AppCheck."
+                );
+            } catch(InvalidOperationException e) when(e is not ObjectDisposedException) {
+                // Initialize runs again when Android recreates the activity in the same process, and an installed
+                // App Check provider factory cannot be removed.
+                Console.WriteLine(
+                    $"Plugin.Firebase AppCheck: {e.Message} Continuing with the installed provider."
                 );
             }
         }

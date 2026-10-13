@@ -100,7 +100,7 @@ public static class NSObjectExtensions
             case NSNumber x:
                 return x.ToObject(targetType);
             case NSString x:
-                return x.ToString();
+                return x.ToString().ToConversionTarget(targetType);
             case NSDate x:
                 return x.ToDateTimeOffset();
             case NSDictionary x:
@@ -145,35 +145,38 @@ public static class NSObjectExtensions
         }
 
         var conversionType = Nullable.GetUnderlyingType(targetType) ?? targetType;
-        if(conversionType.IsEnum) {
-            // converting through the underlying type lets ChangeType throw OverflowException for
-            // stored values that don't fit the enum, instead of Enum.ToObject silently wrapping
-            var underlyingType = Enum.GetUnderlyingType(conversionType);
-            var value = Convert.ChangeType(
-                @this.ToConversionSource(), underlyingType, CultureInfo.InvariantCulture
-            );
-            return Enum.ToObject(conversionType, value);
+        return Type.GetTypeCode(conversionType) == TypeCode.Boolean
+            ? @this.BoolValue
+            : @this.ToConversionSource().ToConversionTarget(conversionType);
+    }
+
+    /// <summary>
+    /// Narrows a converted value to a target type the way Android's reads do: everything
+    /// <see cref="Convert.ChangeType(object, Type, IFormatProvider)"/> supports is allowed
+    /// (including numeric-to-string reads), enums go through their underlying type so
+    /// out-of-range values throw <see cref="OverflowException"/> instead of wrapping, and
+    /// genuinely unsupported conversions fail loudly instead of assigning null into the
+    /// target.
+    /// </summary>
+    private static object? ToConversionTarget(this object value, Type? targetType)
+    {
+        if(targetType == null || targetType == typeof(object)) {
+            return value;
         }
 
-        switch(Type.GetTypeCode(conversionType)) {
-            case TypeCode.Boolean:
-                return @this.BoolValue;
-            case TypeCode.Char:
-            case TypeCode.SByte:
-            case TypeCode.Byte:
-            case TypeCode.Int16:
-            case TypeCode.UInt16:
-            case TypeCode.Int32:
-            case TypeCode.UInt32:
-            case TypeCode.Int64:
-            case TypeCode.UInt64:
-            case TypeCode.Single:
-            case TypeCode.Double:
-            case TypeCode.Decimal:
-                return Convert.ChangeType(@this.ToConversionSource(), conversionType, CultureInfo.InvariantCulture);
-            default:
-                return null;
+        var conversionType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+        if(conversionType.IsInstanceOfType(value)) {
+            return value;
         }
+
+        if(conversionType.IsEnum) {
+            var underlyingType = Enum.GetUnderlyingType(conversionType);
+            var underlying =
+                Convert.ChangeType(value, underlyingType, CultureInfo.InvariantCulture);
+            return Enum.ToObject(conversionType, underlying);
+        }
+
+        return Convert.ChangeType(value, conversionType, CultureInfo.InvariantCulture);
     }
 
     /// <summary>

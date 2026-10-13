@@ -92,11 +92,11 @@ public sealed partial class FirestoreFixture
     }
 
     // Android only: iOS typed reads don't convert between text and numbers (numbers to text is #711).
-    [AndroidFact]
-    public async Task reads_android_typed_model_text_and_number_conversions_independent_of_culture()
+    [Fact]
+    public async Task reads_typed_model_text_and_number_conversions_independent_of_culture()
     {
         var sut = CrossFirebaseFirestore.Current;
-        var document = GetTestingDocument(sut, "android-typed-model-culture");
+        var document = GetTestingDocument(sut, "typed-model-culture");
         await document.SetDataAsync(new Dictionary<object, object?> {
             { "double_from_text_value", "2.5" },
             { "text_from_double_value", 2.5 },

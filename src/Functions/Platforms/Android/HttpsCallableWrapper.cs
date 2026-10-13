@@ -2,9 +2,7 @@ using System.Text.Json;
 using Android.Gms.Extensions;
 using Firebase.Functions;
 using GoogleGson;
-using GoogleGson.Reflect;
 using Java.Lang;
-using Java.Util;
 
 namespace Plugin.Firebase.Functions.Platforms.Android;
 
@@ -24,11 +22,9 @@ public sealed class HttpsCallableWrapper : IHttpsCallable
 
     private static Java.Lang.Object ConvertJsonToData(string dataJson = null)
     {
-        return new Gson().FromJson(dataJson, TypeToken.GetParameterized(
-                TypeToken.Get(Class.FromType(typeof(HashMap))).Type,
-                TypeToken.Get(Class.FromType(typeof(Java.Lang.String))).Type,
-                TypeToken.Get(Class.FromType(typeof(Java.Lang.Object))).Type)
-            .Type);
+        // the callable protocol accepts any valid JSON value for data - deserialize into
+        // plain Java objects instead of forcing a HashMap so arrays and scalars work
+        return new Gson().FromJson(dataJson, Class.FromType(typeof(Java.Lang.Object)));
     }
 
     public async Task<TResponse> CallAsync<TResponse>(string dataJson = null)

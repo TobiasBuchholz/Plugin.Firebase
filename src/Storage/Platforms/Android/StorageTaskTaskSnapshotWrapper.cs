@@ -19,7 +19,11 @@ public sealed class StorageTaskTaskSnapshotWrapper : IStorageTaskSnapshot
 
     public static IStorageTaskSnapshot FromError(Exception error)
     {
-        return new StorageTaskTaskSnapshotWrapper(error: error);
+        return new StorageTaskTaskSnapshotWrapper(
+            error: error is Java.Lang.Throwable throwable
+                ? throwable.ToStorageException()
+                : error
+        );
     }
 
     private StorageTaskTaskSnapshotWrapper(

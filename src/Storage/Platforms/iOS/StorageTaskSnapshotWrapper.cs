@@ -1,5 +1,4 @@
 using Firebase.Storage;
-using Foundation;
 using Plugin.Firebase.Storage.Platforms.iOS.Extensions;
 
 namespace Plugin.Firebase.Storage.Platforms.iOS;
@@ -41,8 +40,7 @@ public class StorageTaskTaskSnapshotWrapper : IStorageTaskSnapshot
         }
 
         Metadata = snapshot?.Metadata?.ToAbstract();
-        Error = error
-            ?? (snapshot?.Error is { } nativeError ? new NSErrorException(nativeError) : null);
+        Error = error ?? snapshot?.Error?.ToStorageException();
     }
 
     /// <inheritdoc/>

@@ -93,11 +93,14 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             when(createsUserAutomatically && ShouldAttemptCreateUser(e)) {
             // Firebase iOS SDK 10.18+ returns InvalidCredential (INVALID_LOGIN_CREDENTIALS)
             // instead of UserNotFound when Email Enumeration Protection is enabled (default).
-            // We attempt user creation for both error codes; if the user actually exists
-            // (wrong password scenario), creation fails and we re-throw the original error.
+            // We attempt user creation for both error codes. Only an email-already-in-use
+            // result proves the account exists (wrong-password scenario), in which case the
+            // original sign-in error wins; any other creation failure (weak password,
+            // provider disabled, network) is the actionable error and propagates.
             try {
                 return await CreateUserAsync(email, password);
-            } catch(CrossPlatformFirebaseAuthException) {
+            } catch(CrossPlatformFirebaseAuthException createException)
+                when(createException.NativeErrorCode is nameof(AuthErrorCode.EmailAlreadyInUse)) {
                 throw e;
             }
         }

@@ -79,11 +79,15 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             // Firebase Android SDK with Email Enumeration Protection enabled (default)
             // may return FirebaseAuthInvalidCredentialsException instead of
             // FirebaseAuthInvalidUserException when the user does not exist.
-            // We attempt user creation for both; if the user actually exists
-            // (wrong password scenario), creation fails and we re-throw the original error.
+            // We attempt user creation for both. Only a user-collision result proves the
+            // account exists (wrong-password scenario), in which case the original sign-in
+            // error wins; any other creation failure (weak password, provider disabled,
+            // network) is the actionable error and propagates.
             try {
                 return await CreateUserAsync(email, password);
-            } catch(CrossPlatformFirebaseAuthException) {
+            } catch(CrossPlatformFirebaseAuthException createException)
+                when(createException.NativeExceptionTypeName
+                    is FirebaseAuthAndroidExceptionTypeNames.UserCollisionException) {
                 throw e;
             }
         }

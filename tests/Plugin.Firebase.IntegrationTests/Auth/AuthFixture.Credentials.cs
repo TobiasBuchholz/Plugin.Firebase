@@ -98,6 +98,49 @@ namespace Plugin.Firebase.IntegrationTests.Auth
 
 
         [Fact]
+        public async Task surfaces_creation_failure_for_new_account_with_weak_password()
+        {
+            // auto-creation for a genuinely new account must surface the actionable creation
+            // error instead of the initial invalid-credential sign-in error
+            var sut = CrossFirebaseAuth.Current;
+            var email = IntegrationTestData.UniqueEmail("weak-password");
+            var ex = await Assert.ThrowsAnyAsync<CrossPlatformFirebaseAuthException>(
+                () => sut.SignInWithEmailAndPasswordAsync(email, "1")
+            );
+
+            AuthAssertions.NativeAuthExceptionCaptured(ex);
+#if ANDROID
+            Assert.Equal("ERROR_WEAK_PASSWORD", ex.NativeErrorCode);
+#elif IOS
+            Assert.Equal("WeakPassword", ex.NativeErrorCode);
+#endif
+        }
+
+
+        [Fact]
+        public async Task rethrows_sign_in_error_when_creation_reports_existing_account()
+        {
+            // a wrong password for an existing account makes creation collide, so the
+            // original sign-in failure is the useful error, not the collision
+            var sut = CrossFirebaseAuth.Current;
+            var ex = await Assert.ThrowsAnyAsync<CrossPlatformFirebaseAuthException>(
+                () => sut.SignInWithEmailAndPasswordAsync(
+                    IntegrationTestUsers.SignInWithPasswordEmail,
+                    "000000")
+            );
+
+            AuthAssertions.NativeAuthExceptionCaptured(ex);
+#if ANDROID
+            Assert.Equal(
+                FirebaseAuthAndroidExceptionTypeNames.InvalidCredentialsException,
+                ex.NativeExceptionTypeName);
+#elif IOS
+            Assert.Equal("InvalidCredential", ex.NativeErrorCode);
+#endif
+        }
+
+
+        [Fact]
         public async Task throws_cross_platform_exception_for_invalid_native_credential()
         {
             var sut = CrossFirebaseAuth.Current;

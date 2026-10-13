@@ -1,3 +1,4 @@
+using Plugin.Firebase.Core.Exceptions;
 using Plugin.Firebase.Firestore;
 
 namespace Plugin.Firebase.IntegrationTests.Firestore;
@@ -171,10 +172,10 @@ public sealed partial class FirestoreFixture
             throw new InvalidOperationException("transaction aborted by update function");
         }));
 
-        // iOS wraps the failure in FirebaseException and Android surfaces the native task's RuntimeException;
-        // both keep the exception thrown by the update function as the inner exception.
-        Assert.NotNull(exception);
-        var original = Assert.IsType<InvalidOperationException>(exception.InnerException);
+        // Both platforms surface a FirebaseException that keeps the exception thrown by the update
+        // function as the inner exception.
+        var firebaseException = Assert.IsType<FirebaseException>(exception);
+        var original = Assert.IsType<InvalidOperationException>(firebaseException.InnerException);
         Assert.Equal("transaction aborted by update function", original.Message);
         Assert.Equal(charmander, (await document.GetDocumentSnapshotAsync<Pokemon>()).Data);
     }

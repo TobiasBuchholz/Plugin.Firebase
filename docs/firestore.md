@@ -79,6 +79,15 @@ var data = snapshot.Data;
 var name = data["name"] as string;
 ```
 
+### Error handling
+
+Firestore failures that come from the native SDKs are surfaced as `CrossPlatformFirebaseFirestoreException`
+(`Plugin.Firebase.Core.Exceptions`), for example a rejected transaction commit or a failed read inside
+`RunTransactionAsync`. It carries the native type name, error domain, error code and message, and keeps the
+native exception as `InnerException`. If the transaction's update function throws, `RunTransactionAsync`
+surfaces a `Plugin.Firebase.Core.Exceptions.FirebaseException` whose `InnerException` is the original
+exception, on both platforms.
+
 ### Further information
 
 Take a look at the [documentation](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents/blob/master/docs/Firebase/CloudFirestore/GettingStarted.md) for the AdamE.Firebase.iOS.CloudFirestore packages, because Plugin.Firebase's code is abstracted but still very similar.

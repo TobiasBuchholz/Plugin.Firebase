@@ -19,6 +19,8 @@ public sealed class TransactionWrapper : ITransaction
 
     public IDocumentSnapshot<T>? GetDocument<T>(IDocumentReference document)
     {
+        // Let the native FirebaseFirestoreException propagate: the transaction runner retries
+        // retryable transaction errors, which it only recognizes as FirebaseFirestoreException.
         return _wrapped.Get(document.ToNative())?.ToAbstract<T>();
     }
 

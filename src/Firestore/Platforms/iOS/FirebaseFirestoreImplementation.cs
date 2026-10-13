@@ -68,6 +68,14 @@ public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseF
         } catch(Exception) when(exception != null) {
             // the task faulted with the native error assigned above; surface the original managed failure instead
             throw exception;
+        } catch(NSErrorException e) {
+            throw new CrossPlatformFirebaseFirestoreException(
+                nameof(NSErrorException),
+                e.Error?.LocalizedDescription ?? e.Message,
+                e,
+                nativeErrorDomain: e.Error?.Domain,
+                nativeErrorCode: e.Error?.Code.ToString()
+            );
         }
         return (TResult?) result?.ToObject(typeof(TResult));
     }

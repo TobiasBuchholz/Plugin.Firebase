@@ -13,8 +13,21 @@ public class TransactionFunction<TResult> : Object, Transaction.IFunction
         _func = func;
     }
 
+    /// <summary>
+    /// The managed exception thrown by the update function during the last <see cref="Apply"/>
+    /// invocation, or <see langword="null"/> when the function completed. Reset on each attempt so a
+    /// failed attempt followed by a successful retry does not report a stale failure.
+    /// </summary>
+    internal Exception? UpdateException { get; private set; }
+
     public Object? Apply(Transaction transaction)
     {
-        return _func(transaction.ToAbstract()).ToJavaObject();
+        UpdateException = null;
+        try {
+            return _func(transaction.ToAbstract()).ToJavaObject();
+        } catch(Exception e) {
+            UpdateException = e;
+            throw;
+        }
     }
 }

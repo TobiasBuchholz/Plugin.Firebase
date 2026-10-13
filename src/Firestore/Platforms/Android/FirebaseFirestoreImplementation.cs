@@ -1,5 +1,7 @@
 using Android.Gms.Extensions;
+using Firebase.Firestore;
 using Plugin.Firebase.Core;
+using Plugin.Firebase.Core.Exceptions;
 using Plugin.Firebase.Firestore.Platforms.Android;
 using Plugin.Firebase.Firestore.Platforms.Android.Extensions;
 using FirebaseFirestore = Firebase.Firestore.FirebaseFirestore;
@@ -32,7 +34,25 @@ public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseF
 
     public async Task<TResult?> RunTransactionAsync<TResult>(Func<ITransaction, TResult> updateFunc)
     {
-        var result = await _firestore.RunTransaction(new TransactionFunction<TResult>(updateFunc));
+        var function = new TransactionFunction<TResult>(updateFunc);
+        Java.Lang.Object? result;
+        try {
+            result = await _firestore.RunTransaction(function);
+        } catch(Exception e) {
+            if(function.UpdateException is { } updateException) {
+                // the task faulted because the update function threw; surface the managed failure
+                throw new FirebaseException(updateException.Message, updateException);
+            }
+            if(e is Java.Lang.Throwable native) {
+                throw new CrossPlatformFirebaseFirestoreException(
+                    native.GetType().FullName ?? nameof(Java.Lang.Throwable),
+                    native.Message,
+                    native,
+                    nativeErrorCode: (native as FirebaseFirestoreException)?.GetCode()?.ToString()
+                );
+            }
+            throw;
+        }
         return (TResult?) result?.ToObject(typeof(TResult));
     }
 

@@ -1,4 +1,5 @@
 using Firebase.CloudFirestore;
+using Foundation;
 using Plugin.Firebase.Core.Exceptions;
 using Plugin.Firebase.Firestore.Platforms.iOS.Extensions;
 using NativeFieldPath = Firebase.CloudFirestore.FieldPath;
@@ -34,7 +35,13 @@ public sealed class TransactionWrapper : ITransaction
         if(error == null) {
             return snapshot;
         } else {
-            throw new FirebaseException(error.LocalizedDescription);
+            throw new CrossPlatformFirebaseFirestoreException(
+                nameof(NSErrorException),
+                error.LocalizedDescription,
+                new NSErrorException(error),
+                nativeErrorDomain: error.Domain,
+                nativeErrorCode: error.Code.ToString()
+            );
         }
     }
 

@@ -123,7 +123,7 @@ internal sealed class ByteEnumRangeDocument : IFirestoreObject
 internal sealed class IntEnumRangeDocument : IFirestoreObject
 {
     [FirestoreProperty("int_enum")]
-    public PokeType IntEnum { get; [UsedImplicitly] private set; }
+    public EdgeIntRating IntEnum { get; [UsedImplicitly] private set; }
 
     [FirestoreProperty("int_min")]
     public EdgeIntRating IntMin { get; [UsedImplicitly] private set; }

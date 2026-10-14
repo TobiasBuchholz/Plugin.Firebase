@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Diagnostics;
-using System.Globalization;
 using Firebase.CloudFirestore;
 using Firebase.Core;
 using Plugin.Firebase.Core.Platforms.iOS.Extensions;
+using Plugin.Firebase.Firestore.Internal;
 
 namespace Plugin.Firebase.Firestore.Platforms.iOS.Extensions;
 
@@ -230,11 +230,24 @@ public static class NSObjectExtensions
     /// <summary>
     /// Converts a .NET object to a native iOS NSObject.
     /// </summary>
+    /// <remarks>
+    /// Numbers and enums follow the write rules shared with Android: integral values become an int64
+    /// <see cref="NSNumber"/> and <see cref="float"/> and <see cref="double"/> become a double <see cref="NSNumber"/>.
+    /// </remarks>
     /// <param name="this">The object to convert.</param>
     /// <returns>The native iOS NSObject representation.</returns>
-    /// <exception cref="ArgumentException">Thrown if the object type cannot be converted.</exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown if the object type cannot be converted, including numbers with no Firestore representation such as a
+    /// <see cref="decimal"/>, a <see cref="char"/> or a <see cref="ulong"/> above <see cref="long.MaxValue"/>.
+    /// </exception>
     public static NSObject ToNSObject(this object? @this)
     {
+        if(FirestoreNumericWrites.TryWiden(@this, out var number)) {
+            // the native SDK stores an NSNumber whose objCType is 'c' or 'C' (sbyte, byte) as a boolean, so every
+            // integral value goes through the int64 overload
+            return number is long int64 ? new NSNumber(int64) : new NSNumber((double) number);
+        }
+
         switch(@this) {
             case null:
                 return new NSNull();
@@ -244,10 +257,6 @@ public static class NSObjectExtensions
                 return new NSString(x);
             case bool x:
                 return new NSNumber(x);
-            case byte or sbyte or short or ushort or int or uint or long or char or ulong:
-            case float or double or decimal:
-            case Enum:
-                return @this.ToFirestoreNumber();
             case DateTime x:
                 return x.ToNSDate();
             case DateTimeOffset x:
@@ -269,32 +278,6 @@ public static class NSObjectExtensions
                     $"Could not convert object of type {@this.GetType()} to NSObject. Does it extend {nameof(IFirestoreObject)}?"
                 );
         }
-    }
-
-    /// <summary>
-    /// Converts a CLR numeric value (including enums) to the Firestore wire representation:
-    /// integral values widen to int64, fractional values to double. The <see cref="long"/>
-    /// <see cref="NSNumber"/> overload is used deliberately: the native SDK stores NSNumbers
-    /// with objCType 'c'/'C' (byte/sbyte/char) as Firestore booleans. ulong values above
-    /// <see cref="long.MaxValue"/> have no Firestore representation and fail here instead of
-    /// wrapping.
-    /// </summary>
-    internal static NSNumber ToFirestoreNumber(this object @this)
-    {
-        var valueType = @this.GetType();
-        var conversionType = valueType.IsEnum ? Enum.GetUnderlyingType(valueType) : valueType;
-        if(conversionType == typeof(ulong)) {
-            var unsigned = Convert.ToUInt64(@this, CultureInfo.InvariantCulture);
-            if(unsigned > long.MaxValue) {
-                throw new ArgumentException(
-                    $"Could not convert {valueType} value {unsigned} to a Firestore number: values above {long.MaxValue} have no representation."
-                );
-            }
-        }
-
-        return conversionType == typeof(float) || conversionType == typeof(double) || conversionType == typeof(decimal)
-            ? new NSNumber(Convert.ToDouble(@this, CultureInfo.InvariantCulture))
-            : new NSNumber(Convert.ToInt64(@this, CultureInfo.InvariantCulture));
     }
 
     /// <summary>

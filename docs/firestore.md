@@ -72,6 +72,25 @@ This class is represented in firestore like this:
 
 A stored array can contain `null` entries. Reading it into a list property keeps them as `null` when the element type is a reference type such as `string` or `object`, or a nullable value type such as `int?`. A list of a non-nullable value type such as `IList<int>` can't hold `null`, so reading an array with a `null` entry into it throws an `ArgumentNullException` when you read `snapshot.Data`. Both platforms behave the same way.
 
+### Writing numbers
+
+Firestore stores every number as a signed 64-bit integer or a double. Android and iOS convert .NET numbers the
+same way wherever they are written: model properties, dictionary values, list elements, `FieldValue.ArrayUnion` and
+`ArrayRemove` elements, query operands and transaction results.
+
+| .NET type | Stored as |
+|---|---|
+| `sbyte`, `byte`, `short`, `ushort`, `int`, `uint`, `long` | 64-bit integer |
+| `ulong` | 64-bit integer. Values above `long.MaxValue` throw `ArgumentException`. |
+| `float`, `double` | double. A `float` is widened, so `0.1f` is stored as `0.10000000149011612`. |
+| enum | Its underlying value, under the rules above. |
+| `decimal` | Not supported. Throws `ArgumentException`, because Firestore has no decimal type. |
+| `char` | Not supported. Throws `ArgumentException`, because Firestore has no character type. |
+| `nint`, `nuint`, `Half`, `Int128`, `UInt128`, `BigInteger` | Not supported. Throws `ArgumentException`. |
+
+Nullable forms follow the rules of their underlying type, and `null` is stored as a Firestore null. To store an
+unsupported value, convert it explicitly first, for example `(double) price`.
+
 Documents can also be read as raw dictionaries when the field set is not known at compile time:
 ```c#
 var snapshot = await CrossFirebaseFirestore.Current
@@ -171,6 +190,18 @@ Firestore methods and snapshot listeners expose native Firebase failures as `Cro
 - Some methods now report an exception that the native SDK throws synchronously through the returned `Task`, instead of throwing it before the `Task` is returned. Examples are an `IllegalStateException` on Android after `TerminateAsync`, or an Objective-C exception on iOS. This applies to `IWriteBatch.CommitAsync`, `WaitForPendingWritesAsync`, `DisableNetworkAsync`, `EnableNetworkAsync`, `ClearPersistenceAsync` and `TerminateAsync` on both platforms, and to `IDocumentReference.SetDataAsync`, `UpdateDataAsync` and `DeleteDocumentAsync` on iOS. These exceptions aren't native Firebase failures, so their type doesn't change. Code that awaits the `Task` sees no difference; code that expected the exception before the `Task` was returned has to await it.
 
 On iOS, `RunTransactionAsync` now also retries the transaction after a retryable Firestore error raised inside the update function, when the update function lets it propagate. An example is `ABORTED` from an `ITransaction.GetDocument` that finds the document changed since an earlier read in the same transaction. iOS already re-ran the update function after a retryable commit failure, such as contention with another write; now the native SDK's retry rules decide for errors raised inside the update function too, as they already do on Android. Previously iOS never retried the transaction after such an error. Make sure the update function doesn't change state outside the transaction.
+
+Numeric writes follow one set of rules on both platforms (see [Writing numbers](#writing-numbers)):
+
+- `byte`, `sbyte`, `ushort`, `uint` and `ulong` values, and `short` values on Android, can now be written. Previously they were rejected on at least one platform or write path.
+- `decimal` and `char` writes throw `ArgumentException` with a message that says how to convert the value. Previously the failure depended on the platform and write path; on Android a `char` model property or dictionary value failed inside the native SDK with a Java `IllegalArgumentException`.
+- `ulong` values and `ulong`-backed enums above `long.MaxValue` throw `ArgumentException` instead of wrapping or failing inside the native SDK.
+- An untyped transaction result, such as `RunTransactionAsync<object>(t => 5)`, comes back as a boxed `long`, and a `float` result as a boxed `double`, because results go through the same conversion. Previously an `int` came back as an `int` and a `float` as a `float`. Typed results such as `RunTransactionAsync<int>` are unaffected.
+- The public `ToJavaObject` (Android) and `ToNSObject` (iOS) extension methods return a `Java.Lang.Long` or `Java.Lang.Double`, or an int64 or double `NSNumber`, for every number. Previously they returned a value of the source width, such as a `Java.Lang.Integer`.
+- On Android, enums in update data, lists, array unions, query operands and transaction results were converted with wrapping casts: a `uint`-backed enum above `int.MaxValue` became a negative number, and `byte`-, `sbyte`-, `short`- and `ushort`-backed enums failed. They now keep their actual value.
+- On iOS, `byte`- and `sbyte`-backed enums were stored as booleans. They are now stored as integers.
+
+Because of the last two changes, equality queries for those enum values won't match documents that earlier versions wrote with the wrapped or boolean value. Rewrite the affected documents if you query on those fields.
 
 ## Release notes
 - Version 3.1.3

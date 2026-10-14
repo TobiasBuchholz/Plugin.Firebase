@@ -1,4 +1,5 @@
 using Java.Util;
+using Plugin.Firebase.Firestore.Internal;
 using Timestamp = global::Firebase.Timestamp;
 
 namespace Plugin.Firebase.Firestore.Platforms.Android.Extensions;
@@ -26,47 +27,45 @@ public static class DateExtensions
     }
 
     /// <summary>
-    /// Converts a native Firestore timestamp without losing its sub-millisecond precision, unlike
-    /// <see cref="Timestamp.ToDate"/> which rounds to milliseconds.
+    /// Converts a native Firestore timestamp to a UTC <see cref="DateTimeOffset"/>, keeping its sub-millisecond
+    /// precision down to 100 ns, unlike <see cref="Timestamp.ToDate"/> which truncates to milliseconds.
     /// </summary>
-    public static DateTimeOffset ToDateTimeOffset(this Timestamp timestamp)
+    internal static DateTimeOffset ToDateTimeOffset(this Timestamp timestamp)
     {
-        return DateTimeOffset.UnixEpoch
-            .AddTicks(timestamp.Seconds * TimeSpan.TicksPerSecond + timestamp.Nanoseconds / 100);
+        return TimestampConversion.ToDateTimeOffset(timestamp.Seconds, timestamp.Nanoseconds);
     }
 
     /// <summary>
-    /// Converts a native Firestore timestamp without losing its sub-millisecond precision, unlike
-    /// <see cref="Timestamp.ToDate"/> which rounds to milliseconds.
+    /// Converts a native Firestore timestamp to a UTC <see cref="DateTime"/>, keeping its sub-millisecond
+    /// precision down to 100 ns, unlike <see cref="Timestamp.ToDate"/> which truncates to milliseconds.
     /// </summary>
-    public static DateTime ToDateTime(this Timestamp timestamp)
+    internal static DateTime ToDateTime(this Timestamp timestamp)
     {
         return timestamp.ToDateTimeOffset().UtcDateTime;
     }
 
     /// <summary>
-    /// Creates a native Firestore timestamp, preserving sub-millisecond precision that
-    /// <see cref="ToJavaDate(DateTimeOffset)"/> would lose.
+    /// Creates a native Firestore timestamp for the UTC instant of <paramref name="this"/>, keeping the
+    /// sub-millisecond precision that <see cref="ToJavaDate(DateTimeOffset)"/> loses.
     /// </summary>
-    public static Timestamp ToTimestamp(this DateTimeOffset @this)
+    internal static Timestamp ToTimestamp(this DateTimeOffset @this)
     {
-        var seconds = @this.ToUnixTimeSeconds();
-        var nanos =
-            (int) (@this.Ticks - (DateTimeOffset.UnixEpoch.Ticks + seconds * TimeSpan.TicksPerSecond))
-            * 100;
-        if(nanos < 0) {
-            seconds -= 1;
-            nanos += 1_000_000_000;
-        }
-        return new Timestamp(seconds, nanos);
+        var (seconds, nanoseconds) = TimestampConversion.ToUnixSecondsAndNanoseconds(@this);
+        return new Timestamp(seconds, nanoseconds);
     }
 
     /// <summary>
-    /// Creates a native Firestore timestamp, preserving sub-millisecond precision that
-    /// <see cref="ToJavaDate(DateTime)"/> would lose.
+    /// Creates a native Firestore timestamp for <paramref name="this"/>, keeping the sub-millisecond precision
+    /// that <see cref="ToJavaDate(DateTime)"/> loses. Every Firestore write of a <see cref="DateTime"/> on
+    /// Android goes through this method.
     /// </summary>
-    public static Timestamp ToTimestamp(this DateTime @this)
+    /// <remarks>
+    /// <see cref="DateTimeKind.Local"/> and <see cref="DateTimeKind.Utc"/> values convert through their UTC
+    /// instant. <see cref="DateTimeKind.Unspecified"/> values are read as local time.
+    /// </remarks>
+    internal static Timestamp ToTimestamp(this DateTime @this)
     {
-        return ToTimestamp((DateTimeOffset) @this);
+        var (seconds, nanoseconds) = TimestampConversion.ToUnixSecondsAndNanoseconds(@this);
+        return new Timestamp(seconds, nanoseconds);
     }
 }

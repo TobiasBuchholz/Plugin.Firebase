@@ -38,7 +38,13 @@ public interface IFirebaseFirestore : IDisposable
     /// </remarks>
     /// <param name="updateFunc">The func to execute within the transaction context.</param>
     /// <typeparam name="TResult">The type of the result returned by updateFunc.</typeparam>
-    /// <returns></returns>
+    /// <returns>
+    /// The value returned by <paramref name="updateFunc"/>. It passes through the native SDK and is converted like a written
+    /// field value, so when <typeparamref name="TResult"/> is <see cref="object"/> an integral result comes back as a boxed
+    /// <see cref="long"/> and a <see cref="float"/> as a boxed <see cref="double"/>. A result with no Firestore
+    /// representation, such as a <see cref="decimal"/>, fails the transaction like an exception thrown by
+    /// <paramref name="updateFunc"/>.
+    /// </returns>
     Task<TResult?> RunTransactionAsync<TResult>(Func<ITransaction, TResult> updateFunc);
 
     /// <summary>

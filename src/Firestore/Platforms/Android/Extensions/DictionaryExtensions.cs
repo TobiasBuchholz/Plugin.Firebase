@@ -41,14 +41,15 @@ public static class DictionaryExtensions
 
     private static void Put(this IMap @this, object key, object? value)
     {
+        // numbers and enums go through the same conversion as ToJavaObject, so set and update writes agree
+        if(JavaObjectExtensions.TryToJavaNumber(value, out var number)) {
+            @this.Put(key.ToString(), number);
+            return;
+        }
+
         switch(value) {
             case bool x:
                 @this.Put(key.ToString(), x);
-                break;
-            case byte or sbyte or short or ushort or int or uint or long or char or ulong:
-            case float or double or decimal:
-            case Enum:
-                @this.Put(key.ToString(), value.ToFirestoreNumber());
                 break;
             case string x:
                 @this.Put(key.ToString(), x);

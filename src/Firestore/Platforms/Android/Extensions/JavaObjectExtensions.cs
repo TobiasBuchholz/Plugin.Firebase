@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Java.Util;
 using Android.Runtime;
@@ -7,6 +8,7 @@ using Firebase.Firestore;
 using IList = System.Collections.IList;
 using NativeFirebase = Firebase;
 using System.Diagnostics;
+using Plugin.Firebase.Firestore.Internal;
 
 namespace Plugin.Firebase.Firestore.Platforms.Android.Extensions;
 
@@ -17,8 +19,21 @@ public static class JavaObjectExtensions
         return (T) ((IDictionary) @this).Cast(typeof(T), documentId);
     }
 
+    /// <summary>
+    /// Converts a .NET value to the Java object the native Firestore SDK writes. Numbers and enums follow the
+    /// write rules shared with iOS: integral values become <see cref="Java.Lang.Long"/> and <see cref="float"/>
+    /// and <see cref="double"/> become <see cref="Java.Lang.Double"/>.
+    /// </summary>
+    /// <exception cref="ArgumentException">
+    /// The value has no Firestore representation, for example a <see cref="decimal"/>, a <see cref="char"/> or a
+    /// <see cref="ulong"/> above <see cref="long.MaxValue"/>.
+    /// </exception>
     public static Java.Lang.Object? ToJavaObject(this object? @this)
     {
+        if(TryToJavaNumber(@this, out var number)) {
+            return number;
+        }
+
         switch(@this) {
             case null:
                 return null;
@@ -26,10 +41,6 @@ public static class JavaObjectExtensions
                 return x;
             case bool x:
                 return x;
-            case byte or sbyte or short or ushort or int or uint or long or char or ulong:
-            case float or double or decimal:
-            case Enum:
-                return @this.ToFirestoreNumber();
             case Java.Lang.ICharSequence x:
                 return x.ToString();
             case DateTime x:
@@ -62,27 +73,18 @@ public static class JavaObjectExtensions
     }
 
     /// <summary>
-    /// Converts a CLR numeric value (including enums) to the Firestore wire representation:
-    /// integral values widen to int64, fractional values to double. ulong values above
-    /// <see cref="long.MaxValue"/> have no Firestore representation and fail here instead of
-    /// wrapping or throwing inside the native SDK.
+    /// Converts a number or enum with <see cref="FirestoreNumericWrites"/>. <see cref="DictionaryExtensions"/> uses
+    /// this as well, so set and update writes store the same values.
     /// </summary>
-    internal static Java.Lang.Object ToFirestoreNumber(this object @this)
+    internal static bool TryToJavaNumber(object? value, [NotNullWhen(true)] out Java.Lang.Object? number)
     {
-        var valueType = @this.GetType();
-        var conversionType = valueType.IsEnum ? Enum.GetUnderlyingType(valueType) : valueType;
-        if(conversionType == typeof(ulong)) {
-            var unsigned = Convert.ToUInt64(@this, CultureInfo.InvariantCulture);
-            if(unsigned > long.MaxValue) {
-                throw new ArgumentException(
-                    $"Could not convert {valueType} value {unsigned} to a Firestore number: values above {long.MaxValue} have no representation."
-                );
-            }
+        if(!FirestoreNumericWrites.TryWiden(value, out var widened)) {
+            number = null;
+            return false;
         }
 
-        return conversionType == typeof(float) || conversionType == typeof(double) || conversionType == typeof(decimal)
-            ? (Java.Lang.Number) Convert.ToDouble(@this, CultureInfo.InvariantCulture)
-            : (Java.Lang.Number) Convert.ToInt64(@this, CultureInfo.InvariantCulture);
+        number = widened is long int64 ? Java.Lang.Long.ValueOf(int64) : Java.Lang.Double.ValueOf((double) widened);
+        return true;
     }
 
     public static Java.Lang.Object ToJavaObject(this IFirestoreObject @this)

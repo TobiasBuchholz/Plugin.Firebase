@@ -1,4 +1,6 @@
+using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using Plugin.Firebase.Auth;
 
@@ -72,6 +74,43 @@ namespace Plugin.Firebase.IntegrationTests.Auth
 
             return link ?? throw new InvalidOperationException(
                 $"Auth emulator did not expose a {requestType} email action link for {email}.");
+        }
+
+        private static async Task<bool> GetAuthEmulatorImprovedEmailPrivacyAsync()
+        {
+            using var document = JsonDocument.Parse(await HttpClient.GetStringAsync(GetAuthEmulatorConfigUri()));
+            return ReadImprovedEmailPrivacy(document.RootElement);
+        }
+
+        // Toggles the Auth emulator's email enumeration protection, so sign-in reports
+        // INVALID_LOGIN_CREDENTIALS for both a missing account and a wrong password.
+        private static async Task SetAuthEmulatorImprovedEmailPrivacyAsync(bool enabled)
+        {
+            var body = new JsonObject {
+                ["emailPrivacyConfig"] = new JsonObject { ["enableImprovedEmailPrivacy"] = enabled }
+            };
+            using var content = new StringContent(body.ToJsonString(), Encoding.UTF8, "application/json");
+            using var response = await HttpClient.PatchAsync(GetAuthEmulatorConfigUri(), content);
+            response.EnsureSuccessStatusCode();
+
+            using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            if(ReadImprovedEmailPrivacy(document.RootElement) != enabled) {
+                throw new InvalidOperationException(
+                    $"Auth emulator did not apply enableImprovedEmailPrivacy={enabled}.");
+            }
+        }
+
+        private static bool ReadImprovedEmailPrivacy(JsonElement config)
+        {
+            return config.TryGetProperty("emailPrivacyConfig", out var privacy)
+                && privacy.TryGetProperty("enableImprovedEmailPrivacy", out var enabled)
+                && enabled.GetBoolean();
+        }
+
+        private static string GetAuthEmulatorConfigUri()
+        {
+            var endpoint = IntegrationTestEnvironment.AuthEmulatorEndpoint;
+            return $"http://{endpoint.Host}:{endpoint.Port}/emulator/v1/projects/{IntegrationTestEnvironment.ProjectId}/config";
         }
 
     }

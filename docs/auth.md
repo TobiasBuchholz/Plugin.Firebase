@@ -103,6 +103,21 @@ await CrossFirebaseAuth.Current.CurrentUser.UpdateProfileAsync(
 
 The legacy `UpdateProfileAsync(string? displayName = "", string? photoUrl = "")` overload treats `""` as omitted and is obsolete.
 
+### Phone number verification
+
+Await `VerifyPhoneNumberAsync(phoneNumber)` before calling `SignInWithPhoneNumberVerificationCodeAsync(code)` or `LinkWithPhoneNumberVerificationCodeAsync(code)`. The task completes when the verification code has been sent and faults with `CrossPlatformFirebaseAuthException` when verification fails, for example for an invalid phone number or when the SMS quota is exceeded.
+
+```csharp
+await CrossFirebaseAuth.Current.VerifyPhoneNumberAsync("+15555550100");
+// ask the user for the code from the SMS
+var user = await CrossFirebaseAuth.Current.SignInWithPhoneNumberVerificationCodeAsync(code);
+```
+
+Android differs from iOS in these ways:
+- Firebase can verify the number instantly without sending a code. The task then completes, and the next sign-in or link call uses that credential once and ignores its code argument. Once a code was sent, the code is always used, even if Android also retrieved the SMS automatically.
+- Another call for the same phone number while the native verification session is still open reuses that session. It completes when the earlier call does, or immediately if the code was already sent, and no new code is sent. A call for a different phone number cancels the task of an earlier call that is still pending.
+- The native callbacks arrive on the main thread. Don't block on the task with `Wait()` or `Result` from the UI thread, which deadlocks; await it instead.
+
 ## Language
 
 Set `LanguageCode = "fr"` (or any BCP-47 code) before invoking an Auth flow that triggers user-facing content such as password-reset emails, email-verification emails, or phone-auth SMS.
@@ -158,10 +173,20 @@ In v5:
 - Inspect `NativeExceptionTypeName`, `NativeErrorDomain`, `NativeErrorCode`, `NativeErrorMessage`, or `InnerException` when you need precise native details.
 - `SignOutAsync()` now follows the same unified exception model when the underlying native Auth SDK reports a failure.
 
+## Next-release migration notes
+
+On Android, `VerifyPhoneNumberAsync` now completes once the verification code has been sent (as on iOS) or the number has been verified instantly. Previously it completed right after starting native verification. This changes behavior in these ways:
+
+- Verification failures, such as an invalid phone number or an exceeded SMS quota, fault the task with `CrossPlatformFirebaseAuthException`. Previously they were dropped, and the next sign-in or link call failed or used an old verification ID.
+- Instant verification completes the task, and the next sign-in or link call uses that credential once. Previously the instant credential was ignored.
+- Code that blocks on the task from the UI thread, with `Wait()` or `Result`, now deadlocks because Android delivers the callbacks on the main thread. Await the task instead.
+- Another call for the same phone number while the native session is open completes with the earlier call; a call for a different number cancels a still-pending earlier task.
+
 ## Release notes
 - Next
   - Add email/password user reauthentication and user-level reload APIs.
   - Mark `ReloadCurrentUserAsync()` obsolete; use `CurrentUser.ReloadAsync()` after checking `CurrentUser` is not `null`.
+  - Android: `VerifyPhoneNumberAsync` completes when the code is sent or the number is verified instantly, and faults on verification failure. See the migration notes above.
 - Version 5.0.1
   - Fix for wrong Core project version dependency at nuget.org
 - Version 5.0.0

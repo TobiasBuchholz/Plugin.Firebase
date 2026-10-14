@@ -1,37 +1,24 @@
 using Firebase.Auth;
 using Java.Lang;
 using Java.Util.Concurrent;
+using Plugin.Firebase.Auth.Internal;
 
 namespace Plugin.Firebase.Auth.Platforms.Android.PhoneNumber;
 
 public sealed class PhoneNumberAuth
 {
-    private string? _verificationId;
-    private PhoneAuthCredential? _instantCredential;
+    private readonly PhoneNumberVerificationTracker<PhoneAuthCredential> _verifications = new();
 
     public Task VerifyPhoneNumberAsync(Activity activity, string phoneNumber)
     {
-        _verificationId = null;
-        _instantCredential = null;
-        var completion = new TaskCompletionSource(
-            TaskCreationOptions.RunContinuationsAsynchronously
-        );
+        // each request gets its own callbacks bound to its attempt, so stale callbacks can't touch a newer attempt
+        var attempt = _verifications.Start(phoneNumber);
         var callbacks = new PhoneVerificationStateChangeCallbacks(
-            onCodeSent: x => {
-                _verificationId = x.VerificationId;
-                completion.TrySetResult();
-            },
-            onVerificationCompleted: credential => {
-                // instant verification: no code is sent, but the credential is already usable
-                _instantCredential = credential;
-                completion.TrySetResult();
-            },
-            onVerificationFailed: exception => completion.TrySetException(exception),
-            onCodeAutoRetrievalTimeOut: verificationId => {
-                // auto retrieval timed out, but the verification ID stays usable for manual entry
-                _verificationId = verificationId;
-                completion.TrySetResult();
-            }
+            onCodeSent: x => attempt.OnCodeSent(x.VerificationId),
+            onVerificationCompleted: attempt.OnVerificationCompleted,
+            onVerificationFailed: exception =>
+                attempt.OnVerificationFailed(FirebaseAuthExceptionFactory.Create(exception)),
+            onCodeAutoRetrievalTimeOut: attempt.OnCodeAutoRetrievalTimeOut
         );
         var options = PhoneAuthOptions
             .NewBuilder()
@@ -42,20 +29,13 @@ public sealed class PhoneNumberAuth
             .Build();
 
         PhoneAuthProvider.VerifyPhoneNumber(options);
-        return completion.Task;
+        return attempt.Task;
     }
 
     public Task<PhoneAuthCredential> GetCredentialAsync(string verificationCode)
     {
-        if(_instantCredential is not null) {
-            // instant verification already produced a credential; no code is needed
-            return Task.FromResult(_instantCredential);
-        }
-        if(_verificationId is null) {
-            throw new InvalidOperationException(
-                "VerifyPhoneNumberAsync must be called before GetCredentialAsync."
-            );
-        }
-        return Task.FromResult(PhoneAuthProvider.GetCredential(_verificationId, verificationCode));
+        return Task.FromResult(
+            _verifications.GetCredential(verificationCode, PhoneAuthProvider.GetCredential)
+        );
     }
 }

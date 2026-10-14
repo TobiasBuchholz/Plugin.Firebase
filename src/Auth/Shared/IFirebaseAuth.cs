@@ -7,9 +7,26 @@ public partial interface IFirebaseAuth : IDisposable
 {
     /// <summary>
     /// Starts the phone number authentication flow by sending a verification code to the specified phone number.
-    /// The returned task completes when the flow reaches a usable state (verification ID available or instant
-    /// verification), so a following sign-in call is reliably ordered. Verification failures fault the task.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The returned task completes when the verification code has been sent, so a following
+    /// <see cref="SignInWithPhoneNumberVerificationCodeAsync"/> or <see cref="LinkWithPhoneNumberVerificationCodeAsync"/>
+    /// call can use it. The task faults with <see cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseAuthException"/>
+    /// when verification fails.
+    /// </para>
+    /// <para>
+    /// Android: the task also completes when Firebase verifies the number instantly without sending a code. The next
+    /// sign-in or link call then uses that credential once and ignores its verification code. Another call for the same
+    /// phone number while the native verification session is still open reuses that session: it completes when the
+    /// earlier call does, or immediately if the code was already sent, and no new code is sent. A call for a different
+    /// phone number cancels the task of an earlier call that is still pending.
+    /// </para>
+    /// <para>
+    /// Android delivers the verification callbacks on the main thread. Await the task instead of blocking on it (for
+    /// example with <c>Wait()</c> or <c>Result</c>) from the UI thread, which deadlocks.
+    /// </para>
+    /// </remarks>
     /// <param name="phoneNumber">The phone number to be verified.</param>
     Task VerifyPhoneNumberAsync(string phoneNumber);
 
@@ -31,6 +48,11 @@ public partial interface IFirebaseAuth : IDisposable
     /// <summary>
     /// Signs in using the verification code that was send to the given phone number after calling <c>VerifyPhoneNumberAsync(phoneNumber)</c>.
     /// </summary>
+    /// <remarks>
+    /// Android: if <see cref="VerifyPhoneNumberAsync"/> completed through instant verification without sending a code,
+    /// this call uses that credential once and ignores <paramref name="verificationCode"/>. Once a code was sent, the
+    /// code is always used.
+    /// </remarks>
     /// <param name="verificationCode">The code that was send to the given phone number after calling <c>VerifyPhoneNumberAsync(phoneNumber)</c>.</param>
     /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
     Task<IFirebaseUser> SignInWithPhoneNumberVerificationCodeAsync(string verificationCode);
@@ -66,6 +88,11 @@ public partial interface IFirebaseAuth : IDisposable
     /// <summary>
     /// Link the signed in user with a phone number.
     /// </summary>
+    /// <remarks>
+    /// Android: if <see cref="VerifyPhoneNumberAsync"/> completed through instant verification without sending a code,
+    /// this call uses that credential once and ignores <paramref name="verificationCode"/>. Once a code was sent, the
+    /// code is always used.
+    /// </remarks>
     /// <param name="verificationCode">The code that was send to the given phone number after calling <c>VerifyPhoneNumberAsync(phoneNumber)</c>.</param>
     /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
     Task<IFirebaseUser> LinkWithPhoneNumberVerificationCodeAsync(string verificationCode);

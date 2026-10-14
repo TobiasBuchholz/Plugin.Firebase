@@ -1,9 +1,11 @@
 using System.Collections;
 using System.Diagnostics;
 using System.Globalization;
+using CoreFoundation;
 using Firebase.CloudFirestore;
 using Firebase.Core;
 using Plugin.Firebase.Core.Platforms.iOS.Extensions;
+using Plugin.Firebase.Firestore.Internal;
 
 namespace Plugin.Firebase.Firestore.Platforms.iOS.Extensions;
 
@@ -12,6 +14,8 @@ namespace Plugin.Firebase.Firestore.Platforms.iOS.Extensions;
 /// </summary>
 public static class NSObjectExtensions
 {
+    private static readonly nint BooleanTypeId = CFType.GetTypeID(NSNumber.FromBoolean(true).Handle);
+
     /// <summary>
     /// Casts a native iOS NSDictionary to a typed .NET object.
     /// </summary>
@@ -128,11 +132,17 @@ public static class NSObjectExtensions
     /// <summary>
     /// Converts a native iOS NSNumber to a .NET object of the appropriate numeric type.
     /// </summary>
+    /// <remarks>
+    /// A number read into a numeric or enum target follows the same rules as on Android: a fractional
+    /// value read into an integral or enum target is truncated toward zero, and an enum is range
+    /// checked against its underlying type.
+    /// </remarks>
     /// <param name="this">The NSNumber to convert.</param>
     /// <param name="targetType">Optional target type for the conversion.</param>
     /// <returns>The converted numeric value.</returns>
     /// <exception cref="OverflowException">
-    /// Thrown if the stored value doesn't fit into <paramref name="targetType"/>.
+    /// Thrown if the stored value doesn't fit into <paramref name="targetType"/>, or if it is NaN or
+    /// infinity and <paramref name="targetType"/> is an integral, enum or <see cref="decimal"/> type.
     /// </exception>
     /// <exception cref="InvalidCastException">
     /// Thrown if the stored value can't be converted to <paramref name="targetType"/> at all,
@@ -145,13 +155,22 @@ public static class NSObjectExtensions
         }
 
         var conversionType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+        if(conversionType == typeof(bool)) {
+            return @this.BoolValue;
+        }
+
+        var value = @this.ToConversionSource();
+        if(FirestoreNumericConversion.TryConvert(value, conversionType, out var converted)) {
+            return converted;
+        }
+
+        // What's left is a boolean read into a numeric or enum target, or a number read into a
+        // char. Both keep the Convert-based conversion that Android uses.
         if(conversionType.IsEnum) {
-            return Enum.ToObject(conversionType, @this.Int64Value);
+            return Enum.ToObject(conversionType, value);
         }
 
         switch(Type.GetTypeCode(conversionType)) {
-            case TypeCode.Boolean:
-                return @this.BoolValue;
             case TypeCode.Char:
             case TypeCode.SByte:
             case TypeCode.Byte:
@@ -164,7 +183,7 @@ public static class NSObjectExtensions
             case TypeCode.Single:
             case TypeCode.Double:
             case TypeCode.Decimal:
-                return Convert.ChangeType(@this.ToConversionSource(), conversionType, CultureInfo.InvariantCulture);
+                return Convert.ChangeType(value, conversionType, CultureInfo.InvariantCulture);
             default:
                 return null;
         }
@@ -172,18 +191,22 @@ public static class NSObjectExtensions
 
     /// <summary>
     /// Gets the stored value in its widest .NET representation, so that
-    /// <see cref="Convert.ChangeType(object, Type, IFormatProvider)"/> range checks the target conversion
-    /// instead of the NSNumber accessors silently truncating it.
+    /// <see cref="FirestoreNumericConversion"/> range checks the target conversion instead of the
+    /// NSNumber accessors silently truncating it.
     /// </summary>
     /// <remarks>
     /// This deliberately widens where <see cref="ToUntypedObject"/> preserves the stored width:
     /// an untyped read hands the caller the value's own type, while a typed read only needs a
-    /// source wide enough for the target's range check. The bool type codes differ for the same
-    /// reason - the typed path resolves <see cref="TypeCode.Boolean"/> before it gets here, so
-    /// "c" is treated as a number rather than guessed to be a bool.
+    /// source wide enough for the target's range check. Booleans are CFBoolean instances, which
+    /// report the same "c" type encoding as a signed char, so they are told apart by their Core
+    /// Foundation type and are never read as numbers.
     /// </remarks>
     private static object ToConversionSource(this NSNumber @this)
     {
+        if(CFType.GetTypeID(@this.Handle) == BooleanTypeId) {
+            return @this.BoolValue;
+        }
+
         switch(@this.ObjCType) {
             case "f":
                 return @this.FloatValue;

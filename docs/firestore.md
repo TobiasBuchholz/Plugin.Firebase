@@ -81,16 +81,21 @@ var name = data["name"] as string;
 
 Firestore stores whole numbers as 64-bit integers and fractional numbers as doubles. Reading a
 document into a property of a numeric type (`byte`, `sbyte`, `short`, `ushort`, `int`, `uint`,
-`long`, `ulong`, `char`, `float`, `double`, `decimal`, and their nullable forms) converts the
-stored value with `Convert.ChangeType` on both platforms, so:
+`long`, `ulong`, `float`, `double`, `decimal`, and their nullable forms) or an enum converts the
+stored value with the same rules on both platforms:
 
+- A fractional value read into an integral or enum property is truncated toward zero, as the
+  native Android SDK does. A stored `2.7` gives `2`, `-2.7` gives `-2`, and `3.5` gives `3`.
 - A value outside the property's range throws an `OverflowException` rather than silently
-  wrapping to an unrelated number.
-- A fractional value read into an integral property is rounded to even, not truncated, so a
-  stored `13.5` read into a `long` gives `14` and `12.5` gives `12`.
+  wrapping to an unrelated number. For a `float` property, a double too large for a `float`
+  throws rather than becoming infinity.
+- A stored NaN or infinity read into an integral, enum or `decimal` property throws an
+  `OverflowException`. `float` and `double` properties keep it.
+- An enum is range checked against its underlying type. A value in that range that isn't a named
+  member still converts, as with a cast in C#.
 - `decimal` and `decimal?` properties are supported.
-- A conversion that has no meaning at all throws an `InvalidCastException`, for example a
-  fractional value read into a `char`.
+- `char` properties convert with `Convert.ChangeType`. A conversion that has no meaning at all
+  throws an `InvalidCastException`, for example a fractional value read into a `char`.
 
 ```c#
 // "quantity" holds 300 in Firestore
@@ -117,6 +122,23 @@ Since code should be documenting itself you can also take a look at the followin
 - [src/.../ITransaction.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Firestore/ITransaction.cs)
 - [src/.../IWriteBatch.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Firestore/IWriteBatch.cs)
 - [tests/.../FirestoreFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Firestore/FirestoreFixture.cs)
+
+## Next-release migration notes
+
+Typed reads of numbers now follow the same rules on both platforms (see [Usage](#usage)). Compared
+with 4.2.1:
+
+- On iOS, a value outside the range of an integral property wrapped silently, so a stored `300`
+  read into a `byte` gave `44`. It now throws `OverflowException`. `decimal` properties, which
+  were left at `0`, now read the stored value.
+- On Android, `int` and `int?` properties rounded fractional values (`Convert.ToInt32`), so
+  `2.5` gave `2` and `3.5` gave `4`. They now truncate, so `3.5` gives `3`.
+- A fractional value read into any integral or enum property truncates toward zero on both
+  platforms.
+- Enum properties are range checked against their underlying type on both platforms, so a value
+  that doesn't fit throws `OverflowException`.
+- A stored NaN or infinity read into an integral, enum or `decimal` property throws
+  `OverflowException`, and so does a double too large for a `float` property.
 
 ## Release notes
 - Version 3.1.3

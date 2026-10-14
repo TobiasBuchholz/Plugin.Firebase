@@ -1,5 +1,4 @@
 using Android.Gms.Extensions;
-using Firebase.Firestore;
 using Plugin.Firebase.Core;
 using Plugin.Firebase.Core.Exceptions;
 using Plugin.Firebase.Firestore.Platforms.Android;
@@ -38,20 +37,13 @@ public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseF
         Java.Lang.Object? result;
         try {
             result = await _firestore.RunTransaction(function);
-        } catch(Exception e) {
-            if(function.UpdateException is { } updateException) {
-                // the task faulted because the update function threw; surface the managed failure
-                throw new FirebaseException(updateException.Message, updateException);
-            }
-            if(e is Java.Lang.Throwable native) {
-                throw new CrossPlatformFirebaseFirestoreException(
-                    native.GetType().FullName ?? nameof(Java.Lang.Throwable),
-                    native.Message,
-                    native,
-                    nativeErrorCode: (native as FirebaseFirestoreException)?.GetCode()?.ToString()
-                );
-            }
-            throw;
+        } catch(Exception) when(function.UpdateException is { } updateException) {
+            // the task faulted because the update function threw; surface the managed failure
+            throw updateException as CrossPlatformFirebaseFirestoreException
+                ?? new FirebaseException(updateException.Message, updateException);
+        } catch(Exception e) when(FirestoreExceptionFactory.IsNativeFirestoreException(e)) {
+            // includes a native failure that TransactionFunction handed back to the transaction runner
+            throw FirestoreExceptionFactory.Create(e);
         }
         return (TResult?) result?.ToObject(typeof(TResult));
     }
@@ -63,27 +55,27 @@ public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseF
 
     public Task WaitForPendingWritesAsync()
     {
-        return _firestore.WaitForPendingWrites().AsAsync();
+        return FirestoreExceptionFactory.Wrap(() => _firestore.WaitForPendingWrites().AsAsync());
     }
 
     public Task DisableNetworkAsync()
     {
-        return _firestore.DisableNetwork().AsAsync();
+        return FirestoreExceptionFactory.Wrap(() => _firestore.DisableNetwork().AsAsync());
     }
 
     public Task EnableNetworkAsync()
     {
-        return _firestore.EnableNetwork().AsAsync();
+        return FirestoreExceptionFactory.Wrap(() => _firestore.EnableNetwork().AsAsync());
     }
 
     public Task ClearPersistenceAsync()
     {
-        return _firestore.ClearPersistence().AsAsync();
+        return FirestoreExceptionFactory.Wrap(() => _firestore.ClearPersistence().AsAsync());
     }
 
     public Task TerminateAsync()
     {
-        return _firestore.Terminate().AsAsync();
+        return FirestoreExceptionFactory.Wrap(() => _firestore.Terminate().AsAsync());
     }
 
     public void Restart()

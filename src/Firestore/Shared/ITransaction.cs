@@ -11,6 +11,10 @@ public interface ITransaction
     /// <param name="document">A reference to the document to be read.</param>
     /// <typeparam name="T">The type of the document item.</typeparam>
     /// <returns></returns>
+    /// <exception cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseFirestoreException">
+    /// The native SDK failed to read the document, for example because the transaction already contains a write
+    /// (<c>INVALID_ARGUMENT</c>).
+    /// </exception>
     IDocumentSnapshot<T>? GetDocument<T>(IDocumentReference document);
 
     /// <summary>

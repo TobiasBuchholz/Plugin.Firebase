@@ -81,12 +81,39 @@ var name = data["name"] as string;
 
 ### Error handling
 
-Firestore failures that come from the native SDKs are surfaced as `CrossPlatformFirebaseFirestoreException`
-(`Plugin.Firebase.Core.Exceptions`), for example a rejected transaction commit or a failed read inside
-`RunTransactionAsync`. It carries the native type name, error domain, error code and message, and keeps the
-native exception as `InnerException`. If the transaction's update function throws, `RunTransactionAsync`
-surfaces a `Plugin.Firebase.Core.Exceptions.FirebaseException` whose `InnerException` is the original
-exception, on both platforms.
+Every failure that the native Firestore SDK reports as a `com.google.firebase.FirebaseException` (Android, which
+includes `FirebaseFirestoreException`) or an `NSError` (iOS) is surfaced as `CrossPlatformFirebaseFirestoreException` (`Plugin.Firebase.Core.Exceptions`). That covers the tasks
+returned by `IFirebaseFirestore`, `IDocumentReference`, `ICollectionReference`, `IQuery` and `IWriteBatch`, the
+exception thrown by `ITransaction.GetDocument`, and the error passed to the `onError` callback of
+`AddSnapshotListener`. The type derives from `CrossPlatformFirebaseException`, the base that
+`CrossPlatformFirebaseAuthException` shares, and from `FirebaseException`. It keeps the native exception as
+`InnerException` and passes the native metadata through:
+
+| Property | Android | iOS |
+| --- | --- | --- |
+| `NativeExceptionTypeName` | Java canonical class name, e.g. `com.google.firebase.firestore.FirebaseFirestoreException` | `NSError` |
+| `NativeErrorCode` | `FirebaseFirestoreException.Code` name, e.g. `INVALID_ARGUMENT`; `null` for other Firebase exceptions | `FirestoreErrorCode` name, e.g. `InvalidArgument`; for other domains or unnamed codes, the number formatted with the invariant culture |
+| `NativeErrorDomain` | `null` | `NSError` domain, e.g. `FIRFirestoreErrorDomain` |
+| `NativeErrorMessage` | The exception message | The `NSError` localized description |
+
+Only native Firebase failures are wrapped. Argument validation by the native SDKs (for example
+`Java.Lang.IllegalArgumentException` on Android, or an Objective-C exception on iOS) and managed exceptions, such
+as data conversion errors, propagate unchanged.
+
+```c#
+try {
+    await CrossFirebaseFirestore.Current.GetDocument("pokemons/1").UpdateDataAsync(("name", "Bulbasaur"));
+} catch(CrossPlatformFirebaseFirestoreException e) {
+    Console.WriteLine($"{e.NativeErrorDomain} {e.NativeErrorCode}: {e.NativeErrorMessage}");
+}
+```
+
+Transactions follow the same rules, with one addition. If the update function passed to `RunTransactionAsync`
+throws, the transaction is aborted without committing and `RunTransactionAsync` throws a `FirebaseException` whose
+`InnerException` is the original exception, on both platforms. A `CrossPlatformFirebaseFirestoreException` that
+the update function lets propagate, for example from a failed `ITransaction.GetDocument`, isn't wrapped again:
+`RunTransactionAsync` throws a `CrossPlatformFirebaseFirestoreException` for the same native error. On Android the
+native transaction runner first applies its retry rules to that error; on iOS the transaction isn't retried.
 
 ### Further information
 
@@ -100,6 +127,16 @@ Since code should be documenting itself you can also take a look at the followin
 - [src/.../ITransaction.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Firestore/ITransaction.cs)
 - [src/.../IWriteBatch.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Firestore/IWriteBatch.cs)
 - [tests/.../FirestoreFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Firestore/FirestoreFixture.cs)
+
+## Next-release migration notes
+
+Failures that the native Firestore SDKs report now surface as `CrossPlatformFirebaseFirestoreException` on both platforms (see [Error handling](#error-handling)). These are breaking changes; update `catch` blocks and `onError` handlers before upgrading:
+
+- Tasks returned by Firestore methods previously faulted with the native exception: `Firebase.Firestore.FirebaseFirestoreException` (or another `Firebase.FirebaseException`) on Android, and `Foundation.NSErrorException` on iOS. On iOS, `GetDocumentSnapshotAsync`, `GetDocumentsAsync` and `AddDocumentAsync` faulted with a `FirebaseException` that carried only the localized description. A `catch` for any of these no longer matches; catch `CrossPlatformFirebaseFirestoreException` and read the native exception from `InnerException` if you need it.
+- `ITransaction.GetDocument` throws `CrossPlatformFirebaseFirestoreException` instead of `FirebaseFirestoreException` (Android) or a `FirebaseException` without the native error (iOS).
+- `RunTransactionAsync` throws `CrossPlatformFirebaseFirestoreException` when the native SDK fails the transaction, for example when the backend rejects the commit, or when the update function lets a failed `ITransaction.GetDocument` propagate. Previously this was `FirebaseFirestoreException` on Android, and `NSErrorException` or a `FirebaseException` wrapping the read failure on iOS.
+- On Android, `RunTransactionAsync` throws `FirebaseException` with the original exception as `InnerException` when the update function throws, as on iOS. Previously it threw the native task's `Java.Lang.RuntimeException`.
+- The `onError` callback of `AddSnapshotListener` receives `CrossPlatformFirebaseFirestoreException`. Previously it received a `FirebaseException` built from the localized description on iOS, a `FirebaseException` with the native exception as `InnerException` for Android document listeners, and the native `Firebase.FirebaseException` for Android query listeners.
 
 ## Release notes
 - Version 3.1.3

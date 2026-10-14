@@ -31,18 +31,17 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
     {
         var nsData = data.ToNSObjectDictionary();
         if(options == null) {
-            return Wrapped.SetDataAsync(nsData);
+            return FirestoreExceptionFactory.Wrap(() => Wrapped.SetDataAsync(nsData));
         }
         switch(options.Type) {
             case SetOptions.TypeMerge:
-                return Wrapped.SetDataAsync(nsData, true);
+                return FirestoreExceptionFactory.Wrap(() => Wrapped.SetDataAsync(nsData, true));
             case SetOptions.TypeMergeFieldPaths:
-                return Wrapped.SetDataAsync(
-                    nsData,
-                    options.FieldPaths?.Select(x => new NativeFieldPath(x.ToArray())).ToArray() ?? []
-                );
+                var fieldPaths = options.FieldPaths?.Select(x => new NativeFieldPath(x.ToArray())).ToArray() ?? [];
+                return FirestoreExceptionFactory.Wrap(() => Wrapped.SetDataAsync(nsData, fieldPaths));
             case SetOptions.TypeMergeFields:
-                return Wrapped.SetDataAsync(nsData, options.Fields?.ToArray() ?? []);
+                var fields = options.Fields?.ToArray() ?? [];
+                return FirestoreExceptionFactory.Wrap(() => Wrapped.SetDataAsync(nsData, fields));
             default:
                 throw new ArgumentException($"SetOptions type {options.Type} is not supported.");
         }
@@ -63,19 +62,21 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
     /// <inheritdoc/>
     public Task UpdateDataAsync(Dictionary<object, object?> data)
     {
-        return Wrapped.UpdateDataAsync(data.ToNSObjectDictionary());
+        var nsData = data.ToNSObjectDictionary();
+        return FirestoreExceptionFactory.Wrap(() => Wrapped.UpdateDataAsync(nsData));
     }
 
     /// <inheritdoc/>
     public Task UpdateDataAsync(params (string, object?)[] data)
     {
-        return Wrapped.UpdateDataAsync(data.ToNSObjectDictionary());
+        var nsData = data.ToNSObjectDictionary();
+        return FirestoreExceptionFactory.Wrap(() => Wrapped.UpdateDataAsync(nsData));
     }
 
     /// <inheritdoc/>
     public Task DeleteDocumentAsync()
     {
-        return Wrapped.DeleteDocumentAsync();
+        return FirestoreExceptionFactory.Wrap(() => Wrapped.DeleteDocumentAsync());
     }
 
     /// <inheritdoc/>
@@ -88,7 +89,7 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
                 if(snapshot is not null) {
                     tcs.SetResult(snapshot.ToAbstract<T>());
                 } else if(error is not null) {
-                    tcs.SetException(new FirebaseException(error.LocalizedDescription));
+                    tcs.SetException(FirestoreExceptionFactory.Create(error));
                 } else {
                     tcs.SetException(new FirebaseException("Unknown error"));
                 }
@@ -115,7 +116,7 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
                     onChanged(snapshot.ToAbstract<T>());
                 }
                 if(error is not null) {
-                    onError?.Invoke(new FirebaseException(error.LocalizedDescription));
+                    onError?.Invoke(FirestoreExceptionFactory.Create(error));
                 }
             }
         );

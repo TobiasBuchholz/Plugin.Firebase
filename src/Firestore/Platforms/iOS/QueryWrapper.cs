@@ -213,7 +213,7 @@ public class QueryWrapper : IQuery
                 if(snapshot is not null) {
                     tcs.SetResult(new QuerySnapshotWrapper<T>(snapshot));
                 } else if(error is not null) {
-                    tcs.SetException(new FirebaseException(error.LocalizedDescription));
+                    tcs.SetException(FirestoreExceptionFactory.Create(error));
                 } else {
                     tcs.SetException(new FirebaseException("Unknown error"));
                 }
@@ -240,7 +240,7 @@ public class QueryWrapper : IQuery
                     onChanged(new QuerySnapshotWrapper<T>(snapshot));
                 }
                 if(error is not null) {
-                    onError?.Invoke(new FirebaseException(error.LocalizedDescription));
+                    onError?.Invoke(FirestoreExceptionFactory.Create(error));
                 }
             }
         );

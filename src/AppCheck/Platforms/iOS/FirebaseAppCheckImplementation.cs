@@ -1,6 +1,8 @@
+using System.Runtime.InteropServices;
 using Firebase.AppCheck;
 using Firebase.Core;
 using Foundation;
+using ObjCRuntime;
 using Plugin.Firebase.Core;
 
 namespace Plugin.Firebase.AppCheck;
@@ -47,9 +49,8 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
             // The App Check component is created eagerly when an app is configured and reads the provider factory
             // then, so a factory set afterwards never reaches the default app. Asking the native SDK also covers apps
             // configured without CrossFirebase.Initialize(), and accepts a new provider again after an
-            // initialization failed or the default app was deleted. Before initialization, the native lookup logs
-            // that the default app is not configured yet (I-COR000003).
-            if(App.DefaultInstance != null) {
+            // initialization failed or the default app was deleted.
+            if(IsDefaultAppConfigured()) {
                 // The plugin only tracks the factory it set itself, and treats Disabled as in effect when it set none.
                 var providerInEffect = InstalledProvider ?? AppCheckProviderType.Disabled;
                 if(options.Provider == providerInEffect) {
@@ -79,6 +80,33 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
         // tokens are attached to requests.
         _beforeConfigureRegistration ??= FirebaseInitializationHooks.RegisterBeforeConfigure(InstallProviderFactory);
     }
+
+    // Uses +[FIRApp isDefaultAppConfigured], the FirebaseCore-internal check that Firebase's own SDKs use. The public
+    // +[FIRApp defaultApp] logs I-COR000003 when no default app exists, which is the normal state when Configure()
+    // runs before CrossFirebase.Initialize(). The internal method isn't bound, so it is called through the
+    // Objective-C runtime, with +defaultApp as the fallback for a FirebaseCore version that doesn't have it.
+    private static bool IsDefaultAppConfigured()
+    {
+        IntPtr appClass = Class.GetHandle(typeof(App));
+        IntPtr selector = Selector.GetHandle("isDefaultAppConfigured");
+
+        // Class methods live on the metaclass, so look the selector up there rather than on the class itself.
+        if(appClass != IntPtr.Zero && ClassRespondsToSelector(ObjectGetClass(appClass), selector) != 0) {
+            return SendByteMessage(appClass, selector) != 0;
+        }
+
+        return App.DefaultInstance != null;
+    }
+
+    [DllImport(Constants.ObjectiveCLibrary, EntryPoint = "object_getClass")]
+    private static extern IntPtr ObjectGetClass(IntPtr obj);
+
+    // BOOL is one byte on every iOS ABI (bool on arm64, signed char on x86_64), so it is read as a byte.
+    [DllImport(Constants.ObjectiveCLibrary, EntryPoint = "class_respondsToSelector")]
+    private static extern byte ClassRespondsToSelector(IntPtr cls, IntPtr selector);
+
+    [DllImport(Constants.ObjectiveCLibrary, EntryPoint = "objc_msgSend")]
+    private static extern byte SendByteMessage(IntPtr receiver, IntPtr selector);
 
     private void InstallProviderFactory()
     {

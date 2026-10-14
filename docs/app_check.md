@@ -60,6 +60,7 @@ On iOS, `Configure()` maps to the native `AppCheck.setAppCheckProviderFactory()`
 - The provider in effect is the one the plugin set before the default app was configured. The plugin only tracks factories it set itself, so it doesn't see one set directly through the native binding, and when it set none, it treats `Disabled` as the provider in effect.
 - The bundled initializer logs this exception instead of throwing, for example when it runs again to configure a secondary app, and keeps the provider in effect.
 - If initialization failed before the default app was configured, or the default app was deleted, `Configure()` can change the provider again, and the next `CrossFirebase.Initialize()` installs it.
+- To find out whether the default app exists, the plugin calls FirebaseCore's internal `+[FIRApp isDefaultAppConfigured]`, the check Firebase's own SDKs use, which logs nothing. Only if a FirebaseCore version lacks that method does it fall back to `FirebaseApp.app()`. That call logs `[FirebaseCore][I-COR000003] The default Firebase app has not yet been configured` when `Configure()` runs before `CrossFirebase.Initialize()`, which is harmless.
 
 ```c#
 CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);       // installed by the next CrossFirebase.Initialize()
@@ -79,16 +80,6 @@ without a provider factory. Please register a provider factory using
 ```
 
 **This is expected and harmless.** It confirms that App Check is properly disabled — no provider factory is installed, so no App Check tokens are generated or attached to requests. Without this explicit clearing, the native SDK may auto-register a default `DeviceCheckProviderFactory` when the `FirebaseAppCheck.framework` is linked, which would produce invalid placeholder tokens on simulators and cause `CrossPlatformFirebaseAuthException: The supplied auth credential is malformed or has expired` errors on Auth and Functions requests.
-
-### iOS — `The default Firebase app has not yet been configured` log message
-
-To check whether it is too late to set the provider factory, `Configure()` asks the native SDK for the default app. When `Configure()` runs before `CrossFirebase.Initialize()`, as recommended, the native Firebase iOS SDK logs:
-
-```
-[FirebaseCore][I-COR000003] The default Firebase app has not yet been configured. Add `FirebaseApp.configure()` to your application initialization. ...
-```
-
-**This is expected and harmless** when `CrossFirebase.Initialize()` follows.
 
 ### iOS enablement
 App Check for iOS uses `AdamE.Firebase.iOS.AppCheck`.

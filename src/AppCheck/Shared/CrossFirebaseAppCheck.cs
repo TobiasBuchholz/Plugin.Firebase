@@ -39,13 +39,21 @@ public sealed class CrossFirebaseAppCheck
     /// <summary>
     /// Configures Firebase AppCheck with the specified options.
     /// </summary>
+    /// <remarks>
+    /// Call this before <c>CrossFirebase.Initialize()</c>. On Android, a later call installs the provider factory
+    /// right away. On iOS, the native SDK reads the provider factory only when Firebase configures an app, so after
+    /// the default app is configured, configuring the provider already in effect does nothing and any other provider
+    /// throws.
+    /// </remarks>
     /// <param name="options">The AppCheck options to apply.</param>
     /// <exception cref="NotSupportedException">
-    /// On Android, <paramref name="options"/> selects a provider that Android does not support.
+    /// <paramref name="options"/> selects a provider that the current platform does not support.
     /// </exception>
     /// <exception cref="InvalidOperationException">
     /// On Android, <paramref name="options"/> is <see cref="AppCheckOptions.Disabled"/> while a provider factory is
     /// installed on the default Firebase app. The native SDK cannot remove an installed provider factory.
+    /// On iOS, the default Firebase app is already configured and <paramref name="options"/> selects a provider other
+    /// than the one in effect. The native SDK reads the provider factory only when <c>FirebaseApp.configure()</c> runs.
     /// </exception>
     public static void Configure(AppCheckOptions options)
     {

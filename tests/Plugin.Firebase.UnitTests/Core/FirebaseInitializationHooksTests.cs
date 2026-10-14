@@ -41,20 +41,6 @@ public class FirebaseInitializationHooksTests
     }
 
     [Fact]
-    public void before_configure_invoked_tracks_the_configure_point()
-    {
-        Assert.False(FirebaseInitializationHooks.BeforeConfigureInvoked);
-
-        InvokeInternal("InvokeBeforeConfigure");
-
-        Assert.True(FirebaseInitializationHooks.BeforeConfigureInvoked);
-
-        FirebaseInitializationHooks.Reset();
-
-        Assert.False(FirebaseInitializationHooks.BeforeConfigureInvoked);
-    }
-
-    [Fact]
     public void register_after_initialize_invokes_callbacks_in_order()
     {
         var called = new List<int>();

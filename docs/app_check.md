@@ -23,7 +23,7 @@ CrossFirebase.Initialize(activity, activityProvider);      // hook fires here
 #endif
 ```
 
-> **Note:** On Android, calling `Configure()` _after_ `CrossFirebase.Initialize()` also works: the provider factory is installed immediately (see [Changing the provider after initialization (Android)](#changing-the-provider-after-initialization-android)). On iOS the provider factory has to be set before `CrossFirebase.Initialize()`; a later `Configure()` call throws `InvalidOperationException` because the native provider factory can no longer be installed ([#699](https://github.com/TobiasBuchholz/Plugin.Firebase/issues/699)). Calling it before initialization is the recommended pattern because it behaves the same on both platforms and avoids a window where Firebase is alive without a provider.
+> **Note:** On Android, calling `Configure()` _after_ `CrossFirebase.Initialize()` also works: the provider factory is installed immediately (see [Changing the provider after initialization (Android)](#changing-the-provider-after-initialization-android)). On iOS the provider factory has to be set before `CrossFirebase.Initialize()`; afterwards, `Configure()` with any other provider throws `InvalidOperationException` (see [Configuring after initialization (iOS)](#configuring-after-initialization-ios)). Calling it before initialization is the recommended pattern because it behaves the same on both platforms and avoids a window where Firebase is alive without a provider.
 
 ### Providers
 | Provider | Platforms | Typical usage |
@@ -52,6 +52,22 @@ CrossFirebaseAppCheck.Configure(AppCheckOptions.PlayIntegrity);  // replaces it 
 CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled);       // throws InvalidOperationException
 ```
 
+### Configuring after initialization (iOS)
+
+On iOS, `Configure()` maps to the native `AppCheck.setAppCheckProviderFactory()`. The native SDK reads the factory only when Firebase configures an app, so it has to be set before `CrossFirebase.Initialize()` ([#699](https://github.com/TobiasBuchholz/Plugin.Firebase/issues/699)):
+
+- Once the default Firebase app is configured, configuring the provider already in effect does nothing, and any other provider throws an `InvalidOperationException`. This also applies when the app was configured through the native `Firebase.Core.App.Configure()` instead of `CrossFirebase.Initialize()`.
+- The provider in effect is the one the plugin set before the default app was configured. The plugin only tracks factories it set itself, so it doesn't see one set directly through the native binding, and when it set none, it treats `Disabled` as the provider in effect.
+- The bundled initializer logs this exception instead of throwing, for example when it runs again to configure a secondary app, and keeps the provider in effect.
+- If initialization failed before the default app was configured, or the default app was deleted, `Configure()` can change the provider again, and the next `CrossFirebase.Initialize()` installs it.
+
+```c#
+CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);       // installed by the next CrossFirebase.Initialize()
+CrossFirebase.Initialize();
+CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);       // does nothing
+CrossFirebaseAppCheck.Configure(AppCheckOptions.AppAttest);   // throws InvalidOperationException
+```
+
 ### iOS — `Cannot instantiate FIRAppCheck` log message
 
 When App Check is configured with `AppCheckOptions.Disabled`, the plugin explicitly clears the native provider factory by calling `SetAppCheckProviderFactory(null)` before `FirebaseApp.Configure()`. The native Firebase iOS SDK then logs:
@@ -63,6 +79,16 @@ without a provider factory. Please register a provider factory using
 ```
 
 **This is expected and harmless.** It confirms that App Check is properly disabled — no provider factory is installed, so no App Check tokens are generated or attached to requests. Without this explicit clearing, the native SDK may auto-register a default `DeviceCheckProviderFactory` when the `FirebaseAppCheck.framework` is linked, which would produce invalid placeholder tokens on simulators and cause `CrossPlatformFirebaseAuthException: The supplied auth credential is malformed or has expired` errors on Auth and Functions requests.
+
+### iOS — `The default Firebase app has not yet been configured` log message
+
+To check whether it is too late to set the provider factory, `Configure()` asks the native SDK for the default app. When `Configure()` runs before `CrossFirebase.Initialize()`, as recommended, the native Firebase iOS SDK logs:
+
+```
+[FirebaseCore][I-COR000003] The default Firebase app has not yet been configured. Add `FirebaseApp.configure()` to your application initialization. ...
+```
+
+**This is expected and harmless** when `CrossFirebase.Initialize()` follows.
 
 ### iOS enablement
 App Check for iOS uses `AdamE.Firebase.iOS.AppCheck`.
@@ -118,3 +144,8 @@ On Android, `CrossFirebaseAppCheck.Configure` now reaches the native SDK after i
 - `DeviceCheck` and `AppAttest` throw `NotSupportedException` from `Configure` itself. Previously, when configured before initialization, the exception came from `CrossFirebase.Initialize()`. The bundled initializer now logs it and leaves App Check as it was.
 - `CrossFirebaseAppCheck.Dispose()` no longer cancels a provider configured before initialization. Configure `Disabled` instead.
 - Configuring the provider that is already installed does nothing.
+
+On iOS, `CrossFirebaseAppCheck.Configure` now fails explicitly instead of being silently ignored when it can't take effect:
+
+- Once the default Firebase app is configured, configuring any provider other than the one in effect throws `InvalidOperationException`, and configuring the provider in effect does nothing. Previously every call succeeded, but the provider was never installed. Apps that configure App Check after `CrossFirebase.Initialize()` used to start and now throw; move the call before `CrossFirebase.Initialize()`. The bundled initializer logs the exception and keeps the provider in effect.
+- `PlayIntegrity` throws `NotSupportedException` from `Configure` itself. Previously, when configured before initialization, the exception came from `CrossFirebase.Initialize()` before Firebase was configured; after initialization, the call was silently ignored. The bundled initializer now logs it and leaves App Check as it was.

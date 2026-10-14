@@ -12,13 +12,6 @@ public static class FirebaseInitializationHooks
     private static bool AfterInitializeInvoked;
 
     /// <summary>
-    /// Gets whether the before-configure hook point has already run, meaning the native
-    /// Firebase configuration call (e.g., `App.Configure()` on iOS) already happened and
-    /// callbacks that must run before it can no longer take effect.
-    /// </summary>
-    public static bool BeforeConfigureInvoked { get; private set; }
-
-    /// <summary>
     /// Registers a callback to be executed before Firebase configuration.
     /// </summary>
     /// <param name="callback">The callback action to execute before configuration.</param>
@@ -72,7 +65,6 @@ public static class FirebaseInitializationHooks
     {
         Action[] callbacks;
         lock(SyncRoot) {
-            BeforeConfigureInvoked = true;
             callbacks = BeforeConfigureCallbacks.ToArray();
         }
 
@@ -99,7 +91,6 @@ public static class FirebaseInitializationHooks
         lock(SyncRoot) {
             BeforeConfigureCallbacks.Clear();
             AfterInitializeCallbacks.Clear();
-            BeforeConfigureInvoked = false;
             AfterInitializeInvoked = false;
         }
     }

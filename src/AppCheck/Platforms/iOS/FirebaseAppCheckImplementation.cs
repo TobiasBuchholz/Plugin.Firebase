@@ -10,29 +10,60 @@ namespace Plugin.Firebase.AppCheck;
 /// </summary>
 public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
 {
-    private readonly object _syncRoot = new();
+    // The native provider factory is process-wide, so the provider installed before the default app was configured is
+    // shared by every implementation instance, including one created after CrossFirebaseAppCheck.Dispose().
+    private static readonly object SyncRoot = new();
+    private static AppCheckProviderType? InstalledProvider;
     private AppCheckOptions _options = AppCheckOptions.Disabled;
     private IDisposable? _beforeConfigureRegistration;
 
     /// <summary>
     /// Configures the Firebase AppCheck service with the specified options.
     /// </summary>
+    /// <remarks>
+    /// The native SDK reads the provider factory when Firebase configures an app, so call this before
+    /// <c>CrossFirebase.Initialize()</c>. Once the default app is configured, configuring the provider already in
+    /// effect does nothing and any other provider throws.
+    /// </remarks>
     /// <param name="options">The AppCheck configuration options.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="options"/> is <c>null</c>.</exception>
+    /// <exception cref="NotSupportedException"><paramref name="options"/> selects a provider iOS does not support.</exception>
+    /// <exception cref="InvalidOperationException">
+    /// The default Firebase app is already configured and <paramref name="options"/> selects a provider other than
+    /// the one in effect.
+    /// </exception>
     public void Configure(AppCheckOptions options)
     {
         if(options == null) {
             throw new ArgumentNullException(nameof(options));
         }
 
-        if(FirebaseInitializationHooks.BeforeConfigureInvoked) {
-            throw new InvalidOperationException(
-                "CrossFirebaseAppCheck.Configure() must be called before CrossFirebase.Initialize() on iOS. "
-                    + "The native provider factory can only be installed before FirebaseApp.configure() runs; "
-                    + "configuring afterwards cannot take effect."
-            );
+        if(options.Provider is not (AppCheckProviderType.Disabled or AppCheckProviderType.Debug
+            or AppCheckProviderType.DeviceCheck or AppCheckProviderType.AppAttest)) {
+            throw new NotSupportedException($"AppCheck provider '{options.Provider}' is not supported on iOS.");
         }
 
-        lock(_syncRoot) {
+        lock(SyncRoot) {
+            // The App Check component is created eagerly when an app is configured and reads the provider factory
+            // then, so a factory set afterwards never reaches the default app. Asking the native SDK also covers apps
+            // configured without CrossFirebase.Initialize(), and accepts a new provider again after an
+            // initialization failed or the default app was deleted. Before initialization, the native lookup logs
+            // that the default app is not configured yet (I-COR000003).
+            if(App.DefaultInstance != null) {
+                // The plugin only tracks the factory it set itself, and treats Disabled as in effect when it set none.
+                var providerInEffect = InstalledProvider ?? AppCheckProviderType.Disabled;
+                if(options.Provider == providerInEffect) {
+                    return;
+                }
+
+                throw new InvalidOperationException(
+                    $"App Check cannot change from the '{providerInEffect}' provider to '{options.Provider}' after the "
+                        + "default Firebase app is configured, because the native Firebase iOS SDK reads the provider "
+                        + "factory only when an app is configured. Call CrossFirebaseAppCheck.Configure() before "
+                        + "CrossFirebase.Initialize()."
+                );
+            }
+
             _options = options;
         }
 
@@ -52,7 +83,7 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
     private void InstallProviderFactory()
     {
         AppCheckOptions options;
-        lock(_syncRoot) {
+        lock(SyncRoot) {
             options = _options;
         }
 
@@ -86,6 +117,10 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
 
             default:
                 break;
+        }
+
+        lock(SyncRoot) {
+            InstalledProvider = options.Provider;
         }
     }
 

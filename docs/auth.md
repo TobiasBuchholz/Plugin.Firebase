@@ -158,10 +158,20 @@ In v5:
 - Inspect `NativeExceptionTypeName`, `NativeErrorDomain`, `NativeErrorCode`, `NativeErrorMessage`, or `InnerException` when you need precise native details.
 - `SignOutAsync()` now follows the same unified exception model when the underlying native Auth SDK reports a failure.
 
+## Next-release migration notes
+
+`SignInWithEmailAndPasswordAsync(email, password)` with `createsUserAutomatically: true` (the default) now reports why automatic account creation failed, instead of always throwing the sign-in error:
+
+- Creation is attempted when sign-in fails with `ERROR_USER_NOT_FOUND` or `ERROR_INVALID_CREDENTIAL` (Android) or `UserNotFound` or `InvalidCredential` (iOS). If creation then fails, its error is thrown, for example `ERROR_WEAK_PASSWORD` (Android) or `WeakPassword` (iOS), an invalid email, throttling or a network error. Previously these were replaced by the sign-in error. Code that only handles sign-in error codes should handle these too.
+- The sign-in error is still thrown when creation reports that the email is already in use, and also when the project doesn't allow creating accounts from the client: `ERROR_ADMIN_RESTRICTED_OPERATION` / `AdminRestrictedOperation` (for example, user sign-up disabled in Identity Platform) or `ERROR_OPERATION_NOT_ALLOWED` / `OperationNotAllowed`. Sign-in-only apps keep getting the sign-in error for a mistyped email.
+- On Android, creation is no longer attempted for other `FirebaseAuthInvalidCredentialsException` and `FirebaseAuthInvalidUserException` codes, such as `ERROR_WRONG_PASSWORD`, `ERROR_INVALID_EMAIL` and `ERROR_USER_DISABLED`. These are thrown directly, as on iOS, and a failed creation can no longer replace them.
+- The thrown error can show whether an email is registered: a too-short password can give a weak-password error for an unregistered email and the sign-in error for a registered one. `CreateUserAsync` already reveals this through its email-already-in-use error. With `createsUserAutomatically: false`, only the sign-in error is thrown.
+
 ## Release notes
 - Next
   - Add email/password user reauthentication and user-level reload APIs.
   - Mark `ReloadCurrentUserAsync()` obsolete; use `CurrentUser.ReloadAsync()` after checking `CurrentUser` is not `null`.
+  - `SignInWithEmailAndPasswordAsync` with `createsUserAutomatically: true` now throws the account-creation error, such as a weak password, instead of the sign-in error, unless creation reports an existing account or disabled client sign-up (#704). The thrown error can therefore show whether an email is registered, as `CreateUserAsync` already can.
 - Version 5.0.1
   - Fix for wrong Core project version dependency at nuget.org
 - Version 5.0.0

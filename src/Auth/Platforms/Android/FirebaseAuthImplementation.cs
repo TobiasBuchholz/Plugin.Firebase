@@ -1,3 +1,4 @@
+using System.Runtime.ExceptionServices;
 using Android.Gms.Extensions;
 using Firebase.Auth;
 using Plugin.Firebase.Auth.Platforms.Android.Email;
@@ -76,19 +77,18 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             return await SignInWithCredentialAsync(credential);
         } catch(CrossPlatformFirebaseAuthException e)
             when(createsUserAutomatically && ShouldAttemptCreateUser(e)) {
-            // Firebase Android SDK with Email Enumeration Protection enabled (default)
-            // may return FirebaseAuthInvalidCredentialsException instead of
-            // FirebaseAuthInvalidUserException when the user does not exist.
-            // We attempt user creation for both. Only a user-collision result proves the
-            // account exists (wrong-password scenario), in which case the original sign-in
-            // error wins; any other creation failure (weak password, provider disabled,
-            // network) is the actionable error and propagates.
+            // The account may not exist: ERROR_USER_NOT_FOUND, or ERROR_INVALID_CREDENTIAL when
+            // email enumeration protection (the default) hides whether it exists. Try to create it.
+            // The sign-in error is rethrown when creation shows the account exists (collision) or
+            // that this project can't create accounts from the client (admin-restricted sign-up,
+            // operation not allowed). Any other creation failure, such as a weak password, an
+            // invalid email or a network error, is the actionable error and propagates.
             try {
                 return await CreateUserAsync(email, password);
             } catch(CrossPlatformFirebaseAuthException createException)
-                when(createException.NativeExceptionTypeName
-                    is FirebaseAuthAndroidExceptionTypeNames.UserCollisionException) {
-                throw e;
+                when(ShouldRethrowSignInError(createException)) {
+                ExceptionDispatchInfo.Capture(e).Throw();
+                throw; // unreachable: Throw() always throws
             }
         }
     }
@@ -236,11 +236,23 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
 
     public IFirebaseUser? CurrentUser => _firebaseAuth.CurrentUser?.ToAbstract();
 
+    // Codes are FirebaseAuthException.getErrorCode() values. Gate on the code, not the exception
+    // class: FirebaseAuthInvalidCredentialsException and FirebaseAuthInvalidUserException also carry
+    // ERROR_WRONG_PASSWORD, ERROR_INVALID_EMAIL and ERROR_USER_DISABLED, which say nothing about a
+    // missing account.
     private static bool ShouldAttemptCreateUser(CrossPlatformFirebaseAuthException exception)
     {
-        return exception.NativeExceptionTypeName is
-            FirebaseAuthAndroidExceptionTypeNames.InvalidUserException or
-            FirebaseAuthAndroidExceptionTypeNames.InvalidCredentialsException;
+        return exception.NativeErrorCode is
+            "ERROR_USER_NOT_FOUND" or
+            "ERROR_INVALID_CREDENTIAL";
+    }
+
+    private static bool ShouldRethrowSignInError(CrossPlatformFirebaseAuthException createException)
+    {
+        return createException.NativeExceptionTypeName is FirebaseAuthAndroidExceptionTypeNames.UserCollisionException
+            || createException.NativeErrorCode is
+                "ERROR_ADMIN_RESTRICTED_OPERATION" or
+                "ERROR_OPERATION_NOT_ALLOWED";
     }
 
     private class AuthStateListener : Java.Lang.Object, FirebaseAuth.IAuthStateListener

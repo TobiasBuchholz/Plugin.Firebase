@@ -22,15 +22,22 @@ public class CrossPlatformFirebaseException : FirebaseException
         string? nativeErrorDomain = null,
         string? nativeErrorCode = null
     )
-        : base(nativeErrorMessage ?? innerException.Message, innerException)
+        : base(ResolveMessage(nativeErrorMessage, innerException), innerException)
     {
         ArgumentNullException.ThrowIfNull(nativeExceptionTypeName);
-        ArgumentNullException.ThrowIfNull(innerException);
 
         NativeExceptionTypeName = nativeExceptionTypeName;
         NativeErrorDomain = nativeErrorDomain;
         NativeErrorCode = nativeErrorCode;
         NativeErrorMessage = nativeErrorMessage ?? innerException.Message;
+    }
+
+    // Runs before the base constructor, so a null inner exception fails with ArgumentNullException
+    // instead of a NullReferenceException from reading its message.
+    private static string ResolveMessage(string? nativeErrorMessage, Exception innerException)
+    {
+        ArgumentNullException.ThrowIfNull(innerException);
+        return nativeErrorMessage ?? innerException.Message;
     }
 
     /// <summary>

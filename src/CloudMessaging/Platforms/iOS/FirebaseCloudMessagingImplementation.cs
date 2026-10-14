@@ -104,6 +104,15 @@ public sealed class FirebaseCloudMessagingImplementation
     /// <summary>
     /// Handles notification presentation when the app is in the foreground.
     /// </summary>
+    /// <remarks>
+    /// Raises <see cref="NotificationReceived"/>, then calls <paramref name="completionHandler"/> exactly once.
+    /// The presentation options are chosen after the subscribers return, so a subscriber can still set
+    /// <c>is_silent_in_foreground</c> in <see cref="FCMNotification.Data"/>. A silent notification completes
+    /// with <see cref="UNNotificationPresentationOptions.None"/>; any other notification completes with
+    /// <see cref="UNNotificationPresentationOptions.Banner"/>, <see cref="UNNotificationPresentationOptions.List"/>
+    /// and <see cref="UNNotificationPresentationOptions.Sound"/>. If a subscriber throws, the completion handler
+    /// is still called and the exception then propagates out of this method.
+    /// </remarks>
     /// <param name="center">The notification center.</param>
     /// <param name="notification">The notification being presented.</param>
     /// <param name="completionHandler">The completion handler to call with presentation options.</param>
@@ -114,40 +123,34 @@ public sealed class FirebaseCloudMessagingImplementation
         Action<UNNotificationPresentationOptions> completionHandler
     )
     {
-        CompleteForegroundNotification(
-            notification.ToFCMNotification(),
-            completionHandler
-        );
+        CompleteForegroundNotification(() => notification.ToFCMNotification(), completionHandler);
     }
 
     internal void CompleteForegroundNotification(
-        FCMNotification notification,
+        Func<FCMNotification> getNotification,
         Action<UNNotificationPresentationOptions> completionHandler
     )
     {
-        var presentationOptions = GetPresentationOptions(notification);
+        FCMNotification fcmNotification = null;
         try {
-            OnNotificationReceived(notification);
+            fcmNotification = getNotification();
+            OnNotificationReceived(fcmNotification);
         }
         finally {
-            // the delegate contract requires completing exactly once on every path,
-            // including silent notifications and throwing event subscribers
-            completionHandler(presentationOptions);
+            // the delegate contract requires completing exactly once on every path; reading the
+            // options here lets subscribers mark the notification silent before it is presented
+            completionHandler(GetPresentationOptions(fcmNotification));
         }
     }
 
-    internal static UNNotificationPresentationOptions GetPresentationOptions(
+    private static UNNotificationPresentationOptions GetPresentationOptions(
         FCMNotification notification
     )
     {
-        if(notification.IsSilentInForeground) {
-            return UNNotificationPresentationOptions.None;
-        }
-        return OperatingSystem.IsIOSVersionAtLeast(14)
-            ? UNNotificationPresentationOptions.Banner
+        return notification?.IsSilentInForeground == true
+            ? UNNotificationPresentationOptions.None
+            : UNNotificationPresentationOptions.Banner
                 | UNNotificationPresentationOptions.List
-                | UNNotificationPresentationOptions.Sound
-            : UNNotificationPresentationOptions.Alert
                 | UNNotificationPresentationOptions.Sound;
     }
 
@@ -163,6 +166,11 @@ public sealed class FirebaseCloudMessagingImplementation
     /// <summary>
     /// Handles the user's response to a notification (e.g., tapping on it).
     /// </summary>
+    /// <remarks>
+    /// Raises <see cref="NotificationTapped"/>, or keeps the notification until the first subscriber is added,
+    /// then calls <paramref name="completionHandler"/> exactly once. If a subscriber throws, the completion
+    /// handler is still called and the exception then propagates out of this method.
+    /// </remarks>
     /// <param name="center">The notification center.</param>
     /// <param name="response">The user's response to the notification.</param>
     /// <param name="completionHandler">The completion handler to call when processing is complete.</param>
@@ -173,18 +181,34 @@ public sealed class FirebaseCloudMessagingImplementation
         Action completionHandler
     )
     {
-        if(_notificationTapped == null) {
-            _missedTappedNotification = response.Notification.ToFCMNotification();
-        } else {
-            var notification = response.Notification.ToFCMNotification();
-            var actionId = response.ActionIdentifier?.ToString();
-            if(!string.IsNullOrEmpty(actionId)) {
-                notification.Data[nameof(response.ActionIdentifier)] = actionId;
-            }
-            _notificationTapped.Invoke(this, new FCMNotificationTappedEventArgs(notification));
-        }
+        CompleteNotificationResponse(
+            () => response.Notification.ToFCMNotification(),
+            response.ActionIdentifier?.ToString(),
+            completionHandler
+        );
+    }
 
-        completionHandler();
+    internal void CompleteNotificationResponse(
+        Func<FCMNotification> getNotification,
+        string actionIdentifier,
+        Action completionHandler
+    )
+    {
+        try {
+            if(_notificationTapped == null) {
+                _missedTappedNotification = getNotification();
+            } else {
+                var notification = getNotification();
+                if(!string.IsNullOrEmpty(actionIdentifier)) {
+                    notification.Data[nameof(UNNotificationResponse.ActionIdentifier)] = actionIdentifier;
+                }
+                _notificationTapped.Invoke(this, new FCMNotificationTappedEventArgs(notification));
+            }
+        }
+        finally {
+            // the delegate contract requires completing exactly once, even if a subscriber throws
+            completionHandler();
+        }
     }
 
     /// <summary>

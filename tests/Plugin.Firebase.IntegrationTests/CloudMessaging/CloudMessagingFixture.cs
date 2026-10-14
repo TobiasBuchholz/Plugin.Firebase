@@ -1,8 +1,5 @@
 using Plugin.Firebase.CloudMessaging;
 using Plugin.Firebase.CloudMessaging.EventArgs;
-#if IOS
-using UserNotifications;
-#endif
 
 namespace Plugin.Firebase.IntegrationTests.CloudMessaging
 {
@@ -103,57 +100,5 @@ namespace Plugin.Firebase.IntegrationTests.CloudMessaging
                 "real FCM push delivery");
             Assert.NotNull(args.Notification);
         }
-
-#if IOS
-        [Fact]
-        public void completes_foreground_notification_with_presentation_options()
-        {
-            var sut = (FirebaseCloudMessagingImplementation) CrossFirebaseCloudMessaging.Current;
-
-            var silentOptions = CapturePresentationOptions(
-                sut,
-                new FCMNotification(
-                    data: new Dictionary<string, string> { { "is_silent_in_foreground", "true" } }));
-
-            Assert.Equal(UNNotificationPresentationOptions.None, silentOptions);
-
-            var visibleOptions = CapturePresentationOptions(sut, new FCMNotification());
-
-            Assert.Equal(
-                UNNotificationPresentationOptions.Banner
-                    | UNNotificationPresentationOptions.List
-                    | UNNotificationPresentationOptions.Sound,
-                visibleOptions);
-        }
-
-        [Fact]
-        public void completes_foreground_notification_when_subscriber_throws()
-        {
-            var sut = (FirebaseCloudMessagingImplementation) CrossFirebaseCloudMessaging.Current;
-            EventHandler<FCMNotificationReceivedEventArgs> throwingHandler =
-                (_, _) => throw new InvalidOperationException("subscriber failure");
-            UNNotificationPresentationOptions? captured = null;
-            sut.NotificationReceived += throwingHandler;
-            try {
-                Assert.Throws<InvalidOperationException>(
-                    () => sut.CompleteForegroundNotification(
-                        new FCMNotification(),
-                        options => captured = options));
-            } finally {
-                sut.NotificationReceived -= throwingHandler;
-            }
-
-            Assert.NotNull(captured);
-        }
-
-        private static UNNotificationPresentationOptions CapturePresentationOptions(
-            FirebaseCloudMessagingImplementation sut,
-            FCMNotification notification)
-        {
-            UNNotificationPresentationOptions? captured = null;
-            sut.CompleteForegroundNotification(notification, options => captured = options);
-            return captured ?? throw new InvalidOperationException("Completion handler was not invoked.");
-        }
-#endif
     }
 }

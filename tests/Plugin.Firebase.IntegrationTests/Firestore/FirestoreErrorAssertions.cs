@@ -38,4 +38,11 @@ internal static class FirestoreErrorAssertions
         Assert.False(string.IsNullOrEmpty(firestoreException.NativeErrorMessage));
         return firestoreException;
     }
+
+    public static CrossPlatformFirebaseFirestoreException AbortedFailure(Exception? exception)
+    {
+        var firestoreException = Assert.IsType<CrossPlatformFirebaseFirestoreException>(exception);
+        Assert.Equal(OperatingSystem.IsAndroid() ? "ABORTED" : "Aborted", firestoreException.NativeErrorCode);
+        return firestoreException;
+    }
 }

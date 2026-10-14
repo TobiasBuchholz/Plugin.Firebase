@@ -102,8 +102,16 @@ public sealed partial class FirestoreFixture
             { "texts_from_doubles_value", new[] { 2.5, 0.75 } }
         });
 
+        // a second document without the array field, because a Dictionary<string, string>
+        // read converts every field to string and a list cannot be converted to one on iOS
+        var scalarsDocument = GetTestingDocument(sut, "typed-model-culture-scalars");
+        await scalarsDocument.SetDataAsync(new Dictionary<object, object?> {
+            { "double_from_text_value", "2.5" },
+            { "text_from_double_value", 2.5 }
+        });
+
         var modelSnapshot = await document.GetDocumentSnapshotAsync<CultureConversionDocument>();
-        var textSnapshot = await document.GetDocumentSnapshotAsync<Dictionary<string, string>>();
+        var textSnapshot = await scalarsDocument.GetDocumentSnapshotAsync<Dictionary<string, string>>();
 
         var originalCulture = CultureInfo.CurrentCulture;
         // de-DE uses ',' as the decimal separator, so a culture-sensitive conversion would read "2.5" as 25

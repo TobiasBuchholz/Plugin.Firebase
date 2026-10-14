@@ -38,13 +38,19 @@ public interface IFirebaseFirestore : IDisposable
     /// </para>
     /// <para>
     /// A <see cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseFirestoreException"/> thrown from
-    /// <paramref name="updateFunc"/>, for example by a failed <see cref="ITransaction.GetDocument{T}"/>, isn't wrapped
-    /// again: the returned task faults with a <see cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseFirestoreException"/>
-    /// for the same native error. On Android the native transaction runner first applies its retry rules to that error; on
-    /// iOS the transaction isn't retried. On Android the same applies to a native <c>FirebaseFirestoreException</c> that
-    /// <paramref name="updateFunc"/> throws directly. When the native SDK fails the transaction itself, for example because the backend
-    /// rejects the commit, the returned task also faults with a
-    /// <see cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseFirestoreException"/>.
+    /// <paramref name="updateFunc"/>, for example by a failed <see cref="ITransaction.GetDocument{T}"/>, is instead handed
+    /// back to the native SDK, which applies its transaction retry rules on both platforms. If the native error is
+    /// retryable, such as <c>ABORTED</c> because a document changed between two reads, the transaction is retried and
+    /// <paramref name="updateFunc"/> runs again. Otherwise, or once no retries are left, the returned task faults with a
+    /// <see cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseFirestoreException"/> for the same native error; it
+    /// isn't wrapped again. On Android the same applies to a native <c>FirebaseFirestoreException</c> that
+    /// <paramref name="updateFunc"/> throws directly. Only the exception thrown by <paramref name="updateFunc"/> is checked,
+    /// not its <see cref="Exception.InnerException"/>: an exception of your own that wraps a failed read aborts the
+    /// transaction without a retry, like any other exception.
+    /// </para>
+    /// <para>
+    /// When the native SDK fails the transaction itself, for example because the backend rejects the commit, the returned
+    /// task also faults with a <see cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseFirestoreException"/>.
     /// </para>
     /// </remarks>
     /// <param name="updateFunc">The func to execute within the transaction context.</param>

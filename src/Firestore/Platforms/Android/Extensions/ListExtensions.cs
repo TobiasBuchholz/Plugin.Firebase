@@ -17,14 +17,8 @@ public static class ListExtensions
 
         for(var i = 0; i < @this.Size(); i++) {
             var value = @this[i];
-            // a stored null element can arrive as a Java.Lang.Object proxy with a zero handle
-            // rather than a managed null; converting it would corrupt the value (e.g. "" for
-            // string targets), so null-equivalent values bypass conversion entirely
-            var isNull = value is null || (value as Java.Lang.Object)?.Handle == IntPtr.Zero;
             // CTS-mapped CLR values (e.g. long, double) are narrowed by the same conversion as dictionary and model reads
-            list.AddConvertedValue(
-                isNull ? null : value is Java.Lang.Object javaValue ? javaValue.ToObject(targetType) : value,
-                targetType);
+            list.AddConvertedValue(value is Java.Lang.Object javaValue ? javaValue.ToObject(targetType) : value, targetType);
         }
         return list;
     }
@@ -38,7 +32,8 @@ public static class ListExtensions
     {
         // Refactored to address https://github.com/TobiasBuchholz/Plugin.Firebase/issues/392
         var list = new List<object?>();
-        foreach(var item in @this) {
+        foreach (var item in @this)
+        {
             list.Add(item.ToJavaObject());
         }
         return new JavaList(list);

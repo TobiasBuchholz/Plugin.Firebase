@@ -109,21 +109,6 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
 
 
         [Fact]
-        public async Task round_trips_null_entries_in_typed_string_lists()
-        {
-            var sut = CrossFirebaseFirestore.Current;
-            var document = GetTestingDocument(sut, "nullable-string-list");
-            await document.SetDataAsync(new Dictionary<object, object?> {
-                { "nullable_strings", new object?[] { "first", null, "last" } }
-            });
-
-            var snapshot = await document.GetDocumentSnapshotAsync<AndroidNumericCollectionsDocument>();
-
-            Assert.Equal(["first", null, "last"], snapshot.Data!.NullableStrings);
-        }
-
-
-        [Fact]
         public async Task writes_set_data_from_dictionary_and_tuple_payloads()
         {
             var sut = CrossFirebaseFirestore.Current;

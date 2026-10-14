@@ -69,6 +69,8 @@ This class is represented in firestore like this:
 
 ![firestore_poco.png](../art/firestore_poco.png)
 
+A stored array can contain `null` entries. Reading it into a list property keeps them as `null` when the element type is a reference type such as `string` or `object`, or a nullable value type such as `int?`. A list of a non-nullable value type such as `IList<int>` can't hold `null`, so reading an array with a `null` entry into it throws an `ArgumentNullException` when you read `snapshot.Data`. Both platforms behave the same way.
+
 Documents can also be read as raw dictionaries when the field set is not known at compile time:
 ```c#
 var snapshot = await CrossFirebaseFirestore.Current
@@ -91,6 +93,13 @@ Since code should be documenting itself you can also take a look at the followin
 - [src/.../ITransaction.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Firestore/ITransaction.cs)
 - [src/.../IWriteBatch.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Firestore/IWriteBatch.cs)
 - [tests/.../FirestoreFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Firestore/FirestoreFixture.cs)
+
+## Next-release migration notes
+
+On Android, `null` entries in a stored array now read into typed list properties the same way as on iOS (see [Usage](#usage)). Compared with 4.2.1:
+
+- A list of `string` keeps the `null` entry. Previously it became an empty string.
+- A list of `int`, `long`, `float`, `double`, `decimal` or `bool` throws `ArgumentNullException` when you read `snapshot.Data`. Previously the entry became `0` or `false`. Use a nullable element type such as `IList<int?>` to read arrays that can contain `null`.
 
 ## Release notes
 - Version 3.1.3

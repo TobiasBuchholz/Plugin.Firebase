@@ -60,11 +60,32 @@ public class ClaimValueConverterTests
         { 2.7, typeof(long), 2L },
         { -2.7, typeof(long), -2L },
         { 2.5f, typeof(int), 2 },
-        { 255.9, typeof(byte), byte.MaxValue },
-        { -128.9, typeof(sbyte), sbyte.MinValue },
-        { 2147483647.9, typeof(int), int.MaxValue },
-        { -0.5, typeof(uint), 0U },
+        { 254.9, typeof(byte), (byte) 254 },
+        { -127.9, typeof(sbyte), (sbyte) -127 },
+        { 2147483646.9, typeof(int), 2147483646 },
+        { -2147483647.9, typeof(int), -2147483647 },
+        { 0.5, typeof(uint), 0U },
         { 2.0, typeof(ulong), 2UL },
+
+        // integral boundaries read from doubles
+        { (double) sbyte.MinValue, typeof(sbyte), sbyte.MinValue },
+        { (double) sbyte.MaxValue, typeof(sbyte), sbyte.MaxValue },
+        { (double) byte.MinValue, typeof(byte), byte.MinValue },
+        { (double) byte.MaxValue, typeof(byte), byte.MaxValue },
+        { (double) short.MinValue, typeof(short), short.MinValue },
+        { (double) short.MaxValue, typeof(short), short.MaxValue },
+        { (double) ushort.MinValue, typeof(ushort), ushort.MinValue },
+        { (double) ushort.MaxValue, typeof(ushort), ushort.MaxValue },
+        { (double) int.MinValue, typeof(int), int.MinValue },
+        { (double) int.MaxValue, typeof(int), int.MaxValue },
+        { (double) uint.MinValue, typeof(uint), uint.MinValue },
+        { (double) uint.MaxValue, typeof(uint), uint.MaxValue },
+        { -9223372036854775808.0, typeof(long), long.MinValue },
+        // 2^63 - 1024: the largest double below 2^63
+        { 9223372036854774784.0, typeof(long), 9223372036854774784L },
+        { 0.0, typeof(ulong), ulong.MinValue },
+        // 2^64 - 2048: the largest double below 2^64
+        { 18446744073709549568.0, typeof(ulong), 18446744073709549568UL },
 
         // floating-point and decimal targets keep the fraction
         { 1.5, typeof(float), 1.5f },
@@ -111,15 +132,34 @@ public class ClaimValueConverterTests
         { 256UL, typeof(byte) },
         { 300, typeof(byte) },
 
-        // fractional values outside the range after truncation
+        // doubles are range checked before truncation, so a fraction past a boundary doesn't fit
+        { 127.9, typeof(sbyte) },
+        { -128.5, typeof(sbyte) },
+        { 255.9, typeof(byte) },
+        { -0.5, typeof(byte) },
+        { 32767.9, typeof(short) },
+        { -32768.5, typeof(short) },
+        { 65535.9, typeof(ushort) },
+        { -0.5, typeof(ushort) },
+        { 2147483647.9, typeof(int) },
+        { -2147483648.5, typeof(int) },
+        { 4294967295.9, typeof(uint) },
+        { -0.5, typeof(uint) },
+        { -0.5, typeof(ulong) },
+
+        // whole doubles past a boundary
         { 256.0, typeof(byte) },
         { -1.0, typeof(byte) },
         { -129.0, typeof(sbyte) },
         { 2147483648.0, typeof(int) },
         { -2147483649.0, typeof(int) },
+        // 2^63, which is what (double) long.MaxValue rounds to
+        { 9223372036854775808.0, typeof(long) },
         { 9.3e18, typeof(long) },
         { -9.3e18, typeof(long) },
         { -1.0, typeof(ulong) },
+        // 2^64, which is what (double) ulong.MaxValue rounds to
+        { 18446744073709551616.0, typeof(ulong) },
         { 1.9e19, typeof(ulong) },
 
         // NaN and infinity can't become an integral, enum or decimal value
@@ -143,6 +183,7 @@ public class ClaimValueConverterTests
         { 256L, typeof(ByteLevel) },
         { 300L, typeof(ByteLevel) },
         { -1L, typeof(ByteLevel) },
+        { 255.9, typeof(ByteLevel) },
         { 256.5, typeof(ByteLevel) },
         { ulong.MaxValue, typeof(LongLevel) },
 

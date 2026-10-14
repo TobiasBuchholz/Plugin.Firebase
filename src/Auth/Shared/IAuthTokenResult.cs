@@ -18,6 +18,8 @@ public interface IAuthTokenResult
     /// <list type="bullet">
     /// <item><description>
     /// A fractional value read as an integral type or an enum truncates toward zero: 2.7 becomes 2 and -2.7 becomes -2.
+    /// The range check uses the value before truncation, so 2147483647.9 read as <see cref="int"/> or -0.5 read as
+    /// <see cref="uint"/> throws <see cref="OverflowException"/>.
     /// </description></item>
     /// <item><description>
     /// A value outside the range of the requested type throws <see cref="OverflowException"/> instead of wrapping. An

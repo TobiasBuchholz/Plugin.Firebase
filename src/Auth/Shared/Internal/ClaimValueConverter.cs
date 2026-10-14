@@ -7,9 +7,10 @@ namespace Plugin.Firebase.Auth.Internal;
 /// requested through <see cref="IAuthTokenResult.GetClaim{T}(string)"/>.
 /// </summary>
 /// <remarks>
-/// A fractional value read into an integral or enum type truncates toward zero, and a value that doesn't fit the
-/// target throws <see cref="OverflowException"/>; NaN and infinity only fit <see cref="float"/> and
-/// <see cref="double"/>. Strings and booleans are never coerced into numbers.
+/// A value that doesn't fit the target throws <see cref="OverflowException"/>; NaN and infinity only fit
+/// <see cref="float"/> and <see cref="double"/>. A fractional value read into an integral or enum type is range checked
+/// as it is and then truncated toward zero, so 2.7 becomes 2 but 2147483647.9 doesn't fit <see cref="int"/>. Strings
+/// and booleans are never coerced into numbers.
 /// </remarks>
 internal static class ClaimValueConverter
 {
@@ -155,25 +156,27 @@ internal static class ClaimValueConverter
 
     private static object FromDouble(double value, TypeCode target)
     {
-        // A checked conversion from double to an integral type truncates toward zero, and throws
-        // OverflowException for NaN, infinity and values outside the target range.
+        // Integral targets range check the raw value and only then truncate toward zero, as native Android's
+        // CustomClassMapper does. A checked cast alone would truncate first and accept 2147483647.9 as int.MaxValue.
         switch(target) {
             case TypeCode.SByte:
-                return checked((sbyte) value);
+                return checked((sbyte) InRange(value, sbyte.MinValue, sbyte.MaxValue));
             case TypeCode.Byte:
-                return checked((byte) value);
+                return checked((byte) InRange(value, byte.MinValue, byte.MaxValue));
             case TypeCode.Int16:
-                return checked((short) value);
+                return checked((short) InRange(value, short.MinValue, short.MaxValue));
             case TypeCode.UInt16:
-                return checked((ushort) value);
+                return checked((ushort) InRange(value, ushort.MinValue, ushort.MaxValue));
             case TypeCode.Int32:
-                return checked((int) value);
+                return checked((int) InRange(value, int.MinValue, int.MaxValue));
             case TypeCode.UInt32:
-                return checked((uint) value);
+                return checked((uint) InRange(value, uint.MinValue, uint.MaxValue));
             case TypeCode.Int64:
-                return checked((long) value);
+                // (double) long.MaxValue rounds up to 2^63, which doesn't fit, so the upper bound is exclusive
+                return checked((long) InRange(value, -9223372036854775808.0, 9223372036854775808.0, maxIsExclusive: true));
             case TypeCode.UInt64:
-                return checked((ulong) value);
+                // (double) ulong.MaxValue rounds up to 2^64, which doesn't fit, so the upper bound is exclusive
+                return checked((ulong) InRange(value, 0.0, 18446744073709551616.0, maxIsExclusive: true));
             case TypeCode.Single:
                 // the cast itself never throws: it turns a finite value beyond the float range into infinity
                 var single = (float) value;
@@ -189,5 +192,15 @@ internal static class ClaimValueConverter
             default:
                 throw new ArgumentOutOfRangeException(nameof(target), target, null);
         }
+    }
+
+    private static double InRange(double value, double min, double max, bool maxIsExclusive = false)
+    {
+        // NaN fails every comparison, so it throws along with infinity and out-of-range values
+        var fits = value >= min && (maxIsExclusive ? value < max : value <= max);
+        if(!fits) {
+            throw new OverflowException();
+        }
+        return value;
     }
 }

@@ -75,30 +75,6 @@ public sealed partial class FirestoreFixture
     }
 
     [Fact]
-    public async Task rounds_fractional_values_read_into_integral_properties()
-    {
-        // Both platforms convert through Convert.ChangeType, which rounds to even instead of
-        // truncating. Firestore only stores fractional numbers as doubles, so this is reachable
-        // whenever a document holds a double for a property declared as an integral type.
-        // Whether to keep rounding or reject these values instead is tracked in #727.
-        var sut = CrossFirebaseFirestore.Current;
-        var document = GetTestingDocument(sut, "numeric-rounding");
-        await document.SetDataAsync(new Dictionary<object, object?> {
-            { "round_down", 1.4 },
-            { "round_up", 1.9 },
-            { "half_to_even_down", 12.5 },
-            { "half_to_even_up", 13.5 }
-        });
-
-        var data = (await document.GetDocumentSnapshotAsync<RoundedIntegralsDocument>()).Data!;
-
-        Assert.Equal(1L, data.RoundDown);
-        Assert.Equal(2L, data.RoundUp);
-        Assert.Equal(12L, data.HalfToEvenDown);
-        Assert.Equal(14L, data.HalfToEvenUp);
-    }
-
-    [Fact]
     public async Task rejects_out_of_range_and_fractional_char_values()
     {
         var sut = CrossFirebaseFirestore.Current;
@@ -108,11 +84,11 @@ public sealed partial class FirestoreFixture
             { "fractional", 65.5 }
         });
 
-        await AssertOutOfRangeAsync<CharRangeDocument>(document);
-
         // Convert.ChangeType has no double-to-char conversion on either platform.
         var fractional = await document.GetDocumentSnapshotAsync<FractionalCharDocument>();
         Assert.Throws<InvalidCastException>(() => _ = fractional.Data);
+
+        await AssertOutOfRangeAsync<CharRangeDocument>(document);
     }
 
     [Fact]
@@ -127,8 +103,13 @@ public sealed partial class FirestoreFixture
             { "above_short", 40000L },
             { "above_ushort", 70000L },
             { "above_int", 5000000000L },
-            { "below_unsigned", -1L }
+            { "below_unsigned", -1L },
+            { "above_float", 1e300 }
         });
+
+        // Only properties that map an out-of-range field fail; the rest of the document is fine.
+        var withinRange = (await document.GetDocumentSnapshotAsync<ByteWithinRangeDocument>()).Data!;
+        Assert.Equal((byte) 200, withinRange.Value);
 
         await AssertOutOfRangeAsync<ByteRangeDocument>(document);
         await AssertOutOfRangeAsync<SByteRangeDocument>(document);
@@ -138,15 +119,16 @@ public sealed partial class FirestoreFixture
         await AssertOutOfRangeAsync<NullableIntRangeDocument>(document);
         await AssertOutOfRangeAsync<UIntRangeDocument>(document);
         await AssertOutOfRangeAsync<ULongRangeDocument>(document);
-
-        // Only properties that map an out-of-range field fail; the rest of the document is fine.
-        var withinRange = (await document.GetDocumentSnapshotAsync<ByteWithinRangeDocument>()).Data!;
-        Assert.Equal((byte) 200, withinRange.Value);
+        // A double too large for a float throws instead of becoming infinity.
+        await AssertOutOfRangeAsync<FloatRangeDocument>(document);
     }
 
     private static async Task AssertOutOfRangeAsync<T>(IDocumentReference document)
     {
-        var snapshot = await document.GetDocumentSnapshotAsync<T>();
+        // Snapshots are typed, so each target type needs a snapshot of its own. Callers read the
+        // document from the server first, so these come from the local cache instead of repeating
+        // the round trip.
+        var snapshot = await document.GetDocumentSnapshotAsync<T>(Source.Cache);
         Assert.Throws<OverflowException>(() => _ = snapshot.Data);
     }
 }

@@ -169,20 +169,30 @@ internal sealed class NullableDecimalDocument : IFirestoreObject
     public decimal? NullableMissing { get; [UsedImplicitly] private set; }
 }
 
-[Preserve(AllMembers = true)]
-internal sealed class RoundedIntegralsDocument : IFirestoreObject
+internal static class SingleNumberDocument
 {
-    [FirestoreProperty("round_down")]
-    public long RoundDown { get; [UsedImplicitly] private set; }
+    public const string Field = "value";
+}
 
-    [FirestoreProperty("round_up")]
-    public long RoundUp { get; [UsedImplicitly] private set; }
+[Preserve(AllMembers = true)]
+internal sealed class TruncatedLongDocument : IFirestoreObject
+{
+    [FirestoreProperty(SingleNumberDocument.Field)]
+    public long Value { get; [UsedImplicitly] private set; }
+}
 
-    [FirestoreProperty("half_to_even_down")]
-    public long HalfToEvenDown { get; [UsedImplicitly] private set; }
+[Preserve(AllMembers = true)]
+internal sealed class TruncatedIntDocument : IFirestoreObject
+{
+    [FirestoreProperty(SingleNumberDocument.Field)]
+    public int Value { get; [UsedImplicitly] private set; }
+}
 
-    [FirestoreProperty("half_to_even_up")]
-    public long HalfToEvenUp { get; [UsedImplicitly] private set; }
+[Preserve(AllMembers = true)]
+internal sealed class TruncatedRatingDocument : IFirestoreObject
+{
+    [FirestoreProperty(SingleNumberDocument.Field)]
+    public NumericRating Value { get; [UsedImplicitly] private set; }
 }
 
 [Preserve(AllMembers = true)]
@@ -246,6 +256,13 @@ internal sealed class ULongRangeDocument : IFirestoreObject
 {
     [FirestoreProperty("below_unsigned")]
     public ulong Value { get; [UsedImplicitly] private set; }
+}
+
+[Preserve(AllMembers = true)]
+internal sealed class FloatRangeDocument : IFirestoreObject
+{
+    [FirestoreProperty("above_float")]
+    public float Value { get; [UsedImplicitly] private set; }
 }
 
 [Preserve(AllMembers = true)]

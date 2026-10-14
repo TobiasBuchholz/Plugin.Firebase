@@ -170,7 +170,7 @@ exports.throwStructuredError = functions.https.onCall(async () =>  {
 
 exports.echoRequestData = functions.https.onCall(async (data, context) => {
   functions.logger.log('[+] echoRequestData:', data);
-  return data === undefined ? null : data;
+  return data;
 });
 
 exports.echo = functions.https.onRequest(async (request, response) => {

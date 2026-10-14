@@ -27,6 +27,12 @@ Since code should be documenting itself you can also take a look at the followin
 - [tests/.../FunctionsFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Functions/FunctionsFixture.cs)
 - [tests/cloud-functions/.../index.ts](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/cloud-functions/functions/src/index.ts)
 
+## Next-release migration notes
+
+`IHttpsCallable.CallAsync(dataJson)` now sends any JSON value as the request data, as the callable protocol allows: an object, array, string, number, boolean or `null`. Previously Android rejected top-level arrays, strings, numbers and booleans, and iOS rejected top-level strings, numbers, booleans and `null`.
+
+On Android, `dataJson` is now parsed as strict JSON, as iOS already did. Non-standard input that Gson's lenient mode used to accept, such as unquoted or single-quoted names and strings, comments, or `NaN`, now throws Gson's `JsonSyntaxException` before the request is sent. iOS throws a `FirebaseException` for the same input. Pass standard JSON, for example by building it with `System.Text.Json`.
+
 ## Release notes
 - Version 4.0.0
   - Fixed typed callable responses for native object, array, scalar, and null payloads

@@ -199,14 +199,17 @@ public sealed class FirebaseCloudMessagingImplementation
     )
     {
         try {
+            // enrich with the action before choosing immediate or deferred delivery, so a
+            // response arriving before any subscriber keeps its ActionIdentifier too
+            var notification = getNotification();
+            var actionIdentifier = getActionIdentifier();
+            if(!string.IsNullOrEmpty(actionIdentifier)) {
+                notification.Data?[nameof(UNNotificationResponse.ActionIdentifier)] = actionIdentifier;
+            }
+
             if(_notificationTapped == null) {
-                _missedTappedNotification = getNotification();
+                _missedTappedNotification = notification;
             } else {
-                var notification = getNotification();
-                var actionIdentifier = getActionIdentifier();
-                if(!string.IsNullOrEmpty(actionIdentifier)) {
-                    notification.Data[nameof(UNNotificationResponse.ActionIdentifier)] = actionIdentifier;
-                }
                 _notificationTapped.Invoke(this, new FCMNotificationTappedEventArgs(notification));
             }
         }

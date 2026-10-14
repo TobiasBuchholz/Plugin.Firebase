@@ -1,7 +1,32 @@
 namespace Plugin.Firebase.IntegrationTests.Auth;
 
+internal enum ByteBackedClaimLevel : byte
+{
+    None = 0,
+    Max = 255
+}
+
 internal static class AuthTestPayloads
 {
+    public static Dictionary<string, object?> CreateNumericCustomClaims()
+    {
+        return new Dictionary<string, object?> {
+            ["score"] = 7,
+            ["byte_max"] = 255,
+            ["above_byte"] = 300,
+            ["short_max"] = 32767,
+            ["above_short"] = 40000,
+            ["int_max"] = int.MaxValue,
+            ["above_int"] = 5_000_000_000,
+            ["negative"] = -1,
+            ["positive_fraction"] = 2.7,
+            ["negative_fraction"] = -2.7,
+            ["ratio"] = 1.5,
+            ["flag"] = true,
+            ["numeric_text"] = "123",
+        };
+    }
+
     public static Dictionary<string, object?> CreateNestedCustomClaims()
     {
         return new Dictionary<string, object?> {

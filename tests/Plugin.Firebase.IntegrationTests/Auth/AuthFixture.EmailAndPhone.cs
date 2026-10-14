@@ -42,7 +42,9 @@ namespace Plugin.Firebase.IntegrationTests.Auth
                 IntegrationTestOptions.PhoneAuthCodeAndroidSystemPropertyName);
 
             await sut.SignOutAsync();
-            await sut.VerifyPhoneNumberAsync(phoneNumber);
+            await sut.VerifyPhoneNumberAsync(phoneNumber).WaitForTestAsync(
+                IntegrationTestTimeouts.PhoneVerification,
+                "phone number verification before sign-in");
 
             var user = await sut.SignInWithPhoneNumberVerificationCodeAsync(verificationCode);
             await using var testUser = AuthTestUserScope.TrackCurrentUser(sut, deleteOnDispose: false);
@@ -60,10 +62,32 @@ namespace Plugin.Firebase.IntegrationTests.Auth
             // OnVerificationFailed must fault the returned task, not leave it completed
             var sut = CrossFirebaseAuth.Current;
             var ex = await Assert.ThrowsAnyAsync<CrossPlatformFirebaseAuthException>(
-                () => sut.VerifyPhoneNumberAsync("not-a-phone-number")
+                () => sut.VerifyPhoneNumberAsync("not-a-phone-number").WaitForTestAsync(
+                    IntegrationTestTimeouts.PhoneVerification,
+                    "invalid phone number verification failure")
             );
 
             AuthAssertions.NativeAuthExceptionCaptured(ex);
+        }
+
+
+        [OptInFact(
+            IntegrationTestOptions.RunPhoneAuthTestsEnvironmentVariableName,
+            IntegrationTestOptions.RunPhoneAuthTestsAndroidSystemPropertyName)]
+        public async Task concurrent_phone_number_verifications_for_same_number_complete_when_enabled()
+        {
+            // Android reuses the in-flight native session for the same number and drops the second request's callbacks
+            var sut = CrossFirebaseAuth.Current;
+            var phoneNumber = IntegrationTestData.GetRequiredConfigurationValue(
+                IntegrationTestOptions.PhoneAuthNumberEnvironmentVariableName,
+                IntegrationTestOptions.PhoneAuthNumberAndroidSystemPropertyName);
+
+            var first = sut.VerifyPhoneNumberAsync(phoneNumber);
+            var second = sut.VerifyPhoneNumberAsync(phoneNumber);
+
+            await Task.WhenAll(first, second).WaitForTestAsync(
+                IntegrationTestTimeouts.PhoneVerification,
+                "concurrent phone number verifications for the same number");
         }
 
 
@@ -81,7 +105,9 @@ namespace Plugin.Firebase.IntegrationTests.Auth
                 IntegrationTestOptions.PhoneAuthCodeAndroidSystemPropertyName);
 
             await using var user = await AuthTestUserScope.SignInAnonymouslyAsync(sut);
-            await sut.VerifyPhoneNumberAsync(phoneNumber);
+            await sut.VerifyPhoneNumberAsync(phoneNumber).WaitForTestAsync(
+                IntegrationTestTimeouts.PhoneVerification,
+                "phone number verification before linking");
 
             var linkedUser = await sut.LinkWithPhoneNumberVerificationCodeAsync(verificationCode);
 

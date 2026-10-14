@@ -87,8 +87,10 @@ stored value with the same rules on both platforms:
 - A fractional value read into an integral or enum property is truncated toward zero, as the
   native Android SDK does. A stored `2.7` gives `2`, `-2.7` gives `-2`, and `3.5` gives `3`.
 - A value outside the property's range throws an `OverflowException` rather than silently
-  wrapping to an unrelated number. For a `float` property, a double too large for a `float`
-  throws rather than becoming infinity.
+  wrapping to an unrelated number. As in the native Android SDK, a fractional value is range
+  checked as stored, before it is truncated, so `255.5` doesn't fit a `byte` and `-0.5` doesn't
+  fit a `uint`. For a `float` property, a double too large for a `float` throws rather than
+  becoming infinity.
 - A stored NaN or infinity read into an integral, enum or `decimal` property throws an
   `OverflowException`. `float` and `double` properties keep it.
 - An enum is range checked against its underlying type. A value in that range that isn't a named
@@ -134,7 +136,8 @@ with 4.2.1:
 - On Android, `int` and `int?` properties rounded fractional values (`Convert.ToInt32`), so
   `2.5` gave `2` and `3.5` gave `4`. They now truncate, so `3.5` gives `3`.
 - A fractional value read into any integral or enum property truncates toward zero on both
-  platforms.
+  platforms. It is range checked before truncating, so a value just outside the range, like
+  `255.5` for a `byte`, throws `OverflowException` instead of reading as `255`.
 - Enum properties are range checked against their underlying type on both platforms, so a value
   that doesn't fit throws `OverflowException`.
 - A stored NaN or infinity read into an integral, enum or `decimal` property throws

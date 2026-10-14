@@ -4,8 +4,9 @@ using Plugin.Firebase.Firestore;
 namespace Plugin.Firebase.IntegrationTests.Firestore;
 
 // Firestore only stores fractional numbers as doubles. Reading one into an integral or enum target
-// truncates toward zero on both platforms, as the native Android SDK's CustomClassMapper does.
-// Every value gets a document of its own, so each case is asserted independently.
+// range checks the stored value and then truncates toward zero on both platforms, as the native
+// Android SDK's CustomClassMapper does. Every value gets a document of its own, so each case is
+// asserted independently.
 public sealed partial class FirestoreFixture
 {
     [Theory]
@@ -42,7 +43,7 @@ public sealed partial class FirestoreFixture
     [InlineData(2.7, (byte) NumericRating.High)]
     [InlineData(2.5, (byte) NumericRating.High)]
     [InlineData(1.5, (byte) NumericRating.Low)]
-    [InlineData(-0.5, (byte) NumericRating.Unrated)]
+    [InlineData(0.9, (byte) NumericRating.Unrated)]
     [InlineData(2.0, (byte) NumericRating.High)]
     public async Task truncates_fractional_values_read_into_byte_enum_properties(double stored, byte expected)
     {

@@ -10,11 +10,14 @@ namespace Plugin.Firebase.Firestore.Internal;
 /// <remarks>
 /// The rules follow the native Android SDK's <c>CustomClassMapper</c>:
 /// <list type="bullet">
-/// <item>A fractional value read into an integral or enum target is truncated toward zero.</item>
 /// <item>
 /// A value outside the target's range throws <see cref="OverflowException"/>. So does NaN or
 /// infinity read into an integral, enum or <see cref="decimal"/> target, and a finite value too
 /// large for a <see cref="float"/> target.
+/// </item>
+/// <item>
+/// A fractional value read into an integral or enum target is range checked as stored, then
+/// truncated toward zero. So 2.7 gives 2, but 255.5 doesn't fit a <see cref="byte"/>.
 /// </item>
 /// <item>
 /// An enum is converted through its underlying type, so a value that fits that type but isn't a
@@ -78,13 +81,12 @@ internal static class FirestoreNumericConversion
     private static object ConvertNumber(object value, Type conversionType, Type targetType)
     {
         try {
-            return Type.GetTypeCode(conversionType) switch {
+            var typeCode = Type.GetTypeCode(conversionType);
+            return typeCode switch {
                 TypeCode.Double => Convert.ToDouble(value, CultureInfo.InvariantCulture),
                 TypeCode.Single => ToSingle(value),
                 TypeCode.Decimal => Convert.ToDecimal(RequireFinite(value), CultureInfo.InvariantCulture),
-                // Integral targets. Truncating first leaves Convert only the range check; on its own it
-                // would round to even.
-                _ => Convert.ChangeType(Truncate(RequireFinite(value)), conversionType, CultureInfo.InvariantCulture)!
+                _ => ToIntegral(value, conversionType, typeCode)
             };
         } catch(OverflowException exception) {
             throw new OverflowException(
@@ -118,13 +120,50 @@ internal static class FirestoreNumericConversion
         return isFinite ? value : throw new OverflowException();
     }
 
-    private static object Truncate(object value)
+    private static object ToIntegral(object value, Type conversionType, TypeCode typeCode)
     {
-        return value switch {
-            double d => Math.Truncate(d),
-            float f => MathF.Truncate(f),
-            decimal m => decimal.Truncate(m),
+        // Like the native Android SDK, a fractional source is range checked as stored and only then
+        // truncated, so 2147483647.9 doesn't fit an int. After truncating, Convert has nothing left
+        // to round; it range checks integral sources itself.
+        object integral = value switch {
+            double d => FitsIntegral(d, typeCode) ? Math.Truncate(d) : throw new OverflowException(),
+            float f => FitsIntegral(f, typeCode) ? Math.Truncate((double) f) : throw new OverflowException(),
+            decimal m => FitsIntegral(m, typeCode) ? decimal.Truncate(m) : throw new OverflowException(),
             _ => value
+        };
+        return Convert.ChangeType(integral, conversionType, CultureInfo.InvariantCulture)!;
+    }
+
+    private static bool FitsIntegral(double value, TypeCode typeCode)
+    {
+        // NaN fails every comparison and infinity is outside every range, so neither fits.
+        return typeCode switch {
+            TypeCode.SByte => value >= sbyte.MinValue && value <= sbyte.MaxValue,
+            TypeCode.Byte => value >= byte.MinValue && value <= byte.MaxValue,
+            TypeCode.Int16 => value >= short.MinValue && value <= short.MaxValue,
+            TypeCode.UInt16 => value >= ushort.MinValue && value <= ushort.MaxValue,
+            TypeCode.Int32 => value >= int.MinValue && value <= int.MaxValue,
+            TypeCode.UInt32 => value >= uint.MinValue && value <= uint.MaxValue,
+            // long.MaxValue and ulong.MaxValue round up to 2^63 and 2^64 as doubles, so the upper
+            // bounds are those powers of two, compared strictly.
+            TypeCode.Int64 => value >= -9223372036854775808.0 && value < 9223372036854775808.0,
+            TypeCode.UInt64 => value >= 0.0 && value < 18446744073709551616.0,
+            _ => false
+        };
+    }
+
+    private static bool FitsIntegral(decimal value, TypeCode typeCode)
+    {
+        return typeCode switch {
+            TypeCode.SByte => value >= sbyte.MinValue && value <= sbyte.MaxValue,
+            TypeCode.Byte => value >= byte.MinValue && value <= byte.MaxValue,
+            TypeCode.Int16 => value >= short.MinValue && value <= short.MaxValue,
+            TypeCode.UInt16 => value >= ushort.MinValue && value <= ushort.MaxValue,
+            TypeCode.Int32 => value >= int.MinValue && value <= int.MaxValue,
+            TypeCode.UInt32 => value >= uint.MinValue && value <= uint.MaxValue,
+            TypeCode.Int64 => value >= long.MinValue && value <= long.MaxValue,
+            TypeCode.UInt64 => value >= ulong.MinValue && value <= ulong.MaxValue,
+            _ => false
         };
     }
 }

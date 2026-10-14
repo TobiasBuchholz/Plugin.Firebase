@@ -37,9 +37,24 @@ public class FirestoreNumericConversionTests
         { 0L, typeof(ulong), 0UL },
         { long.MaxValue, typeof(ulong), (ulong) long.MaxValue },
         { ulong.MaxValue, typeof(ulong), ulong.MaxValue },
-        { -9.2233720368547758E18, typeof(long), long.MinValue },
 
-        // Fractional values truncate toward zero, then the result is range checked.
+        // Doubles at the exact boundaries convert. 2^63 - 1024 and 2^64 - 2048 are the largest
+        // doubles below 2^63 and 2^64.
+        { -128.0, typeof(sbyte), (sbyte) -128 },
+        { 127.0, typeof(sbyte), (sbyte) 127 },
+        { 0.0, typeof(byte), (byte) 0 },
+        { 255.0, typeof(byte), (byte) 255 },
+        { -32768.0, typeof(short), (short) -32768 },
+        { 32767.0, typeof(short), (short) 32767 },
+        { 65535.0, typeof(ushort), (ushort) 65535 },
+        { -2147483648.0, typeof(int), int.MinValue },
+        { 2147483647.0, typeof(int), int.MaxValue },
+        { 4294967295.0, typeof(uint), uint.MaxValue },
+        { -9223372036854775808.0, typeof(long), long.MinValue },
+        { 9223372036854774784.0, typeof(long), 9223372036854774784L },
+        { 18446744073709549568.0, typeof(ulong), 18446744073709549568UL },
+
+        // Fractional values inside the range truncate toward zero.
         { 2.7, typeof(int), 2 },
         { -2.7, typeof(int), -2 },
         { 2.5, typeof(int), 2 },
@@ -49,12 +64,14 @@ public class FirestoreNumericConversionTests
         { 3.0, typeof(long), 3L },
         { -0.0, typeof(int), 0 },
         { -0.0, typeof(ulong), 0UL },
-        { -0.9, typeof(byte), (byte) 0 },
-        { 255.9, typeof(byte), (byte) 255 },
-        { 2147483647.9, typeof(int), int.MaxValue },
-        { -2147483648.9, typeof(int), int.MinValue },
+        { 0.9, typeof(byte), (byte) 0 },
+        { 254.9, typeof(byte), (byte) 254 },
+        { -127.9, typeof(sbyte), (sbyte) -127 },
+        { 2147483646.9, typeof(int), 2147483646 },
+        { -2147483647.9, typeof(int), -2147483647 },
         { 2.7f, typeof(short), (short) 2 },
         { -2.7m, typeof(long), -2L },
+        { 254.9m, typeof(byte), (byte) 254 },
 
         // Floating point targets keep the value, including NaN and infinity.
         { 2L, typeof(double), 2.0 },
@@ -76,7 +93,7 @@ public class FirestoreNumericConversionTests
         { 2L, typeof(ByteLevel), ByteLevel.High },
         { 255L, typeof(ByteLevel), (ByteLevel) 255 },
         { 2.7, typeof(ByteLevel), ByteLevel.High },
-        { -0.5, typeof(ByteLevel), ByteLevel.None },
+        { 0.5, typeof(ByteLevel), ByteLevel.None },
         { -32768L, typeof(ShortLevel), ShortLevel.Min },
         { 32767L, typeof(ShortLevel), ShortLevel.Max },
         { 65535L, typeof(UShortLevel), UShortLevel.Max },
@@ -114,14 +131,38 @@ public class FirestoreNumericConversionTests
         { -1L, typeof(uint) },
         { (long) uint.MaxValue + 1, typeof(uint) },
         { (ulong) long.MaxValue + 1, typeof(long) },
-        { 9.2233720368547758E18, typeof(long) },
-        { -9.2233720368547778E18, typeof(long) },
         { -1L, typeof(ulong) },
-        { 1.8446744073709552E19, typeof(ulong) },
+        { 300L, typeof(byte?) },
+
+        // Fractional values are range checked as stored, before truncating: MaxValue + 0.9 and
+        // MinValue - 0.5 don't fit, even though they would truncate into the range.
+        { 127.9, typeof(sbyte) },
+        { -128.5, typeof(sbyte) },
+        { 255.9, typeof(byte) },
+        { -0.5, typeof(byte) },
+        { 32767.9, typeof(short) },
+        { -32768.5, typeof(short) },
+        { 65535.9, typeof(ushort) },
+        { -0.5, typeof(ushort) },
+        { 2147483647.9, typeof(int) },
+        { -2147483648.5, typeof(int) },
+        { 4294967295.9, typeof(uint) },
+        { -0.5, typeof(uint) },
+        { -0.5, typeof(ulong) },
+        { 255.5f, typeof(byte) },
+        { 255.5m, typeof(byte) },
+        { 9223372036854775807.5m, typeof(long) },
+        { -2147483648.5, typeof(int?) },
+
+        // Doubles just outside the range. (double) long.MaxValue rounds up to 2^63, which doesn't
+        // fit a long; the next double below -2^63 is 2^63 + 2048 away from zero.
+        { 9223372036854775808.0, typeof(long) },
+        { -9223372036854777856.0, typeof(long) },
+        { (double) long.MaxValue, typeof(long) },
+        { 18446744073709551616.0, typeof(ulong) },
         { 256.0, typeof(byte) },
         { -1.0, typeof(byte) },
         { 2147483648.0, typeof(int) },
-        { 300L, typeof(byte?) },
 
         // NaN and infinity have no integral or decimal value.
         { double.NaN, typeof(int) },
@@ -144,6 +185,8 @@ public class FirestoreNumericConversionTests
         { 256L, typeof(ByteLevel) },
         { 300L, typeof(ByteLevel) },
         { -1.0, typeof(ByteLevel) },
+        { -0.5, typeof(ByteLevel) },
+        { 255.9, typeof(ByteLevel) },
         { 32768L, typeof(ShortLevel) },
         { -1L, typeof(UShortLevel) },
         { 5_000_000_000L, typeof(IntLevel) },

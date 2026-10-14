@@ -45,3 +45,12 @@ internal sealed class WriteWrapperDictionaryDocument : IFirestoreObject
     [FirestoreProperty("untouched")]
     public string Untouched { get; [UsedImplicitly] private set; } = null!;
 }
+
+[Preserve(AllMembers = true)]
+internal sealed class DateTimeKindDocument : IFirestoreObject
+{
+    internal const string ObservedField = "observed";
+
+    [FirestoreProperty(ObservedField)]
+    public DateTime Observed { get; set; }
+}

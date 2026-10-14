@@ -111,7 +111,7 @@ To get started add the `GoogleService-Info.plist` and the `google-services.json`
 </ItemGroup>
 ```
 
-> **Troubleshooting:** If `FirebaseApp.configure()` reports that it could not find a valid `GoogleService-Info.plist`, verify the file is (a) in your app project's root folder, (b) included as `<BundleResource Include="GoogleService-Info.plist" />` — not `None`, `Content`, or just sitting in the folder — and (c) that its `BUNDLE_ID` entry matches your app's `ApplicationId`. You can confirm the embedding worked by checking that the file exists at the root of the built `.app` bundle (e.g., `bin/Release/net10.0-ios/.../*.app/GoogleService-Info.plist`).
+If initialization on iOS fails because Firebase could not find a valid `GoogleService-Info.plist`, see [Troubleshooting](#ios-could-not-find-a-valid-googleservice-infoplist).
 
 Initialize the plugin in your `MauiProgram.cs` like this:
 
@@ -194,6 +194,21 @@ For example the [`Plugin.Firebase.IntegrationTests`](https://github.com/TobiasBu
 ## Troubleshooting
 ### Windows + Visual Studio + iOS long path issue
 Visual Studio and Windows both have issues with long paths. The issue is explained (along with best-known workarounds) [here](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents?tab=readme-ov-file#windows--visual-studio-long-path-issue).
+
+### iOS: could not find a valid GoogleService-Info.plist
+If startup fails with `` `FirebaseApp.configure()` could not find a valid GoogleService-Info.plist in your project ``, Firebase did not find a readable `GoogleService-Info.plist` at the root of the app bundle. The device or simulator log shows which case it is: `I-COR000012` means the file was not found, and `I-COR000011` means it was found but is not a valid plist dictionary. A `BUNDLE_ID` mismatch does not cause this error; it is logged separately as `I-COR000008`.
+
+Either of these setups embeds the file at the bundle root:
+- Keep the file in the project root folder and include it with `<BundleResource Include="GoogleService-Info.plist" />`, as shown in [MAUI Project Configuration](#maui-project-configuration). Having the file in the folder is not enough on its own.
+- Put the file in `Platforms/iOS/Resources/`. MAUI single projects include that folder as bundle resources automatically and drop the `Platforms/iOS/Resources/` prefix, so no `.csproj` entry is needed.
+
+A common mistake is keeping the file in `Platforms/iOS/` and adding `<BundleResource Include="Platforms/iOS/GoogleService-Info.plist" />`. That embeds it as `Platforms/iOS/GoogleService-Info.plist` inside the bundle, where Firebase does not look. Either move the file to one of the locations above, or set `LogicalName` so it is embedded at the root:
+
+```xml
+<BundleResource Include="Platforms/iOS/GoogleService-Info.plist" LogicalName="GoogleService-Info.plist" />
+```
+
+To check the result, build the app and look inside `bin/<Configuration>/net10.0-ios/<RuntimeIdentifier>/<AppName>.app/`, for example `bin/Debug/net10.0-ios/iossimulator-arm64/MyApp.app/` for a simulator build (`ios-arm64` for a device build). `GoogleService-Info.plist` must be directly in that folder, not in a subfolder.
 
 ## Contributions
 

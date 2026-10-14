@@ -10,4 +10,6 @@ internal static class IntegrationTestTimeouts
     public static readonly TimeSpan PollInterval = TimeSpan.FromMilliseconds(100);
 
     public static long OneMillisecondTicks => TimeSpan.FromMilliseconds(1).Ticks;
+    // Firestore stores timestamps to the microsecond, so a sub-microsecond part is lost on a round trip.
+    public static long OneMicrosecondTicks => TimeSpan.FromMicroseconds(1).Ticks;
 }

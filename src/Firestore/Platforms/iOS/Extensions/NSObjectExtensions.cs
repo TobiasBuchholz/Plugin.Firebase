@@ -3,6 +3,7 @@ using System.Diagnostics;
 using Firebase.CloudFirestore;
 using Firebase.Core;
 using Plugin.Firebase.Core.Platforms.iOS.Extensions;
+using Plugin.Firebase.Firestore.Internal;
 
 namespace Plugin.Firebase.Firestore.Platforms.iOS.Extensions;
 
@@ -229,9 +230,15 @@ public static class NSObjectExtensions
     /// <summary>
     /// Converts a .NET object to a native iOS NSObject.
     /// </summary>
+    /// <remarks>
+    /// A <see cref="DateTime"/> with <see cref="DateTimeKind.Local"/> or <see cref="DateTimeKind.Utc"/> converts to the
+    /// <see cref="NSDate"/> for its UTC instant. One with <see cref="DateTimeKind.Unspecified"/> throws, as it does on
+    /// Android, because it could be UTC or local time.
+    /// </remarks>
     /// <param name="this">The object to convert.</param>
     /// <returns>The native iOS NSObject representation.</returns>
-    /// <exception cref="ArgumentException">Thrown if the object type cannot be converted.</exception>
+    /// <exception cref="ArgumentException">Thrown if the object type cannot be converted, or if it is a
+    /// <see cref="DateTime"/> with <see cref="DateTimeKind.Unspecified"/>.</exception>
     public static NSObject ToNSObject(this object? @this)
     {
         switch(@this) {
@@ -254,6 +261,7 @@ public static class NSObjectExtensions
             case bool x:
                 return new NSNumber(x);
             case DateTime x:
+                DateTimeKindGuard.ThrowIfUnspecified(x);
                 return x.ToNSDate();
             case DateTimeOffset x:
                 return x.ToNSDate();

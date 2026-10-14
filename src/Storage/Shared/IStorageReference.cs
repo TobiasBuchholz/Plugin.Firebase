@@ -21,9 +21,36 @@ public interface IStorageReference
     IStorageTransferTask PutBytes(byte[] bytes, IStorageMetadata? metaData = null);
 
     /// <summary>
-    /// Uploads a file via it's file path to firebase storage bucket.<br></br>
+    /// Uploads a local file via its file path to firebase storage bucket.<br></br>
     /// CAUTION: Although this method returns an IStorageUploadTask, which has an AwaitAsync() method, the upload will start immediately on iOS
     /// </summary>
+    /// <remarks>
+    /// Both platforms hand the path to the native file upload API, which reads the file from disk instead of buffering it in memory.
+    /// The platforms differ as follows:
+    /// <list type="bullet">
+    /// <item><description>
+    /// File lifetime: iOS reads the file after this method returns and uses the original file as the upload body. Keep the file in place
+    /// and unchanged, and keep any security-scoped access to it open, until <c>AwaitAsync()</c> completes. Android opens the file when
+    /// this method is called.
+    /// </description></item>
+    /// <item><description>
+    /// Content type: when <paramref name="metaData"/> has no <c>ContentType</c>, iOS infers it from the file extension (<c>photo.jpg</c>
+    /// is stored as <c>image/jpeg</c>), while Android stores <c>application/octet-stream</c>. Set <c>ContentType</c> to get the same
+    /// result on both platforms.
+    /// </description></item>
+    /// <item><description>
+    /// Errors: a missing file or a directory is not thrown from this method; <c>AwaitAsync()</c> fails with the native Storage error.
+    /// iOS only uploads regular files, so a symbolic link fails the same way; pass the link's target path instead.
+    /// </description></item>
+    /// <item><description>
+    /// iOS simulator: the native iOS SDK uploads files through a background URL session, which can fail on the simulator with
+    /// Firebase iOS SDK versions older than 12.17.0. Physical devices are not affected.
+    /// </description></item>
+    /// </list>
+    /// </remarks>
+    /// <param name="filePath">The path of the regular file to upload.</param>
+    /// <param name="metaData">Optional metadata to store with the uploaded object.</param>
+    /// <exception cref="ArgumentException">On iOS, <paramref name="filePath"/> is null or empty.</exception>
     IStorageTransferTask PutFile(string filePath, IStorageMetadata? metaData = null);
 
     /// <summary>

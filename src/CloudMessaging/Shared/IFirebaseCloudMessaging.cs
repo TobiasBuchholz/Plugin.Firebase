@@ -59,6 +59,10 @@ namespace Plugin.Firebase.CloudMessaging
         /// <summary>
         /// Gets invoked when a received fcm notification was tapped by the user.
         /// </summary>
+        /// <remarks>
+        /// On iOS, <see cref="FCMNotification.Data"/> carries the native response's action identifier under the
+        /// <c>ActionIdentifier</c> key, including for a tap kept until the first subscriber is added.
+        /// </remarks>
         event EventHandler<FCMNotificationTappedEventArgs> NotificationTapped;
 
         /// <summary>

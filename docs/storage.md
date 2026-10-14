@@ -28,6 +28,16 @@ Since code should be documenting itself you can also take a look at the followin
 - [IStorageTaskSnapshot.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/src/Storage/Shared/IStorageTaskSnapshot.cs)
 - [Storage integration tests](https://github.com/TobiasBuchholz/Plugin.Firebase/tree/development/tests/Plugin.Firebase.IntegrationTests/Storage)
 
+### Uploading files
+
+`PutFile(filePath, metadata)` hands the path to the native file upload API on both platforms (`putFile(Uri, ...)` on Android, `putFile(_:metadata:completion:)` on iOS), which reads the file from disk instead of buffering it in memory. Read-only files can be uploaded. The platforms differ in these ways:
+
+- **File lifetime:** iOS reads the file after `PutFile` returns and uses the original file as the upload body. Keep the file in place and unchanged until `AwaitAsync()` completes: don't delete, move, or overwrite it, and keep any security-scoped access to it open. Android opens the file when `PutFile` is called. Keeping the file until the upload completes is safe on both platforms.
+- **Content type:** when `metadata` is null or has no `ContentType`, iOS infers the content type from the file extension (`photo.jpg` is stored as `image/jpeg`), while Android stores `application/octet-stream`. Set `ContentType` to get the same result on both platforms.
+- **Errors:** a missing file or a directory is not thrown from `PutFile`; `AwaitAsync()` fails with the native Storage error on both platforms. On iOS, a null or empty `filePath` throws `ArgumentException` from `PutFile`.
+- **Symbolic links:** iOS only uploads regular files, so a path that is a symbolic link fails with a native "not reachable" error when awaited. Pass the link's target path instead.
+- **iOS simulator:** the native iOS SDK uploads files through a background URL session. On the simulator this can fail with errors such as `Unexpected 40 code from backend` or `Unexpected -1 code from backend` (the latter when the simulator's background transfer service is unavailable). Firebase iOS SDK 12.17.0 switches simulator file uploads to a foreground session; `AdamE.Firebase.iOS.Storage` bindings older than 12.17.0, including the 12.7.0 minimum this package references, predate that fix. Physical devices are not affected, and `PutBytes` and `PutStream` don't use a background session.
+
 ## Next-release migration notes
 
 The .NET 10 release enables nullable-reference analysis for Storage and aligns the shared contracts with values that the native SDKs can omit:
@@ -41,9 +51,7 @@ The .NET 10 release enables nullable-reference analysis for Storage and aligns t
 
 The release also corrects `StorageMetadata` so `creationTime` and `updatedTime` populate their matching properties, and forwards `CacheControl` when metadata is sent to the iOS SDK. These are breaking behavior and signature changes; update callers and any custom implementations of the Storage interfaces before upgrading.
 
-On iOS, `PutFile` now uploads through the native file URL API instead of reading the whole file
-into memory first, matching Android. Large uploads no longer need an extra in-memory copy of the
-file contents.
+On iOS, `PutFile` now uploads through the native file upload API instead of reading the whole file into memory and uploading it as data. Large files are no longer copied into memory, and read-only files, which previously failed to open, can now be uploaded. This changes iOS behavior in four ways: the file must stay in place and unchanged until `AwaitAsync()` completes; when no `ContentType` is set, it is inferred from the file extension instead of being stored as `application/octet-stream`; a missing file or a directory now fails the task returned by `PutFile` instead of throwing from `PutFile` (a null or empty path still throws `ArgumentException`); and symbolic links, which were previously followed, now fail. See [Uploading files](#uploading-files) for the remaining platform differences, including a simulator caveat.
 
 On Android, `GetStreamAsync(maxSize)` now returns a readable stream and enforces `maxSize`. The object is downloaded into memory, as on iOS, and the task fails when it is larger than `maxSize`. Previously the returned stream was already closed and `maxSize` was ignored. The public Android-only `StreamProcessor` class that caused this is removed; it has no replacement.
 

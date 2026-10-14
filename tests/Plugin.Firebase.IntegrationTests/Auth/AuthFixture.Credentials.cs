@@ -120,13 +120,17 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         [Fact]
         public async Task rethrows_sign_in_error_when_creation_reports_existing_account()
         {
-            // a wrong password for an existing account makes creation collide, so the
-            // original sign-in failure is the useful error, not the collision
+            // a wrong password for an existing account makes the auto-create fallback collide,
+            // so the original sign-in failure is the useful error, not the collision; a dedicated
+            // user keeps this independent of test order and shared accounts
             var sut = CrossFirebaseAuth.Current;
+            var email = IntegrationTestData.UniqueEmail("creation-collision");
+            await using var createdUser =
+                await AuthTestUserScope.CreateWithEmailAndPasswordAsync(sut, email);
+            await sut.SignOutAsync();
+
             var ex = await Assert.ThrowsAnyAsync<CrossPlatformFirebaseAuthException>(
-                () => sut.SignInWithEmailAndPasswordAsync(
-                    IntegrationTestUsers.SignInWithPasswordEmail,
-                    "000000")
+                () => sut.SignInWithEmailAndPasswordAsync(email, "000000")
             );
 
             AuthAssertions.NativeAuthExceptionCaptured(ex);
@@ -135,7 +139,9 @@ namespace Plugin.Firebase.IntegrationTests.Auth
                 FirebaseAuthAndroidExceptionTypeNames.InvalidCredentialsException,
                 ex.NativeExceptionTypeName);
 #elif IOS
-            Assert.Equal("InvalidCredential", ex.NativeErrorCode);
+            // iOS reports a wrong password as WrongPassword and rethrows it before the
+            // creation fallback runs; either way the sign-in error, not a collision error, surfaces
+            Assert.Contains(ex.NativeErrorCode!, new[] { "WrongPassword", "InvalidCredential" });
 #endif
         }
 

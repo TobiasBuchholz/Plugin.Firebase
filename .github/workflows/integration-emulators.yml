@@ -62,7 +62,11 @@ jobs:
           api-level: 35
           arch: x86_64
           profile: pixel_6
+          # The action's default options plus a non-UTC device time zone (+05:30), so code that treats local time as
+          # UTC fails here instead of passing on a UTC runner.
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -timezone Asia/Kolkata
           script: |
+            adb shell getprop persist.sys.timezone
             bash -lc '"$GITHUB_WORKSPACE/scripts/run-integration-emulators.sh" android'
 
       - name: Summarize Android test results
@@ -138,6 +142,10 @@ jobs:
           xcrun simctl bootstatus "$DEVICE_ID" -b
 
       - name: Run iOS integration tests against emulators
+        env:
+          # simctl passes SIMCTL_CHILD_* variables to the app without the prefix, so the app runs in a non-UTC time
+          # zone (+05:30) and code that treats local time as UTC fails here instead of passing on a UTC runner.
+          SIMCTL_CHILD_TZ: Asia/Kolkata
         run: scripts/run-integration-emulators.sh ios
 
       - name: Cleanup iOS simulator

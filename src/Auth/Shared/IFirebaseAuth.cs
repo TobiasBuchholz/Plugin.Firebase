@@ -16,23 +16,24 @@ public partial interface IFirebaseAuth : IDisposable
     /// when verification fails.
     /// </para>
     /// <para>
-    /// Android: the native SDK keeps a verification session per phone number for 120 seconds after it was last used.
-    /// Another call for the same number within that window reuses the session and sends no new code: it completes when
-    /// the earlier call does, or immediately if the code was already sent. A later call starts a new verification, and
-    /// the earlier verification ID stays in use until the new code is sent. A call for a different phone number cancels
-    /// the task of an earlier call that is still pending; calling again for the earlier number within its window reuses
-    /// its session.
+    /// Android: a repeat call for a phone number that already received a code passes the native resend token, so
+    /// Firebase starts a new verification and sends a new code, as a "Resend" button expects. Until the new code is
+    /// sent, sign-in keeps using the previous code. A call for the same number while the previous call is still pending
+    /// returns that call's task. A call for a different number cancels the task of an earlier call that is still
+    /// pending, and sign-in then uses only the new number's verification.
     /// </para>
     /// <para>
-    /// Android: the native SDK can drop the callbacks when the activity stops before the code is sent, for example when
-    /// the user switches to another app. If the native SDK reports no sent code, completion or failure within 120
-    /// seconds, the task faults with <see cref="TimeoutException"/>; call this method again.
+    /// Android: before it sends the code, the native SDK runs app verification, which can show a reCAPTCHA challenge.
+    /// The native SDK can drop the callbacks if the activity stops before the code is sent, for example when the user
+    /// switches to another app. If the native SDK reports no sent code, completion or failure within five minutes of the
+    /// call, the task faults with <see cref="TimeoutException"/>; call this method again. Apply a shorter timeout of
+    /// your own if your UI needs one.
     /// </para>
     /// <para>
     /// Android: the task also completes if Firebase verifies the number without sending a code. In firebase-auth 23.x
     /// that only happens for test numbers set up with the native
     /// <c>FirebaseAuthSettings.setAutoRetrievedSmsCodeForPhoneNumber</c> setting; in production a code is always sent.
-    /// The next sign-in or link call then uses that credential once and ignores its verification code.
+    /// Sign-in and link then use that credential and ignore their verification code until the next call to this method.
     /// </para>
     /// <para>
     /// Android delivers the verification callbacks on the main thread. Await the task instead of blocking on it (for
@@ -61,10 +62,10 @@ public partial interface IFirebaseAuth : IDisposable
     /// Signs in using the verification code that was send to the given phone number after calling <c>VerifyPhoneNumberAsync(phoneNumber)</c>.
     /// </summary>
     /// <remarks>
-    /// Android: uses the verification ID of the latest code sent for the phone number of the most recent
-    /// <see cref="VerifyPhoneNumberAsync"/> call, also while a repeated verification is pending or after it failed. If
-    /// that verification completed without sending a code (only for natively configured test numbers), this call uses
-    /// that credential once and ignores <paramref name="verificationCode"/>.
+    /// Android: uses the verification of the latest <see cref="VerifyPhoneNumberAsync"/> call. While a repeat call for
+    /// the same number is pending, or after it failed or timed out, the previous code for that number is used. If the
+    /// latest call completed without sending a code (only for natively configured test numbers), this uses that
+    /// credential and ignores <paramref name="verificationCode"/>.
     /// </remarks>
     /// <param name="verificationCode">The code that was send to the given phone number after calling <c>VerifyPhoneNumberAsync(phoneNumber)</c>.</param>
     /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
@@ -102,10 +103,10 @@ public partial interface IFirebaseAuth : IDisposable
     /// Link the signed in user with a phone number.
     /// </summary>
     /// <remarks>
-    /// Android: uses the verification ID of the latest code sent for the phone number of the most recent
-    /// <see cref="VerifyPhoneNumberAsync"/> call, also while a repeated verification is pending or after it failed. If
-    /// that verification completed without sending a code (only for natively configured test numbers), this call uses
-    /// that credential once and ignores <paramref name="verificationCode"/>.
+    /// Android: uses the verification of the latest <see cref="VerifyPhoneNumberAsync"/> call. While a repeat call for
+    /// the same number is pending, or after it failed or timed out, the previous code for that number is used. If the
+    /// latest call completed without sending a code (only for natively configured test numbers), this uses that
+    /// credential and ignores <paramref name="verificationCode"/>.
     /// </remarks>
     /// <param name="verificationCode">The code that was send to the given phone number after calling <c>VerifyPhoneNumberAsync(phoneNumber)</c>.</param>
     /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>

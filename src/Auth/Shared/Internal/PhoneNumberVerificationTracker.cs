@@ -1,94 +1,77 @@
 namespace Plugin.Firebase.Auth.Internal;
 
 /// <summary>
-/// Tracks phone number verifications whose progress the native SDK reports through callbacks, as Android's
-/// <c>PhoneAuthProvider.OnVerificationStateChangedCallbacks</c> does.
+/// Tracks phone number verification requests whose progress the native SDK reports through callbacks, as Android's
+/// <c>PhoneAuthProvider.OnVerificationStateChangedCallbacks</c> does. Each request has its own task and callbacks, and
+/// only the latest request's callbacks change the state that sign-in and link read.
 /// </summary>
-/// <remarks>
-/// State is kept per phone number to mirror the native session map (firebase-auth 23.x), which keys sessions by phone
-/// number. A request within <see cref="NativeSessionWindow"/> of the session's last registration reuses it: native
-/// attaches the new callbacks without repeating <c>onCodeSent</c>, or drops them while app verification is still
-/// running. A completed, failed or timed-out callback ends the session. Only the callbacks of a number's current
-/// session change that number's state.
-/// </remarks>
 /// <typeparam name="TCredential">The native phone auth credential type.</typeparam>
-internal sealed class PhoneNumberVerificationTracker<TCredential> where TCredential : class
+/// <typeparam name="TResendToken">The native token that forces a new verification for a phone number.</typeparam>
+internal sealed class PhoneNumberVerificationTracker<TCredential, TResendToken>
+    where TCredential : class
+    where TResendToken : class
 {
     /// <summary>
-    /// How long the native SDK keeps a phone number's session for reuse after it was last registered. A pending
-    /// verification that hears nothing within this window faults with <see cref="TimeoutException"/>.
+    /// How long a request waits for the native SDK to report a sent code, a completed verification or a failure. The wait
+    /// includes any reCAPTCHA challenge the native SDK shows before it sends the code.
     /// </summary>
-    public static readonly TimeSpan NativeSessionWindow = TimeSpan.FromSeconds(120);
+    public static readonly TimeSpan DefaultTimeout = TimeSpan.FromMinutes(5);
 
     private readonly object _gate = new();
     private readonly TimeProvider _timeProvider;
-    private readonly Dictionary<string, PhoneNumberState> _phoneNumbers = new(StringComparer.Ordinal);
-    private PhoneNumberState? _current;
+    private readonly TimeSpan _timeout;
+    private readonly Dictionary<string, TResendToken> _resendTokens = new(StringComparer.Ordinal);
+    private Request? _latest;
 
     public PhoneNumberVerificationTracker()
-        : this(TimeProvider.System)
+        : this(TimeProvider.System, DefaultTimeout)
     {
     }
 
-    public PhoneNumberVerificationTracker(TimeProvider timeProvider)
+    public PhoneNumberVerificationTracker(TimeProvider timeProvider, TimeSpan timeout)
     {
         _timeProvider = timeProvider;
+        _timeout = timeout;
     }
 
     /// <summary>
-    /// Starts or joins the verification for <paramref name="phoneNumber"/> and makes it the one used for sign-in.
+    /// Starts a verification request for <paramref name="phoneNumber"/>, or returns the task of the latest request if it
+    /// is for the same number and still pending.
     /// </summary>
     /// <remarks>
-    /// <paramref name="startNativeVerification"/> receives the session that the native callbacks must report to. It runs
-    /// under the tracker's lock, so if it throws, the tracker is restored before any other request or callback sees the
-    /// change. The native call only schedules work; its callbacks are delivered later.
+    /// <paramref name="startNativeVerification"/> receives the request its callbacks report to, and the resend token from
+    /// the last code sent to this number, if any. It runs under the tracker's lock: if it throws, the previous request
+    /// stays the latest. The native call only schedules work; its callbacks are delivered later.
     /// </remarks>
-    /// <returns>
-    /// A task that completes when a code was sent or the number was verified without a code, faults when verification
-    /// fails or the native session window passes without a result, and is canceled when a request for another phone
-    /// number comes first.
-    /// </returns>
-    public Task Start(string phoneNumber, Action<Session> startNativeVerification)
+    public Task Start(string phoneNumber, Action<Request, TResendToken?> startNativeVerification)
     {
         lock(_gate) {
-            var now = _timeProvider.GetUtcNow();
-            var isNewPhoneNumber = !_phoneNumbers.TryGetValue(phoneNumber, out var state);
-            state ??= new PhoneNumberState();
-            var previousSession = state.Session;
-            var session = previousSession is not null && previousSession.IsOpen(now)
-                ? previousSession
-                : new Session(this, state);
-
-            if(isNewPhoneNumber) {
-                _phoneNumbers.Add(phoneNumber, state);
+            if(_latest is { IsPending: true } pending && pending.PhoneNumber == phoneNumber) {
+                return pending.Task;
             }
-            state.Session = session;
+            var previous = _latest;
+            var request = new Request(this, phoneNumber);
+            if(previous?.PhoneNumber == phoneNumber) {
+                // until the new code is sent, the previous code for this number stays usable
+                request.VerificationId = previous.VerificationId;
+            }
+            _resendTokens.TryGetValue(phoneNumber, out var resendToken);
+            _latest = request;
             try {
-                startNativeVerification(session);
+                startNativeVerification(request, resendToken);
             } catch {
-                state.Session = previousSession;
-                if(isNewPhoneNumber) {
-                    _phoneNumbers.Remove(phoneNumber);
-                }
+                _latest = previous;
                 throw;
             }
-
-            if(previousSession is not null && !ReferenceEquals(previousSession, session)) {
-                previousSession.ExpireWaiter();
-            }
-            if(!ReferenceEquals(_current, state)) {
-                _current?.Session?.CancelWaiter();
-                _current = state;
-            }
-            return session.Join(now);
+            previous?.Cancel();
+            request.StartTimeout();
+            return request.Task;
         }
     }
 
     /// <summary>
-    /// Returns the credential for the phone number of the most recent request. If its latest verification completed
-    /// without a code, that credential is returned once and <paramref name="verificationCode"/> is ignored. Otherwise the
-    /// credential is created from the latest verification ID and <paramref name="verificationCode"/>; a repeated
-    /// verification that is still pending or failed doesn't replace that ID.
+    /// Returns the credential for the latest request: its instant credential if it was verified without a code,
+    /// otherwise one created from its verification ID and <paramref name="verificationCode"/>.
     /// </summary>
     public TCredential GetCredential(
         string verificationCode,
@@ -96,186 +79,138 @@ internal sealed class PhoneNumberVerificationTracker<TCredential> where TCredent
     {
         string verificationId;
         lock(_gate) {
-            if(_current is null) {
+            if(_latest is null) {
                 throw new InvalidOperationException(
                     "VerifyPhoneNumberAsync must be called before GetCredentialAsync."
                 );
             }
-            if(_current.InstantCredential is { } instantCredential) {
-                _current.InstantCredential = null;
+            if(_latest.InstantCredential is { } instantCredential) {
                 return instantCredential;
             }
-            verificationId = _current.VerificationId
+            verificationId = _latest.VerificationId
                 ?? throw new InvalidOperationException(
-                    "Phone number verification hasn't produced a verification ID or an unused instant credential. Await VerifyPhoneNumberAsync before signing in or linking."
+                    "Phone number verification hasn't produced a verification ID. Await VerifyPhoneNumberAsync before signing in or linking."
                 );
         }
         return createCredential(verificationId, verificationCode);
     }
 
-    internal sealed class PhoneNumberState
-    {
-        public Session? Session { get; set; }
-
-        public string? VerificationId { get; set; }
-
-        public TCredential? InstantCredential { get; set; }
-    }
-
     /// <summary>
-    /// One native verification session for a phone number. Requests that join it share its task.
+    /// One <c>VerifyPhoneNumberAsync</c> request and the native callbacks bound to it.
     /// </summary>
-    internal sealed class Session
+    internal sealed class Request
     {
-        private readonly PhoneNumberVerificationTracker<TCredential> _owner;
-        private readonly PhoneNumberState _state;
-        private DateTimeOffset _lastRegisteredAt;
+        private readonly PhoneNumberVerificationTracker<TCredential, TResendToken> _owner;
+        private readonly TaskCompletionSource _completion =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private ITimer? _timeoutTimer;
         private bool _codeSent;
-        private bool _resolved;
         private bool _ended;
-        private TaskCompletionSource? _waiter;
-        private ITimer? _deadline;
 
-        internal Session(PhoneNumberVerificationTracker<TCredential> owner, PhoneNumberState state)
+        internal Request(PhoneNumberVerificationTracker<TCredential, TResendToken> owner, string phoneNumber)
         {
             _owner = owner;
-            _state = state;
+            PhoneNumber = phoneNumber;
         }
 
-        private bool IsCurrent => ReferenceEquals(_state.Session, this);
+        public string PhoneNumber { get; }
 
-        public void OnCodeSent(string verificationId)
+        public Task Task => _completion.Task;
+
+        internal string? VerificationId { get; set; }
+
+        internal TCredential? InstantCredential { get; private set; }
+
+        internal bool IsPending => !_completion.Task.IsCompleted;
+
+        private bool IsLatest => ReferenceEquals(_owner._latest, this);
+
+        public void OnCodeSent(string verificationId, TResendToken resendToken)
         {
-            TaskCompletionSource? waiter;
             lock(_owner._gate) {
-                if(!IsCurrent) {
+                // any token for this number makes the next request for it start a new native verification
+                _owner._resendTokens[PhoneNumber] = resendToken;
+                if(!IsLatest) {
                     return;
                 }
-                SetVerificationId(verificationId);
-                // native registered the session's operation right before the code was sent
-                _lastRegisteredAt = _owner._timeProvider.GetUtcNow();
-                waiter = TakeWaiter();
+                VerificationId = verificationId;
+                _codeSent = true;
             }
-            waiter?.TrySetResult();
+            Finish(x => x.TrySetResult());
         }
 
         public void OnVerificationCompleted(TCredential credential)
         {
-            TaskCompletionSource? waiter;
             lock(_owner._gate) {
-                if(!IsCurrent) {
-                    return;
-                }
-                _ended = true;
-                if(_codeSent) {
-                    // the SMS was auto-retrieved after the code was sent; sign-in keeps using the verification ID and code
-                    return;
-                }
-                _state.InstantCredential = credential;
-                _resolved = true;
-                waiter = TakeWaiter();
-            }
-            waiter?.TrySetResult();
-        }
-
-        public void OnVerificationFailed(Exception exception)
-        {
-            TaskCompletionSource? waiter;
-            lock(_owner._gate) {
-                if(!IsCurrent) {
-                    return;
-                }
-                _ended = true;
-                waiter = TakeWaiter();
-            }
-            waiter?.TrySetException(exception);
-        }
-
-        public void OnCodeAutoRetrievalTimeOut(string verificationId)
-        {
-            TaskCompletionSource? waiter;
-            lock(_owner._gate) {
-                if(!IsCurrent) {
+                if(!IsLatest || _ended) {
                     return;
                 }
                 _ended = true;
                 if(!_codeSent) {
-                    // onCodeSent went to callbacks the native SDK dropped; these callbacks were attached afterwards
-                    SetVerificationId(verificationId);
+                    // completed without a code; once a code was sent, the code is used even if the SMS was auto-retrieved
+                    InstantCredential = credential;
                 }
-                waiter = TakeWaiter();
             }
-            waiter?.TrySetResult();
+            Finish(x => x.TrySetResult());
         }
 
-        internal bool IsOpen(DateTimeOffset now)
-        {
-            return !_ended && now - _lastRegisteredAt < NativeSessionWindow;
-        }
-
-        internal Task Join(DateTimeOffset now)
-        {
-            // native registers the session again when it attaches callbacks to it
-            _lastRegisteredAt = now;
-            if(_resolved) {
-                return Task.CompletedTask;
-            }
-            _waiter ??= new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-            if(_deadline is null) {
-                _deadline = _owner._timeProvider.CreateTimer(
-                    static session => ((Session) session!).OnDeadline(),
-                    this,
-                    NativeSessionWindow,
-                    Timeout.InfiniteTimeSpan
-                );
-            } else {
-                _deadline.Change(NativeSessionWindow, Timeout.InfiniteTimeSpan);
-            }
-            return _waiter.Task;
-        }
-
-        internal void CancelWaiter()
-        {
-            TakeWaiter()?.TrySetCanceled();
-        }
-
-        internal void ExpireWaiter()
-        {
-            TakeWaiter()?.TrySetException(CreateTimeoutException());
-        }
-
-        private void OnDeadline()
+        public void OnVerificationFailed(Exception exception)
         {
             lock(_owner._gate) {
-                if(_waiter is null || IsOpen(_owner._timeProvider.GetUtcNow())) {
+                if(!IsLatest || _ended) {
                     return;
                 }
-                ExpireWaiter();
+                _ended = true;
+            }
+            Finish(x => x.TrySetException(exception));
+        }
+
+        public void OnCodeAutoRetrievalTimeOut(string verificationId)
+        {
+            lock(_owner._gate) {
+                if(!IsLatest || _ended) {
+                    return;
+                }
+                _ended = true;
+                if(!_codeSent) {
+                    // the native SDK attached these callbacks to a session whose onCodeSent had already fired
+                    VerificationId = verificationId;
+                    _codeSent = true;
+                }
+            }
+            Finish(x => x.TrySetResult());
+        }
+
+        internal void StartTimeout()
+        {
+            if(IsPending) {
+                _timeoutTimer = _owner._timeProvider.CreateTimer(
+                    static request => ((Request) request!).OnTimeout(),
+                    this,
+                    _owner._timeout,
+                    Timeout.InfiniteTimeSpan
+                );
             }
         }
 
-        private void SetVerificationId(string verificationId)
+        internal void Cancel()
         {
-            _state.VerificationId = verificationId;
-            _state.InstantCredential = null;
-            _codeSent = true;
-            _resolved = true;
+            Finish(x => x.TrySetCanceled());
         }
 
-        private TaskCompletionSource? TakeWaiter()
+        private void Finish(Action<TaskCompletionSource> complete)
         {
-            var waiter = _waiter;
-            _waiter = null;
-            _deadline?.Dispose();
-            _deadline = null;
-            return waiter;
+            Interlocked.Exchange(ref _timeoutTimer, null)?.Dispose();
+            complete(_completion);
         }
 
-        private static TimeoutException CreateTimeoutException()
+        private void OnTimeout()
         {
-            return new TimeoutException(
-                $"Phone number verification reported no sent code, completion or failure within {NativeSessionWindow.TotalSeconds:0} seconds. The native SDK may have dropped its callbacks, for example because the app went to the background before the code was sent. Call VerifyPhoneNumberAsync again."
+            // no clock comparison: the timer firing is the deadline
+            var exception = new TimeoutException(
+                $"Phone number verification reported no sent code, completion or failure within {_owner._timeout.TotalSeconds:0} seconds. The native SDK may have dropped its callbacks, for example because the app went to the background before the code was sent. Call VerifyPhoneNumberAsync again."
             );
+            Finish(x => x.TrySetException(exception));
         }
     }
 }

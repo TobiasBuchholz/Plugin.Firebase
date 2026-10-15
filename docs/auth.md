@@ -114,10 +114,11 @@ var user = await CrossFirebaseAuth.Current.SignInWithPhoneNumberVerificationCode
 ```
 
 Android differs from iOS in these ways:
-- The native SDK keeps a verification session per phone number for 120 seconds after it was last used. Another call for the same number within that window reuses the session and sends no new code: it completes when the earlier call does, or immediately if the code was already sent. A later call starts a new verification, and sign-in keeps using the earlier verification ID until the new code is sent, also if the new verification fails.
-- A call for a different phone number cancels the task of an earlier call that is still pending. Calling again for the earlier number within its window reuses its session and verification ID.
-- The native SDK can drop the callbacks when the activity stops before the code is sent, for example when the user switches to another app. If the native SDK reports no sent code, completion or failure within 120 seconds, the task faults with `TimeoutException`. Call `VerifyPhoneNumberAsync` again.
-- The task also completes if Firebase verifies the number without sending a code. In firebase-auth 23.x that only happens for test numbers set up with the native `FirebaseAuthSettings.setAutoRetrievedSmsCodeForPhoneNumber` setting, which the plugin doesn't wrap; in production a code is always sent. The next sign-in or link call then uses that credential once and ignores its code argument. When Android retrieves the SMS automatically after sending a code, the code you pass is still used.
+- A repeat call for a phone number that already received a code sends a new code: the plugin passes the native resend token (`ForceResendingToken`), so Firebase starts a new verification, as a "Resend" button expects. Until the new code is sent, sign-in keeps using the previous code, also if the new verification fails or times out.
+- A call for the same number while the previous call is still pending returns that call's task.
+- A call for a different phone number cancels the task of an earlier call that is still pending. Sign-in then uses only the new number's verification.
+- Before it sends the code, the native SDK runs app verification, which can show a reCAPTCHA challenge in a browser tab. The native SDK can drop the callbacks if the activity stops before the code is sent, for example when the user switches to another app. If the native SDK reports no sent code, completion or failure within five minutes of the call, the task faults with `TimeoutException`; call `VerifyPhoneNumberAsync` again. Apply a shorter timeout of your own if your UI needs one.
+- The task also completes if Firebase verifies the number without sending a code. In firebase-auth 23.x that only happens for test numbers set up with the native `FirebaseAuthSettings.setAutoRetrievedSmsCodeForPhoneNumber` setting, which the plugin doesn't wrap; in production a code is always sent. Sign-in and link then use that credential and ignore their code argument until the next `VerifyPhoneNumberAsync` call. When Android retrieves the SMS automatically after sending a code, the code you pass is still used.
 - The native callbacks arrive on the main thread. Don't block on the task with `Wait()` or `Result` from the UI thread, which deadlocks; await it instead.
 
 ## Language
@@ -180,16 +181,16 @@ In v5:
 On Android, `VerifyPhoneNumberAsync` now completes once the verification code has been sent, as on iOS. Previously it completed right after starting native verification. This changes behavior in these ways:
 
 - Verification failures, such as an invalid phone number or an exceeded SMS quota, fault the task with `CrossPlatformFirebaseAuthException`. Previously they were dropped, and the next sign-in or link call failed or used an old verification ID.
-- If the native SDK reports no sent code, completion or failure within 120 seconds, for example because it dropped the callbacks when the activity stopped, the task faults with `TimeoutException`.
+- If the native SDK reports no sent code, completion or failure within five minutes, for example because it dropped the callbacks when the activity stopped, the task faults with `TimeoutException`.
 - Code that blocks on the task from the UI thread, with `Wait()` or `Result`, now deadlocks because Android delivers the callbacks on the main thread. Await the task instead.
-- Another call for the same phone number within the native 120-second session window completes with the earlier call. A call for a different number cancels a still-pending earlier task.
-- A verification completed without a code, which in firebase-auth 23.x only happens for natively configured test numbers, completes the task, and the next sign-in or link call uses that credential once. Previously that credential was ignored.
+- A repeat call for a number that already received a code now sends a new code, using the native resend token. Previously the native SDK could reuse its session for that number and send nothing. A call for the same number while the previous call is still pending returns that call's task, and a call for a different number cancels a still-pending earlier task.
+- A verification completed without a code, which in firebase-auth 23.x only happens for natively configured test numbers, completes the task, and sign-in or link uses that credential. Previously that credential was ignored.
 
 ## Release notes
 - Next
   - Add email/password user reauthentication and user-level reload APIs.
   - Mark `ReloadCurrentUserAsync()` obsolete; use `CurrentUser.ReloadAsync()` after checking `CurrentUser` is not `null`.
-  - Android: `VerifyPhoneNumberAsync` completes when the code is sent, faults on verification failure, and faults with `TimeoutException` if the native SDK reports nothing within 120 seconds. See the migration notes above.
+  - Android: `VerifyPhoneNumberAsync` completes when the code is sent and faults on verification failure, or with `TimeoutException` if the native SDK reports nothing within five minutes. A repeat call for the same number sends a new code. See the migration notes above.
 - Version 5.0.1
   - Fix for wrong Core project version dependency at nuget.org
 - Version 5.0.0

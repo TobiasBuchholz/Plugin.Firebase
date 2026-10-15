@@ -7,28 +7,32 @@ namespace Plugin.Firebase.Auth.Platforms.Android.PhoneNumber;
 
 public sealed class PhoneNumberAuth
 {
-    private readonly PhoneNumberVerificationTracker<PhoneAuthCredential> _verifications = new();
+    private readonly PhoneNumberVerificationTracker<PhoneAuthCredential, PhoneAuthProvider.ForceResendingToken>
+        _verifications = new();
 
     public Task VerifyPhoneNumberAsync(Activity activity, string phoneNumber)
     {
-        return _verifications.Start(phoneNumber, session => {
-            // each request gets its own callbacks bound to the native session of its phone number
+        return _verifications.Start(phoneNumber, (request, resendToken) => {
+            // each request gets its own callbacks, bound to that request
             var callbacks = new PhoneVerificationStateChangeCallbacks(
-                onCodeSent: x => session.OnCodeSent(x.VerificationId),
-                onVerificationCompleted: session.OnVerificationCompleted,
+                onCodeSent: x => request.OnCodeSent(x.VerificationId, x.forceResendingToken),
+                onVerificationCompleted: request.OnVerificationCompleted,
                 onVerificationFailed: exception =>
-                    session.OnVerificationFailed(FirebaseAuthExceptionFactory.Create(exception)),
-                onCodeAutoRetrievalTimeOut: session.OnCodeAutoRetrievalTimeOut
+                    request.OnVerificationFailed(FirebaseAuthExceptionFactory.Create(exception)),
+                onCodeAutoRetrievalTimeOut: request.OnCodeAutoRetrievalTimeOut
             );
             var options = PhoneAuthOptions
                 .NewBuilder()
                 .SetPhoneNumber(phoneNumber)
                 .SetTimeout(Long.ValueOf(60), TimeUnit.Seconds!)
                 .SetActivity(activity)
-                .SetCallbacks(callbacks)
-                .Build();
+                .SetCallbacks(callbacks);
+            if(resendToken is not null) {
+                // with a resend token, native skips its per-number session reuse and starts a new verification
+                options.SetForceResendingToken(resendToken);
+            }
 
-            PhoneAuthProvider.VerifyPhoneNumber(options);
+            PhoneAuthProvider.VerifyPhoneNumber(options.Build());
         });
     }
 

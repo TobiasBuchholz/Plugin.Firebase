@@ -79,10 +79,10 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             when(createsUserAutomatically && ShouldAttemptCreateUser(e)) {
             // The account may not exist: ERROR_USER_NOT_FOUND, or ERROR_INVALID_CREDENTIAL when
             // email enumeration protection (the default) hides whether it exists. Try to create it.
-            // The sign-in error is rethrown when creation shows the account exists (collision) or
-            // that this project can't create accounts from the client (admin-restricted sign-up,
-            // operation not allowed). Any other creation failure, such as a weak password, an
-            // invalid email or a network error, is the actionable error and propagates.
+            // The sign-in error is rethrown when creation shows the account exists (email already in
+            // use) or that this project can't create accounts from the client (admin-restricted
+            // sign-up, operation not allowed). Any other creation failure, such as a weak password,
+            // an invalid email, a blocking function or a network error, propagates.
             try {
                 return await CreateUserAsync(email, password);
             } catch(CrossPlatformFirebaseAuthException createException)
@@ -236,8 +236,8 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
 
     public IFirebaseUser? CurrentUser => _firebaseAuth.CurrentUser?.ToAbstract();
 
-    // Codes are FirebaseAuthException.getErrorCode() values. Gate on the code, not the exception
-    // class: FirebaseAuthInvalidCredentialsException and FirebaseAuthInvalidUserException also carry
+    // Codes are FirebaseAuthException.getErrorCode() values. Both checks use codes, not exception
+    // classes: FirebaseAuthInvalidCredentialsException and FirebaseAuthInvalidUserException also carry
     // ERROR_WRONG_PASSWORD, ERROR_INVALID_EMAIL and ERROR_USER_DISABLED, which say nothing about a
     // missing account.
     private static bool ShouldAttemptCreateUser(CrossPlatformFirebaseAuthException exception)
@@ -249,10 +249,10 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
 
     private static bool ShouldRethrowSignInError(CrossPlatformFirebaseAuthException createException)
     {
-        return createException.NativeExceptionTypeName is FirebaseAuthAndroidExceptionTypeNames.UserCollisionException
-            || createException.NativeErrorCode is
-                "ERROR_ADMIN_RESTRICTED_OPERATION" or
-                "ERROR_OPERATION_NOT_ALLOWED";
+        return createException.NativeErrorCode is
+            "ERROR_EMAIL_ALREADY_IN_USE" or
+            "ERROR_ADMIN_RESTRICTED_OPERATION" or
+            "ERROR_OPERATION_NOT_ALLOWED";
     }
 
     private class AuthStateListener : Java.Lang.Object, FirebaseAuth.IAuthStateListener

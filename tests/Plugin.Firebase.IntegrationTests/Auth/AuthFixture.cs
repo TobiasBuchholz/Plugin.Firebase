@@ -59,9 +59,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
             string email,
             string requestType)
         {
-            var endpoint = IntegrationTestEnvironment.AuthEmulatorEndpoint;
-            var uri = $"http://{endpoint.Host}:{endpoint.Port}/emulator/v1/projects/{IntegrationTestEnvironment.ProjectId}/oobCodes";
-            using var document = JsonDocument.Parse(await HttpClient.GetStringAsync(uri));
+            using var document = JsonDocument.Parse(await HttpClient.GetStringAsync(GetAuthEmulatorProjectUri("oobCodes")));
 
             var link = document.RootElement
                 .GetProperty("oobCodes")
@@ -78,7 +76,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
 
         private static async Task<bool> GetAuthEmulatorImprovedEmailPrivacyAsync()
         {
-            using var document = JsonDocument.Parse(await HttpClient.GetStringAsync(GetAuthEmulatorConfigUri()));
+            using var document = JsonDocument.Parse(await HttpClient.GetStringAsync(GetAuthEmulatorProjectUri("config")));
             return ReadImprovedEmailPrivacy(document.RootElement);
         }
 
@@ -90,7 +88,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
                 ["emailPrivacyConfig"] = new JsonObject { ["enableImprovedEmailPrivacy"] = enabled }
             };
             using var content = new StringContent(body.ToJsonString(), Encoding.UTF8, "application/json");
-            using var response = await HttpClient.PatchAsync(GetAuthEmulatorConfigUri(), content);
+            using var response = await HttpClient.PatchAsync(GetAuthEmulatorProjectUri("config"), content);
             response.EnsureSuccessStatusCode();
 
             using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
@@ -107,10 +105,10 @@ namespace Plugin.Firebase.IntegrationTests.Auth
                 && enabled.GetBoolean();
         }
 
-        private static string GetAuthEmulatorConfigUri()
+        private static string GetAuthEmulatorProjectUri(string resource)
         {
             var endpoint = IntegrationTestEnvironment.AuthEmulatorEndpoint;
-            return $"http://{endpoint.Host}:{endpoint.Port}/emulator/v1/projects/{IntegrationTestEnvironment.ProjectId}/config";
+            return $"http://{endpoint.Host}:{endpoint.Port}/emulator/v1/projects/{IntegrationTestEnvironment.ProjectId}/{resource}";
         }
 
     }

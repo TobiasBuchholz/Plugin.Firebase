@@ -131,6 +131,8 @@ Native Firebase Auth failures are wrapped in `CrossPlatformFirebaseAuthException
 
 `FirebaseAuthErrorClassifier.TryClassify(...)` is an optional, best-effort helper for common failures such as invalid credentials, missing users, user collisions, weak passwords, recent-login requirements, and throttling. Call it explicitly in your app code when you want a simple cross-platform branch. When classification returns `null`, fall back to `NativeExceptionTypeName`, `NativeErrorDomain`, `NativeErrorCode`, `NativeErrorMessage`, or `InnerException`.
 
+With the default `createsUserAutomatically: true`, `SignInWithEmailAndPasswordAsync` can also throw account-creation errors, such as a weak password, when it tries to create an account for an email that has none.
+
 ```csharp
 public async Task<string?> SignInAsync(string email, string password)
 {
@@ -141,6 +143,7 @@ public async Task<string?> SignInAsync(string email, string password)
         return FirebaseAuthErrorClassifier.TryClassify(ex) switch {
             FirebaseAuthFailure.InvalidCredentials => "Invalid email or password.",
             FirebaseAuthFailure.UserNotFound => "No account exists for that email address.",
+            FirebaseAuthFailure.WeakPassword => "Choose a longer password.",
             FirebaseAuthFailure.TooManyRequests => "Too many attempts. Try again later.",
             _ => ex.NativeErrorMessage
         };
@@ -162,16 +165,20 @@ In v5:
 
 `SignInWithEmailAndPasswordAsync(email, password)` with `createsUserAutomatically: true` (the default) now reports why automatic account creation failed, instead of always throwing the sign-in error:
 
-- Creation is attempted when sign-in fails with `ERROR_USER_NOT_FOUND` or `ERROR_INVALID_CREDENTIAL` (Android) or `UserNotFound` or `InvalidCredential` (iOS). If creation then fails, its error is thrown, for example `ERROR_WEAK_PASSWORD` (Android) or `WeakPassword` (iOS), an invalid email, throttling or a network error. Previously these were replaced by the sign-in error. Code that only handles sign-in error codes should handle these too.
-- The sign-in error is still thrown when creation reports that the email is already in use, and also when the project doesn't allow creating accounts from the client: `ERROR_ADMIN_RESTRICTED_OPERATION` / `AdminRestrictedOperation` (for example, user sign-up disabled in Identity Platform) or `ERROR_OPERATION_NOT_ALLOWED` / `OperationNotAllowed`. Sign-in-only apps keep getting the sign-in error for a mistyped email.
+- Creation is attempted when sign-in fails with `ERROR_USER_NOT_FOUND` or `ERROR_INVALID_CREDENTIAL` (Android) or `UserNotFound` or `InvalidCredential` (iOS). If creation then fails, its error is thrown, for example `ERROR_WEAK_PASSWORD` (Android) or `WeakPassword` (iOS), an invalid email, throttling, a network error, or a sign-up rejected by a `beforeUserCreated` blocking function (an internal error on Android, `BlockingCloudFunctionError` on iOS). Previously these were replaced by the sign-in error. Code that only handles sign-in error codes should handle these too.
+- The sign-in error is still thrown when creation reports that the email is already in use, and also when the project doesn't allow creating accounts from the client: `ERROR_ADMIN_RESTRICTED_OPERATION` / `AdminRestrictedOperation` (for example, user sign-up disabled in Identity Platform) or `ERROR_OPERATION_NOT_ALLOWED` / `OperationNotAllowed`. Projects with client sign-up disabled therefore keep getting the sign-in error for a mistyped email.
 - On Android, creation is no longer attempted for other `FirebaseAuthInvalidCredentialsException` and `FirebaseAuthInvalidUserException` codes, such as `ERROR_WRONG_PASSWORD`, `ERROR_INVALID_EMAIL` and `ERROR_USER_DISABLED`. These are thrown directly, as on iOS, and a failed creation can no longer replace them.
-- The thrown error can show whether an email is registered: a too-short password can give a weak-password error for an unregistered email and the sign-in error for a registered one. `CreateUserAsync` already reveals this through its email-already-in-use error. With `createsUserAutomatically: false`, only the sign-in error is thrown.
+- The thrown error can show whether an email is registered. For example, on the Auth emulator, which checks for an existing account before the password length, a too-short password gives a weak-password error for an unregistered email and the sign-in error for a registered one. `CreateUserAsync` already reveals this through its email-already-in-use error.
+- Apps that only sign in existing users should pass `createsUserAutomatically: false`, so that only sign-in errors are thrown.
+
+On Android, `CrossPlatformFirebaseAuthException.NativeErrorCode` is now set in trimmed builds; Release builds trim by default. The code was read by reflection, which found nothing once trimming removed the binding's `FirebaseAuthException` type, so it was always `null` there.
 
 ## Release notes
 - Next
   - Add email/password user reauthentication and user-level reload APIs.
   - Mark `ReloadCurrentUserAsync()` obsolete; use `CurrentUser.ReloadAsync()` after checking `CurrentUser` is not `null`.
   - `SignInWithEmailAndPasswordAsync` with `createsUserAutomatically: true` now throws the account-creation error, such as a weak password, instead of the sign-in error, unless creation reports an existing account or disabled client sign-up (#704). The thrown error can therefore show whether an email is registered, as `CreateUserAsync` already can.
+  - Set `CrossPlatformFirebaseAuthException.NativeErrorCode` on Android in trimmed (Release) builds, where it was always `null`.
 - Version 5.0.1
   - Fix for wrong Core project version dependency at nuget.org
 - Version 5.0.0

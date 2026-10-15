@@ -97,7 +97,7 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             // Try to create it. The sign-in error is rethrown when creation shows the account exists
             // (EmailAlreadyInUse) or that this project can't create accounts from the client
             // (AdminRestrictedOperation, OperationNotAllowed). Any other creation failure, such as a
-            // weak password, an invalid email or a network error, is the actionable error and propagates.
+            // weak password, an invalid email, a blocking function or a network error, propagates.
             try {
                 return await CreateUserAsync(email, password);
             } catch(CrossPlatformFirebaseAuthException createException)

@@ -87,9 +87,9 @@ namespace Plugin.Firebase.IntegrationTests.Auth
             await sut.SignOutAsync();
 
             var improvedEmailPrivacy = await GetAuthEmulatorImprovedEmailPrivacyAsync();
-            await SetAuthEmulatorImprovedEmailPrivacyAsync(true);
             CrossPlatformFirebaseAuthException ex;
             try {
+                await SetAuthEmulatorImprovedEmailPrivacyAsync(true);
                 ex = await Assert.ThrowsAnyAsync<CrossPlatformFirebaseAuthException>(
                     () => sut.SignInWithEmailAndPasswordAsync(email, "000000")
                 );

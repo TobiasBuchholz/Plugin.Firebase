@@ -1,4 +1,5 @@
 using JavaThrowable = Java.Lang.Throwable;
+using NativeFirebaseAuthException = Firebase.Auth.FirebaseAuthException;
 using NativeFirebaseException = Firebase.FirebaseException;
 using Plugin.Firebase.Core.Exceptions;
 
@@ -53,12 +54,13 @@ internal static class FirebaseAuthExceptionFactory
             : canonicalName;
     }
 
+    // A static reference, not reflection: it keeps FirebaseAuthException, its ErrorCode getter and
+    // its Java type mapping in trimmed (Release) builds. Every Auth exception subclass then surfaces
+    // as at least this type, even when the subclass binding is trimmed away. Reflection found no
+    // ErrorCode property in trimmed builds, so the code was always null there.
     private static string? GetNativeErrorCode(Exception exception)
     {
-        var errorCode = exception
-            .GetType()
-            .GetProperty("ErrorCode")?
-            .GetValue(exception) as string;
+        var errorCode = (exception as NativeFirebaseAuthException)?.ErrorCode;
 
         return string.IsNullOrEmpty(errorCode)
             ? null

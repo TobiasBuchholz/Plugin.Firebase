@@ -112,6 +112,8 @@ public static class JavaObjectExtensions
                 return x.FloatValue().ConvertToTargetType(targetType);
             case Java.Lang.Long x:
                 return x.LongValue().ConvertToTargetType(targetType);
+            // Firestore reads return Timestamp, never java.util.Date. The case stays because ToObject is a public
+            // extension method, and callers can pass it a Date directly.
             case Date x:
                 return x.ToDateTimeOffset();
             case NativeFirebase.Timestamp x:

@@ -94,7 +94,7 @@ Since code should be documenting itself you can also take a look at the followin
 
 ## Next-release migration notes
 
-On Android, `DateTime` and `DateTimeOffset` values now convert directly to and from the native Firestore `Timestamp` instead of going through `java.util.Date`, so they keep their sub-millisecond precision as they already did on iOS. Firestore stores timestamps to the microsecond, and the native SDKs drop anything smaller.
+On Android, `DateTime` and `DateTimeOffset` values now convert directly to and from the native Firestore `Timestamp` instead of going through `java.util.Date`, so they keep the microseconds that Firestore stores. The native SDKs drop anything smaller than a microsecond. These notes cover Android only; iOS precision is addressed separately.
 
 - Writes keep microseconds. Previously Android truncated written dates to milliseconds.
 - Reads keep microseconds, including `FieldValue.ServerTimestamp()` values and values written from iOS or a backend. Previously Android truncated them to milliseconds, so a value read back was earlier than the stored one.

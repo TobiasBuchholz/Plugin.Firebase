@@ -24,11 +24,10 @@ internal static class TimestampConversion
     /// </returns>
     public static (long Seconds, int Nanoseconds) ToUnixSecondsAndNanoseconds(DateTimeOffset value)
     {
-        var (seconds, remainderTicks) = Math.DivRem(value.UtcTicks - UnixEpochTicks, TimeSpan.TicksPerSecond);
-        if(remainderTicks < 0) {
-            seconds -= 1;
-            remainderTicks += TimeSpan.TicksPerSecond;
-        }
+        // ToUnixTimeSeconds rounds down. UtcTicks is never negative and the epoch falls on a whole second, so the
+        // remainder is the tick count within that second.
+        var seconds = value.ToUnixTimeSeconds();
+        var remainderTicks = value.UtcTicks % TimeSpan.TicksPerSecond;
         return (seconds, (int) (remainderTicks * NanosecondsPerTick));
     }
 

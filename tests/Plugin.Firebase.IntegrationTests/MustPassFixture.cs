@@ -49,6 +49,25 @@ public class MustPassFixture
         }
     }
 
+    // CI passes TZ to the iOS app (SIMCTL_CHILD_TZ) so date tests run outside UTC. When TZ is set, check that .NET's
+    // local time zone follows it, so a run that silently stayed in UTC fails here. Without TZ the test only logs the
+    // time zone; the Android emulator's zone comes from -timezone instead, and the startup log shows it.
+    [Fact]
+    public void uses_the_time_zone_named_by_tz_when_it_is_set()
+    {
+        var tz = Environment.GetEnvironmentVariable("TZ");
+        var now = DateTimeOffset.UtcNow;
+        TestLog.Write($"[TIME ZONE] TZ={tz ?? "(unset)"}; local={TimeZoneInfo.Local.Id}; utcOffset={TimeZoneInfo.Local.GetUtcOffset(now)}");
+        if(string.IsNullOrEmpty(tz)) {
+            return;
+        }
+
+        Assert.True(
+            TimeZoneInfo.TryFindSystemTimeZoneById(tz, out var expected),
+            $"TZ={tz} doesn't name a time zone this runtime knows, so local time falls back to UTC.");
+        Assert.Equal(expected.GetUtcOffset(now), TimeZoneInfo.Local.GetUtcOffset(now));
+    }
+
     [RealFirebaseOptInFact(IntegrationTestEnvironment.RunAppCheckTokenTestsEnvironmentVariableName)]
     public async Task fetches_app_check_token_when_enabled_via_environment()
     {

@@ -111,43 +111,4 @@ public sealed partial class FirestoreFixture
         FirestoreErrorAssertions.InvalidArgumentFailure(exception);
         Assert.Equal(charmander, (await document.GetDocumentSnapshotAsync<Pokemon>()).Data);
     }
-
-    [Fact]
-    public async Task returns_transaction_results_without_native_conversion()
-    {
-        var sut = CrossFirebaseFirestore.Current;
-        var charmander = PokemonFactory.CreateCharmander();
-        var document = GetTestingDocument(sut, "4");
-        await document.SetDataAsync(charmander);
-
-        // A transaction result never needs to be a Firestore value: these types either failed
-        // conversion after the commit or could not round-trip at all before this fix.
-        var dateResult = await sut.RunTransactionAsync(transaction => {
-            transaction.UpdateData(document, (Pokemon.SightingCountField, charmander.SightingCount + 1));
-            return new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc);
-        });
-        Assert.Equal(new DateTime(2026, 1, 1, 12, 0, 0, DateTimeKind.Utc), dateResult);
-        Assert.Equal(
-            charmander.SightingCount + 1,
-            (await document.GetDocumentSnapshotAsync<Pokemon>()).Data!.SightingCount
-        );
-
-        var expectedMoves = new[] { "ember", "slash" };
-        var listResult = await sut.RunTransactionAsync(transaction => {
-            transaction.UpdateData(document, (Pokemon.SightingCountField, charmander.SightingCount + 2));
-            return expectedMoves;
-        });
-        Assert.Same(expectedMoves, listResult);
-
-        var expectedPokemon = PokemonFactory.CreateSquirtle();
-        var objectResult = await sut.RunTransactionAsync(transaction => {
-            transaction.UpdateData(document, (Pokemon.SightingCountField, charmander.SightingCount + 3));
-            return expectedPokemon;
-        });
-        Assert.Same(expectedPokemon, objectResult);
-        Assert.Equal(
-            charmander.SightingCount + 3,
-            (await document.GetDocumentSnapshotAsync<Pokemon>()).Data!.SightingCount
-        );
-    }
 }

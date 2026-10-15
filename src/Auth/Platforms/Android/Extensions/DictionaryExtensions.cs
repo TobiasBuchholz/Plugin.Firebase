@@ -1,6 +1,7 @@
 using System.Collections;
 using AndroidX.Collection;
 using Java.Util;
+using Plugin.Firebase.Auth.Internal;
 
 namespace Plugin.Firebase.Auth.Platforms.Android.Extensions;
 
@@ -164,9 +165,8 @@ public static class DictionaryExtensions
             return javaValue.ToObject(targetType);
         }
 
-        return targetType == typeof(object)
-            ? value
-            : Convert.ChangeType(value, Nullable.GetUnderlyingType(targetType) ?? targetType);
+        // JavaDictionary's enumerator hands back java.lang boxes and strings already converted to .NET values
+        return ClaimValueConverter.ToRequestedType(value, targetType);
     }
 
     private static Java.Lang.Object ConvertToJavaMapKey(object? key)

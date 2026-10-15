@@ -6,12 +6,55 @@ namespace Plugin.Firebase.Auth;
 public interface IAuthTokenResult
 {
     /// <summary>
-    /// Retrieves the claim casted to the generic type parameter. Nested JSON objects are returned as dictionaries, and
+    /// Retrieves the claim converted to the generic type parameter. Nested JSON objects are returned as dictionaries, and
     /// nested JSON arrays are returned as lists.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A numeric claim can be read as any numeric type (<see cref="sbyte"/> through <see cref="ulong"/>,
+    /// <see cref="float"/>, <see cref="double"/> and <see cref="decimal"/>), as an enum, or as a nullable form of
+    /// either.
+    /// </para>
+    /// <list type="bullet">
+    /// <item><description>
+    /// A fractional value read as an integral type or an enum truncates toward zero: 2.7 becomes 2 and -2.7 becomes -2.
+    /// The range check uses the value before truncation, so 2147483647.9 read as <see cref="int"/> or -0.5 read as
+    /// <see cref="uint"/> throws <see cref="OverflowException"/>.
+    /// </description></item>
+    /// <item><description>
+    /// A value outside the range of the requested type throws <see cref="OverflowException"/> instead of wrapping. An
+    /// enum is range checked against its underlying type, not against its defined members.
+    /// </description></item>
+    /// <item><description>
+    /// NaN and infinity throw <see cref="OverflowException"/> when read as an integral type, an enum or
+    /// <see cref="decimal"/>. A value that would round to infinity when read as <see cref="float"/> throws
+    /// <see cref="OverflowException"/>.
+    /// </description></item>
+    /// <item><description>
+    /// Claims are not coerced between JSON types. Reading a string or boolean claim as a numeric type or an enum, a
+    /// numeric or boolean claim as a <see cref="string"/>, a numeric claim as a <see cref="bool"/>, or any claim as
+    /// <see cref="char"/> throws <see cref="InvalidCastException"/>.
+    /// </description></item>
+    /// </list>
+    /// <para>
+    /// The elements of a requested list type follow the same rules.
+    /// </para>
+    /// <para>
+    /// A JSON <c>null</c> claim read as a non-nullable value type throws; currently that is a
+    /// <see cref="NullReferenceException"/>. If the token has no claim named <paramref name="key"/>, the call throws.
+    /// The exception type is platform-specific and not part of this contract: currently it is
+    /// <see cref="KeyNotFoundException"/> on Android and <see cref="NullReferenceException"/> on iOS.
+    /// </para>
+    /// </remarks>
     /// <param name="key">Key of the claim</param>
     /// <typeparam name="T">Type of the claim</typeparam>
-    /// <returns></returns>
+    /// <returns>The claim value converted to <typeparamref name="T"/>.</returns>
+    /// <exception cref="OverflowException">
+    /// The claim is numeric and its value doesn't fit <typeparamref name="T"/>.
+    /// </exception>
+    /// <exception cref="InvalidCastException">
+    /// The claim's JSON type doesn't match <typeparamref name="T"/>.
+    /// </exception>
     T GetClaim<T>(string key);
 
     /// <summary>

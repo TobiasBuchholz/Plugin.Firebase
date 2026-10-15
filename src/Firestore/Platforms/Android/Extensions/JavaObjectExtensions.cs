@@ -117,7 +117,8 @@ public static class JavaObjectExtensions
             case Date x:
                 return x.ToDateTimeOffset();
             case NativeFirebase.Timestamp x:
-                if(targetType == typeof(DateTime))
+                // DateTime? targets get a DateTime too: a boxed DateTimeOffset can't be assigned to them.
+                if(targetType.GetConversionType() == typeof(DateTime))
                     return x.ToDateTime();
                 else
                     return x.ToDateTimeOffset();

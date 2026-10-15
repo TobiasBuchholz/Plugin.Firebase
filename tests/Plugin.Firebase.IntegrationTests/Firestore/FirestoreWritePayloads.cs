@@ -54,3 +54,16 @@ internal sealed class DateTimeKindDocument : IFirestoreObject
     [FirestoreProperty(ObservedField)]
     public DateTime Observed { get; set; }
 }
+
+[Preserve(AllMembers = true)]
+internal sealed class NullableDateTimeDocument : IFirestoreObject
+{
+    internal const string ObservedField = "observed";
+    internal const string ObservedOffsetField = "observed_offset";
+
+    [FirestoreProperty(ObservedField)]
+    public DateTime? Observed { get; set; }
+
+    [FirestoreProperty(ObservedOffsetField)]
+    public DateTimeOffset? ObservedOffset { get; set; }
+}

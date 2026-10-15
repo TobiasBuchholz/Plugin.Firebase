@@ -90,6 +90,10 @@ public static class NSObjectExtensions
     /// <summary>
     /// Converts a native iOS NSObject to a .NET object.
     /// </summary>
+    /// <remarks>
+    /// A Firestore <see cref="Timestamp"/> becomes a UTC <see cref="DateTime"/> when <paramref name="targetType"/> is
+    /// <see cref="DateTime"/> or <c>DateTime?</c>, and a <see cref="DateTimeOffset"/> otherwise.
+    /// </remarks>
     /// <param name="this">The NSObject to convert.</param>
     /// <param name="targetType">Optional target type for the conversion.</param>
     /// <returns>The converted .NET object.</returns>
@@ -110,7 +114,8 @@ public static class NSObjectExtensions
             case global::Firebase.CloudFirestore.GeoPoint x:
                 return new GeoPoint(x.Latitude, x.Longitude);
             case Timestamp x:
-                if(targetType == typeof(DateTime))
+                // DateTime? targets get a DateTime too: a boxed DateTimeOffset can't be assigned to them.
+                if(targetType is not null && (Nullable.GetUnderlyingType(targetType) ?? targetType) == typeof(DateTime))
                     return x.ToDateTime();
                 else
                     return x.ToDateTimeOffset();

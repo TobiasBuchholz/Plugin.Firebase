@@ -2,9 +2,9 @@ using Plugin.Firebase.Firestore;
 
 namespace Plugin.Firebase.IntegrationTests.Firestore;
 
-// These tests pass in any device time zone. A Local value is built from the same instant as the Utc one, and an
-// Unspecified value must throw whatever the zone. In UTC both old behaviours stored Unspecified as the Utc instant, so
-// only a throw tells the new behaviour apart there.
+// DateTime values the Kind check rejects. These tests pass in any device time zone: an Unspecified value must throw
+// whatever the zone. In UTC both old behaviours stored Unspecified as the Utc instant, so only a throw tells the new
+// behaviour apart there. Accepted values are in FirestoreFixture.DateTimeKinds.RoundTrips.cs.
 public sealed partial class FirestoreFixture
 {
     private const string DateTimeKindField = DateTimeKindDocument.ObservedField;
@@ -98,64 +98,33 @@ public sealed partial class FirestoreFixture
         Assert.Null((await document.GetDocumentSnapshotAsync<Dictionary<string, object?>>(Source.Server)).Data);
     }
 
-    // Android only. iOS accepts the value too, but an existing iOS bug then fails the write: see the next test.
-    [AndroidFact]
-    public async Task writes_min_value_date_times_with_utc_kind()
+    [Fact]
+    public async Task rejects_unspecified_date_times_in_transaction_writes()
     {
         var sut = CrossFirebaseFirestore.Current;
-        var document = GetTestingDocument(sut, "utc-kind-min-value");
-
-        // The smallest instant a Firestore timestamp can hold.
-        await document.SetDataAsync(new DateTimeKindDocument {
-            Observed = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc)
+        var document = GetTestingDocument(sut, "unspecified-kind-transaction");
+        await document.SetDataAsync(new Dictionary<object, object?> {
+            { DateTimeKindField, UtcObservedAt }
         });
 
-        var raw = (await document.GetDocumentSnapshotAsync<Dictionary<string, object?>>(Source.Server)).Data!;
-        Assert.Equal(DateTimeOffset.MinValue, Assert.IsType<DateTimeOffset>(raw[DateTimeKindField]));
-    }
-
-    // Pins an existing iOS bug that the Kind check doesn't cause. Microsoft.iOS converts DateTime to NSDate through an
-    // NSCalendar Gregorian calendar, which uses Julian dates before 1582-10-15. That moves DateTime.MinValue two days
-    // earlier, below the smallest Firestore timestamp, so the native SDK rejects it. The native exception still shows
-    // that the Kind check let the value through. Once the conversion is fixed this test fails: delete it and run the
-    // test above on both platforms.
-    [IosFact]
-    public async Task utc_min_value_passes_the_kind_check_but_shifts_below_the_smallest_timestamp_on_ios()
-    {
-        var sut = CrossFirebaseFirestore.Current;
-        var document = GetTestingDocument(sut, "utc-kind-min-value-ios");
-
-        var exception = await Assert.ThrowsAnyAsync<Exception>(() => document.SetDataAsync(new DateTimeKindDocument {
-            Observed = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc)
+        var updateFailure = await Record.ExceptionAsync(() => sut.RunTransactionAsync<string?>(transaction => {
+            transaction.UpdateData(document, (DateTimeKindField, UnspecifiedObservedAt));
+            return null;
+        }));
+        var setFailure = await Record.ExceptionAsync(() => sut.RunTransactionAsync<string?>(transaction => {
+            transaction.SetData(document, new DateTimeKindDocument { Observed = UnspecifiedObservedAt });
+            return null;
         }));
 
-        Assert.IsNotType<ArgumentException>(exception);
-        // 0001-01-01 read as a Julian date: 172,800 s (two days) before the minimum of -62,135,596,800 s.
-        Assert.Contains("-62135769600", exception.Message);
-    }
-
-    [Fact]
-    public async Task round_trips_utc_and_local_date_times_to_the_same_instant()
-    {
-        var sut = CrossFirebaseFirestore.Current;
-        var local = UtcObservedAt.ToLocalTime();
-        var document = GetTestingDocument(sut, "utc-and-local-kinds");
-
-        await document.SetDataAsync(new Dictionary<object, object?> {
-            { "utc", UtcObservedAt },
-            { "local", local }
-        });
-
-        var raw = (await document.GetDocumentSnapshotAsync<Dictionary<string, object?>>(Source.Server)).Data!;
-        Assert.Equal(UtcObservedAt.Ticks, Assert.IsType<DateTimeOffset>(raw["utc"]).UtcTicks);
-        Assert.Equal(UtcObservedAt.Ticks, Assert.IsType<DateTimeOffset>(raw["local"]).UtcTicks);
-        var typed = (await document.GetDocumentSnapshotAsync<Dictionary<string, DateTime>>(Source.Server)).Data!;
-        Assert.Equal(DateTimeKind.Utc, typed["local"].Kind);
-        Assert.Equal(UtcObservedAt, typed["local"]);
-        var byLocalOperand = await GetTestingCollection(sut)
-            .WhereEqualsTo("utc", local)
-            .GetDocumentsAsync<Dictionary<string, object?>>(Source.Server);
-        Assert.Equal(document.Id, Assert.Single(byLocalOperand.Documents).Reference.Id);
+        // The conversion throws inside the update function, so the transaction fails like any other exception thrown
+        // there: the ArgumentException is the inner exception, and nothing is committed.
+        foreach(var failure in new[] { updateFailure, setFailure }) {
+            Assert.NotNull(failure);
+            var argumentException = Assert.IsType<ArgumentException>(failure.InnerException);
+            Assert.Contains("DateTime.SpecifyKind", argumentException.Message);
+        }
+        var stored = (await document.GetDocumentSnapshotAsync<Dictionary<string, DateTimeOffset>>(Source.Server)).Data!;
+        Assert.Equal(UtcObservedAt.Ticks, stored[DateTimeKindField].UtcTicks);
     }
 
     private static void RejectsUnspecifiedDateTimeKind(Func<object?> convert)

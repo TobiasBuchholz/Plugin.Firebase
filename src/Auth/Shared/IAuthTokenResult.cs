@@ -27,18 +27,23 @@ public interface IAuthTokenResult
     /// </description></item>
     /// <item><description>
     /// NaN and infinity throw <see cref="OverflowException"/> when read as an integral type, an enum or
-    /// <see cref="decimal"/>. A finite value beyond the range of <see cref="float"/> throws
-    /// <see cref="OverflowException"/> instead of becoming infinity.
+    /// <see cref="decimal"/>. A value that would round to infinity when read as <see cref="float"/> throws
+    /// <see cref="OverflowException"/>.
     /// </description></item>
     /// <item><description>
     /// Claims are not coerced between JSON types. Reading a string or boolean claim as a numeric type or an enum, a
-    /// numeric claim as a <see cref="string"/> or <see cref="bool"/>, or any claim as <see cref="char"/> throws
-    /// <see cref="InvalidCastException"/>.
+    /// numeric or boolean claim as a <see cref="string"/>, a numeric claim as a <see cref="bool"/>, or any claim as
+    /// <see cref="char"/> throws <see cref="InvalidCastException"/>.
     /// </description></item>
     /// </list>
     /// <para>
-    /// If the token has no claim named <paramref name="key"/>, the call throws <see cref="KeyNotFoundException"/> on
-    /// Android and <see cref="NullReferenceException"/> on iOS.
+    /// The elements of a requested list type follow the same rules.
+    /// </para>
+    /// <para>
+    /// A JSON <c>null</c> claim read as a non-nullable value type throws; currently that is a
+    /// <see cref="NullReferenceException"/>. If the token has no claim named <paramref name="key"/>, the call throws.
+    /// The exception type is platform-specific and not part of this contract: currently it is
+    /// <see cref="KeyNotFoundException"/> on Android and <see cref="NullReferenceException"/> on iOS.
     /// </para>
     /// </remarks>
     /// <param name="key">Key of the claim</param>

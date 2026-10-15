@@ -4,20 +4,21 @@ namespace Plugin.Firebase.Auth.Internal;
 
 /// <summary>
 /// Converts a scalar claim value, already read from the native token into its natural .NET type, into the type
-/// requested through <see cref="IAuthTokenResult.GetClaim{T}(string)"/>.
+/// requested through <see cref="IAuthTokenResult.GetClaim{T}(string)"/>, or into the element type of a requested list
+/// or dictionary.
 /// </summary>
 /// <remarks>
 /// A value that doesn't fit the target throws <see cref="OverflowException"/>; NaN and infinity only fit
 /// <see cref="float"/> and <see cref="double"/>. A fractional value read into an integral or enum type is range checked
-/// as it is and then truncated toward zero, so 2.7 becomes 2 but 2147483647.9 doesn't fit <see cref="int"/>. Strings
-/// and booleans are never coerced into numbers.
+/// as it is and then truncated toward zero, so 2.7 becomes 2 but 2147483647.9 doesn't fit <see cref="int"/>. Values
+/// are never coerced between JSON types: a mismatch throws <see cref="InvalidCastException"/>.
 /// </remarks>
 internal static class ClaimValueConverter
 {
     /// <summary>
-    /// Converts <paramref name="value"/> to <paramref name="targetType"/> when that type, or the type it makes
-    /// nullable, is numeric, an enum or <see cref="char"/>. For any other target the value is returned unchanged and
-    /// the caller's cast decides whether it fits.
+    /// Converts <paramref name="value"/> to <paramref name="targetType"/>. A numeric, enum or <see cref="char"/>
+    /// target, or a nullable one, gets a converted number. Any other target gets <paramref name="value"/> itself when
+    /// the value is already of that type.
     /// </summary>
     /// <param name="value">The claim value: a string, a bool, or a CLR integral or floating-point number.</param>
     /// <param name="targetType">The requested type, or null to keep the natural type.</param>
@@ -27,7 +28,8 @@ internal static class ClaimValueConverter
     /// or <see cref="decimal"/>.
     /// </exception>
     /// <exception cref="InvalidCastException">
-    /// The value isn't a number but the target is numeric or an enum, or the target is <see cref="char"/>.
+    /// The value isn't a number but the target is numeric or an enum, the target is <see cref="char"/>, or the target
+    /// is any other type the value isn't an instance of.
     /// </exception>
     public static object ToRequestedType(object value, Type? targetType)
     {
@@ -42,7 +44,12 @@ internal static class ClaimValueConverter
             return Enum.ToObject(conversionType, number);
         }
 
-        return IsNumeric(conversionType) ? ToNumber(value, conversionType, targetType) : value;
+        if(IsNumeric(conversionType)) {
+            return ToNumber(value, conversionType, targetType);
+        }
+
+        // checked here rather than left to the caller's cast, so list elements and dictionary values fail the same way
+        return conversionType.IsInstanceOfType(value) ? value : throw Mismatch(value, targetType);
     }
 
     private static bool IsNumeric(Type type)
@@ -75,16 +82,12 @@ internal static class ClaimValueConverter
 
         try {
             switch(value) {
-                case sbyte or short or int or long:
-                    return FromInt64(Convert.ToInt64(value, CultureInfo.InvariantCulture), typeCode);
-                case byte or ushort or uint or ulong:
-                    return FromUInt64(Convert.ToUInt64(value, CultureInfo.InvariantCulture), typeCode);
+                case sbyte or short or int or long or byte or ushort or uint or ulong:
+                    return FromInteger(value, typeCode);
                 case float or double:
                     return FromDouble(Convert.ToDouble(value, CultureInfo.InvariantCulture), typeCode);
                 default:
-                    throw new InvalidCastException(
-                        $"Can't read a claim of type {value.GetType()} as {targetType}."
-                    );
+                    throw Mismatch(value, targetType);
             }
         } catch(OverflowException e) {
             throw new OverflowException(
@@ -94,61 +97,33 @@ internal static class ClaimValueConverter
         }
     }
 
-    private static object FromInt64(long value, TypeCode target)
+    private static object FromInteger(object value, TypeCode target)
     {
+        // Only integers get here, so Convert never parses or rounds: it either converts exactly or throws
+        // OverflowException because the value is out of range.
         switch(target) {
             case TypeCode.SByte:
-                return checked((sbyte) value);
+                return Convert.ToSByte(value, CultureInfo.InvariantCulture);
             case TypeCode.Byte:
-                return checked((byte) value);
+                return Convert.ToByte(value, CultureInfo.InvariantCulture);
             case TypeCode.Int16:
-                return checked((short) value);
+                return Convert.ToInt16(value, CultureInfo.InvariantCulture);
             case TypeCode.UInt16:
-                return checked((ushort) value);
+                return Convert.ToUInt16(value, CultureInfo.InvariantCulture);
             case TypeCode.Int32:
-                return checked((int) value);
+                return Convert.ToInt32(value, CultureInfo.InvariantCulture);
             case TypeCode.UInt32:
-                return checked((uint) value);
+                return Convert.ToUInt32(value, CultureInfo.InvariantCulture);
             case TypeCode.Int64:
-                return value;
+                return Convert.ToInt64(value, CultureInfo.InvariantCulture);
             case TypeCode.UInt64:
-                return checked((ulong) value);
+                return Convert.ToUInt64(value, CultureInfo.InvariantCulture);
             case TypeCode.Single:
-                return (float) value;
+                return Convert.ToSingle(value, CultureInfo.InvariantCulture);
             case TypeCode.Double:
-                return (double) value;
+                return Convert.ToDouble(value, CultureInfo.InvariantCulture);
             case TypeCode.Decimal:
-                return (decimal) value;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(target), target, null);
-        }
-    }
-
-    private static object FromUInt64(ulong value, TypeCode target)
-    {
-        switch(target) {
-            case TypeCode.SByte:
-                return checked((sbyte) value);
-            case TypeCode.Byte:
-                return checked((byte) value);
-            case TypeCode.Int16:
-                return checked((short) value);
-            case TypeCode.UInt16:
-                return checked((ushort) value);
-            case TypeCode.Int32:
-                return checked((int) value);
-            case TypeCode.UInt32:
-                return checked((uint) value);
-            case TypeCode.Int64:
-                return checked((long) value);
-            case TypeCode.UInt64:
-                return value;
-            case TypeCode.Single:
-                return (float) value;
-            case TypeCode.Double:
-                return (double) value;
-            case TypeCode.Decimal:
-                return (decimal) value;
+                return Convert.ToDecimal(value, CultureInfo.InvariantCulture);
             default:
                 throw new ArgumentOutOfRangeException(nameof(target), target, null);
         }
@@ -160,25 +135,25 @@ internal static class ClaimValueConverter
         // CustomClassMapper does. A checked cast alone would truncate first and accept 2147483647.9 as int.MaxValue.
         switch(target) {
             case TypeCode.SByte:
-                return checked((sbyte) InRange(value, sbyte.MinValue, sbyte.MaxValue));
+                return (sbyte) InRange(value, sbyte.MinValue, sbyte.MaxValue);
             case TypeCode.Byte:
-                return checked((byte) InRange(value, byte.MinValue, byte.MaxValue));
+                return (byte) InRange(value, byte.MinValue, byte.MaxValue);
             case TypeCode.Int16:
-                return checked((short) InRange(value, short.MinValue, short.MaxValue));
+                return (short) InRange(value, short.MinValue, short.MaxValue);
             case TypeCode.UInt16:
-                return checked((ushort) InRange(value, ushort.MinValue, ushort.MaxValue));
+                return (ushort) InRange(value, ushort.MinValue, ushort.MaxValue);
             case TypeCode.Int32:
-                return checked((int) InRange(value, int.MinValue, int.MaxValue));
+                return (int) InRange(value, int.MinValue, int.MaxValue);
             case TypeCode.UInt32:
-                return checked((uint) InRange(value, uint.MinValue, uint.MaxValue));
+                return (uint) InRange(value, uint.MinValue, uint.MaxValue);
             case TypeCode.Int64:
                 // (double) long.MaxValue rounds up to 2^63, which doesn't fit, so the upper bound is exclusive
-                return checked((long) InRange(value, -9223372036854775808.0, 9223372036854775808.0, maxIsExclusive: true));
+                return (long) InRange(value, -9223372036854775808.0, 9223372036854775808.0, maxIsExclusive: true);
             case TypeCode.UInt64:
                 // (double) ulong.MaxValue rounds up to 2^64, which doesn't fit, so the upper bound is exclusive
-                return checked((ulong) InRange(value, 0.0, 18446744073709551616.0, maxIsExclusive: true));
+                return (ulong) InRange(value, 0.0, 18446744073709551616.0, maxIsExclusive: true);
             case TypeCode.Single:
-                // the cast itself never throws: it turns a finite value beyond the float range into infinity
+                // the cast never throws: a finite value that would round to infinity has to be caught here
                 var single = (float) value;
                 if(float.IsInfinity(single) && double.IsFinite(value)) {
                     throw new OverflowException();
@@ -196,11 +171,17 @@ internal static class ClaimValueConverter
 
     private static double InRange(double value, double min, double max, bool maxIsExclusive = false)
     {
-        // NaN fails every comparison, so it throws along with infinity and out-of-range values
+        // NaN fails every comparison, so it throws along with infinity and out-of-range values. Once the value is in
+        // range, the plain cast that follows truncates toward zero and can't overflow.
         var fits = value >= min && (maxIsExclusive ? value < max : value <= max);
         if(!fits) {
             throw new OverflowException();
         }
         return value;
+    }
+
+    private static InvalidCastException Mismatch(object value, Type targetType)
+    {
+        return new InvalidCastException($"Can't read a claim of type {value.GetType()} as {targetType}.");
     }
 }

@@ -91,6 +91,12 @@ namespace Plugin.Firebase.IntegrationTests.Auth
             Assert.Throws<InvalidCastException>(() => result.GetClaim<long>("numeric_text"));
             Assert.Throws<InvalidCastException>(() => result.GetClaim<string>("score"));
             Assert.Throws<InvalidCastException>(() => result.GetClaim<bool>("score"));
+            Assert.Throws<InvalidCastException>(() => result.GetClaim<string>("flag"));
+
+            // list elements follow the same rules
+            Assert.Equal([7L, 300L], result.GetClaim<List<long>>("levels"));
+            Assert.Throws<OverflowException>(() => result.GetClaim<List<byte>>("levels"));
+            Assert.Throws<InvalidCastException>(() => result.GetClaim<List<string>>("levels"));
         }
 
 

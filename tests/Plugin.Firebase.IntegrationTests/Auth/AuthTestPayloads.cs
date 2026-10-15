@@ -24,6 +24,7 @@ internal static class AuthTestPayloads
             ["ratio"] = 1.5,
             ["flag"] = true,
             ["numeric_text"] = "123",
+            ["levels"] = new[] { 7, 300 },
         };
     }
 

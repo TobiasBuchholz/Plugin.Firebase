@@ -22,7 +22,8 @@ public static class NSObjectExtensions
     /// <exception cref="ArgumentException">Thrown when the NSObject type is not supported for conversion.</exception>
     /// <exception cref="OverflowException">Thrown when a number doesn't fit the numeric or enum target type.</exception>
     /// <exception cref="InvalidCastException">
-    /// Thrown when a string or boolean is read as a numeric or enum type, or any value is read as <see cref="char"/>.
+    /// Thrown when a string, number or boolean is read as a type that doesn't match it, for example a string or boolean
+    /// as a number or a number as <see cref="string"/>, or when any value is read as <see cref="char"/>.
     /// </exception>
     public static object? ToObject(this NSObject @this, Type? targetType = null)
     {
@@ -53,8 +54,8 @@ public static class NSObjectExtensions
     /// A boolean NSNumber (a CFBoolean, which is what JSON <c>true</c> and <c>false</c> parse to) converts to
     /// <see cref="bool"/> and is never read as a number. Any other NSNumber converts to a numeric or enum target
     /// without wrapping: fractional values truncate toward zero, and values that don't fit throw
-    /// <see cref="OverflowException"/>. For any other target the number is returned as a long, ulong or double, so a
-    /// cast to an unrelated type such as <see cref="string"/> or <see cref="bool"/> fails.
+    /// <see cref="OverflowException"/>. A number read as a type it doesn't match, such as <see cref="string"/> or
+    /// <see cref="bool"/>, throws <see cref="InvalidCastException"/>.
     /// </remarks>
     /// <param name="this">The NSNumber to convert.</param>
     /// <param name="targetType">The optional target type for the conversion. Without one the number keeps its natural .NET type.</param>
@@ -64,24 +65,26 @@ public static class NSObjectExtensions
     /// or <see cref="decimal"/>.
     /// </exception>
     /// <exception cref="InvalidCastException">
-    /// The NSNumber is a boolean and the target is numeric or an enum, or the target is <see cref="char"/>.
+    /// The NSNumber is read as a type it doesn't match: a boolean as a number or string, a number as a type such as
+    /// <see cref="string"/> or <see cref="bool"/>, or either as <see cref="char"/>.
     /// </exception>
     public static object? ToObject(this NSNumber @this, Type? targetType = null)
     {
-        if(@this.IsBoolean()) {
+        var objCType = @this.ObjCType;
+        if(IsBoolean(@this, objCType)) {
             return ClaimValueConverter.ToRequestedType(@this.BoolValue, targetType);
         }
 
         if(targetType == null || targetType == typeof(object)) {
-            return @this.ToUntypedObject();
+            return ToUntypedObject(@this, objCType);
         }
 
-        return ClaimValueConverter.ToRequestedType(@this.ToWidenedValue(), targetType);
+        return ClaimValueConverter.ToRequestedType(ToWidenedValue(@this, objCType), targetType);
     }
 
-    private static bool IsBoolean(this NSNumber @this)
+    private static bool IsBoolean(NSNumber number, string? objCType)
     {
-        return @this.ObjCType == "B" || CFType.GetTypeID(@this.Handle) == BooleanTypeId;
+        return objCType == "B" || CFType.GetTypeID(number.Handle) == BooleanTypeId;
     }
 
     [DllImport(Constants.CoreFoundationLibrary)]
@@ -91,9 +94,9 @@ public static class NSObjectExtensions
     /// Reads the stored value as long, ulong or double, which hold every value of the NSNumber's ObjCType, so the
     /// conversion to the requested type range checks it instead of a narrower NSNumber accessor wrapping it.
     /// </summary>
-    private static object ToWidenedValue(this NSNumber @this)
+    private static object ToWidenedValue(NSNumber @this, string? objCType)
     {
-        switch(@this.ObjCType) {
+        switch(objCType) {
             case "f":
             case "d":
                 return @this.DoubleValue;
@@ -108,9 +111,9 @@ public static class NSObjectExtensions
         }
     }
 
-    private static object ToUntypedObject(this NSNumber @this)
+    private static object ToUntypedObject(NSNumber @this, string? objCType)
     {
-        switch(@this.ObjCType) {
+        switch(objCType) {
             case "c":
                 return @this.SByteValue;
             case "C":

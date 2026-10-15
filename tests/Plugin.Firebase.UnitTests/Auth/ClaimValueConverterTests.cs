@@ -94,6 +94,8 @@ public class ClaimValueConverterTests
         { -2.7, typeof(decimal), -2.7m },
         { ulong.MaxValue, typeof(decimal), 18446744073709551615m },
         { (double) float.MaxValue, typeof(float), float.MaxValue },
+        // just above float.MaxValue, but below the point where the cast rounds to infinity
+        { 3.4028235e38, typeof(float), float.MaxValue },
         { double.NaN, typeof(double), double.NaN },
         { double.PositiveInfinity, typeof(double), double.PositiveInfinity },
         { double.NegativeInfinity, typeof(float), float.NegativeInfinity },
@@ -174,6 +176,9 @@ public class ClaimValueConverterTests
         { double.NaN, typeof(ByteLevel) },
 
         // float and decimal ranges
+        // the first values that round to infinity
+        { 3.4028236e38, typeof(float) },
+        { -3.4028236e38, typeof(float) },
         { 1e39, typeof(float) },
         { -1e39, typeof(float) },
         { double.MaxValue, typeof(float) },
@@ -216,22 +221,34 @@ public class ClaimValueConverterTests
 
         // anything else that isn't a number
         { DateTimeOffset.UnixEpoch, typeof(long) },
+
+        // numbers and booleans are never turned into strings, and numbers and strings never into booleans
+        { 7L, typeof(string) },
+        { 1.5, typeof(string) },
+        { true, typeof(string) },
+        { 7L, typeof(bool) },
+        { 1.5, typeof(bool?) },
+        { "true", typeof(bool) },
+
+        // nor into any other type they aren't
+        { 7L, typeof(DateTimeOffset) },
+        { "text", typeof(DateTimeOffset?) },
+        { "text", typeof(Uri) },
     };
 
     public static TheoryData<object, Type?> PassThroughValues => new() {
         { "text", typeof(string) },
         { "123", typeof(string) },
         { "123", null },
+        { "text", typeof(object) },
         { true, typeof(bool) },
         { false, typeof(bool?) },
         { true, null },
+        { true, typeof(object) },
         { 7L, typeof(object) },
+        { 7L, typeof(IComparable) },
         { 7, null },
         { 1.5, null },
-        // mismatched non-numeric targets are left for the caller's cast to reject
-        { 7L, typeof(string) },
-        { 1.5, typeof(bool) },
-        { true, typeof(string) },
     };
 
     [Theory]
@@ -260,7 +277,7 @@ public class ClaimValueConverterTests
 
     [Theory]
     [MemberData(nameof(PassThroughValues))]
-    public void returns_value_unchanged_for_non_numeric_target(object value, Type? targetType)
+    public void returns_value_unchanged_when_it_already_has_the_requested_type(object value, Type? targetType)
     {
         Assert.Same(value, ClaimValueConverter.ToRequestedType(value, targetType));
     }

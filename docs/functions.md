@@ -31,7 +31,18 @@ Since code should be documenting itself you can also take a look at the followin
 
 `IHttpsCallable.CallAsync(dataJson)` now sends any JSON value as the request data, as the callable protocol allows: an object, array, string, number, boolean or `null`. Previously Android rejected top-level arrays, strings, numbers and booleans, and iOS rejected top-level strings, numbers, booleans and `null`.
 
-On Android, `dataJson` is now parsed as strict JSON, as iOS already did. Non-standard input that Gson's lenient mode used to accept, such as unquoted or single-quoted names and strings, comments, or `NaN`, now throws Gson's `JsonSyntaxException` before the request is sent. iOS throws a `FirebaseException` for the same input. Pass standard JSON, for example by building it with `System.Text.Json`.
+On Android, `dataJson` is now parsed as strict JSON, as iOS already did. Input that Gson's lenient mode used to accept now throws Gson's `JsonSyntaxException` before the request is sent. iOS already threw a `FirebaseException` for the same input. Affected input includes:
+
+- Raw control characters inside a string, such as a literal line break or tab in a hand-built `{"note":"..."}` payload. This is the most likely breakage. Gson reports `Unescaped control characters`; write them as `\n` or `\t` instead.
+- Unquoted or single-quoted names and strings, such as `{key:'value'}`.
+- Comments, and `NaN` used as a value.
+
+Pass standard JSON, for example by building it with `System.Text.Json`, which escapes control characters.
+
+Android and iOS still handle a few inputs differently:
+
+- When an object repeats a name, Android keeps the last value and iOS keeps the first. Previously Android threw for a repeated top-level name.
+- On Android, an empty or whitespace-only `dataJson`, or `null` followed by other text, is still sent as `null`. iOS throws.
 
 ## Release notes
 - Version 4.0.0

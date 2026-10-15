@@ -22,8 +22,14 @@ namespace Plugin.Firebase.IntegrationTests.AppCheck
         {
             // The native SDK reads the provider factory only when the default app is configured. The harness never
             // configures DeviceCheck or AppAttest before CrossFirebase.Initialize(), so both would change the provider.
-            Assert.Throws<InvalidOperationException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.DeviceCheck));
+            var exception = Assert.Throws<InvalidOperationException>(
+                () => CrossFirebaseAppCheck.Configure(AppCheckOptions.DeviceCheck));
             Assert.Throws<InvalidOperationException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.AppAttest));
+
+            // Names the provider the plugin recorded when it configured the default app.
+            Assert.Contains(
+                $"from the '{FirebaseTestHost.LaunchAppCheckOptions.Provider}' provider",
+                exception.Message);
         }
 
         [IosFact]
@@ -31,6 +37,7 @@ namespace Plugin.Firebase.IntegrationTests.AppCheck
         {
             var provider = FirebaseTestHost.LaunchAppCheckOptions.Provider;
 
+            // Only a provider the plugin recorded as installed is a no-op; an unrecorded one throws for every provider.
             CrossFirebaseAppCheck.Configure(new AppCheckOptions(provider));
 
             // A new instance still sees the provider installed before initialization.

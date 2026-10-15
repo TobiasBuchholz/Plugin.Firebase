@@ -42,8 +42,9 @@ public sealed class CrossFirebaseAppCheck
     /// <remarks>
     /// Call this before <c>CrossFirebase.Initialize()</c>. On Android, a later call installs the provider factory
     /// right away. On iOS, the native SDK reads the provider factory only when Firebase configures an app, so after
-    /// the default app is configured, configuring the provider already in effect does nothing and any other provider
-    /// throws.
+    /// the default app is configured, configuring the provider the plugin installed does nothing. Any other provider
+    /// throws, and so does every provider when the plugin installed none, because the native default
+    /// (<c>DeviceCheck</c>) or a factory the app set natively may be in effect.
     /// </remarks>
     /// <param name="options">The AppCheck options to apply.</param>
     /// <exception cref="NotSupportedException">
@@ -52,8 +53,9 @@ public sealed class CrossFirebaseAppCheck
     /// <exception cref="InvalidOperationException">
     /// On Android, <paramref name="options"/> is <see cref="AppCheckOptions.Disabled"/> while a provider factory is
     /// installed on the default Firebase app. The native SDK cannot remove an installed provider factory.
-    /// On iOS, the default Firebase app is already configured and <paramref name="options"/> selects a provider other
-    /// than the one in effect. The native SDK reads the provider factory only when <c>FirebaseApp.configure()</c> runs.
+    /// On iOS, the default Firebase app is already configured, and <paramref name="options"/> selects a provider other
+    /// than the one the plugin installed, or the plugin installed none. The native SDK reads the provider factory only
+    /// when <c>FirebaseApp.configure()</c> runs.
     /// </exception>
     public static void Configure(AppCheckOptions options)
     {
@@ -80,6 +82,9 @@ public sealed class CrossFirebaseAppCheck
     /// On Android, the configured provider is kept, because it belongs to the default Firebase app and an installed
     /// provider factory cannot be removed. To drop a provider before the first <c>CrossFirebase.Initialize()</c>,
     /// configure <see cref="AppCheckOptions.Disabled"/> instead.
+    /// On iOS, disposing before <c>CrossFirebase.Initialize()</c> drops a provider configured through the current
+    /// instance, so the native default (<c>DeviceCheck</c>) applies unless App Check is configured again. After
+    /// initialization, the provider in effect is kept.
     /// </remarks>
     public static void Dispose()
     {

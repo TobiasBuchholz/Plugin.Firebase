@@ -93,16 +93,26 @@ stored value with the same rules on both platforms:
   becoming infinity.
 - A stored NaN or infinity read into an integral, enum or `decimal` property throws an
   `OverflowException`. `float` and `double` properties keep it.
-- An enum is range checked against its underlying type. A value in that range that isn't a named
-  member still converts, as with a cast in C#.
+- An enum is range checked against its underlying type, so a value that doesn't fit throws an
+  `OverflowException`: `300` or `-1` for a `byte`-backed enum, `2147483648` for an `int`-backed
+  one, and `-1` for a `uint`- or `ulong`-backed one. A value in that range that isn't a named
+  member still converts, as with a cast in C#, and so does a combination of `[Flags]` members. A
+  fractional value is range checked as stored and then truncated, as for integral properties, so
+  `2.7` gives the member with value `2` and `255.5` doesn't fit a `byte`-backed enum. Nullable
+  enums, enum list elements and enum dictionary values follow the same rules.
 - `decimal` and `decimal?` properties are supported.
 - `char` properties convert with `Convert.ChangeType`. A conversion that has no meaning at all
   throws an `InvalidCastException`, for example a fractional value read into a `char`.
 
 ```c#
-// "quantity" holds 300 in Firestore
+public enum Level : byte { Low = 1, High = 2 }
+
+// "quantity" and "level" hold 300 in Firestore
 [FirestoreProperty("quantity")]
 public byte Quantity { get; private set; } // throws OverflowException on read
+
+[FirestoreProperty("level")]
+public Level SkillLevel { get; private set; } // throws OverflowException on read
 ```
 
 Conversion happens when you read `snapshot.Data`, not when the snapshot arrives, so guard that
@@ -142,13 +152,22 @@ with Plugin.Firebase.Firestore 4.0.0:
   fractional value read into an integral property other than `int` threw `ArgumentException`;
   it now converts.
 - Enum properties are range checked against their underlying type on both platforms, so a value
-  that doesn't fit throws `OverflowException`.
+  that doesn't fit throws `OverflowException`. Before, iOS wrapped it silently, so a stored `300`
+  read into a `byte`-backed enum gave `(Level) 44`. Android threw `ArgumentException` for enums
+  that aren't `long`-backed, whether in a model property, a list or a dictionary; values in range
+  now read.
 - Android wrote `uint`-backed enum values above `int.MaxValue`, and `ulong`-backed values above
   `long.MaxValue`, as negative numbers when they went through update, list, query or
   transaction-result writes. This release fixes those writes but can't repair values already
   stored, which don't fit the enum and now fail to read on both platforms. To recover, read the
   document as a `Dictionary<string, object>`, convert the stored `long` with
   `unchecked((uint) value)` or `unchecked((ulong) value)`, and write the field back.
+- iOS read those wrapped values back as the original member, because its enum reads wrapped too,
+  so documents written on Android round-tripped there. They now throw on iOS as well. Writing a
+  field back as described above stores the actual value only when this release also includes the
+  Android enum write fix (#747). Write a list field back whole: `FieldValue.ArrayUnion` adds the
+  corrected element next to the wrapped one instead of replacing it, and `FieldValue.ArrayRemove`
+  with the enum value doesn't match the wrapped element.
 - A stored NaN or infinity read into an integral, enum or `decimal` property throws
   `OverflowException`, and so does a double too large for a `float` property.
 - On iOS, `char` properties read the stored number through a byte, so values above 255 wrapped.

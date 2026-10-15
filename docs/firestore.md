@@ -84,6 +84,7 @@ same way wherever they are written: model properties, dictionary values, list el
 | `decimal` | Not supported. Throws `ArgumentException`, because Firestore has no decimal type. |
 | `char` | Not supported. Throws `ArgumentException`, because Firestore has no character type. |
 | `nint`, `nuint`, `Half`, `Int128`, `UInt128`, `BigInteger` | Not supported. Throws `ArgumentException`. |
+| `byte[]`, `sbyte[]` | Not supported. Throws `ArgumentException`, because this API doesn't map Firestore bytes (Blob) values. |
 
 Nullable forms follow the rules of their underlying type, and `null` is stored as a Firestore null. To store an
 unsupported value, convert it explicitly first, for example `(double) price`.
@@ -123,7 +124,7 @@ Numeric writes follow one set of rules on both platforms (see [Writing numbers](
 - On Android, enums in update data, lists, array unions, query operands and transaction results were converted with wrapping casts: a `uint`-backed enum above `int.MaxValue` became a negative number, and `byte`-, `sbyte`-, `short`- and `ushort`-backed enums failed. They now keep their actual value.
 - On iOS, `byte`- and `sbyte`-backed enums were stored as booleans. They are now stored as integers.
 
-Because of the last two changes, equality queries for those enum values won't match documents that earlier versions wrote with the wrapped or boolean value. Rewrite the affected documents if you query on those fields.
+Because of the last two changes, anything that compares those enum values with documents that earlier versions wrote with the wrapped or boolean value stops matching them: `WhereEqualsTo`, `WhereFieldIn`, `WhereArrayContains` and `WhereArrayContainsAny` filters, range filters such as `WhereGreaterThan`, and cursors such as `StartingAt`. `FieldValue.ArrayRemove` won't remove the old elements, and `OrderBy` places the old values elsewhere in the order, because wrapped values are negative and booleans sort before all numbers. Rewrite the affected documents if you query, order or remove on those fields.
 
 ## Release notes
 - Version 3.1.3

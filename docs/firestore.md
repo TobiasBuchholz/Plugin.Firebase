@@ -131,7 +131,10 @@ update function would commit only the writes made before its first `await`. `Run
 `ArgumentException` before the transaction starts when `TResult` is `Task`, `ValueTask` or `ValueTask<T>`, which the
 compiler infers for an `async` lambda. If the update function returns a task through another `TResult`, such as
 `object`, the transaction is aborted without committing and `RunTransactionAsync` throws that `ArgumentException`.
-Do asynchronous work before or after the transaction.
+The code after the first `await` of such an update function still runs, outside the transaction: its writes are
+silently discarded, and an exception it throws is never observed. Custom task-like types and awaitables such as
+`ConfiguredTaskAwaitable` aren't detected, so don't return those either. Do asynchronous work before or after the
+transaction.
 
 `RunTransactionAsync` returns the value that the update function returned in the attempt that committed, as-is: the
 same instance, never converted to or from a Firestore value. A lazily evaluated result, such as a LINQ query over
@@ -167,9 +170,9 @@ On iOS, `RunTransactionAsync` now also retries the transaction after a retryable
 `RunTransactionAsync` now returns the update function's result as-is on both platforms, instead of converting it to a native value inside the transaction and back to `TResult` after the commit:
 
 - The result is the same instance that the update function returned. It's no longer deep-copied or normalized through `NSNumber`, `java.lang.Integer` and the other native types. For example, `RunTransactionAsync<object>(_ => 5)` used to return the number as read back from the native value, `RunTransactionAsync<object>(_ => DateTime.UtcNow)` returned a `DateTimeOffset`, and an `IFirestoreObject` came back as a new instance without its `[FirestoreDocumentId]` value.
-- Results that the conversion couldn't handle now work. A `DateTime` or array `TResult` used to throw after the writes had been committed, and results such as records, tuples or `HashSet<T>` used to abort the transaction.
+- Results that the conversion couldn't handle now work. A `DateTime` or array `TResult` used to throw after the writes had been committed. Results such as records, tuples or `HashSet<T>` made the conversion fail inside the update function, which aborted the transaction on Android; on iOS the writes were committed and `RunTransactionAsync` threw afterwards.
 - A lazily evaluated result, such as a LINQ query, is returned as-is too, so it's enumerated only after the transaction has finished. Materialize it inside the update function, for example with `ToList()`, if it reads from the transaction.
-- An `async` update function, or one that returns a task through an `object` result, now makes `RunTransactionAsync` throw `ArgumentException` without committing (see [Error handling](#error-handling)). Previously the conversion rejected the task inside the update function, so the transaction was aborted with a `FirebaseException` whose `InnerException` was an `ArgumentException`.
+- An `async` update function, or one that returns a task through an `object` result, now makes `RunTransactionAsync` throw `ArgumentException` without committing (see [Error handling](#error-handling)). Previously the conversion failed on the task inside the update function. On Android that aborted the transaction, and `RunTransactionAsync` threw the native task's `Java.Lang.RuntimeException`. On iOS the failure didn't abort the transaction, so the writes made before the first `await` were committed, and `RunTransactionAsync` then threw a `FirebaseException` carrying the conversion error's message.
 - On Android, `Plugin.Firebase.Firestore.Platforms.Android.TransactionFunction<TResult>` is now internal. It was an implementation detail of `RunTransactionAsync`; call `RunTransactionAsync` instead.
 
 ## Release notes

@@ -68,7 +68,16 @@ public interface IFirebaseFirestore : IDisposable
     /// <see cref="ArgumentException"/> before the transaction starts, so <paramref name="updateFunc"/> never runs. When
     /// <paramref name="updateFunc"/> returns a task through another <typeparamref name="TResult"/>, such as
     /// <see cref="object"/>, the transaction is aborted without committing any of its writes and the returned task faults
-    /// with that <see cref="ArgumentException"/>, on both platforms.
+    /// with that <see cref="ArgumentException"/>, on both platforms. The code after the first <c>await</c> of such an update
+    /// function still runs, outside the transaction: its writes are silently discarded, and an exception it throws is
+    /// never observed.
+    /// </para>
+    /// <para>
+    /// Only <see cref="Task"/> (including <see cref="Task{TResult}"/>), <see cref="ValueTask"/> and
+    /// <see cref="ValueTask{TResult}"/> are detected. A custom task-like type, which an <c>async</c> lambda returns only
+    /// for an explicit <typeparamref name="TResult"/>, and an awaitable such as
+    /// <see cref="System.Runtime.CompilerServices.ConfiguredTaskAwaitable"/> aren't, so don't return those from
+    /// <paramref name="updateFunc"/> either.
     /// </para>
     /// <para>
     /// The result is kept in .NET and never needs to be a Firestore value. A lazily evaluated result, such as a LINQ query

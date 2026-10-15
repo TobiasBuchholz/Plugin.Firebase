@@ -48,9 +48,6 @@ internal sealed class NumericWidthsDocument : IFirestoreObject
     [FirestoreProperty("decimal_from_fraction_value")]
     public decimal DecimalFromFractionValue { get; [UsedImplicitly] private set; }
 
-    [FirestoreProperty("char_value")]
-    public char CharValue { get; [UsedImplicitly] private set; }
-
     [FirestoreProperty("byte_list_value")]
     public IList<byte>? ByteListValue { get; [UsedImplicitly] private set; }
 }
@@ -263,18 +260,4 @@ internal sealed class FloatRangeDocument : IFirestoreObject
 {
     [FirestoreProperty("above_float")]
     public float Value { get; [UsedImplicitly] private set; }
-}
-
-[Preserve(AllMembers = true)]
-internal sealed class CharRangeDocument : IFirestoreObject
-{
-    [FirestoreProperty("above_char")]
-    public char Value { get; [UsedImplicitly] private set; }
-}
-
-[Preserve(AllMembers = true)]
-internal sealed class FractionalCharDocument : IFirestoreObject
-{
-    [FirestoreProperty("fractional")]
-    public char Value { get; [UsedImplicitly] private set; }
 }

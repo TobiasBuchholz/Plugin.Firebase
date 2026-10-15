@@ -233,7 +233,7 @@ public class FirestoreNumericConversionTests
         { long.MinValue, typeof(ULongLevel) }
     };
 
-    // Pairings outside the numeric rules stay with the platform's own conversion.
+    // Pairings outside the numeric rules are left to FirestoreValueConversion.
     public static TheoryData<object, Type> NotCovered => new() {
         { "2", typeof(int) },
         { true, typeof(int) },

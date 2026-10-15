@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Diagnostics;
+using System.Globalization;
 using Firebase.CloudFirestore;
 using Firebase.Core;
 using Plugin.Firebase.Core.Platforms.iOS.Extensions;
+using Plugin.Firebase.Firestore.Internal;
 
 namespace Plugin.Firebase.Firestore.Platforms.iOS.Extensions;
 
@@ -11,6 +13,11 @@ namespace Plugin.Firebase.Firestore.Platforms.iOS.Extensions;
 /// </summary>
 public static class NSObjectExtensions
 {
+    // NSNumber.FromBoolean returns the kCFBooleanTrue and kCFBooleanFalse singletons, which are the
+    // only CFBoolean instances and what Firestore returns for booleans.
+    private static readonly NSNumber BooleanTrue = NSNumber.FromBoolean(true);
+    private static readonly NSNumber BooleanFalse = NSNumber.FromBoolean(false);
+
     /// <summary>
     /// Casts a native iOS NSDictionary to a typed .NET object.
     /// </summary>
@@ -127,9 +134,22 @@ public static class NSObjectExtensions
     /// <summary>
     /// Converts a native iOS NSNumber to a .NET object of the appropriate numeric type.
     /// </summary>
+    /// <remarks>
+    /// A number read into a numeric or enum target follows the same rules as on Android: a fractional
+    /// value read into an integral or enum target is truncated toward zero, and an enum is range
+    /// checked against its underlying type.
+    /// </remarks>
     /// <param name="this">The NSNumber to convert.</param>
     /// <param name="targetType">Optional target type for the conversion.</param>
     /// <returns>The converted numeric value.</returns>
+    /// <exception cref="OverflowException">
+    /// Thrown if the stored value doesn't fit into <paramref name="targetType"/>, or if it is NaN or
+    /// infinity and <paramref name="targetType"/> is an integral, enum or <see cref="decimal"/> type.
+    /// </exception>
+    /// <exception cref="InvalidCastException">
+    /// Thrown if the stored value can't be converted to <paramref name="targetType"/> at all,
+    /// for example a fractional value read into a <see cref="char"/>.
+    /// </exception>
     public static object? ToObject(this NSNumber @this, Type? targetType = null)
     {
         if(targetType == null || targetType == typeof(object)) {
@@ -137,37 +157,68 @@ public static class NSObjectExtensions
         }
 
         var conversionType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+        if(conversionType == typeof(bool)) {
+            return @this.BoolValue;
+        }
+
+        var value = @this.ToConversionSource();
+        if(FirestoreNumericConversion.TryConvert(value, conversionType, out var converted)) {
+            return converted;
+        }
+
+        // What's left is a boolean read into a numeric or enum target, or a number read into a
+        // char. Both keep the Convert-based conversion that Android uses.
         if(conversionType.IsEnum) {
-            return Enum.ToObject(conversionType, @this.Int64Value);
+            return Enum.ToObject(conversionType, value);
         }
 
         switch(Type.GetTypeCode(conversionType)) {
-            case TypeCode.Boolean:
-                return @this.BoolValue;
             case TypeCode.Char:
-                return Convert.ToChar(@this.ByteValue);
             case TypeCode.SByte:
-                return @this.SByteValue;
             case TypeCode.Byte:
-                return @this.ByteValue;
             case TypeCode.Int16:
-                return @this.Int16Value;
             case TypeCode.UInt16:
-                return @this.UInt16Value;
             case TypeCode.Int32:
-                return @this.Int32Value;
             case TypeCode.UInt32:
-                return @this.UInt32Value;
             case TypeCode.Int64:
-                return @this.Int64Value;
             case TypeCode.UInt64:
-                return @this.UInt64Value;
             case TypeCode.Single:
-                return @this.FloatValue;
             case TypeCode.Double:
-                return @this.DoubleValue;
+            case TypeCode.Decimal:
+                return Convert.ChangeType(value, conversionType, CultureInfo.InvariantCulture);
             default:
                 return null;
+        }
+    }
+
+    /// <summary>
+    /// Gets the stored value in its widest .NET representation, so that
+    /// <see cref="FirestoreNumericConversion"/> range checks the target conversion instead of the
+    /// NSNumber accessors silently truncating it.
+    /// </summary>
+    /// <remarks>
+    /// This deliberately widens where <see cref="ToUntypedObject"/> preserves the stored width:
+    /// an untyped read hands the caller the value's own type, while a typed read only needs a
+    /// source wide enough for the target's range check. Booleans are the two CFBoolean singletons,
+    /// which report the same "c" type encoding as a signed char, so they are told apart by identity
+    /// and are never read as numbers.
+    /// </remarks>
+    private static object ToConversionSource(this NSNumber @this)
+    {
+        if(@this.Handle == BooleanTrue.Handle || @this.Handle == BooleanFalse.Handle) {
+            return @this.BoolValue;
+        }
+
+        switch(@this.ObjCType) {
+            case "f":
+                return @this.FloatValue;
+            case "d":
+                return @this.DoubleValue;
+            case "Q":
+            case "L":
+                return @this.UInt64Value;
+            default:
+                return @this.Int64Value;
         }
     }
 

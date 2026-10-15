@@ -2,7 +2,6 @@ using System.Collections;
 using System.Diagnostics;
 using Firebase.CloudFirestore;
 using Firebase.Core;
-using Plugin.Firebase.Core.Platforms.iOS.Extensions;
 using Plugin.Firebase.Firestore.Internal;
 
 namespace Plugin.Firebase.Firestore.Platforms.iOS.Extensions;
@@ -106,7 +105,10 @@ public static class NSObjectExtensions
             case NSString x:
                 return x.ToString();
             case NSDate x:
-                return x.ToDateTimeOffset();
+                // Native Firestore reads return Timestamp, so only an NSDate the caller passed in gets here. Use its
+                // seconds since the Unix epoch: the NSDate to DateTime operator goes through a calendar that is Julian
+                // before 1582-10-15.
+                return DateTimeOffset.UnixEpoch.AddSeconds(x.SecondsSince1970);
             case NSDictionary x:
                 return x.ToDictionaryObject(targetType);
             case NSArray x:
@@ -236,9 +238,10 @@ public static class NSObjectExtensions
     /// Converts a .NET object to a native iOS NSObject.
     /// </summary>
     /// <remarks>
-    /// A <see cref="DateTime"/> with <see cref="DateTimeKind.Local"/> or <see cref="DateTimeKind.Utc"/> converts to the
-    /// <see cref="NSDate"/> for its UTC instant. One with <see cref="DateTimeKind.Unspecified"/> throws, as it does on
-    /// Android, because it could be UTC or local time.
+    /// A <see cref="DateTimeOffset"/>, or a <see cref="DateTime"/> with <see cref="DateTimeKind.Local"/> or
+    /// <see cref="DateTimeKind.Utc"/>, converts to the native <see cref="Timestamp"/> for its exact UTC instant,
+    /// including dates before 1582-10-15. A <see cref="DateTime"/> with <see cref="DateTimeKind.Unspecified"/> throws,
+    /// because it could be UTC or local time. Both behave as they do on Android.
     /// </remarks>
     /// <param name="this">The object to convert.</param>
     /// <returns>The native iOS NSObject representation.</returns>
@@ -267,9 +270,9 @@ public static class NSObjectExtensions
                 return new NSNumber(x);
             case DateTime x:
                 DateTimeKindGuard.ThrowIfUnspecified(x);
-                return x.ToNSDate();
+                return x.ToTimestamp();
             case DateTimeOffset x:
-                return x.ToNSDate();
+                return x.ToTimestamp();
             case FieldValue x:
                 return x.ToNative();
             case Plugin.Firebase.Firestore.GeoPoint x:

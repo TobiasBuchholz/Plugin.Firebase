@@ -101,8 +101,21 @@ stored value with the same rules on both platforms:
   `2.7` gives the member with value `2` and `255.5` doesn't fit a `byte`-backed enum. Nullable
   enums, enum list elements and enum dictionary values follow the same rules.
 - `decimal` and `decimal?` properties are supported.
-- `char` properties convert with `Convert.ChangeType`. A conversion that has no meaning at all
-  throws an `InvalidCastException`, for example a fractional value read into a `char`.
+
+Numbers are the only values a typed read converts. As in the native Android SDK, a stored value
+whose type doesn't match the property, list element or dictionary value it is read into throws an
+`InvalidCastException` on both platforms. The message names the stored type, the target type and
+the field. For example:
+
+- a number read into a `string`, and text read into a number or an enum
+- a boolean read into a number, and a number read into a `bool`
+- a number or text read into a `DateTime` or `DateTimeOffset`
+- a map or an array read into a `string`, `bool`, number, enum, `DateTime` or `DateTimeOffset`
+- any value read into a `char`, because `char` isn't a Firestore type
+
+Text reads into `string`, booleans into `bool`, numbers into numeric and enum types as described
+above, timestamps into `DateTime` and `DateTimeOffset`, geo points into `GeoPoint`, references
+into `IDocumentReference`, arrays into lists and maps into dictionaries or objects.
 
 ```c#
 public enum Level : byte { Low = 1, High = 2 }
@@ -113,6 +126,10 @@ public byte Quantity { get; private set; } // throws OverflowException on read
 
 [FirestoreProperty("level")]
 public Level SkillLevel { get; private set; } // throws OverflowException on read
+
+// "code" holds the number 123 in Firestore
+[FirestoreProperty("code")]
+public string Code { get; private set; } // throws InvalidCastException on read
 ```
 
 Conversion happens when you read `snapshot.Data`, not when the snapshot arrives, so guard that
@@ -173,6 +190,34 @@ with Plugin.Firebase.Firestore 4.0.0:
 - On iOS, `char` properties read the stored number through a byte, so values above 255 wrapped.
   They now cover the full `char` range, and fractional values and booleans read into a `char`
   throw `InvalidCastException`.
+
+Typed reads no longer convert between types other than numbers (see [Usage](#usage)). A value of
+the wrong type now throws `InvalidCastException` on both platforms, in model properties, list
+elements and dictionary values. Compared with 4.2.1:
+
+- On iOS, a number read into a `string` gave `null`, and a number read into a `DateTime` or another
+  type that isn't numeric gave the type's default value. Booleans and numbers converted into each
+  other, so `true` read into an `int` gave `1`, and a number read into a `bool` gave `true` or
+  `false`. A number read into a `char` gave the character for its lowest byte. These now throw.
+- On Android, a value of the wrong type usually threw `ArgumentException`, which is now
+  `InvalidCastException`. A few reads converted instead, using the device culture: `int`, `int?`
+  and `float` properties parsed text and read booleans as `1` and `0`, and elements of `string`,
+  `int`, `long`, `float`, `double`, `decimal` and `bool` lists were converted with
+  `Convert.ToString`, `Convert.ToInt32` and so on. These now throw.
+- On both platforms, a map read into a number, `bool`, enum, `char`, `DateTime` or
+  `DateTimeOffset` gave the type's default value, and into a `string` it threw
+  `MissingMethodException`. An array read into one of these types threw an exception that didn't
+  name the mismatch. Both now throw `InvalidCastException`.
+- Earlier iOS versions stored the values of `byte`- and `sbyte`-backed enums as booleans, so every
+  value other than `0` read back as `1`. Reading such a field into the enum now throws
+  `InvalidCastException`. Rewrite the affected fields with this version, which stores the actual
+  value.
+- Unreleased builds of the `development` branch briefly converted these values on Android with
+  `Convert.ChangeType`: any value read into a `string` became text, and text read into a number,
+  `bool`, `char` or `DateTime` was parsed. No release did this.
+
+If your documents hold values of mixed types, read them into a property of type `object`, or as
+`Dictionary<string, object>`, and convert them yourself.
 
 ## Release notes
 - Version 3.1.3

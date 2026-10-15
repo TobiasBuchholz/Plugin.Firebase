@@ -1,5 +1,4 @@
 using Firebase.Storage;
-using Plugin.Firebase.Core.Exceptions;
 using Plugin.Firebase.Core.Platforms.iOS.Extensions;
 using NativeStorageMetadata = Firebase.Storage.StorageMetadata;
 using NativeStorageTaskStatus = Firebase.Storage.StorageTaskStatus;
@@ -108,41 +107,6 @@ public static class StorageExtensions
             ContentType = @this.ContentType,
             CustomMetadata = @this.CustomMetadata?.ToNSDictionary(),
         };
-    }
-
-    /// <summary>
-    /// Wraps a native iOS Storage error in a cross-platform exception, preserving the native type
-    /// name, domain, code and the <see cref="NSError"/> itself as the inner exception.
-    /// </summary>
-    /// <param name="this">The native error to wrap.</param>
-    /// <returns>A cross-platform storage exception.</returns>
-    internal static CrossPlatformFirebaseStorageException ToStorageException(this NSError @this)
-    {
-        return new CrossPlatformFirebaseStorageException(
-            nameof(NSErrorException),
-            @this.LocalizedDescription,
-            new NSErrorException(@this),
-            nativeErrorDomain: @this.Domain,
-            nativeErrorCode: @this.Code.ToString()
-        );
-    }
-
-    /// <summary>
-    /// Wraps a native iOS Storage error exception in a cross-platform exception, preserving the
-    /// <see cref="NSError"/> as the inner exception together with its domain and code.
-    /// </summary>
-    /// <param name="this">The native error exception to wrap.</param>
-    /// <returns>A cross-platform storage exception.</returns>
-    internal static CrossPlatformFirebaseStorageException ToStorageException(
-        this NSErrorException @this
-    )
-    {
-        return @this.Error?.ToStorageException()
-            ?? new CrossPlatformFirebaseStorageException(
-                nameof(NSErrorException),
-                @this.Message,
-                @this
-            );
     }
 
     private static DateTimeOffset? ToDateTimeOffsetOrNull(NSDate? date)

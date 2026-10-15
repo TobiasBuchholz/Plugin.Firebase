@@ -18,13 +18,9 @@ public sealed class StorageTransferTaskWrapper : IStorageTransferTask
         _observerDict = new Dictionary<Action<IStorageTaskSnapshot>, Object>();
     }
 
-    public async Task AwaitAsync()
+    public Task AwaitAsync()
     {
-        try {
-            await _transferTask.AsAsync();
-        } catch(Java.Lang.Throwable e) {
-            throw e.ToStorageException();
-        }
+        return StorageExceptionFactory.Wrap(() => _transferTask.AsAsync());
     }
 
     public void AddObserver(StorageTaskStatus status, Action<IStorageTaskSnapshot> observer)

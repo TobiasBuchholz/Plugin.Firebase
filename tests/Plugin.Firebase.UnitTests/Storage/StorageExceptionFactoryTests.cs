@@ -56,7 +56,7 @@ public class StorageExceptionFactoryTests
     [InlineData("ar-SA")]
     public void create_formats_negative_error_code_with_invariant_culture(string cultureName)
     {
-        var culture = new CultureInfo(cultureName);
+        var culture = GetCultureOrSkip(cultureName);
         var originalCulture = CultureInfo.CurrentCulture;
         CultureInfo.CurrentCulture = culture;
         try {
@@ -79,8 +79,26 @@ public class StorageExceptionFactoryTests
     [Fact]
     public void sv_se_formats_negative_numbers_with_a_different_minus_sign()
     {
-        // Guards the culture test above: without ICU culture data every culture would format "-13010" and that test
-        // could not fail.
-        Assert.NotEqual("-13010", (-13010L).ToString(new CultureInfo("sv-SE")));
+        // Shows that the culture test above can fail on this host. Without ICU culture data every culture formats
+        // "-13010", so that test would pass even without the invariant-culture formatting.
+        var culture = GetCultureOrSkip("sv-SE");
+        Assert.SkipUnless(
+            culture.NumberFormat.NegativeSign == "\u2212",
+            "The host's sv-SE culture data doesn't use U+2212 as the negative sign, for example because ICU isn't available."
+        );
+
+        Assert.NotEqual("-13010", (-13010L).ToString(culture));
+    }
+
+    private static CultureInfo GetCultureOrSkip(string cultureName)
+    {
+        try {
+            return new CultureInfo(cultureName);
+        } catch(CultureNotFoundException) {
+            Assert.Skip(
+                $"Culture {cultureName} isn't available on this host, for example because DOTNET_SYSTEM_GLOBALIZATION_INVARIANT is set."
+            );
+            throw;
+        }
     }
 }

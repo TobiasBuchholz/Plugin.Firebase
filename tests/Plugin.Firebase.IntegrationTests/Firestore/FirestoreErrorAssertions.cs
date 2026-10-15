@@ -14,6 +14,11 @@ internal static class FirestoreErrorAssertions
         return NativeFailure(exception, androidCode: "UNAVAILABLE", iosCode: "Unavailable");
     }
 
+    public static CrossPlatformFirebaseFirestoreException AbortedFailure(Exception? exception)
+    {
+        return NativeFailure(exception, androidCode: "ABORTED", iosCode: "Aborted");
+    }
+
     private static CrossPlatformFirebaseFirestoreException NativeFailure(
         Exception? exception,
         string androidCode,
@@ -36,13 +41,6 @@ internal static class FirestoreErrorAssertions
             Assert.Equal("Foundation.NSErrorException", firestoreException.InnerException?.GetType().FullName);
         }
         Assert.False(string.IsNullOrEmpty(firestoreException.NativeErrorMessage));
-        return firestoreException;
-    }
-
-    public static CrossPlatformFirebaseFirestoreException AbortedFailure(Exception? exception)
-    {
-        var firestoreException = Assert.IsType<CrossPlatformFirebaseFirestoreException>(exception);
-        Assert.Equal(OperatingSystem.IsAndroid() ? "ABORTED" : "Aborted", firestoreException.NativeErrorCode);
         return firestoreException;
     }
 }

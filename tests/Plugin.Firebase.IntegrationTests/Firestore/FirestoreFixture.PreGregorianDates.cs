@@ -54,8 +54,9 @@ public sealed partial class FirestoreFixture
         var sut = CrossFirebaseFirestore.Current;
         var document = GetTestingDocument(sut, "smallest-timestamp");
 
-        // 0001-01-01T00:00:00Z, the smallest instant a Firestore timestamp can hold, as a backend writes it for
-        // DateTime.MinValue. iOS used to fail this write, and read the stored instant as 0001-01-03.
+        // DateTimeOffset.MinValue is 0001-01-01T00:00:00Z, the smallest instant a Firestore timestamp can hold, and the
+        // instant other clients store for DateTime.MinValue. iOS used to fail this write, and to read that instant as
+        // 0001-01-03 when another client had written it.
         await document.SetDataAsync(new Dictionary<object, object?> {
             { DateTimeKindDocument.ObservedField, DateTimeOffset.MinValue }
         });

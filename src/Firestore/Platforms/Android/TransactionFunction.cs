@@ -32,6 +32,9 @@ public class TransactionFunction<TResult> : Object, Transaction.IFunction
             // FirebaseFirestoreException with a retryable code. RunTransactionAsync wraps it again when
             // the transaction fails with it.
             throw native;
+        } catch(FirebaseFirestoreException) {
+            // A native exception thrown directly by the update function goes to the runner the same way.
+            throw;
         } catch(Exception e) {
             UpdateException = e;
             throw;

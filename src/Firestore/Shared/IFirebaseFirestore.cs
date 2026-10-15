@@ -41,7 +41,8 @@ public interface IFirebaseFirestore : IDisposable
     /// <paramref name="updateFunc"/>, for example by a failed <see cref="ITransaction.GetDocument{T}"/>, isn't wrapped
     /// again: the returned task faults with a <see cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseFirestoreException"/>
     /// for the same native error. On Android the native transaction runner first applies its retry rules to that error; on
-    /// iOS the transaction isn't retried. When the native SDK fails the transaction itself, for example because the backend
+    /// iOS the transaction isn't retried. On Android the same applies to a native <c>FirebaseFirestoreException</c> that
+    /// <paramref name="updateFunc"/> throws directly. When the native SDK fails the transaction itself, for example because the backend
     /// rejects the commit, the returned task also faults with a
     /// <see cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseFirestoreException"/>.
     /// </para>

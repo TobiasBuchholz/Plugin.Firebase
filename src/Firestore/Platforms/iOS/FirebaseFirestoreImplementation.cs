@@ -1,3 +1,4 @@
+using System.Runtime.ExceptionServices;
 using Firebase.CloudFirestore;
 using Plugin.Firebase.Core;
 using Plugin.Firebase.Core.Exceptions;
@@ -69,6 +70,10 @@ public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseF
             );
         } catch(Exception) when(exception != null) {
             // the task faulted with the native error assigned above; surface the original managed failure instead
+            if(exception is CrossPlatformFirebaseFirestoreException) {
+                // rethrow without resetting the stack trace of the call that failed inside the update function
+                ExceptionDispatchInfo.Throw(exception);
+            }
             throw exception;
         } catch(Exception e) when(FirestoreExceptionFactory.IsNativeFirestoreException(e)) {
             throw FirestoreExceptionFactory.Create(e);

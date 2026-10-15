@@ -113,7 +113,8 @@ throws, the transaction is aborted without committing and `RunTransactionAsync` 
 `InnerException` is the original exception, on both platforms. A `CrossPlatformFirebaseFirestoreException` that
 the update function lets propagate, for example from a failed `ITransaction.GetDocument`, isn't wrapped again:
 `RunTransactionAsync` throws a `CrossPlatformFirebaseFirestoreException` for the same native error. On Android the
-native transaction runner first applies its retry rules to that error; on iOS the transaction isn't retried.
+native transaction runner first applies its retry rules to that error; on iOS the transaction isn't retried. On
+Android the same applies to a native `FirebaseFirestoreException` that the update function throws directly.
 
 ### Further information
 
@@ -137,6 +138,7 @@ Failures that the native Firestore SDKs report now surface as `CrossPlatformFire
 - `RunTransactionAsync` throws `CrossPlatformFirebaseFirestoreException` when the native SDK fails the transaction, for example when the backend rejects the commit, or when the update function lets a failed `ITransaction.GetDocument` propagate. Previously this was `FirebaseFirestoreException` on Android, and `NSErrorException` or a `FirebaseException` wrapping the read failure on iOS.
 - On Android, `RunTransactionAsync` throws `FirebaseException` with the original exception as `InnerException` when the update function throws, as on iOS. Previously it threw the native task's `Java.Lang.RuntimeException`.
 - The `onError` callback of `AddSnapshotListener` receives `CrossPlatformFirebaseFirestoreException`. Previously it received a `FirebaseException` built from the localized description on iOS, a `FirebaseException` with the native exception as `InnerException` for Android document listeners, and the native `Firebase.FirebaseException` for Android query listeners.
+- Some methods now report an exception that the native SDK throws synchronously through the returned `Task`, instead of throwing it before the `Task` is returned. Examples are an `IllegalStateException` on Android after `TerminateAsync`, or an Objective-C exception on iOS. This applies to `IWriteBatch.CommitAsync`, `WaitForPendingWritesAsync`, `DisableNetworkAsync`, `EnableNetworkAsync`, `ClearPersistenceAsync` and `TerminateAsync` on both platforms, and to `IDocumentReference.SetDataAsync`, `UpdateDataAsync` and `DeleteDocumentAsync` on iOS. These exceptions aren't native Firebase failures, so their type doesn't change. Code that awaits the `Task` sees no difference; code that expected the exception before the `Task` was returned has to await it.
 
 ## Release notes
 - Version 3.1.3

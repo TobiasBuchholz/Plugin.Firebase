@@ -161,4 +161,17 @@ public sealed partial class FirestoreFixture
 
         FirestoreErrorAssertions.InvalidArgumentFailure(exception);
     }
+
+    [Fact]
+    public async Task surfaces_cross_platform_exception_when_cache_read_misses()
+    {
+        var sut = CrossFirebaseFirestore.Current;
+        var document = GetTestingDocument(sut, IntegrationTestData.UniqueId("uncached"));
+
+        // A cache-only read of a document the local cache has never seen fails with UNAVAILABLE.
+        var exception = await Record.ExceptionAsync(
+            () => document.GetDocumentSnapshotAsync<SimpleItem>(Source.Cache));
+
+        FirestoreErrorAssertions.UnavailableFailure(exception);
+    }
 }

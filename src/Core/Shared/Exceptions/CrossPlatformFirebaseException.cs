@@ -29,7 +29,8 @@ public class CrossPlatformFirebaseException : FirebaseException
         NativeExceptionTypeName = nativeExceptionTypeName;
         NativeErrorDomain = nativeErrorDomain;
         NativeErrorCode = nativeErrorCode;
-        NativeErrorMessage = nativeErrorMessage ?? innerException.Message;
+        // The message ResolveMessage passed to the base constructor. base. avoids a virtual call in the constructor.
+        NativeErrorMessage = base.Message;
     }
 
     // Runs before the base constructor, so a null inner exception fails with ArgumentNullException

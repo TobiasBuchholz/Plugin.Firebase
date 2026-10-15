@@ -193,6 +193,11 @@ For example the [`Plugin.Firebase.IntegrationTests`](https://github.com/TobiasBu
 ### Windows + Visual Studio + iOS long path issue
 Visual Studio and Windows both have issues with long paths. The issue is explained (along with best-known workarounds) [here](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents?tab=readme-ov-file#windows--visual-studio-long-path-issue).
 
+### iOS NativeAOT (`PublishAot`)
+As of .NET 10 and the AdamE Firebase iOS bindings 12.x, Native AOT works only when the trimmer processes every assembly, because the iOS SDK rewrites the bindings' completion-handler (block) code while linking. With `<PublishAot>true</PublishAot>`, leave `MtouchLink` and `TrimMode` unset (or use `TrimMode=full`). Don't set `MtouchLink=SdkOnly`/`None` or `TrimMode=partial`, and don't exclude the `Firebase.*` binding assemblies from trimming (for example with a per-assembly `TrimMode=copy`). Otherwise the build warns `MT2387: It's not safe to remove the dynamic registrar, because Firebase.Core references 'ObjCRuntime.BlockLiteral..ctor ...'`, and Firebase calls that take a completion handler, such as `SubscribeToTopicAsync`, throw `System.Diagnostics.UnreachableException` from `BlockLiteral.FindTrampoline` at runtime.
+
+Firestore's reflection-based model mapping is not currently compatible with full trimming or Native AOT (see the [Firestore docs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/firestore.md)). If your app can't meet these requirements, remove `PublishAot` and use Mono AOT (the default for iOS Release).
+
 ## Contributions
 
 You are welcome to contribute to this project by creating a [Pull Request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests). See `CONTRIBUTING.md` and `BUILDING.md` for contribution and build guidance. The project contains an .editorconfig file that handles the code formatting, so please apply the formatting rules by running `dotnet format Plugin.Firebase.sln` in the console before creating a Pull Request (see [dotnet-format docs](https://github.com/dotnet/format) or [this video](https://www.youtube.com/watch?v=lGvP9SZ98vM&t) for more information).

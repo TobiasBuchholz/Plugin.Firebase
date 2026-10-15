@@ -185,9 +185,7 @@ Note: this is a Plugin.Firebase custom field and hence not documented with googl
 
 If you are having trouble receiving push notifications on your device, take a look at this helpful https://github.com/TobiasBuchholz/Plugin.Firebase/issues/145#issuecomment-1455182588 by @andyzukunft. Additionally he has created a dedicated project to simplify the demonstration on how Firebase Cloud Messaging works: https://github.com/andyzukunft/Plugin.Firebase/tree/fcm-demo/sample/Fcm
 
-### Native AOT (`PublishAot=true`) is not supported on iOS
-
-Publishing with `<PublishAot>true</PublishAot>` (Native AOT) produces `ILLINK MT2387` warnings from the `AdamE.Firebase.iOS.*` binding assemblies (e.g., `Firebase.CloudMessaging`, `Firebase.Core`, `Firebase.Installations`) and crashes at runtime with `System.Diagnostics.UnreachableException` inside `ObjCRuntime.BlockLiteral.FindTrampoline` — for example when calling `SubscribeToTopicAsync`/`UnsubscribeFromTopicAsync`. The native bindings rely on the dynamic registrar for block-based completion handlers, which Native AOT removes. Keep `PublishAot` off for iOS builds that use this plugin (the regular MAUI full-AOT device publish is unaffected). This is tracked in [#715](https://github.com/TobiasBuchholz/Plugin.Firebase/issues/715); the fix needs to land in the iOS bindings.
+If you publish for iOS with Native AOT (`PublishAot`), see [iOS NativeAOT (`PublishAot`)](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/README.md#ios-nativeaot-publishaot) in the README.
 
 ## Release notes
 - Version 4.0.1

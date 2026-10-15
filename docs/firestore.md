@@ -110,11 +110,21 @@ try {
 
 Transactions follow the same rules, with one addition. If the update function passed to `RunTransactionAsync`
 throws, the transaction is aborted without committing and `RunTransactionAsync` throws a `FirebaseException` whose
-`InnerException` is the original exception, on both platforms. A `CrossPlatformFirebaseFirestoreException` that
-the update function lets propagate, for example from a failed `ITransaction.GetDocument`, isn't wrapped again:
-`RunTransactionAsync` throws a `CrossPlatformFirebaseFirestoreException` for the same native error. On Android the
-native transaction runner first applies its retry rules to that error; on iOS the transaction isn't retried. On
-Android the same applies to a native `FirebaseFirestoreException` that the update function throws directly.
+`InnerException` is the original exception, on both platforms. A `CrossPlatformFirebaseFirestoreException` that the
+plugin raised for a native Firestore error, for example from a failed `ITransaction.GetDocument`, is instead handed
+back to the native SDK when the update function lets it propagate. Its `InnerException` is the native
+`FirebaseFirestoreException` on Android, or the `NSErrorException` for a `FIRFirestoreErrorDomain` error on iOS. The
+native SDK applies its transaction retry rules to that error on both platforms. If the error is retryable, such as
+`ABORTED` because a document changed between two reads, the transaction is retried and the update function runs
+again. Otherwise, or once no retries are left, `RunTransactionAsync` throws a
+`CrossPlatformFirebaseFirestoreException` for the same native error; it isn't wrapped again. On Android the same
+applies to a native `FirebaseFirestoreException` that the update function throws directly.
+
+Only the exception that the update function throws is checked. If you catch a failed read and throw your own
+exception, even one that keeps the Firestore exception as `InnerException`, the transaction is aborted without a retry
+and `RunTransactionAsync` throws a `FirebaseException` whose `InnerException` is your exception. A
+`CrossPlatformFirebaseFirestoreException` that doesn't carry a native Firestore error, for example one you construct
+yourself, also aborts the transaction without a retry, and `RunTransactionAsync` throws it unchanged.
 
 ### Further information
 
@@ -139,6 +149,8 @@ Failures that the native Firestore SDKs report now surface as `CrossPlatformFire
 - On Android, `RunTransactionAsync` throws `FirebaseException` with the original exception as `InnerException` when the update function throws, as on iOS. Previously it threw the native task's `Java.Lang.RuntimeException`.
 - The `onError` callback of `AddSnapshotListener` receives `CrossPlatformFirebaseFirestoreException`. Previously it received a `FirebaseException` built from the localized description on iOS, a `FirebaseException` with the native exception as `InnerException` for Android document listeners, and the native `Firebase.FirebaseException` for Android query listeners.
 - Some methods now report an exception that the native SDK throws synchronously through the returned `Task`, instead of throwing it before the `Task` is returned. Examples are an `IllegalStateException` on Android after `TerminateAsync`, or an Objective-C exception on iOS. This applies to `IWriteBatch.CommitAsync`, `WaitForPendingWritesAsync`, `DisableNetworkAsync`, `EnableNetworkAsync`, `ClearPersistenceAsync` and `TerminateAsync` on both platforms, and to `IDocumentReference.SetDataAsync`, `UpdateDataAsync` and `DeleteDocumentAsync` on iOS. These exceptions aren't native Firebase failures, so their type doesn't change. Code that awaits the `Task` sees no difference; code that expected the exception before the `Task` was returned has to await it.
+
+On iOS, `RunTransactionAsync` now also retries the transaction after a retryable Firestore error raised inside the update function, when the update function lets it propagate. An example is `ABORTED` from an `ITransaction.GetDocument` that finds the document changed since an earlier read in the same transaction. iOS already re-ran the update function after a retryable commit failure, such as contention with another write; now the native SDK's retry rules decide for errors raised inside the update function too, as they already do on Android. Previously iOS never retried the transaction after such an error. Make sure the update function doesn't change state outside the transaction.
 
 ## Release notes
 - Version 3.1.3

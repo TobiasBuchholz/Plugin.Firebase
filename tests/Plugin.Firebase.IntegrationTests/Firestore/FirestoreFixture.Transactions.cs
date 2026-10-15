@@ -90,9 +90,12 @@ public sealed partial class FirestoreFixture
         var document = GetTestingDocument(sut, "4");
         await document.SetDataAsync(charmander);
 
-        // The native SDKs reject a transactional read after a write locally with INVALID_ARGUMENT.
+        // The native SDKs reject a transactional read after a write locally with INVALID_ARGUMENT, which
+        // their transaction retry rules treat as permanent, so the update function runs only once.
         Exception? readException = null;
+        var attempts = 0;
         var exception = await Record.ExceptionAsync(() => sut.RunTransactionAsync<object?>(transaction => {
+            attempts++;
             transaction.UpdateData(document, (Pokemon.SightingCountField, charmander.SightingCount + 1));
             try {
                 transaction.GetDocument<Pokemon>(document);
@@ -103,6 +106,7 @@ public sealed partial class FirestoreFixture
             return null;
         }));
 
+        Assert.Equal(1, attempts);
         FirestoreErrorAssertions.InvalidArgumentFailure(readException);
         FirestoreErrorAssertions.InvalidArgumentFailure(exception);
         Assert.Equal(charmander, (await document.GetDocumentSnapshotAsync<Pokemon>()).Data);

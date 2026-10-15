@@ -2,14 +2,16 @@ using System.Text.Json;
 using Android.Gms.Extensions;
 using Firebase.Functions;
 using GoogleGson;
-using GoogleGson.Reflect;
 using Java.Lang;
-using Java.Util;
 
 namespace Plugin.Firebase.Functions.Platforms.Android;
 
 public sealed class HttpsCallableWrapper : IHttpsCallable
 {
+    // strict like NSJSONSerialization on iOS - Gson's default lenient mode would send malformed
+    // input such as abc123, True, NaN or 'x' as a value instead of rejecting it
+    private static readonly Gson RequestGson = new GsonBuilder().SetStrictness(Strictness.Strict).Create();
+
     private readonly HttpsCallableReference _httpsCallable;
 
     public HttpsCallableWrapper(HttpsCallableReference httpsCallable)
@@ -24,11 +26,9 @@ public sealed class HttpsCallableWrapper : IHttpsCallable
 
     private static Java.Lang.Object ConvertJsonToData(string dataJson = null)
     {
-        return new Gson().FromJson(dataJson, TypeToken.GetParameterized(
-                TypeToken.Get(Class.FromType(typeof(HashMap))).Type,
-                TypeToken.Get(Class.FromType(typeof(Java.Lang.String))).Type,
-                TypeToken.Get(Class.FromType(typeof(Java.Lang.Object))).Type)
-            .Type);
+        // the callable protocol accepts any valid JSON value for data - deserialize into
+        // plain Java objects instead of forcing a HashMap so arrays and scalars work
+        return RequestGson.FromJson(dataJson, Class.FromType(typeof(Java.Lang.Object)));
     }
 
     public async Task<TResponse> CallAsync<TResponse>(string dataJson = null)

@@ -337,6 +337,7 @@ Required functions:
 | `createCustomToken` | `https.onCall` | Emulator-only helper that mints custom tokens for Auth acceptance tests; it rejects non-emulator calls and must not be deployed as a real token-minting endpoint |
 | `echoAuthContext` | `https.onCall` | Verifies callable auth context propagation |
 | `throwStructuredError` | `https.onCall` | Verifies callable error propagation |
+| `echoRequestData` | `https.onCall` | Echoes callable request data to verify object, array, scalar, and null request payloads |
 | `regionalPing` | `https.onCall`, `southamerica-east1` | Verifies configured Functions regions |
 | `addMessage` | `https.onRequest` | Writes to Firestore `messages` collection |
 | `makeUppercase` | `firestore.onCreate` | Triggered on `/messages/{documentId}` |

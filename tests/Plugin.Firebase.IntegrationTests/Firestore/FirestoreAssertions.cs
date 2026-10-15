@@ -263,10 +263,11 @@ internal static class FirestoreAssertions
 
     public static void SameInstantToTheMicrosecond(DateTimeOffset expected, DateTimeOffset actual)
     {
-        Assert.InRange(
-            Math.Abs(actual.UtcTicks - expected.UtcTicks),
-            0,
-            IntegrationTestTimeouts.OneMicrosecondTicks);
+        // Both platforms convert through the timestamp's seconds and nanoseconds, so the value read back is exactly
+        // the written instant with the sub-microsecond part that Firestore drops truncated away.
+        Assert.Equal(
+            expected.UtcTicks - expected.UtcTicks % IntegrationTestTimeouts.OneMicrosecondTicks,
+            actual.UtcTicks);
     }
 
     public static T Require<T>(T? value) where T : class

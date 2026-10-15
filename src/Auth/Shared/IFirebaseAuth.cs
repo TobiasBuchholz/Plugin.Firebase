@@ -8,6 +8,38 @@ public partial interface IFirebaseAuth : IDisposable
     /// <summary>
     /// Starts the phone number authentication flow by sending a verification code to the specified phone number.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The returned task completes when the verification code has been sent, so a following
+    /// <see cref="SignInWithPhoneNumberVerificationCodeAsync"/> or <see cref="LinkWithPhoneNumberVerificationCodeAsync"/>
+    /// call can use it. The task faults with <see cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseAuthException"/>
+    /// when verification fails.
+    /// </para>
+    /// <para>
+    /// Android: a repeat call for a phone number that already received a code passes the native resend token, so
+    /// Firebase starts a new verification and sends a new code, as a "Resend" button expects. Until the new code is
+    /// sent, sign-in keeps using the previous code. A call for the same number while the previous call is still pending
+    /// returns that call's task. A call for a different number cancels the task of an earlier call that is still
+    /// pending, and sign-in then uses only the new number's verification.
+    /// </para>
+    /// <para>
+    /// Android: before it sends the code, the native SDK runs app verification, which can show a reCAPTCHA challenge.
+    /// The native SDK can drop the callbacks if the activity stops before the code is sent, for example when the user
+    /// switches to another app. If the native SDK reports no sent code, completion or failure within five minutes of the
+    /// call, the task faults with <see cref="TimeoutException"/>; call this method again. Apply a shorter timeout of
+    /// your own if your UI needs one.
+    /// </para>
+    /// <para>
+    /// Android: the task also completes if Firebase verifies the number without sending a code. In firebase-auth 23.x
+    /// that only happens for test numbers set up with the native
+    /// <c>FirebaseAuthSettings.setAutoRetrievedSmsCodeForPhoneNumber</c> setting; in production a code is always sent.
+    /// Sign-in and link then use that credential and ignore their verification code until the next call to this method.
+    /// </para>
+    /// <para>
+    /// Android delivers the verification callbacks on the main thread. Await the task instead of blocking on it (for
+    /// example with <c>Wait()</c> or <c>Result</c>) from the UI thread, which deadlocks.
+    /// </para>
+    /// </remarks>
     /// <param name="phoneNumber">The phone number to be verified.</param>
     Task VerifyPhoneNumberAsync(string phoneNumber);
 
@@ -29,6 +61,12 @@ public partial interface IFirebaseAuth : IDisposable
     /// <summary>
     /// Signs in using the verification code that was send to the given phone number after calling <c>VerifyPhoneNumberAsync(phoneNumber)</c>.
     /// </summary>
+    /// <remarks>
+    /// Android: uses the verification of the latest <see cref="VerifyPhoneNumberAsync"/> call. While a repeat call for
+    /// the same number is pending, or after it failed or timed out, the previous code for that number is used. If the
+    /// latest call completed without sending a code (only for natively configured test numbers), this uses that
+    /// credential and ignores <paramref name="verificationCode"/>.
+    /// </remarks>
     /// <param name="verificationCode">The code that was send to the given phone number after calling <c>VerifyPhoneNumberAsync(phoneNumber)</c>.</param>
     /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
     Task<IFirebaseUser> SignInWithPhoneNumberVerificationCodeAsync(string verificationCode);
@@ -64,6 +102,12 @@ public partial interface IFirebaseAuth : IDisposable
     /// <summary>
     /// Link the signed in user with a phone number.
     /// </summary>
+    /// <remarks>
+    /// Android: uses the verification of the latest <see cref="VerifyPhoneNumberAsync"/> call. While a repeat call for
+    /// the same number is pending, or after it failed or timed out, the previous code for that number is used. If the
+    /// latest call completed without sending a code (only for natively configured test numbers), this uses that
+    /// credential and ignores <paramref name="verificationCode"/>.
+    /// </remarks>
     /// <param name="verificationCode">The code that was send to the given phone number after calling <c>VerifyPhoneNumberAsync(phoneNumber)</c>.</param>
     /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
     Task<IFirebaseUser> LinkWithPhoneNumberVerificationCodeAsync(string verificationCode);

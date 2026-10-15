@@ -1,37 +1,45 @@
 using Firebase.Auth;
 using Java.Lang;
 using Java.Util.Concurrent;
+using Plugin.Firebase.Auth.Internal;
 
 namespace Plugin.Firebase.Auth.Platforms.Android.PhoneNumber;
 
 public sealed class PhoneNumberAuth
 {
-    private string? _verificationId;
+    private readonly PhoneNumberVerificationTracker<PhoneAuthCredential, PhoneAuthProvider.ForceResendingToken>
+        _verifications = new();
 
     public Task VerifyPhoneNumberAsync(Activity activity, string phoneNumber)
     {
-        var callbacks = new PhoneVerificationStateChangeCallbacks(onCodeSent: x =>
-            _verificationId = x.VerificationId
-        );
-        var options = PhoneAuthOptions
-            .NewBuilder()
-            .SetPhoneNumber(phoneNumber)
-            .SetTimeout(Long.ValueOf(60), TimeUnit.Seconds!)
-            .SetActivity(activity)
-            .SetCallbacks(callbacks)
-            .Build();
+        return _verifications.Start(phoneNumber, (request, resendToken) => {
+            // each request gets its own callbacks, bound to that request
+            var callbacks = new PhoneVerificationStateChangeCallbacks(
+                onCodeSent: x => request.OnCodeSent(x.VerificationId, x.forceResendingToken),
+                onVerificationCompleted: request.OnVerificationCompleted,
+                onVerificationFailed: exception =>
+                    request.OnVerificationFailed(FirebaseAuthExceptionFactory.Create(exception)),
+                onCodeAutoRetrievalTimeOut: request.OnCodeAutoRetrievalTimeOut
+            );
+            var options = PhoneAuthOptions
+                .NewBuilder()
+                .SetPhoneNumber(phoneNumber)
+                .SetTimeout(Long.ValueOf(60), TimeUnit.Seconds!)
+                .SetActivity(activity)
+                .SetCallbacks(callbacks);
+            if(resendToken is not null) {
+                // with a resend token, native skips its per-number session reuse and starts a new verification
+                options.SetForceResendingToken(resendToken);
+            }
 
-        PhoneAuthProvider.VerifyPhoneNumber(options);
-        return Task.CompletedTask;
+            PhoneAuthProvider.VerifyPhoneNumber(options.Build());
+        });
     }
 
     public Task<PhoneAuthCredential> GetCredentialAsync(string verificationCode)
     {
-        if(_verificationId is null) {
-            throw new InvalidOperationException(
-                "VerifyPhoneNumberAsync must be called before GetCredentialAsync."
-            );
-        }
-        return Task.FromResult(PhoneAuthProvider.GetCredential(_verificationId, verificationCode));
+        return Task.FromResult(
+            _verifications.GetCredential(verificationCode, PhoneAuthProvider.GetCredential)
+        );
     }
 }

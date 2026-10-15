@@ -185,6 +185,8 @@ Note: this is a Plugin.Firebase custom field and hence not documented with googl
 
 If you are having trouble receiving push notifications on your device, take a look at this helpful https://github.com/TobiasBuchholz/Plugin.Firebase/issues/145#issuecomment-1455182588 by @andyzukunft. Additionally he has created a dedicated project to simplify the demonstration on how Firebase Cloud Messaging works: https://github.com/andyzukunft/Plugin.Firebase/tree/fcm-demo/sample/Fcm
 
+If you publish for iOS with Native AOT (`PublishAot`), see [iOS NativeAOT (`PublishAot`)](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/README.md#ios-nativeaot-publishaot) in the README.
+
 ## Release notes
 - Version 4.0.1
   - Add iOS action identifier to notification body (PR #547)

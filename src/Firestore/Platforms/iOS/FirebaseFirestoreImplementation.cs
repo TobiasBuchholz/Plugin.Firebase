@@ -46,19 +46,20 @@ public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseF
     /// <inheritdoc/>
     public async Task<TResult?> RunTransactionAsync<TResult>(Func<ITransaction, TResult> updateFunc)
     {
-        FirebaseException? exception = null;
+        TransactionResultGuard.ThrowIfAsyncResultType(typeof(TResult));
+        Exception? exception = null;
         TResult? result = default;
         try {
             await _firestore.RunTransactionAsync(
                 (Transaction transaction, ref NSError? error) => {
                     // Captured state is per attempt: when a retry fails after its update function completed,
-                    // for example at commit, the failure of an earlier attempt must not be surfaced instead.
+                    // for example at commit, the failure of an earlier attempt must not be surfaced instead, and
+                    // only the attempt that commits provides the result.
                     exception = null;
+                    result = default;
+                    TResult attemptResult;
                     try {
-                        // The result never needs to be a Firestore value: keep it in .NET so any
-                        // TResult works and nothing can fail after the commit.
-                        result = updateFunc(transaction.ToAbstract());
-                        return null;
+                        attemptResult = updateFunc(transaction.ToAbstract());
                     } catch(Exception e) {
                         // A failure already wrapped by this plugin, such as a failed transactional read,
                         // surfaces as-is instead of being wrapped twice.
@@ -70,12 +71,21 @@ public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseF
                         // failure, including one that wraps a failed read, is reported in the plugin's domain,
                         // which marks the transaction permanently failed, so the writes queued before the
                         // failure can neither be retried nor committed.
-                        error = FirestoreExceptionFactory.GetFirestoreError(e) ?? NSError.FromDomain(
-                            TransactionUpdateErrorDomain,
-                            -1,
-                            new NSDictionary<NSString, NSObject>(NSError.LocalizedDescriptionKey, new NSString(e.Message)));
+                        error = FirestoreExceptionFactory.GetFirestoreError(e) ?? CreateUpdateError(e.Message);
                         return null;
                     }
+                    // A task TResult is rejected up front; a task returned through an object result means the update
+                    // function is asynchronous too, so abort the attempt in the plugin's domain before any of its
+                    // writes commit, and surface the ArgumentException as-is.
+                    if(TransactionResultGuard.GetAsyncResultException(attemptResult) is { } asyncResultException) {
+                        exception = asyncResultException;
+                        error = CreateUpdateError(asyncResultException.Message);
+                        return null;
+                    }
+                    // The result never needs to be a Firestore value: keep it in .NET so any
+                    // TResult works and nothing can fail after the commit.
+                    result = attemptResult;
+                    return null;
                 }
             );
         } catch(Exception) when(exception != null) {
@@ -89,6 +99,14 @@ public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseF
             throw FirestoreExceptionFactory.Create(e);
         }
         return result;
+    }
+
+    private static NSError CreateUpdateError(string message)
+    {
+        return NSError.FromDomain(
+            TransactionUpdateErrorDomain,
+            -1,
+            new NSDictionary<NSString, NSObject>(NSError.LocalizedDescriptionKey, new NSString(message)));
     }
 
     /// <inheritdoc/>

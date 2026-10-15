@@ -96,10 +96,11 @@ Since code should be documenting itself you can also take a look at the followin
 
 ## Next-release migration notes
 
-On Android, `null` entries in a stored array now read into typed list properties the same way as on iOS (see [Usage](#usage)). Compared with 4.2.1:
+`null` entries in a stored array now read into typed list properties the same way on both platforms (see [Usage](#usage)). Compared with Plugin.Firebase.Firestore 4.0.0:
 
-- A list of `string` keeps the `null` entry. Previously it became an empty string.
-- A list of `int`, `long`, `float`, `double`, `decimal` or `bool` throws `ArgumentNullException` when you read `snapshot.Data`. Previously the entry became `0` or `false`. Use a nullable element type such as `IList<int?>` to read arrays that can contain `null`.
+- On Android, a list of `string` keeps the `null` entry. Previously it became an empty string. A list of `int`, `long`, `float`, `double`, `decimal` or `bool` throws `ArgumentNullException` when you read `snapshot.Data`. Previously the entry became `0` or `false`.
+- On iOS, `null` entries were dropped, so the list was shorter than the stored array and later entries moved to lower indexes: `["a", null, "b"]` read into an `IList<string>` gave two entries. They're now kept, so that list has three entries. A list of a non-nullable value type such as `IList<int>` throws `ArgumentNullException` when you read `snapshot.Data`. Previously `[1, null, 3]` gave `[1, 3]`.
+- If a stored array can contain `null`, use a nullable element type such as `IList<int?>` for a list of a value type.
 
 ## Release notes
 - Version 3.1.3

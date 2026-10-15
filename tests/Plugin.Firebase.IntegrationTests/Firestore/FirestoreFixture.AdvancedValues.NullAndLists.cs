@@ -35,29 +35,38 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
                 nullableNumbers: [1L, null, 3L],
                 strings: ["first", null, "last"]));
 
-            var snapshot = await document.GetDocumentSnapshotAsync<ListNullDocument>();
+            var data = (await document.GetDocumentSnapshotAsync<ListNullDocument>()).Data!;
 
-            Assert.Equal("first", snapshot.Data!.Values[0]);
-            Assert.Null(snapshot.Data!.Values[1]);
-            Assert.Equal("third", snapshot.Data!.Values[2]);
-            Assert.Equal([1L, null, 3L], snapshot.Data!.NullableNumbers);
+            Assert.Equal("first", data.Values[0]);
+            Assert.Null(data.Values[1]);
+            Assert.Equal("third", data.Values[2]);
+            Assert.Equal([1L, null, 3L], data.NullableNumbers);
             // a typed string list takes the conversion path that used to turn null into "" on Android (#706)
-            Assert.Equal(["first", null, "last"], snapshot.Data!.Strings);
+            Assert.Equal(["first", null, "last"], data.Strings);
         }
 
         [Fact]
         public async Task rejects_null_entries_in_lists_of_non_nullable_value_types()
         {
             var sut = CrossFirebaseFirestore.Current;
+            var controlDocument = GetTestingDocument(sut, "list-non-nullable-values");
             var document = GetTestingDocument(sut, "list-null-non-nullable-values");
+            await controlDocument.SetDataAsync(new Dictionary<object, object?> {
+                { "counts", new object?[] { 1L, 2L, 3L } }
+            });
             await document.SetDataAsync(new Dictionary<object, object?> {
                 { "counts", new object?[] { 1L, null, 3L } }
             });
 
+            // the same model reads an array without null entries, so only the null entry makes the read below fail
+            Assert.Equal([1, 2, 3], (await controlDocument.GetDocumentSnapshotAsync<NonNullableListDocument>()).Data!.Counts);
+
             var snapshot = await document.GetDocumentSnapshotAsync<NonNullableListDocument>();
 
             // List<int> rejects the null entry when snapshot.Data converts the document; it is not replaced with 0
-            Assert.Throws<ArgumentNullException>(() => snapshot.Data);
+            // or dropped. "item" is the parameter name List<T>'s IList.Add reports on both platforms.
+            var exception = Assert.Throws<ArgumentNullException>(() => snapshot.Data);
+            Assert.Equal("item", exception.ParamName);
         }
 
         [Fact]

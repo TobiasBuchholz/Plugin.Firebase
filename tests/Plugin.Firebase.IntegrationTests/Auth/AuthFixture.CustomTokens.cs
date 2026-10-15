@@ -93,10 +93,20 @@ namespace Plugin.Firebase.IntegrationTests.Auth
             Assert.Throws<InvalidCastException>(() => result.GetClaim<bool>("score"));
             Assert.Throws<InvalidCastException>(() => result.GetClaim<string>("flag"));
 
-            // list elements follow the same rules
+            // list elements and dictionary values follow the same rules
             Assert.Equal([7L, 300L], result.GetClaim<List<long>>("levels"));
             Assert.Throws<OverflowException>(() => result.GetClaim<List<byte>>("levels"));
             Assert.Throws<InvalidCastException>(() => result.GetClaim<List<string>>("levels"));
+            var limits = result.GetClaim<Dictionary<string, long>>("limits");
+            Assert.Equal(7L, limits["daily"]);
+            Assert.Equal(2L, limits["ratio"]);
+            Assert.Throws<InvalidCastException>(() => result.GetClaim<Dictionary<string, bool>>("limits"));
+            var listedLimits = Assert.Single(result.GetClaim<List<Dictionary<string, long>>>("limit_list"));
+            Assert.Equal(7L, listedLimits["daily"]);
+            Assert.Equal(2L, listedLimits["ratio"]);
+            Assert.Throws<InvalidCastException>(
+                () => result.GetClaim<List<Dictionary<string, bool>>>("limit_list")
+            );
         }
 
 

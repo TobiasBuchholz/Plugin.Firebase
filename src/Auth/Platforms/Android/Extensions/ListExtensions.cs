@@ -1,5 +1,6 @@
 using System.Collections;
 using Android.Runtime;
+using Plugin.Firebase.Auth.Internal;
 
 namespace Plugin.Firebase.Auth.Platforms.Android.Extensions;
 
@@ -43,8 +44,11 @@ public static class ListExtensions
     {
         if(value is Java.Lang.Object javaValue) {
             list.Add(javaValue.ToObject(targetType));
+        } else if(value is null) {
+            list.Add(null);
         } else {
-            list.Add(value);
+            // JavaList's indexer hands back java.lang boxes and strings already converted to .NET values
+            list.Add(ClaimValueConverter.ToRequestedType(value, targetType));
         }
     }
 }

@@ -168,7 +168,9 @@ In v5:
 - Claims are not coerced between JSON types. A string or boolean claim read as a number, a numeric or boolean claim read as `string`, a numeric claim read as `bool`, and any claim read as `char` throw `InvalidCastException`. Android already threw in these cases. iOS used to return 1 or 0 for a boolean read as a number, whether a number was non-zero for a number read as `bool`, `null` for a number or boolean read as `string`, and a character made from the low byte of a number read as `char`.
 - The elements of a requested list type, such as `GetClaim<List<long>>`, and the values of a requested dictionary type follow the same rules:
   - On iOS, a number in a list or dictionary requested with `string` elements used to become `null`, and with `bool` elements `true` or `false`. It now throws `InvalidCastException`. A number that doesn't fit a numeric element type throws `OverflowException` instead of wrapping.
-  - On Android, numbers in a list or dictionary requested with a numeric element type now convert to it. Previously any element type other than the one the native SDK parsed the number into threw `ArgumentException`. A number in a list requested with `string` or `bool` elements now throws `InvalidCastException` instead of `ArgumentException`. Dictionary values requested as `string` are still converted with `ToString()`.
+  - On Android, numbers in a list or dictionary requested with a numeric element type now convert to it. Previously any element type other than the one the native SDK parsed the number into threw `ArgumentException`.
+  - The exception was a dictionary inside a list, whose values went through `Convert.ChangeType`. That rounded fractions (2.7 read as `long` became 3) and coerced between types, for example `"123"` to 123 and `true` to 1.
+  - A number in a list requested with `string` or `bool` elements, or in a dictionary requested with `bool` values, now throws `InvalidCastException`. Dictionary values requested as `string` are still converted with `ToString()`.
 
 On iOS, read each claim as its JSON type and convert it in your own code if you relied on the old coercions.
 

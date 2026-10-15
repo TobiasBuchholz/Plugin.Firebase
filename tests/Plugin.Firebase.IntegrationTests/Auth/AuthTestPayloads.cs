@@ -25,6 +25,17 @@ internal static class AuthTestPayloads
             ["flag"] = true,
             ["numeric_text"] = "123",
             ["levels"] = new[] { 7, 300 },
+            ["limits"] = new Dictionary<string, object?> {
+                ["daily"] = 7,
+                ["ratio"] = 2.7,
+            },
+            // on Android a map inside a list takes a different conversion path from a map claim
+            ["limit_list"] = new[] {
+                new Dictionary<string, object?> {
+                    ["daily"] = 7,
+                    ["ratio"] = 2.7,
+                },
+            },
         };
     }
 

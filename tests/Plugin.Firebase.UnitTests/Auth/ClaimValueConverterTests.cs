@@ -36,8 +36,10 @@ public class ClaimValueConverterTests
         { ulong.MaxValue, typeof(ulong), ulong.MaxValue },
         { (ulong) long.MaxValue, typeof(long), long.MaxValue },
 
-        // the natural types Android reads claims into
+        // the natural types Android reads claims into, including the values JavaList and JavaDictionary unwrap
         { 7, typeof(long), 7L },
+        { (short) 7, typeof(long), 7L },
+        { (byte) 7, typeof(int), 7 },
         { 7, typeof(byte), (byte) 7 },
         { 7L, typeof(int), 7 },
         { 7f, typeof(int), 7 },

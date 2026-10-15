@@ -8,13 +8,13 @@ public sealed partial class FirestoreFixture
     public async Task round_trips_typed_model_numeric_writes_at_boundaries()
     {
         var sut = CrossFirebaseFirestore.Current;
-        foreach(var (name, written) in new[] { ("min", NumericWritesDocument.CreateMin()), ("max", NumericWritesDocument.CreateMax()) }) {
+        foreach(var (name, written) in new[] { ("min", NumericWritesFactory.CreateMinimums()), ("max", NumericWritesFactory.CreateMaximums()) }) {
             var document = GetTestingDocument(sut, $"typed-model-numeric-writes-{name}");
             await document.SetDataAsync(written);
 
             var snapshot = await document.GetDocumentSnapshotAsync<NumericWritesDocument>();
             Assert.Equivalent(written, snapshot.Data);
-            await AssertStoredValuesAsync(document, written.ToWireValues());
+            await FirestoreAssertions.StoredValuesAsync(document, written.ToWireValues());
         }
     }
 
@@ -22,13 +22,13 @@ public sealed partial class FirestoreFixture
     public async Task round_trips_nullable_numeric_property_writes()
     {
         var sut = CrossFirebaseFirestore.Current;
-        foreach(var (name, written) in new[] { ("values", NullableNumericWritesDocument.CreateWithValues()), ("nulls", new NullableNumericWritesDocument()) }) {
+        foreach(var (name, written) in new[] { ("values", NumericWritesFactory.CreateNullableValues()), ("nulls", new NullableNumericWritesDocument()) }) {
             var document = GetTestingDocument(sut, $"typed-model-nullable-numeric-writes-{name}");
             await document.SetDataAsync(written);
 
             var snapshot = await document.GetDocumentSnapshotAsync<NullableNumericWritesDocument>();
             Assert.Equivalent(written, snapshot.Data);
-            await AssertStoredValuesAsync(document, written.ToWireValues());
+            await FirestoreAssertions.StoredValuesAsync(document, written.ToWireValues());
         }
     }
 
@@ -48,7 +48,7 @@ public sealed partial class FirestoreFixture
         });
         await document.UpdateDataAsync(("union", FieldValue.ArrayUnion((byte) 1, UshortRating.Max)));
 
-        await AssertStoredValuesAsync(document, new Dictionary<string, object?> {
+        await FirestoreAssertions.StoredValuesAsync(document, new Dictionary<string, object?> {
             { "byte", 5L },
             { "short", -3L },
             { "float", 2.5 },
@@ -57,24 +57,31 @@ public sealed partial class FirestoreFixture
             { "list", new object?[] { -1L, 7L, 0.5, 4294967295L, "x" } },
             { "union", new object?[] { 1L, 65535L } }
         });
+
+        // query operands take the same conversion, so they find the values stored above
+        var collection = GetTestingCollection(sut);
+        var byEnum = await collection.WhereEqualsTo("byte_enum", ByteRating.Max).GetDocumentsAsync<Dictionary<string, object?>>();
+        Assert.Equal(document.Id, Assert.Single(byEnum.Documents).Reference.Id);
+        var byElement = await collection.WhereArrayContains("list", UintRating.Max).GetDocumentsAsync<Dictionary<string, object?>>();
+        Assert.Equal(document.Id, Assert.Single(byElement.Documents).Reference.Id);
     }
 
     [Fact]
     public async Task round_trips_enum_writes_for_each_underlying_type()
     {
         var sut = CrossFirebaseFirestore.Current;
-        foreach(var (name, written) in new[] { ("min", EnumWidthsDocument.CreateMin()), ("max", EnumWidthsDocument.CreateMax()) }) {
+        foreach(var (name, written) in new[] { ("min", NumericWritesFactory.CreateEnumMinimums()), ("max", NumericWritesFactory.CreateEnumMaximums()) }) {
             var document = GetTestingDocument(sut, $"typed-model-enum-writes-{name}");
             await document.SetDataAsync(written);
 
             var snapshot = await document.GetDocumentSnapshotAsync<EnumWidthsDocument>();
             Assert.Equivalent(written, snapshot.Data);
-            await AssertStoredValuesAsync(document, written.ToWireValues());
+            await FirestoreAssertions.StoredValuesAsync(document, written.ToWireValues());
 
             var updated = GetTestingDocument(sut, $"enum-update-writes-{name}");
             await updated.SetDataAsync(("seed", 0L));
             await updated.UpdateDataAsync(written.ToFieldValues());
-            await AssertStoredValuesAsync(updated, written.ToWireValues());
+            await FirestoreAssertions.StoredValuesAsync(updated, new Dictionary<string, object?>(written.ToWireValues()) { { "seed", 0L } });
         }
     }
 
@@ -96,7 +103,8 @@ public sealed partial class FirestoreFixture
             return (byte) 5;
         });
 
-        await AssertStoredValuesAsync(document, new Dictionary<string, object?> {
+        await FirestoreAssertions.StoredValuesAsync(document, new Dictionary<string, object?> {
+            { "seed", 0L },
             { "update_ushort", 65535L },
             { "update_uint_enum", 4294967295L },
             { "batch_set_uint", 4294967295L },
@@ -112,10 +120,10 @@ public sealed partial class FirestoreFixture
     }
 
     [Fact]
-    public async Task rejects_decimal_and_char_writes()
+    public async Task rejects_decimal_char_and_byte_array_writes()
     {
         var sut = CrossFirebaseFirestore.Current;
-        var document = GetTestingDocument(sut, "decimal-and-char-writes");
+        var document = GetTestingDocument(sut, "decimal-char-and-byte-array-writes");
         await document.SetDataAsync(("seed", 0L));
 
         // Firestore has no decimal or character type, so neither is converted silently
@@ -124,8 +132,11 @@ public sealed partial class FirestoreFixture
         await Assert.ThrowsAsync<ArgumentException>(() => document.UpdateDataAsync(("price", 19.99m)));
         await Assert.ThrowsAsync<ArgumentException>(() => document.SetDataAsync(("initial", 'A')));
         await Assert.ThrowsAsync<ArgumentException>(() => document.UpdateDataAsync(("initials", new object?[] { 'A' })));
+        // Firestore bytes (Blob) values aren't mapped, so byte arrays aren't stored as int64 arrays either
+        await Assert.ThrowsAsync<ArgumentException>(() => document.SetDataAsync(("bytes", new byte[] { 1, 255 })));
+        await Assert.ThrowsAsync<ArgumentException>(() => document.UpdateDataAsync(("bytes", new sbyte[] { -1 })));
 
-        await AssertStoredValuesAsync(document, new Dictionary<string, object?> { { "seed", 0L } });
+        await FirestoreAssertions.StoredValuesAsync(document, new Dictionary<string, object?> { { "seed", 0L } });
     }
 
     [Fact]
@@ -141,31 +152,6 @@ public sealed partial class FirestoreFixture
         await Assert.ThrowsAsync<ArgumentException>(() => document.UpdateDataAsync(("too_big", UlongRating.AboveInt64Max)));
         await Assert.ThrowsAsync<ArgumentException>(() => document.UpdateDataAsync(("too_big", new object?[] { ulong.MaxValue })));
 
-        await AssertStoredValuesAsync(document, new Dictionary<string, object?> { { "seed", 0L } });
+        await FirestoreAssertions.StoredValuesAsync(document, new Dictionary<string, object?> { { "seed", 0L } });
     }
-
-    private static async Task AssertStoredValuesAsync(IDocumentReference document, IReadOnlyDictionary<string, object?> expected)
-    {
-        var stored = (await document.GetDocumentSnapshotAsync<Dictionary<string, object?>>()).Data!;
-        foreach(var (field, value) in expected) {
-            AssertStoredValue(field, value, Assert.Contains(field, stored));
-        }
-    }
-
-    private static void AssertStoredValue(string field, object? expected, object? actual)
-    {
-        if(expected is object?[] expectedItems) {
-            var items = Assert.IsAssignableFrom<IList<object?>>(actual);
-            Assert.Equal(expectedItems.Length, items.Count);
-            for(var i = 0; i < items.Count; i++) {
-                AssertStoredValue($"{field}[{i}]", expectedItems[i], items[i]);
-            }
-            return;
-        }
-
-        // boxed numbers are only equal when their types match, so an int64 can't pass for a double or a boolean
-        Assert.True(Equals(expected, actual), $"'{field}' was stored as {Describe(actual)}, expected {Describe(expected)}");
-    }
-
-    private static string Describe(object? value) => value is null ? "null" : $"{value} ({value.GetType().Name})";
 }

@@ -53,7 +53,10 @@ public class FirestoreNumericWritesTests
         { (Half) 1.5, "64-bit integers or doubles" },
         { (Int128) 1, "64-bit integers or doubles" },
         { (UInt128) 1, "64-bit integers or doubles" },
-        { new BigInteger(1), "64-bit integers or doubles" }
+        { new BigInteger(1), "64-bit integers or doubles" },
+        // the platforms would otherwise store these element by element as an int64 array
+        { new byte[] { 1, 255 }, "bytes (Blob)" },
+        { new sbyte[] { -1 }, "bytes (Blob)" }
     };
 
     public static IEnumerable<object?[]> NonNumericValues => [

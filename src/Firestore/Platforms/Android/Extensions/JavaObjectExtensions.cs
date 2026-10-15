@@ -74,8 +74,16 @@ public static class JavaObjectExtensions
 
     /// <summary>
     /// Converts a number or enum with <see cref="FirestoreNumericWrites"/>. <see cref="DictionaryExtensions"/> uses
-    /// this as well, so set and update writes store the same values.
+    /// this as well, so set and update writes store numbers the same way.
     /// </summary>
+    /// <remarks>
+    /// Like <see cref="FirestoreNumericWrites.TryWiden"/>, this throws despite its name: false only means that
+    /// <paramref name="value"/> isn't a number.
+    /// </remarks>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="value"/> is a number with no Firestore representation, or a <see cref="byte"/> or
+    /// <see cref="sbyte"/> array.
+    /// </exception>
     internal static bool TryToJavaNumber(object? value, [NotNullWhen(true)] out Java.Lang.Object? number)
     {
         if(!FirestoreNumericWrites.TryWiden(value, out var widened)) {

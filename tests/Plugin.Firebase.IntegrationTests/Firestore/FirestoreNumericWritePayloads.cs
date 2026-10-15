@@ -6,62 +6,35 @@ namespace Plugin.Firebase.IntegrationTests.Firestore;
 [Preserve(AllMembers = true)]
 internal sealed class NumericWritesDocument : IFirestoreObject
 {
-    public static NumericWritesDocument CreateMin() => new() {
-        ByteValue = byte.MinValue,
-        SbyteValue = sbyte.MinValue,
-        ShortValue = short.MinValue,
-        UshortValue = ushort.MinValue,
-        IntValue = int.MinValue,
-        UintValue = uint.MinValue,
-        LongValue = long.MinValue,
-        UlongValue = ulong.MinValue,
-        FloatValue = float.MinValue,
-        DoubleValue = double.MinValue
-    };
-
-    public static NumericWritesDocument CreateMax() => new() {
-        ByteValue = byte.MaxValue,
-        SbyteValue = sbyte.MaxValue,
-        ShortValue = short.MaxValue,
-        UshortValue = ushort.MaxValue,
-        IntValue = int.MaxValue,
-        UintValue = uint.MaxValue,
-        LongValue = long.MaxValue,
-        // the largest ulong Firestore can store
-        UlongValue = long.MaxValue,
-        FloatValue = float.MaxValue,
-        DoubleValue = double.MaxValue
-    };
-
     [FirestoreProperty("byte_value")]
-    public byte ByteValue { get; [UsedImplicitly] private set; }
+    public byte ByteValue { get; init; }
 
     [FirestoreProperty("sbyte_value")]
-    public sbyte SbyteValue { get; [UsedImplicitly] private set; }
+    public sbyte SbyteValue { get; init; }
 
     [FirestoreProperty("short_value")]
-    public short ShortValue { get; [UsedImplicitly] private set; }
+    public short ShortValue { get; init; }
 
     [FirestoreProperty("ushort_value")]
-    public ushort UshortValue { get; [UsedImplicitly] private set; }
+    public ushort UshortValue { get; init; }
 
     [FirestoreProperty("int_value")]
-    public int IntValue { get; [UsedImplicitly] private set; }
+    public int IntValue { get; init; }
 
     [FirestoreProperty("uint_value")]
-    public uint UintValue { get; [UsedImplicitly] private set; }
+    public uint UintValue { get; init; }
 
     [FirestoreProperty("long_value")]
-    public long LongValue { get; [UsedImplicitly] private set; }
+    public long LongValue { get; init; }
 
     [FirestoreProperty("ulong_value")]
-    public ulong UlongValue { get; [UsedImplicitly] private set; }
+    public ulong UlongValue { get; init; }
 
     [FirestoreProperty("float_value")]
-    public float FloatValue { get; [UsedImplicitly] private set; }
+    public float FloatValue { get; init; }
 
     [FirestoreProperty("double_value")]
-    public double DoubleValue { get; [UsedImplicitly] private set; }
+    public double DoubleValue { get; init; }
 
     // Firestore stores every integral value as an int64 and float as a double
     public IReadOnlyDictionary<string, object?> ToWireValues() => new Dictionary<string, object?> {
@@ -81,31 +54,23 @@ internal sealed class NumericWritesDocument : IFirestoreObject
 [Preserve(AllMembers = true)]
 internal sealed class NullableNumericWritesDocument : IFirestoreObject
 {
-    public static NullableNumericWritesDocument CreateWithValues() => new() {
-        NullableByteValue = byte.MaxValue,
-        NullableUintValue = uint.MaxValue,
-        NullableUlongValue = long.MaxValue,
-        NullableFloatValue = 1.5f,
-        NullableEnumValue = IntRating.Min
-    };
-
     [FirestoreProperty("nullable_byte_value")]
-    public byte? NullableByteValue { get; [UsedImplicitly] private set; }
+    public byte? NullableByteValue { get; init; }
 
     [FirestoreProperty("nullable_uint_value")]
-    public uint? NullableUintValue { get; [UsedImplicitly] private set; }
+    public uint? NullableUintValue { get; init; }
 
     [FirestoreProperty("nullable_ulong_value")]
-    public ulong? NullableUlongValue { get; [UsedImplicitly] private set; }
+    public ulong? NullableUlongValue { get; init; }
 
     [FirestoreProperty("nullable_float_value")]
-    public float? NullableFloatValue { get; [UsedImplicitly] private set; }
+    public float? NullableFloatValue { get; init; }
 
     [FirestoreProperty("nullable_enum_value")]
-    public IntRating? NullableEnumValue { get; [UsedImplicitly] private set; }
+    public IntRating? NullableEnumValue { get; init; }
 
     [FirestoreProperty("nullable_int_value")]
-    public int? NullableIntValue { get; [UsedImplicitly] private set; }
+    public int? NullableIntValue { get; init; }
 
     public IReadOnlyDictionary<string, object?> ToWireValues() => new Dictionary<string, object?> {
         { "nullable_byte_value", (long?) NullableByteValue },
@@ -137,51 +102,29 @@ internal enum UlongRating : ulong { Min = ulong.MinValue, Max = long.MaxValue, A
 [Preserve(AllMembers = true)]
 internal sealed class EnumWidthsDocument : IFirestoreObject
 {
-    public static EnumWidthsDocument CreateMin() => new() {
-        ByteEnum = ByteRating.Min,
-        SbyteEnum = SbyteRating.Min,
-        ShortEnum = ShortRating.Min,
-        UshortEnum = UshortRating.Min,
-        IntEnum = IntRating.Min,
-        UintEnum = UintRating.Min,
-        LongEnum = LongRating.Min,
-        UlongEnum = UlongRating.Min
-    };
-
-    public static EnumWidthsDocument CreateMax() => new() {
-        ByteEnum = ByteRating.Max,
-        SbyteEnum = SbyteRating.Max,
-        ShortEnum = ShortRating.Max,
-        UshortEnum = UshortRating.Max,
-        IntEnum = IntRating.Max,
-        UintEnum = UintRating.Max,
-        LongEnum = LongRating.Max,
-        UlongEnum = UlongRating.Max
-    };
-
     [FirestoreProperty("byte_enum")]
-    public ByteRating ByteEnum { get; [UsedImplicitly] private set; }
+    public ByteRating ByteEnum { get; init; }
 
     [FirestoreProperty("sbyte_enum")]
-    public SbyteRating SbyteEnum { get; [UsedImplicitly] private set; }
+    public SbyteRating SbyteEnum { get; init; }
 
     [FirestoreProperty("short_enum")]
-    public ShortRating ShortEnum { get; [UsedImplicitly] private set; }
+    public ShortRating ShortEnum { get; init; }
 
     [FirestoreProperty("ushort_enum")]
-    public UshortRating UshortEnum { get; [UsedImplicitly] private set; }
+    public UshortRating UshortEnum { get; init; }
 
     [FirestoreProperty("int_enum")]
-    public IntRating IntEnum { get; [UsedImplicitly] private set; }
+    public IntRating IntEnum { get; init; }
 
     [FirestoreProperty("uint_enum")]
-    public UintRating UintEnum { get; [UsedImplicitly] private set; }
+    public UintRating UintEnum { get; init; }
 
     [FirestoreProperty("long_enum")]
-    public LongRating LongEnum { get; [UsedImplicitly] private set; }
+    public LongRating LongEnum { get; init; }
 
     [FirestoreProperty("ulong_enum")]
-    public UlongRating UlongEnum { get; [UsedImplicitly] private set; }
+    public UlongRating UlongEnum { get; init; }
 
     // the same values as update fields, which Android converts on a different path than set
     public Dictionary<object, object?> ToFieldValues() => new() {

@@ -9,7 +9,9 @@ namespace Plugin.Firebase.Firestore.Internal;
 /// number as a signed 64-bit integer or a double, so integral values widen to <see cref="long"/> and
 /// <see cref="float"/> widens to <see cref="double"/>. Types that have no lossless Firestore representation throw
 /// instead of being converted silently. Both platforms pass every written value through this mapping first, so
-/// set, update, query, list and array-union writes store numbers the same way.
+/// set, update, query, list and array-union writes store numbers the same way. <see cref="byte"/> and
+/// <see cref="sbyte"/> arrays are rejected here too, because the platforms would otherwise write them element by
+/// element as an int64 array rather than as Firestore bytes.
 /// </summary>
 internal static class FirestoreNumericWrites
 {
@@ -19,10 +21,15 @@ internal static class FirestoreNumericWrites
     /// <param name="value">The value being written.</param>
     /// <param name="widened">A boxed <see cref="long"/> or <see cref="double"/> when this method returns true.</param>
     /// <returns>True if <paramref name="value"/> is a number or an enum; false for any other value, including null.</returns>
+    /// <remarks>
+    /// Unlike most <c>Try</c> methods, this one throws: false only means that <paramref name="value"/> isn't a number
+    /// and the platform converts it another way, while a value Firestore can't store fails the write here.
+    /// </remarks>
     /// <exception cref="ArgumentException">
     /// <paramref name="value"/> is a <see cref="decimal"/>, <see cref="char"/>, <see cref="nint"/>, <see cref="nuint"/>,
-    /// <see cref="Half"/>, <see cref="Int128"/>, <see cref="UInt128"/> or <see cref="BigInteger"/>, or a
-    /// <see cref="ulong"/> or ulong-backed enum value above <see cref="long.MaxValue"/>.
+    /// <see cref="Half"/>, <see cref="Int128"/>, <see cref="UInt128"/> or <see cref="BigInteger"/>, a
+    /// <see cref="ulong"/> or ulong-backed enum value above <see cref="long.MaxValue"/>, or a <see cref="byte"/> or
+    /// <see cref="sbyte"/> array.
     /// </exception>
     public static bool TryWiden(object? value, [NotNullWhen(true)] out object? widened)
     {
@@ -57,6 +64,9 @@ internal static class FirestoreNumericWrites
             case nint or nuint or Half or Int128 or UInt128 or BigInteger:
                 throw new ArgumentException(
                     $"Firestore numbers are 64-bit integers or doubles, so {value!.GetType()} values can't be written. Convert the value to long or double explicitly.");
+            case byte[] or sbyte[]:
+                throw new ArgumentException(
+                    $"Firestore bytes (Blob) values aren't supported by this API, so {value!.GetType()} values can't be written. Convert the value explicitly, for example to a Base64 string.");
             default:
                 widened = null;
                 return false;

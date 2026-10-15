@@ -6,7 +6,8 @@ namespace Plugin.Firebase.Firestore.Internal;
 /// <remarks>
 /// Platform-neutral so the arithmetic can be unit tested without a device. A .NET tick is 100 ns, so the
 /// conversions are exact at 100 ns granularity. The native SDKs then truncate written values to the
-/// microseconds that Firestore stores.
+/// microseconds that Firestore stores. .NET dates and Firestore timestamps both use the proleptic Gregorian
+/// calendar, so dates before the 1582-10-15 calendar reform convert without a shift.
 /// </remarks>
 internal static class TimestampConversion
 {

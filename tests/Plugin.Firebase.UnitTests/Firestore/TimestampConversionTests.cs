@@ -96,6 +96,31 @@ public class TimestampConversionTests
         Assert.Equal(DateTimeOffset.MaxValue, TimestampConversion.ToDateTimeOffset(maxSeconds, maxNanoseconds));
     }
 
+    [Theory]
+    // Seconds on the proleptic Gregorian calendar that .NET and Firestore share. The Julian/Gregorian hybrid calendar
+    // that Microsoft.iOS converts NSDate through puts these dates up to ten days away, except the last one.
+    [InlineData(1, 3, 1, -62_130_499_200L)]
+    [InlineData(300, 3, 1, -52_695_014_400L)]
+    [InlineData(1000, 1, 1, -30_610_224_000L)]
+    [InlineData(1582, 10, 4, -12_220_243_200L)]
+    [InlineData(1582, 10, 5, -12_220_156_800L)]
+    [InlineData(1582, 10, 14, -12_219_379_200L)]
+    [InlineData(1582, 10, 15, -12_219_292_800L)]
+    public void converts_dates_before_the_gregorian_calendar_reform_on_the_proleptic_calendar(
+        int year,
+        int month,
+        int day,
+        long expectedSeconds)
+    {
+        var value = new DateTimeOffset(year, month, day, 0, 0, 0, TimeSpan.Zero);
+
+        var (seconds, nanoseconds) = TimestampConversion.ToUnixSecondsAndNanoseconds(value);
+
+        Assert.Equal(expectedSeconds, seconds);
+        Assert.Equal(0, nanoseconds);
+        Assert.Equal(value, TimestampConversion.ToDateTimeOffset(seconds, nanoseconds));
+    }
+
     [Fact]
     public void converts_utc_date_times_through_their_instant()
     {

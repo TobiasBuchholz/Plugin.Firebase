@@ -4,8 +4,7 @@ namespace Plugin.Firebase.IntegrationTests.Firestore;
 
 public sealed partial class FirestoreFixture
 {
-    // Half a microsecond past a whole microsecond. Firestore keeps the microsecond and drops the rest, and the iOS
-    // conversions through NSDate (a double) are too small to move a value into a neighbouring microsecond.
+    // Half a microsecond past a whole microsecond. Firestore keeps the microsecond and drops the rest.
     private const long SubMillisecondTicks = 1_234_565;
 
     [Fact]
@@ -31,9 +30,7 @@ public sealed partial class FirestoreFixture
         FirestoreAssertions.SameInstantToTheMicrosecond(eastOfUtc, Assert.IsType<DateTimeOffset>(raw["east"]));
     }
 
-    // Android only: iOS converts dates through NSDate (a double), so a value read there isn't guaranteed to land on
-    // the stored microsecond when it is written back as a query operand.
-    [AndroidFact]
+    [Fact]
     public async Task finds_a_document_by_the_sub_millisecond_timestamp_read_from_it()
     {
         var sut = CrossFirebaseFirestore.Current;
@@ -61,8 +58,7 @@ public sealed partial class FirestoreFixture
         Assert.Equal(target.Id, Assert.Single(bySameInstantWithOffset.Documents).Reference.Id);
     }
 
-    // Android only, for the same reason as the equality query above.
-    [AndroidFact]
+    [Fact]
     public async Task pages_past_the_sub_millisecond_timestamp_read_from_the_last_document()
     {
         var sut = CrossFirebaseFirestore.Current;
@@ -91,9 +87,8 @@ public sealed partial class FirestoreFixture
         Assert.Equal(second.Id, Assert.Single(nextPage.Documents).Reference.Id);
     }
 
-    // Android only: on iOS a DateTime transaction result comes back as a DateTimeOffset and fails the cast.
-    [AndroidFact]
-    public async Task returns_sub_millisecond_date_results_from_transactions_on_android()
+    [Fact]
+    public async Task returns_sub_millisecond_date_results_from_transactions()
     {
         var sut = CrossFirebaseFirestore.Current;
         var expected = new DateTimeOffset(2026, 1, 1, 7, 0, 0, TimeSpan.FromHours(-5)).AddTicks(SubMillisecondTicks);

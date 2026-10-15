@@ -78,6 +78,9 @@ public class CrossPlatformFirebaseExceptionTests
         Assert.Throws<ArgumentNullException>(
             () => new CrossPlatformFirebaseFirestoreException("type", nativeErrorMessage: null, null!)
         );
+        Assert.Throws<ArgumentNullException>(
+            () => new CrossPlatformFirebaseStorageException("type", nativeErrorMessage: null, null!)
+        );
     }
 
     [Fact]
@@ -120,15 +123,47 @@ public class CrossPlatformFirebaseExceptionTests
     }
 
     [Fact]
+    public void StorageCtor_PassesNativeMetadataThrough()
+    {
+        var inner = new InvalidOperationException("inner");
+
+        var ex = new CrossPlatformFirebaseStorageException(
+            "com.google.firebase.storage.StorageException",
+            "Object does not exist at location.",
+            inner,
+            nativeErrorCode: "-13010",
+            nativeHttpResultCode: 404
+        );
+
+        Assert.Equal("com.google.firebase.storage.StorageException", ex.NativeExceptionTypeName);
+        Assert.Null(ex.NativeErrorDomain);
+        Assert.Equal("-13010", ex.NativeErrorCode);
+        Assert.Equal(404, ex.NativeHttpResultCode);
+        Assert.Equal("Object does not exist at location.", ex.NativeErrorMessage);
+        Assert.Same(inner, ex.InnerException);
+    }
+
+    [Fact]
+    public void StorageCtor_WithoutHttpResultCode_LeavesItNull()
+    {
+        var ex = new CrossPlatformFirebaseStorageException("NSError", "message", new Exception("inner"));
+
+        Assert.Null(ex.NativeHttpResultCode);
+    }
+
+    [Fact]
     public void ServiceExceptions_AreCrossPlatformFirebaseExceptions()
     {
         var inner = new Exception("inner");
 
         var auth = new CrossPlatformFirebaseAuthException("type", "message", inner);
         var firestore = new CrossPlatformFirebaseFirestoreException("type", "message", inner);
+        var storage = new CrossPlatformFirebaseStorageException("type", "message", inner);
 
         Assert.IsAssignableFrom<CrossPlatformFirebaseException>(auth);
         Assert.IsAssignableFrom<CrossPlatformFirebaseException>(firestore);
+        Assert.IsAssignableFrom<CrossPlatformFirebaseException>(storage);
         Assert.IsAssignableFrom<FirebaseException>(firestore);
+        Assert.IsAssignableFrom<FirebaseException>(storage);
     }
 }

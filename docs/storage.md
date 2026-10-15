@@ -28,6 +28,30 @@ Since code should be documenting itself you can also take a look at the followin
 - [IStorageTaskSnapshot.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/src/Storage/Shared/IStorageTaskSnapshot.cs)
 - [Storage integration tests](https://github.com/TobiasBuchholz/Plugin.Firebase/tree/development/tests/Plugin.Firebase.IntegrationTests/Storage)
 
+## Error handling
+
+Every failure that the native Storage SDK reports as a `com.google.firebase.FirebaseException` (Android, which includes `StorageException`) or an `NSError` (iOS) surfaces as `CrossPlatformFirebaseStorageException` (`Plugin.Firebase.Core.Exceptions`). That covers the tasks returned by `IStorageReference`, `IStorageTransferTask.AwaitAsync()` for uploads and downloads, and `IStorageTaskSnapshot.Error` on failure snapshots. The type derives from `CrossPlatformFirebaseException`, the base that the Auth and Firestore exceptions share, and from `FirebaseException`. It keeps the native exception as `InnerException` and passes the native metadata through:
+
+| Property | Android | iOS |
+| --- | --- | --- |
+| `NativeExceptionTypeName` | Java canonical class name, e.g. `com.google.firebase.storage.StorageException` | `NSError` |
+| `NativeErrorCode` | `StorageException.ErrorCode`, e.g. `-13010`; `null` for other Firebase exceptions | `NSError` code, e.g. `-13010` (`StorageErrorCode.objectNotFound`) |
+| `NativeErrorDomain` | `null` | `NSError` domain, e.g. `FIRStorageErrorDomain` |
+| `NativeHttpResultCode` | `StorageException.HttpResultCode`, e.g. `404`; `0` or another non-HTTP value when the failure didn't come from an HTTP response | HTTP status of the failed request, e.g. `404`, read from the `ResponseErrorCode` user-info entry when `ResponseErrorDomain` is `com.google.HTTPStatus`; otherwise `null` |
+| `NativeErrorMessage` | The exception message | The `NSError` localized description |
+
+`NativeErrorCode` is the number formatted with the invariant culture, so it reads the same in every locale. The Storage codes match across the platforms where both SDKs define them, for example `-13010` for an object that doesn't exist and `-13020` and `-13021` for unauthenticated and unauthorized requests. The size limit is the exception: when a download exceeds the maximum size passed to `GetStreamAsync` or `GetBytesAsync`, Android reports `-13000` (`ERROR_UNKNOWN`, with the native size failure as the Java cause) and iOS reports `-13032` (`downloadSizeExceeded`), a code that the Android SDK doesn't define.
+
+Only native Firebase failures are wrapped. Managed exceptions, such as a `FirebaseException` for a missing native result, propagate unchanged, as does argument validation by the native SDKs. `ListAsync(maxResults)` validates `maxResults` itself: when it isn't between 1 and 1000, the range that both native SDKs accept, `ListAsync` throws `ArgumentOutOfRangeException` synchronously on both platforms instead of returning a task.
+
+```c#
+try {
+    var metadata = await CrossFirebaseStorage.Current.GetReferenceFromPath("files/missing.txt").GetMetadataAsync();
+} catch(CrossPlatformFirebaseStorageException e) when(e.NativeErrorCode == "-13010") {
+    Console.WriteLine($"Not found (HTTP {e.NativeHttpResultCode}): {e.NativeErrorMessage}");
+}
+```
+
 ## Next-release migration notes
 
 The .NET 10 release enables nullable-reference analysis for Storage and aligns the shared contracts with values that the native SDKs can omit:
@@ -42,6 +66,14 @@ The .NET 10 release enables nullable-reference analysis for Storage and aligns t
 The release also corrects `StorageMetadata` so `creationTime` and `updatedTime` populate their matching properties, and forwards `CacheControl` when metadata is sent to the iOS SDK. These are breaking behavior and signature changes; update callers and any custom implementations of the Storage interfaces before upgrading.
 
 On Android, `GetStreamAsync(maxSize)` now returns a readable stream and enforces `maxSize`. The object is downloaded into memory, as on iOS, and the task fails when it is larger than `maxSize`. Previously the returned stream was already closed and `maxSize` was ignored. The public Android-only `StreamProcessor` class that caused this is removed; it has no replacement.
+
+Failures that the native Storage SDKs report now surface as `CrossPlatformFirebaseStorageException` on both platforms (see [Error handling](#error-handling)). These are breaking changes; update `catch` blocks and failure observers before upgrading:
+
+- On Android, tasks returned by `IStorageReference` methods and `IStorageTransferTask.AwaitAsync()` previously faulted with the native `Firebase.Storage.StorageException`. A `catch` for `Firebase.Storage.StorageException`, or for its native base types `Firebase.FirebaseException` and `Java.Lang.Exception`, no longer matches; catch `CrossPlatformFirebaseStorageException` and read `NativeErrorCode` and `NativeHttpResultCode`, or the native exception from `InnerException`. A `catch (FirebaseException)` for `Plugin.Firebase.Core.Exceptions.FirebaseException` didn't match these failures before and now does.
+- On iOS, `GetMetadataAsync`, `UpdateMetadataAsync`, `GetDownloadUrlAsync` and `DeleteAsync` previously faulted with `Foundation.NSErrorException`; `ListAsync`, `ListAllAsync`, `GetStreamAsync` and `GetBytesAsync` with a `FirebaseException` that carried only the localized description; and the transfer tasks returned by `PutBytes`, `PutFile`, `PutStream` and `DownloadFile` with a plain `System.Exception`. A `catch` for `Foundation.NSErrorException` no longer matches; the `NSErrorException` is now the `InnerException`. `CrossPlatformFirebaseStorageException` derives from `FirebaseException`, so an existing `catch (FirebaseException)` still matches, and now also catches the failures that were `NSErrorException` or plain `Exception`.
+- `IStorageTaskSnapshot.Error` on failure snapshots is a `CrossPlatformFirebaseStorageException`. Previously it was the native `StorageException` on Android and `NSErrorException` on iOS, so a type check against `Firebase.Storage.StorageException`, `Firebase.FirebaseException`, `Java.Lang.Exception` or `Foundation.NSErrorException` no longer matches.
+- On iOS, when the native SDK returns more data than the requested maximum size, `GetStreamAsync` and `GetBytesAsync` fail with `CrossPlatformFirebaseStorageException` (`-13032`, the native `downloadSizeExceeded` error) instead of a plain `FirebaseException`.
+- `ListAsync(maxResults)` throws `ArgumentOutOfRangeException` synchronously, before calling the native SDK, when `maxResults` is less than 1 or greater than 1000. Previously both platforms returned a faulted task instead: with `Java.Lang.IllegalArgumentException` on Android for 0 or values above 1000, and with a `FirebaseException` built from the native invalid-argument error on iOS. Android also silently truncated values outside the `int` range, so `4294967297` listed one item. Code that awaits the call inside a `try` block still catches it there, but code that stores the task, or attaches a continuation, before awaiting it now gets the exception from the `ListAsync` call itself.
 
 ## Release notes
 

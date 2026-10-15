@@ -29,7 +29,7 @@ public sealed class StorageTransferTaskWrapper<TStorageTransferTask, TCompletion
             } else {
                 _tcs.SetException(
                     error != null
-                        ? new Exception(error.LocalizedDescription)
+                        ? StorageExceptionFactory.Create(error)
                         : new InvalidOperationException("Firebase Storage completed without a result.")
                 );
             }

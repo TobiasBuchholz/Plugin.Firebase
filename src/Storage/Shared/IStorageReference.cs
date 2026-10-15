@@ -4,6 +4,13 @@ namespace Plugin.Firebase.Storage;
 /// <c>IStorageReference</c> represents a reference to a Google Cloud Storage object. Developers can upload and download objects, as well
 /// as get/set object metadata, and delete an object at the path.
 /// </summary>
+/// <remarks>
+/// Every failure that the native Storage SDK reports as a Firebase exception (Android) or an <c>NSError</c> (iOS) surfaces
+/// as a <see cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseStorageException"/> that keeps the native exception
+/// as <see cref="Exception.InnerException"/> and passes the native error code through. That covers the tasks returned by
+/// this interface, <see cref="IStorageTransferTask.AwaitAsync"/>, and <see cref="IStorageTaskSnapshot.Error"/>. Argument
+/// validation and managed exceptions propagate unchanged.
+/// </remarks>
 public interface IStorageReference
 {
     /// <summary>
@@ -35,6 +42,9 @@ public interface IStorageReference
     /// <summary>
     /// Retrieves metadata associated with an object at the current path.
     /// </summary>
+    /// <exception cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseStorageException">
+    /// The native SDK failed the request, for example because the object doesn't exist (error code <c>-13010</c>).
+    /// </exception>
     Task<IStorageMetadata> GetMetadataAsync();
 
     /// <summary>
@@ -42,12 +52,18 @@ public interface IStorageReference
     /// </summary>
     /// <param name="metadata">An <c>IStorageMetaData</c> object with the metadata to update.</param>
     /// <returns></returns>
+    /// <exception cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseStorageException">
+    /// The native SDK failed the request, for example because the object doesn't exist (error code <c>-13010</c>).
+    /// </exception>
     Task<IStorageMetadata> UpdateMetadataAsync(IStorageMetadata metadata);
 
     /// <summary>
     /// Asynchronously retrieves a long lived download URL with a revocable token. This can be used to share the file with others, but can
     /// be revoked by a developer in the Firebase Console if desired.
     /// </summary>
+    /// <exception cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseStorageException">
+    /// The native SDK failed the request, for example because the object doesn't exist (error code <c>-13010</c>).
+    /// </exception>
     Task<string> GetDownloadUrlAsync();
 
     /// <summary>
@@ -56,6 +72,13 @@ public interface IStorageReference
     /// in GCS will be filtered. <c>ListAsync(maxResults)</c> is only available for projects using Firebase Rules Version 2.
     /// </summary>
     /// <param name="maxResults">The maximum number of results to return in a single page. Must be greater than 0 and at most 1000.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="maxResults"/> is less than 1 or greater than 1000, the range that both native SDKs accept. On both
+    /// platforms the exception is thrown synchronously, before the native SDK is called, instead of faulting the returned task.
+    /// </exception>
+    /// <exception cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseStorageException">
+    /// The native SDK failed the request.
+    /// </exception>
     Task<IStorageListResult> ListAsync(long maxResults);
 
     /// <summary>
@@ -64,6 +87,9 @@ public interface IStorageReference
     /// are inserted or removed while this operation is executing. All results are buffered in memory. <c>ListAllAsync()</c> is
     /// only available for projects using Firebase Rules Version 2.
     /// </summary>
+    /// <exception cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseStorageException">
+    /// The native SDK failed the request.
+    /// </exception>
     Task<IStorageListResult> ListAllAsync();
 
     /// <summary>
@@ -72,9 +98,14 @@ public interface IStorageReference
     /// object size. For downloading large files, <c>DownloadFile(destinationPath)</c> may be a better option.
     /// </summary>
     /// <param name="maxSize">
-    /// The maximum size in bytes to download. If the object exceeds this size the task fails. The exception type differs by
-    /// platform: Android surfaces the native <c>StorageException</c>, iOS throws a <c>FirebaseException</c>.
+    /// The maximum size in bytes to download. If the object exceeds this size the task fails with a
+    /// <see cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseStorageException"/> on both platforms. The native error
+    /// code differs: Android reports <c>-13000</c> (<c>StorageException.ERROR_UNKNOWN</c>, with the native size failure as the
+    /// cause), iOS reports <c>-13032</c> (<c>StorageErrorCode.downloadSizeExceeded</c>).
     /// </param>
+    /// <exception cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseStorageException">
+    /// The native SDK failed the download, for example because the object doesn't exist (error code <c>-13010</c>).
+    /// </exception>
     Task<Stream> GetStreamAsync(long maxSize);
 
     /// <summary>
@@ -84,9 +115,13 @@ public interface IStorageReference
     /// </summary>
     /// <param name="maxDownloadSizeBytes">
     /// The maximum size in bytes to download. Set this parameter to prevent out of memory conditions from occurring. If the object exceeds
-    /// this size the task fails. The exception type differs by platform: Android surfaces the native <c>StorageException</c>, iOS throws a
-    /// <c>FirebaseException</c>.
+    /// this size the task fails with a <see cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseStorageException"/> on both
+    /// platforms. The native error code differs: Android reports <c>-13000</c> (<c>StorageException.ERROR_UNKNOWN</c>, with the native
+    /// size failure as the cause), iOS reports <c>-13032</c> (<c>StorageErrorCode.downloadSizeExceeded</c>).
     /// </param>
+    /// <exception cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseStorageException">
+    /// The native SDK failed the download, for example because the object doesn't exist (error code <c>-13010</c>).
+    /// </exception>
     Task<byte[]> GetBytesAsync(long maxDownloadSizeBytes);
 
     /// <summary>
@@ -98,6 +133,9 @@ public interface IStorageReference
     /// <summary>
     /// Deletes the object at the current path.
     /// </summary>
+    /// <exception cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseStorageException">
+    /// The native SDK failed the request, for example because the object doesn't exist (error code <c>-13010</c>).
+    /// </exception>
     Task DeleteAsync();
 
     /// <summary>

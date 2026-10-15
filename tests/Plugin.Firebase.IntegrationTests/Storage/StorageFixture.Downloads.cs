@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text;
+using Plugin.Firebase.Core.Exceptions;
 using Plugin.Firebase.Storage;
 
 namespace Plugin.Firebase.IntegrationTests.Storage;
@@ -42,7 +43,10 @@ public sealed partial class StorageFixture
             .Current
             .GetReferenceFromPath("files_to_keep/text_1.txt");
 
-        await Assert.ThrowsAnyAsync<Exception>(() => reference.GetBytesAsync(1));
+        var exception = await Assert.ThrowsAsync<CrossPlatformFirebaseStorageException>(
+            () => reference.GetBytesAsync(1)
+        );
+        StorageErrorAssertions.DownloadSizeExceeded(exception);
     }
 
     [Fact]
@@ -56,7 +60,10 @@ public sealed partial class StorageFixture
         using var atLimit = await reference.GetStreamAsync(34);
         Assert.Equal(34, atLimit.Length);
 
-        await Assert.ThrowsAnyAsync<Exception>(() => reference.GetStreamAsync(33));
+        var exception = await Assert.ThrowsAsync<CrossPlatformFirebaseStorageException>(
+            () => reference.GetStreamAsync(33)
+        );
+        StorageErrorAssertions.DownloadSizeExceeded(exception);
     }
 
 
@@ -116,16 +123,17 @@ public sealed partial class StorageFixture
         transferTask.AddObserver(StorageTaskStatus.Failure, observer);
 
         try {
-            await Assert.ThrowsAnyAsync<Exception>(
+            var exception = await Assert.ThrowsAsync<CrossPlatformFirebaseStorageException>(
                 () => transferTask.AwaitAsync().WaitForTestAsync(
                     IntegrationTestTimeouts.LongCallback,
                     "missing storage download failure"));
+            StorageErrorAssertions.ObjectNotFound(exception);
             var snapshot = await failure.WaitAsync(
                 IntegrationTestTimeouts.Callback,
                 "storage download failure snapshot");
 
             Assert.NotNull(snapshot);
-            Assert.NotNull(snapshot.Error);
+            StorageErrorAssertions.ObjectNotFound(snapshot.Error);
             Assert.Null(snapshot.Metadata);
         }
         finally {

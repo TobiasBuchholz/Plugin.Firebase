@@ -69,6 +69,26 @@ This class is represented in firestore like this:
 
 ![firestore_poco.png](../art/firestore_poco.png)
 
+### Writing numbers
+
+Firestore stores every number as a signed 64-bit integer or a double. Android and iOS convert .NET numbers the
+same way wherever they are written: model properties, dictionary values, list elements, `FieldValue.ArrayUnion` and
+`ArrayRemove` elements, query operands and transaction results.
+
+| .NET type | Stored as |
+|---|---|
+| `sbyte`, `byte`, `short`, `ushort`, `int`, `uint`, `long` | 64-bit integer |
+| `ulong` | 64-bit integer. Values above `long.MaxValue` throw `ArgumentException`. |
+| `float`, `double` | double. A `float` is widened, so `0.1f` is stored as `0.10000000149011612`. |
+| enum | Its underlying value, under the rules above. |
+| `decimal` | Not supported. Throws `ArgumentException`, because Firestore has no decimal type. |
+| `char` | Not supported. Throws `ArgumentException`, because Firestore has no character type. |
+| `nint`, `nuint`, `Half`, `Int128`, `UInt128`, `BigInteger` | Not supported. Throws `ArgumentException`. |
+| `byte[]`, `sbyte[]` | Not supported. Throws `ArgumentException`, because this API doesn't map Firestore bytes (Blob) values. |
+
+Nullable forms follow the rules of their underlying type, and `null` is stored as a Firestore null. To store an
+unsupported value, convert it explicitly first, for example `(double) price`.
+
 Documents can also be read as raw dictionaries when the field set is not known at compile time:
 ```c#
 var snapshot = await CrossFirebaseFirestore.Current
@@ -91,6 +111,20 @@ Since code should be documenting itself you can also take a look at the followin
 - [src/.../ITransaction.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Firestore/ITransaction.cs)
 - [src/.../IWriteBatch.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Firestore/IWriteBatch.cs)
 - [tests/.../FirestoreFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Firestore/FirestoreFixture.cs)
+
+## Next-release migration notes
+
+Numeric writes follow one set of rules on both platforms (see [Writing numbers](#writing-numbers)):
+
+- `byte`, `sbyte`, `ushort`, `uint` and `ulong` values, and `short` values on Android, can now be written. Previously they were rejected on at least one platform or write path.
+- `decimal` and `char` writes throw `ArgumentException` with a message that says how to convert the value. Previously the failure depended on the platform and write path; on Android a `char` model property or dictionary value failed inside the native SDK with a Java `IllegalArgumentException`.
+- `ulong` values and `ulong`-backed enums above `long.MaxValue` throw `ArgumentException` instead of wrapping or failing inside the native SDK.
+- An untyped transaction result, such as `RunTransactionAsync<object>(t => 5)`, comes back as a boxed `long`, and a `float` result as a boxed `double`, because results go through the same conversion. Previously an `int` came back as an `int` and a `float` as a `float`. Typed results such as `RunTransactionAsync<int>` are unaffected.
+- The public `ToJavaObject` (Android) and `ToNSObject` (iOS) extension methods return a `Java.Lang.Long` or `Java.Lang.Double`, or an int64 or double `NSNumber`, for every number. Previously they returned a value of the source width, such as a `Java.Lang.Integer`.
+- On Android, enums in update data, lists, array unions, query operands and transaction results were converted with wrapping casts: a `uint`-backed enum above `int.MaxValue` became a negative number, and `byte`-, `sbyte`-, `short`- and `ushort`-backed enums failed. They now keep their actual value.
+- On iOS, `byte`- and `sbyte`-backed enums were stored as booleans. They are now stored as integers.
+
+Because of the last two changes, anything that compares those enum values with documents that earlier versions wrote with the wrapped or boolean value stops matching them: `WhereEqualsTo`, `WhereFieldIn`, `WhereArrayContains` and `WhereArrayContainsAny` filters, range filters such as `WhereGreaterThan`, and cursors such as `StartingAt`. `FieldValue.ArrayRemove` won't remove the old elements, and `OrderBy` places the old values elsewhere in the order, because wrapped values are negative and booleans sort before all numbers. Rewrite the affected documents if you query, order or remove on those fields.
 
 ## Release notes
 - Version 3.1.3

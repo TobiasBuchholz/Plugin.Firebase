@@ -40,6 +40,37 @@ public partial interface IFirebaseAuth : IDisposable
     /// <param name="password">The user’s password.</param>
     /// <param name="createsUserAutomatically">If the user doesn't exist, it will be created automatically and signed in afterwards if the value is true.</param>
     /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
+    /// <exception cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseAuthException">
+    /// Thrown when sign-in fails and no account is created. The remarks describe which native error is thrown.
+    /// </exception>
+    /// <remarks>
+    /// <para>
+    /// With <paramref name="createsUserAutomatically"/> set to true, account creation is attempted only when sign-in fails
+    /// with <c>ERROR_USER_NOT_FOUND</c> or <c>ERROR_INVALID_CREDENTIAL</c> (Android) or <c>UserNotFound</c> or
+    /// <c>InvalidCredential</c> (iOS). With email enumeration protection, Firebase reports a missing account as an
+    /// invalid credential, so a wrong password for an existing account also leads to an attempt. Other sign-in errors,
+    /// such as a wrong password reported as <c>ERROR_WRONG_PASSWORD</c> / <c>WrongPassword</c>, a disabled user or a
+    /// disabled email/password provider, are thrown without an attempt.
+    /// </para>
+    /// <para>
+    /// When the attempt fails, the original sign-in error is thrown if creation reports that the email is already in use
+    /// (<c>ERROR_EMAIL_ALREADY_IN_USE</c> / <c>EmailAlreadyInUse</c>) or that the project doesn't allow creating accounts
+    /// from the client (<c>ERROR_ADMIN_RESTRICTED_OPERATION</c> / <c>AdminRestrictedOperation</c>, for example when user
+    /// sign-up is disabled in Identity Platform, or <c>ERROR_OPERATION_NOT_ALLOWED</c> / <c>OperationNotAllowed</c>).
+    /// Any other creation error is thrown instead of the sign-in error, for example <c>ERROR_WEAK_PASSWORD</c> /
+    /// <c>WeakPassword</c>, an invalid email, throttling, a network error, or a sign-up rejected by a
+    /// <c>beforeUserCreated</c> blocking function (an internal error on Android, <c>BlockingCloudFunctionError</c> on iOS).
+    /// </para>
+    /// <para>
+    /// The thrown error can therefore show whether an email is registered, even with email enumeration protection
+    /// enabled. For example, on the Auth emulator, which checks for an existing account before the password length, a
+    /// too-short password gives a weak-password error for an unregistered email and the sign-in error for a registered
+    /// one. <see cref="CreateUserAsync"/> already reveals this through its email-already-in-use error.
+    /// </para>
+    /// <para>
+    /// Apps that only sign in existing users should pass false, so that only sign-in errors are thrown.
+    /// </para>
+    /// </remarks>
     Task<IFirebaseUser> SignInWithEmailAndPasswordAsync(
         string email,
         string password,

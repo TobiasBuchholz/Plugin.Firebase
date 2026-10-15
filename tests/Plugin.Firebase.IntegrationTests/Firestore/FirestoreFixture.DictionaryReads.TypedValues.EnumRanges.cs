@@ -1,6 +1,3 @@
-using System.Globalization;
-using Plugin.Firebase.Firestore;
-
 namespace Plugin.Firebase.IntegrationTests.Firestore;
 
 // Enums are converted through their underlying type on both platforms. A stored value outside that
@@ -16,7 +13,7 @@ public sealed partial class FirestoreFixture
     public async Task rejects_values_outside_the_range_of_byte_backed_enums(long stored)
     {
         // Without the range check, 300 reads as (EdgeByteRating) 44 and -1 as 255.
-        await AssertEnumOutOfRangeAsync<EdgeByteRatingDocument>("byte", stored);
+        await AssertSingleNumberOutOfRangeAsync<EdgeByteRatingDocument>(stored);
     }
 
     [Theory]
@@ -25,7 +22,7 @@ public sealed partial class FirestoreFixture
     [InlineData(5000000000L)]
     public async Task rejects_values_outside_the_range_of_int_backed_enums(long stored)
     {
-        await AssertEnumOutOfRangeAsync<EdgeIntRatingDocument>("int", stored);
+        await AssertSingleNumberOutOfRangeAsync<EdgeIntRatingDocument>(stored);
     }
 
     [Theory]
@@ -34,7 +31,7 @@ public sealed partial class FirestoreFixture
     public async Task rejects_values_outside_the_range_of_uint_backed_enums(long stored)
     {
         // -1 is what a wrapping (int) cast writes for uint.MaxValue.
-        await AssertEnumOutOfRangeAsync<EdgeUIntRatingDocument>("uint", stored);
+        await AssertSingleNumberOutOfRangeAsync<EdgeUIntRatingDocument>(stored);
     }
 
     // Firestore integers are signed 64-bit, so only a double can be outside a long-backed enum's
@@ -45,7 +42,7 @@ public sealed partial class FirestoreFixture
     [InlineData(-9223372036854777856.0)]
     public async Task rejects_doubles_outside_the_range_of_long_backed_enums(double stored)
     {
-        await AssertEnumOutOfRangeAsync<EdgeLongRatingDocument>("long", stored);
+        await AssertSingleNumberOutOfRangeAsync<EdgeLongRatingDocument>(stored);
     }
 
     [Theory]
@@ -55,7 +52,7 @@ public sealed partial class FirestoreFixture
     public async Task rejects_values_outside_the_range_of_ulong_backed_enums(object stored)
     {
         // long.MinValue is what a wrapping (long) cast writes for 2^63.
-        await AssertEnumOutOfRangeAsync<EdgeULongRatingDocument>("ulong", stored);
+        await AssertSingleNumberOutOfRangeAsync<EdgeULongRatingDocument>(stored);
     }
 
     [Theory]
@@ -63,7 +60,7 @@ public sealed partial class FirestoreFixture
     [InlineData(255L)]
     public async Task reads_byte_backed_enum_values_at_the_underlying_type_edges(long stored)
     {
-        var data = await ReadEnumDocumentAsync<EdgeByteRatingDocument>("byte", stored);
+        var data = await ReadSingleNumberDocumentAsync<EdgeByteRatingDocument>(stored);
 
         Assert.Equal(stored, (long) data.Value);
     }
@@ -73,7 +70,7 @@ public sealed partial class FirestoreFixture
     [InlineData(2147483647L)]
     public async Task reads_int_backed_enum_values_at_the_underlying_type_edges(long stored)
     {
-        var data = await ReadEnumDocumentAsync<EdgeIntRatingDocument>("int", stored);
+        var data = await ReadSingleNumberDocumentAsync<EdgeIntRatingDocument>(stored);
 
         Assert.Equal(stored, (long) data.Value);
     }
@@ -83,7 +80,7 @@ public sealed partial class FirestoreFixture
     [InlineData(4294967295L)]
     public async Task reads_uint_backed_enum_values_at_the_underlying_type_edges(long stored)
     {
-        var data = await ReadEnumDocumentAsync<EdgeUIntRatingDocument>("uint", stored);
+        var data = await ReadSingleNumberDocumentAsync<EdgeUIntRatingDocument>(stored);
 
         Assert.Equal(stored, (long) data.Value);
     }
@@ -93,7 +90,7 @@ public sealed partial class FirestoreFixture
     [InlineData(long.MaxValue)]
     public async Task reads_long_backed_enum_values_at_the_underlying_type_edges(long stored)
     {
-        var data = await ReadEnumDocumentAsync<EdgeLongRatingDocument>("long", stored);
+        var data = await ReadSingleNumberDocumentAsync<EdgeLongRatingDocument>(stored);
 
         Assert.Equal(stored, (long) data.Value);
     }
@@ -104,7 +101,7 @@ public sealed partial class FirestoreFixture
     [InlineData(long.MaxValue)]
     public async Task reads_ulong_backed_enum_values_at_the_underlying_type_edges(long stored)
     {
-        var data = await ReadEnumDocumentAsync<EdgeULongRatingDocument>("ulong", stored);
+        var data = await ReadSingleNumberDocumentAsync<EdgeULongRatingDocument>(stored);
 
         Assert.Equal(stored, (long) data.Value);
     }
@@ -116,32 +113,25 @@ public sealed partial class FirestoreFixture
     [InlineData(4294967295L)] // All
     public async Task reads_flags_enum_combinations_across_the_underlying_type(long stored)
     {
-        var data = await ReadEnumDocumentAsync<UIntPermissionsDocument>("flags", stored);
+        var data = await ReadSingleNumberDocumentAsync<UIntPermissionsDocument>(stored);
 
         Assert.Equal(stored, (long) data.Value);
     }
 
-    private async Task<T> ReadEnumDocumentAsync<T>(string name, object stored)
+    private async Task<T> ReadSingleNumberDocumentAsync<T>(object stored)
     {
-        var document = await WriteEnumDocumentAsync(name, stored);
+        var document = await WriteSingleNumberDocumentAsync(stored);
         return (await document.GetDocumentSnapshotAsync<T>()).Data!;
     }
 
-    private async Task AssertEnumOutOfRangeAsync<T>(string name, object stored)
+    private async Task AssertSingleNumberOutOfRangeAsync<T>(object stored)
     {
-        var document = await WriteEnumDocumentAsync(name, stored);
-        var snapshot = await document.GetDocumentSnapshotAsync<T>();
-        Assert.Throws<OverflowException>(() => _ = snapshot.Data);
-    }
+        var document = await WriteSingleNumberDocumentAsync(stored);
+        // The untyped read comes from the server and confirms the stored number. It also caches the
+        // document for OutOfRangeReadAsync, which reads from the cache.
+        var raw = (await document.GetDocumentSnapshotAsync<Dictionary<string, object>>()).Data!;
+        Assert.Equal(stored, raw[SingleNumberDocument.Field]);
 
-    private async Task<IDocumentReference> WriteEnumDocumentAsync(string name, object stored)
-    {
-        var document = GetTestingDocument(
-            CrossFirebaseFirestore.Current,
-            $"enum-{name}-{Convert.ToString(stored, CultureInfo.InvariantCulture)}");
-        await document.SetDataAsync(new Dictionary<object, object?> {
-            { SingleNumberDocument.Field, stored }
-        });
-        return document;
+        await FirestoreAssertions.OutOfRangeReadAsync<T>(document);
     }
 }

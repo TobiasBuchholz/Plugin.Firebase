@@ -12,7 +12,7 @@ public sealed partial class FirestoreFixture
     [InlineData(255L)]
     public async Task reads_nullable_enum_values_through_the_underlying_type(long stored)
     {
-        var data = await ReadEnumDocumentAsync<NullableRatingDocument>("nullable", stored);
+        var data = await ReadSingleNumberDocumentAsync<NullableRatingDocument>(stored);
 
         Assert.Equal(stored, (long?) data.Value);
     }
@@ -22,7 +22,7 @@ public sealed partial class FirestoreFixture
     [InlineData(-1L)]
     public async Task rejects_nullable_enum_values_outside_the_underlying_type_range(long stored)
     {
-        await AssertEnumOutOfRangeAsync<NullableRatingDocument>("nullable", stored);
+        await AssertSingleNumberOutOfRangeAsync<NullableRatingDocument>(stored);
     }
 
     [Fact]
@@ -42,18 +42,20 @@ public sealed partial class FirestoreFixture
     [Theory]
     [InlineData(256L)]
     [InlineData(-1L)]
-    public async Task rejects_enum_list_elements_outside_the_underlying_type_range(long stored)
+    public async Task rejects_enum_list_elements_outside_the_underlying_type_range(long outOfRange)
     {
         var sut = CrossFirebaseFirestore.Current;
-        var document = GetTestingDocument(sut, $"enum-list-{stored.ToString(CultureInfo.InvariantCulture)}");
+        var document = GetTestingDocument(sut, $"enum-list-{outOfRange.ToString(CultureInfo.InvariantCulture)}");
         await document.SetDataAsync(new Dictionary<object, object?> {
             // one element outside the range fails the whole list, even with valid elements around it
-            { RatingListDocument.Field, new[] { 1L, stored, 2L } }
+            { RatingListDocument.Field, new[] { 1L, outOfRange, 2L } }
         });
 
-        var snapshot = await document.GetDocumentSnapshotAsync<RatingListDocument>();
+        // The server read confirms the stored list and caches it for OutOfRangeReadAsync.
+        var stored = (await document.GetDocumentSnapshotAsync<Dictionary<string, IList<long>>>()).Data!;
+        Assert.Equal([1L, outOfRange, 2L], stored[RatingListDocument.Field]);
 
-        Assert.Throws<OverflowException>(() => _ = snapshot.Data);
+        await FirestoreAssertions.OutOfRangeReadAsync<RatingListDocument>(document);
     }
 
     [Fact]
@@ -80,6 +82,6 @@ public sealed partial class FirestoreFixture
     public async Task rejects_enum_dictionary_values_outside_the_underlying_type_range(long stored)
     {
         // Reading the document as a dictionary converts its only field.
-        await AssertEnumOutOfRangeAsync<Dictionary<string, NumericRating>>("dictionary", stored);
+        await AssertSingleNumberOutOfRangeAsync<Dictionary<string, NumericRating>>(stored);
     }
 }

@@ -73,8 +73,8 @@ public interface IStorageReference
     /// </summary>
     /// <param name="maxResults">The maximum number of results to return in a single page. Must be greater than 0 and at most 1000.</param>
     /// <exception cref="ArgumentOutOfRangeException">
-    /// <paramref name="maxResults"/> is less than 1 or greater than 1000, the range that both native SDKs accept. The exception
-    /// is thrown before the native SDK is called, on both platforms.
+    /// <paramref name="maxResults"/> is less than 1 or greater than 1000, the range that both native SDKs accept. On both
+    /// platforms the exception is thrown synchronously, before the native SDK is called, instead of faulting the returned task.
     /// </exception>
     /// <exception cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseStorageException">
     /// The native SDK failed the request.

@@ -97,23 +97,7 @@ public sealed class StorageReferenceWrapper : IStorageReference
     public Task<IStorageListResult> ListAsync(long maxResults)
     {
         StorageListArguments.ThrowIfMaxResultsOutOfRange(maxResults);
-
-        var tcs = new TaskCompletionSource<IStorageListResult>();
-        _wrapped.List(
-            maxResults,
-            (listResult, error) => {
-                if(error == null && listResult != null) {
-                    tcs.SetResult(listResult.ToAbstract());
-                } else {
-                    tcs.SetException(
-                        error != null
-                            ? StorageExceptionFactory.Create(error)
-                            : new FirebaseException("Firebase Storage returned a null list result.")
-                    );
-                }
-            }
-        );
-        return tcs.Task;
+        return ListPageAsync(maxResults, pageToken: null);
     }
 
     /// <inheritdoc/>
@@ -175,7 +159,7 @@ public sealed class StorageReferenceWrapper : IStorageReference
             (data, error) => {
                 if(error == null && data != null) {
                     if((long)data.Length > maxSize) {
-                        tcs.SetException(CreateDownloadSizeExceededException(data.Length, maxSize));
+                        tcs.SetException(StorageExceptionFactory.CreateDownloadSizeExceeded((long) data.Length, maxSize));
                     } else {
                         tcs.SetResult(data.AsStream());
                     }
@@ -201,7 +185,7 @@ public sealed class StorageReferenceWrapper : IStorageReference
                 if(error == null && data != null) {
                     if((long)data.Length > maxDownloadSizeBytes) {
                         tcs.SetException(
-                            CreateDownloadSizeExceededException(data.Length, maxDownloadSizeBytes)
+                            StorageExceptionFactory.CreateDownloadSizeExceeded((long) data.Length, maxDownloadSizeBytes)
                         );
                     } else {
                         tcs.SetResult(data.ToArray());
@@ -216,11 +200,6 @@ public sealed class StorageReferenceWrapper : IStorageReference
             }
         );
         return tcs.Task;
-    }
-
-    private static CrossPlatformFirebaseStorageException CreateDownloadSizeExceededException(nuint actualSize, long maxSize)
-    {
-        return StorageExceptionFactory.CreateDownloadSizeExceeded((long) actualSize, maxSize);
     }
 
     /// <inheritdoc/>

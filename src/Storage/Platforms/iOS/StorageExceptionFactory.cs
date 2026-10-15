@@ -70,9 +70,13 @@ internal static partial class StorageExceptionFactory
     /// </summary>
     public static CrossPlatformFirebaseStorageException CreateDownloadSizeExceeded(long totalSize, long maxSize)
     {
-        var description = string.Create(
+        // Same wording as StorageError.downloadSizeExceeded in FirebaseStorage.
+        var description = string.Format(
             CultureInfo.InvariantCulture,
-            $"Attempted to download object with size of {totalSize} bytes, which exceeds the maximum size of {maxSize} bytes."
+            "Attempted to download object with size of {0} bytes, which exceeds the maximum size of {1} bytes. "
+                + "Consider raising the maximum download maxSize, or using StorageReference.write",
+            totalSize,
+            maxSize
         );
         var userInfo = NSDictionary.FromObjectsAndKeys(
             new NSObject[] { new NSString(description), NSNumber.FromInt64(totalSize), NSNumber.FromInt64(maxSize) },

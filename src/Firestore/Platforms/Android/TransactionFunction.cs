@@ -5,7 +5,11 @@ using Object = Java.Lang.Object;
 
 namespace Plugin.Firebase.Firestore.Platforms.Android;
 
-public class TransactionFunction<TResult> : Object, Transaction.IFunction
+/// <summary>
+/// Runs the update function of <see cref="FirebaseFirestoreImplementation.RunTransactionAsync{TResult}"/> for each attempt
+/// of the native transaction and keeps its result and failure in .NET.
+/// </summary>
+internal class TransactionFunction<TResult> : Object, Transaction.IFunction
 {
     private readonly Func<ITransaction, TResult> _func;
 
@@ -22,11 +26,28 @@ public class TransactionFunction<TResult> : Object, Transaction.IFunction
     /// </summary>
     internal Exception? UpdateException { get; private set; }
 
+    /// <summary>
+    /// The <see cref="ArgumentException"/> that aborted the last <see cref="Apply"/> invocation because the update
+    /// function returned a task, or <see langword="null"/>. RunTransactionAsync surfaces it as-is. Reset on each attempt.
+    /// </summary>
+    internal ArgumentException? ResultException { get; private set; }
+
+    /// <summary>
+    /// The value returned by the update function during the last <see cref="Apply"/> invocation, or
+    /// <see langword="default"/> when that attempt failed. When the transaction succeeds, this is the result of the
+    /// attempt that committed. The result never needs to be a Firestore value: it stays in .NET so any TResult
+    /// works and nothing can fail after the commit. Reset on each attempt.
+    /// </summary>
+    internal TResult? Result { get; private set; }
+
     public Object? Apply(Transaction transaction)
     {
         UpdateException = null;
+        ResultException = null;
+        Result = default;
+        TResult result;
         try {
-            return _func(transaction.ToAbstract()).ToJavaObject();
+            result = _func(transaction.ToAbstract());
         } catch(CrossPlatformFirebaseFirestoreException e) when(e.InnerException is FirebaseFirestoreException native) {
             // Hand the native exception back to the transaction runner: it retries only a
             // FirebaseFirestoreException with a retryable code. RunTransactionAsync wraps it again when
@@ -39,5 +60,13 @@ public class TransactionFunction<TResult> : Object, Transaction.IFunction
             UpdateException = e;
             throw;
         }
+        // RunTransactionAsync rejects a task TResult up front; a task returned through an object result means the
+        // update function is asynchronous too, so abort the attempt before any of its writes commit.
+        ResultException = TransactionResultGuard.GetAsyncResultException(result);
+        if(ResultException != null) {
+            throw ResultException;
+        }
+        Result = result;
+        return null;
     }
 }

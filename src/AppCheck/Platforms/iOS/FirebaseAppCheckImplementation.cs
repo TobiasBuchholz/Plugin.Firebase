@@ -12,12 +12,13 @@ namespace Plugin.Firebase.AppCheck;
 /// </summary>
 public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
 {
-    // The native provider factory is process-wide, so the provider installed before the default app was configured is
-    // shared by every implementation instance, including one created after CrossFirebaseAppCheck.Dispose().
+    // The native provider factory is process-wide and applies to the default Firebase app rather than to one wrapper
+    // instance, so every implementation instance, including one created after CrossFirebaseAppCheck.Dispose(), shares
+    // the configured provider, the hook that installs it, and the record of the provider installed for the default app.
     private static readonly object SyncRoot = new();
+    private static AppCheckOptions ConfiguredOptions = AppCheckOptions.Disabled;
+    private static bool BeforeConfigureHookRegistered;
     private static AppCheckProviderType? InstalledProvider;
-    private AppCheckOptions _options = AppCheckOptions.Disabled;
-    private IDisposable? _beforeConfigureRegistration;
 
     /// <summary>
     /// Configures the Firebase AppCheck service with the specified options.
@@ -49,20 +50,29 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
             // then, so a factory set afterwards never reaches the default app. Asking the native SDK also covers apps
             // configured without CrossFirebase.Initialize(), and accepts a new provider again after an
             // initialization failed or the default app was deleted.
+            //
+            // A call that races CrossFirebase.Initialize() on another thread can land after the hook read the configured
+            // provider but before the native configure call creates the default app. It is accepted, yet the default app
+            // gets the factory the hook set, and the record names that provider, so later calls see the provider in
+            // effect.
             if(IsDefaultAppConfigured()) {
                 AppCheckLateConfigurationRules.EnsureProviderUnchanged(InstalledProvider, options.Provider);
                 return;
             }
 
-            _options = options;
-        }
+            ConfiguredOptions = options;
 
-        // Every provider accepted before initialization registers the hook, including Disabled. FirebaseAppCheck
-        // installs a DeviceCheck factory as the native default when it is linked, and DeviceCheck produces placeholder
-        // tokens where it fails (simulators), which Auth and Functions then attach to requests and the backend rejects
-        // ("The supplied auth credential is malformed or has expired"). Clearing the factory before
-        // FirebaseApp.configure() makes FIRAppCheck.initWithApp: return nil, so no App Check tokens are attached.
-        _beforeConfigureRegistration ??= FirebaseInitializationHooks.RegisterBeforeConfigure(InstallProviderFactory);
+            // Every provider accepted before initialization registers the hook, including Disabled. FirebaseAppCheck
+            // installs a DeviceCheck factory as the native default when it is linked, and DeviceCheck produces
+            // placeholder tokens where it fails (simulators), which Auth and Functions then attach to requests and the
+            // backend rejects ("The supplied auth credential is malformed or has expired"). Clearing the factory before
+            // FirebaseApp.configure() makes FIRAppCheck.initWithApp: return nil, so no App Check tokens are attached.
+            // Registered once, the hook stays registered and runs before every later CrossFirebase.Initialize().
+            if(!BeforeConfigureHookRegistered) {
+                _ = FirebaseInitializationHooks.RegisterBeforeConfigure(InstallProviderFactory);
+                BeforeConfigureHookRegistered = true;
+            }
+        }
     }
 
     // The single list of providers iOS supports. Configure() validates with it without creating a native factory.
@@ -102,11 +112,11 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
     [DllImport(Constants.ObjectiveCLibrary, EntryPoint = "objc_msgSend")]
     private static extern byte SendByteMessage(IntPtr receiver, IntPtr selector);
 
-    private void InstallProviderFactory()
+    private static void InstallProviderFactory()
     {
         AppCheckOptions options;
         lock(SyncRoot) {
-            options = _options;
+            options = ConfiguredOptions;
         }
 
         // This runs right before the native configure call. Once the default app exists, it configures a secondary
@@ -154,10 +164,13 @@ public sealed class FirebaseAppCheckImplementation : IFirebaseAppCheck
     /// <summary>
     /// Disposes the AppCheck implementation and cleans up resources.
     /// </summary>
+    /// <remarks>
+    /// The configured provider is kept, because it applies to the default Firebase app rather than to this instance.
+    /// </remarks>
     public void Dispose()
     {
-        _beforeConfigureRegistration?.Dispose();
-        _beforeConfigureRegistration = null;
+        // A provider configured before initialization is still installed by the next CrossFirebase.Initialize(), as on
+        // Android. Before the first CrossFirebase.Initialize(), configuring AppCheckOptions.Disabled replaces it.
     }
 
     private sealed class AppAttestProviderFactoryAdapter : NSObject, IAppCheckProviderFactory

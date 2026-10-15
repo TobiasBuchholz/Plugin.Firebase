@@ -79,12 +79,10 @@ public sealed class CrossFirebaseAppCheck
     /// Dispose of everything 
     /// </summary>
     /// <remarks>
-    /// On Android, the configured provider is kept, because it belongs to the default Firebase app and an installed
-    /// provider factory cannot be removed. To drop a provider before the first <c>CrossFirebase.Initialize()</c>,
-    /// configure <see cref="AppCheckOptions.Disabled"/> instead.
-    /// On iOS, disposing before <c>CrossFirebase.Initialize()</c> drops a provider configured through the current
-    /// instance, so the native default (<c>DeviceCheck</c>) applies unless App Check is configured again. After
-    /// initialization, the provider in effect is kept.
+    /// The configured provider is kept, because it belongs to the default Firebase app rather than to the current
+    /// instance. On Android, an installed provider factory cannot be removed. On iOS, a provider configured before
+    /// initialization is still installed by the next <c>CrossFirebase.Initialize()</c>. To drop a provider before the
+    /// first <c>CrossFirebase.Initialize()</c>, configure <see cref="AppCheckOptions.Disabled"/> instead.
     /// </remarks>
     public static void Dispose()
     {

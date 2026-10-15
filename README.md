@@ -50,7 +50,7 @@ This plugin is a thin wrapper around the native Firebase binding packages, which
 
 1. Create a Firebase project in the [Firebase Console](https://console.firebase.google.com/), if you don't already have one. If you already have an existing Google project associated with your mobile app, click **Import Google Project**. Otherwise, click **Create New Project**.
 2. Click **Add Firebase to your *[iOS|Android]* app** and follow the setup steps. If you're importing an existing Google project, this may happen automatically and you can just download the config file.
-3. Add `[GoogleService-Info.plist|google-services.json]` file to your app project.
+3. Add `[GoogleService-Info.plist|google-services.json]` file to your app project. On iOS, put `GoogleService-Info.plist` in the project root or in `Platforms/iOS/Resources/`, not directly in `Platforms/iOS/` (see [Troubleshooting](#ios-could-not-find-a-valid-googleservice-infoplist)).
 4. Set `[GoogleService-Info.plist|google-services.json]` **build action** behaviour to `[Bundle Resource|GoogleServicesJson]` by Right clicking/Build Action.
 5. **IMPORTANT (iOS only)** Check the Readme at [AdamEssenmacher/GoogleApisForiOSComponents](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents) for additional setup steps that are required.
 6. Additional setup instructions for individual components (e.g. Auth, Analytics, Firestore, etc.) are linked in the above table.
@@ -196,11 +196,13 @@ For example the [`Plugin.Firebase.IntegrationTests`](https://github.com/TobiasBu
 Visual Studio and Windows both have issues with long paths. The issue is explained (along with best-known workarounds) [here](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents?tab=readme-ov-file#windows--visual-studio-long-path-issue).
 
 ### iOS: could not find a valid GoogleService-Info.plist
-If startup fails with `` `FirebaseApp.configure()` could not find a valid GoogleService-Info.plist in your project ``, Firebase did not find a readable `GoogleService-Info.plist` at the root of the app bundle. The device or simulator log shows which case it is: `I-COR000012` means the file was not found, and `I-COR000011` means it was found but is not a valid plist dictionary. A `BUNDLE_ID` mismatch does not cause this error; it is logged separately as `I-COR000008`.
+If startup fails with `` `FirebaseApp.configure()` could not find a valid GoogleService-Info.plist in your project ``, Firebase did not find a readable `GoogleService-Info.plist` at the root of the app bundle. The device log shows which case it is: `I-COR000012` means the file was not found, and `I-COR000011` means it was found but is not a valid plist dictionary. These lines may not appear in your IDE's output; look in Console.app (select the device or simulator), or for a simulator run `xcrun simctl spawn booted log stream`. A `BUNDLE_ID` mismatch does not cause this error; it is logged separately as `I-COR000008`.
+
+The file in the bundle must be named exactly `GoogleService-Info.plist`, including case. A browser download renamed to `GoogleService-Info (1).plist`, or a casing difference, gives `I-COR000012` even when the file is at the bundle root. Don't rely on the simulator to catch a casing difference: the Mac's file system is usually case-insensitive, while a device's is case-sensitive.
 
 Either of these setups embeds the file at the bundle root:
 - Keep the file in the project root folder and include it with `<BundleResource Include="GoogleService-Info.plist" />`, as shown in [MAUI Project Configuration](#maui-project-configuration). Having the file in the folder is not enough on its own.
-- Put the file in `Platforms/iOS/Resources/`. MAUI single projects include that folder as bundle resources automatically and drop the `Platforms/iOS/Resources/` prefix, so no `.csproj` entry is needed.
+- Put the file in `Platforms/iOS/Resources/`. MAUI single projects include that folder as bundle resources automatically and drop the `Platforms/iOS/Resources/` prefix, so no `.csproj` entry is needed. If you move the file there, remove the root `<BundleResource>` entry: a leftover entry fails the build once the root file is gone, or triggers warning `MT7156` if a second copy remains.
 
 A common mistake is keeping the file in `Platforms/iOS/` and adding `<BundleResource Include="Platforms/iOS/GoogleService-Info.plist" />`. That embeds it as `Platforms/iOS/GoogleService-Info.plist` inside the bundle, where Firebase does not look. Either move the file to one of the locations above, or set `LogicalName` so it is embedded at the root:
 
@@ -208,7 +210,7 @@ A common mistake is keeping the file in `Platforms/iOS/` and adding `<BundleReso
 <BundleResource Include="Platforms/iOS/GoogleService-Info.plist" LogicalName="GoogleService-Info.plist" />
 ```
 
-To check the result, build the app and look inside `bin/<Configuration>/net10.0-ios/<RuntimeIdentifier>/<AppName>.app/`, for example `bin/Debug/net10.0-ios/iossimulator-arm64/MyApp.app/` for a simulator build (`ios-arm64` for a device build). `GoogleService-Info.plist` must be directly in that folder, not in a subfolder.
+To check the result, build the app and look inside `bin/<Configuration>/net10.0-ios/<RuntimeIdentifier>/<AssemblyName>.app/`, for example `bin/Debug/net10.0-ios/iossimulator-arm64/MyApp.app/` for a simulator build (`ios-arm64` for a device build). `GoogleService-Info.plist`, with exactly that name, must be directly in that folder, not in a subfolder.
 
 ## Contributions
 

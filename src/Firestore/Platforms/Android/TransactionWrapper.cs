@@ -19,7 +19,14 @@ public sealed class TransactionWrapper : ITransaction
 
     public IDocumentSnapshot<T>? GetDocument<T>(IDocumentReference document)
     {
-        return _wrapped.Get(document.ToNative())?.ToAbstract<T>();
+        DocumentSnapshot? snapshot;
+        try {
+            snapshot = _wrapped.Get(document.ToNative());
+        } catch(Exception e) when(FirestoreExceptionFactory.IsNativeFirestoreException(e)) {
+            // TransactionFunction unwraps this again so the transaction runner's retry rules still apply.
+            throw FirestoreExceptionFactory.Create(e);
+        }
+        return snapshot?.ToAbstract<T>();
     }
 
     public ITransaction SetData(IDocumentReference document, object data, SetOptions? options = null)

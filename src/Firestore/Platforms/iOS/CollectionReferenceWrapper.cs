@@ -1,5 +1,4 @@
 using Firebase.CloudFirestore;
-using Plugin.Firebase.Core.Exceptions;
 using Plugin.Firebase.Firestore.Platforms.iOS.Extensions;
 
 namespace Plugin.Firebase.Firestore.Platforms.iOS;
@@ -43,7 +42,7 @@ public sealed class CollectionReferenceWrapper : QueryWrapper, ICollectionRefere
                 if(error == null) {
                     tcs.TrySetResult();
                 } else {
-                    tcs.TrySetException(new FirebaseException(error.LocalizedDescription));
+                    tcs.TrySetException(FirestoreExceptionFactory.Create(error));
                 }
             }
         );

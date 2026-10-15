@@ -30,11 +30,22 @@ public interface IFirebaseFirestore : IDisposable
     /// Executes the given updateBlock and then attempts to commit the changes applied within an atomic transaction.
     /// </summary>
     /// <remarks>
+    /// <para>
     /// <paramref name="updateFunc"/> may run more than once when the transaction is retried, so it should not change state
     /// outside the transaction. Throwing from <paramref name="updateFunc"/> aborts the transaction without committing any of
-    /// its writes and faults the returned task. The exception type differs by platform: iOS throws a <c>FirebaseException</c>
-    /// and Android surfaces the native task's <c>RuntimeException</c>. On both, the exception thrown by
-    /// <paramref name="updateFunc"/> is the <see cref="Exception.InnerException"/>.
+    /// its writes and faults the returned task with a <see cref="Plugin.Firebase.Core.Exceptions.FirebaseException"/> whose
+    /// <see cref="Exception.InnerException"/> is the exception thrown by <paramref name="updateFunc"/>, on both platforms.
+    /// </para>
+    /// <para>
+    /// A <see cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseFirestoreException"/> thrown from
+    /// <paramref name="updateFunc"/>, for example by a failed <see cref="ITransaction.GetDocument{T}"/>, isn't wrapped
+    /// again: the returned task faults with a <see cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseFirestoreException"/>
+    /// for the same native error. On Android the native transaction runner first applies its retry rules to that error; on
+    /// iOS the transaction isn't retried. On Android the same applies to a native <c>FirebaseFirestoreException</c> that
+    /// <paramref name="updateFunc"/> throws directly. When the native SDK fails the transaction itself, for example because the backend
+    /// rejects the commit, the returned task also faults with a
+    /// <see cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseFirestoreException"/>.
+    /// </para>
     /// </remarks>
     /// <param name="updateFunc">The func to execute within the transaction context.</param>
     /// <typeparam name="TResult">The type of the result returned by updateFunc.</typeparam>

@@ -177,13 +177,10 @@ public static class JavaObjectExtensions
                 throw new ArgumentException("Dictionary contains a null key.");
             }
 
-            var key = ConvertToObject(keyType, rawKey);
-            if(key is null) {
-                throw new ArgumentException("Dictionary contains a null key.");
-            }
-
-            var value = ConvertToObject(valueType, @this[rawKey], rawKey.ToString());
-            dict[key] = value;
+            // a map key is the field name of its value
+            var field = rawKey.ToString()!;
+            var key = FirestoreValueConversion.ToKeyType(field, keyType);
+            dict[key] = ConvertToObject(valueType, @this[rawKey], field);
         }
         return dict;
     }
@@ -257,10 +254,8 @@ public static class JavaObjectExtensions
     {
         if(value == null) {
             return null;
-        } else if(value is IDictionary dictionary) {
-            FirestoreValueConversion.EnsureMapTarget(targetType, field);
-            return dictionary.ToDictionaryObject(targetType);
         } else if(value is Java.Lang.Object javaValue) {
+            // maps arrive as JavaDictionary peers, which ToObject converts along with the other peers
             return javaValue.ToObject(targetType, field);
         }
 

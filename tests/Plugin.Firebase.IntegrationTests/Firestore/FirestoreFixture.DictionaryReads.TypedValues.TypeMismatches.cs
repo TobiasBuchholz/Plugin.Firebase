@@ -91,9 +91,31 @@ public sealed partial class FirestoreFixture
     }
 
     [Fact]
+    public async Task throws_when_a_map_is_read_into_a_list_property()
+    {
+        // without the check a List<T> property was left empty
+        await AssertTypeMismatchAsync<ValueDocument<List<string>>>(
+            "map-to-list",
+            new Dictionary<string, object> { { "first", "a" } });
+    }
+
+    [Fact]
     public async Task throws_when_an_array_is_read_into_a_string_property()
     {
         await AssertTypeMismatchAsync<ValueDocument<string>>("array-to-string", new[] { "a", "b" });
+    }
+
+    [Fact]
+    public async Task throws_when_an_array_is_read_into_a_model_property()
+    {
+        await AssertTypeMismatchAsync<ValueDocument<CultureConversionDocument>>("array-to-model", new[] { "a", "b" });
+    }
+
+    [Fact]
+    public async Task throws_when_field_names_are_read_into_int_dictionary_keys()
+    {
+        // Firestore field names and map keys are always text
+        await AssertTypeMismatchAsync<Dictionary<int, string>>("text-to-int-dictionary-key", "a");
     }
 
     [Fact]

@@ -9,6 +9,12 @@ public class FirestoreValueConversionTests
 
     public sealed class Model { }
 
+    public abstract class AbstractModel { }
+
+    public struct StructModel : IFirestoreObject { }
+
+    public struct PlainStruct { }
+
     private static readonly DateTime Utc = new(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
     private static readonly DateTimeOffset Offset = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
@@ -114,8 +120,19 @@ public class FirestoreValueConversionTests
         { new Dictionary<string, object?>(), typeof(int) }
     };
 
-    // Types that hold a single value, so a map or an array read into them is a mismatch.
-    public static TheoryData<Type> SingleValueTargets => new() {
+    // A map reads into object, the dictionary types the platforms create, or a model.
+    public static TheoryData<Type> MapTargets => new() {
+        typeof(object),
+        typeof(Dictionary<string, object>),
+        typeof(IDictionary<string, long>),
+        typeof(Dictionary<string, Model>),
+        typeof(Model),
+        typeof(StructModel),
+        typeof(StructModel?)
+    };
+
+    public static TheoryData<Type> NonMapTargets => new() {
+        // Single values.
         typeof(string),
         typeof(bool),
         typeof(char),
@@ -129,18 +146,62 @@ public class FirestoreValueConversionTests
         typeof(Rating),
         typeof(DateTime),
         typeof(DateTimeOffset),
+        typeof(TimeSpan),
+        typeof(Guid),
         typeof(int?),
         typeof(Rating?),
-        typeof(DateTimeOffset?)
+        typeof(DateTimeOffset?),
+        typeof(GeoPoint),
+
+        // Lists and arrays, which a map used to fill as an empty list or fail to create.
+        typeof(List<string>),
+        typeof(IList<string>),
+        typeof(string[]),
+        typeof(HashSet<string>),
+
+        // Dictionary types the platforms don't create, interfaces and abstract classes, and structs
+        // that aren't models.
+        typeof(IReadOnlyDictionary<string, object>),
+        typeof(SortedDictionary<string, object>),
+        typeof(IFirestoreObject),
+        typeof(AbstractModel),
+        typeof(PlainStruct),
+        typeof(KeyValuePair<string, object>)
     };
 
-    public static TheoryData<Type> CollectionTargets => new() {
+    // An array reads into object or a type a List<T> can be assigned to. An array target passes, so
+    // the platform can say that lists are supported instead.
+    public static TheoryData<Type> ArrayTargets => new() {
         typeof(object),
+        typeof(List<long>),
+        typeof(IList<string>),
+        typeof(IList<Model>),
+        typeof(ICollection<object>),
+        typeof(IEnumerable<string>),
+        typeof(IReadOnlyList<int>),
+        typeof(IReadOnlyCollection<int>),
+        typeof(string[])
+    };
+
+    public static TheoryData<Type> NonArrayTargets => new() {
+        typeof(string),
+        typeof(bool),
+        typeof(char),
+        typeof(int),
+        typeof(double),
+        typeof(decimal),
+        typeof(Rating),
+        typeof(DateTime),
+        typeof(DateTimeOffset),
+        typeof(int?),
+        typeof(GeoPoint),
+        typeof(Model),
+        typeof(StructModel),
         typeof(Dictionary<string, object>),
         typeof(IDictionary<string, long>),
-        typeof(Model),
-        typeof(IList<string>),
-        typeof(List<long>)
+        typeof(HashSet<string>),
+        typeof(System.Collections.ObjectModel.Collection<string>),
+        typeof(Lazy<string>)
     };
 
     [Theory]
@@ -230,25 +291,31 @@ public class FirestoreValueConversionTests
     }
 
     [Theory]
-    [MemberData(nameof(SingleValueTargets))]
-    public void throws_when_a_map_is_read_into_a_single_value_target(Type targetType)
+    [MemberData(nameof(MapTargets))]
+    public void accepts_maps_read_into_objects_dictionaries_and_models(Type targetType)
+    {
+        FirestoreValueConversion.EnsureMapTarget(targetType, "field");
+    }
+
+    [Theory]
+    [MemberData(nameof(NonMapTargets))]
+    public void throws_when_a_map_is_read_into_any_other_target(Type targetType)
     {
         Assert.Throws<InvalidCastException>(() => FirestoreValueConversion.EnsureMapTarget(targetType, "field"));
     }
 
     [Theory]
-    [MemberData(nameof(SingleValueTargets))]
-    public void throws_when_an_array_is_read_into_a_single_value_target(Type targetType)
+    [MemberData(nameof(ArrayTargets))]
+    public void accepts_arrays_read_into_objects_and_lists(Type targetType)
     {
-        Assert.Throws<InvalidCastException>(() => FirestoreValueConversion.EnsureArrayTarget(targetType, "field"));
+        FirestoreValueConversion.EnsureArrayTarget(targetType, "field");
     }
 
     [Theory]
-    [MemberData(nameof(CollectionTargets))]
-    public void accepts_maps_and_arrays_read_into_other_targets(Type targetType)
+    [MemberData(nameof(NonArrayTargets))]
+    public void throws_when_an_array_is_read_into_any_other_target(Type targetType)
     {
-        FirestoreValueConversion.EnsureMapTarget(targetType, "field");
-        FirestoreValueConversion.EnsureArrayTarget(targetType, "field");
+        Assert.Throws<InvalidCastException>(() => FirestoreValueConversion.EnsureArrayTarget(targetType, "field"));
     }
 
     [Fact]
@@ -256,6 +323,35 @@ public class FirestoreValueConversionTests
     {
         FirestoreValueConversion.EnsureMapTarget(null);
         FirestoreValueConversion.EnsureArrayTarget(null);
+    }
+
+    [Theory]
+    [InlineData(typeof(string))]
+    [InlineData(typeof(object))]
+    [InlineData(typeof(IComparable))]
+    public void converts_map_keys_to_types_that_hold_text(Type keyType)
+    {
+        Assert.Equal("name", FirestoreValueConversion.ToKeyType("name", keyType));
+    }
+
+    [Theory]
+    [InlineData(typeof(int))]
+    [InlineData(typeof(long?))]
+    [InlineData(typeof(Rating))]
+    [InlineData(typeof(Guid))]
+    [InlineData(typeof(char))]
+    public void throws_when_a_map_key_is_read_into_a_type_that_does_not_hold_text(Type keyType)
+    {
+        Assert.Throws<InvalidCastException>(() => FirestoreValueConversion.ToKeyType("1", keyType));
+    }
+
+    [Fact]
+    public void key_mismatch_message_names_the_key_and_the_key_type()
+    {
+        var exception = Assert.Throws<InvalidCastException>(
+            () => FirestoreValueConversion.ToKeyType("count", typeof(int)));
+
+        Assert.Equal("Can't convert the map key 'count' read from Firestore to System.Int32.", exception.Message);
     }
 
     [Fact]

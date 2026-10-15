@@ -1,4 +1,5 @@
 using System.Collections;
+using Plugin.Firebase.Firestore.Internal;
 using NativeFieldValue = Firebase.CloudFirestore.FieldValue;
 
 namespace Plugin.Firebase.Firestore.Platforms.iOS.Extensions;
@@ -137,11 +138,10 @@ public static class DictionaryExtensions
         }
 
         foreach(var pair in @this) {
-            var key = pair.Key.ToObject(keyType);
-            if(key is null) {
-                throw new ArgumentException("Dictionary contains a null key.");
-            }
-            dict[key] = pair.Value.ToObject(valueType, pair.Key.ToString());
+            // a map key is the field name of its value
+            var field = pair.Key.ToString();
+            var key = FirestoreValueConversion.ToKeyType(field, keyType);
+            dict[key] = pair.Value.ToObject(valueType, field);
         }
         return dict;
     }

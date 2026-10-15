@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Globalization;
 
 namespace Plugin.Firebase.Firestore.Internal;
@@ -10,7 +11,8 @@ namespace Plugin.Firebase.Firestore.Internal;
 /// </summary>
 /// <remarks>
 /// Like the native Android SDK's <c>CustomClassMapper</c>, a typed read only converts between
-/// numeric types:
+/// numeric types. Unlike it, an enum is read from a number rather than from a member name, because
+/// the plugin writes enums as numbers:
 /// <list type="bullet">
 /// <item>
 /// A value that already is an instance of the target type is returned unchanged, for example text
@@ -24,7 +26,8 @@ namespace Plugin.Firebase.Firestore.Internal;
 /// Every other pairing throws <see cref="InvalidCastException"/>: a number read into a
 /// <see cref="string"/>, text into a number or an enum, a boolean into a number, a number into a
 /// <see cref="bool"/>, anything into a <see cref="char"/>, and a number or text into a date or any
-/// other type. A map or an array read into a type that holds a single value throws as well.
+/// other type. A map only reads into <see cref="object"/>, a dictionary or a model, and an array
+/// only into <see cref="object"/> or a list; any other target throws as well.
 /// </item>
 /// </list>
 /// </remarks>
@@ -71,48 +74,111 @@ internal static class FirestoreValueConversion
     }
 
     /// <summary>
-    /// Throws if a map can't be read into <paramref name="targetType"/> because the type holds a
-    /// single value.
+    /// Converts a map key, or a field name when a document is read as a dictionary, to
+    /// <paramref name="keyType"/>. Firestore always stores keys as text.
+    /// </summary>
+    /// <param name="key">The key read from Firestore.</param>
+    /// <param name="keyType">The requested key type.</param>
+    /// <returns>The key, if it is an instance of <paramref name="keyType"/>.</returns>
+    /// <exception cref="InvalidCastException">
+    /// Thrown if <paramref name="keyType"/> can't hold a <see cref="string"/>.
+    /// </exception>
+    public static object ToKeyType(string key, Type keyType)
+    {
+        var conversionType = Nullable.GetUnderlyingType(keyType) ?? keyType;
+        if(conversionType.IsInstanceOfType(key)) {
+            return key;
+        }
+
+        throw Mismatch(
+            string.Format(CultureInfo.InvariantCulture, "the map key '{0}'", key),
+            conversionType,
+            field: null);
+    }
+
+    /// <summary>
+    /// Throws if a map can't be read into <paramref name="targetType"/>. A map reads into
+    /// <see cref="object"/>, an <c>IDictionary&lt;TKey, TValue&gt;</c> or
+    /// <c>Dictionary&lt;TKey, TValue&gt;</c>, or a model: a concrete class, or a struct that
+    /// implements <see cref="IFirestoreObject"/>.
     /// </summary>
     /// <param name="targetType">The requested type, or <see langword="null"/> for an untyped read.</param>
     /// <param name="field">The Firestore field the map was read from, if known.</param>
     /// <exception cref="InvalidCastException">
-    /// Thrown if <paramref name="targetType"/> is a <see cref="string"/>, <see cref="bool"/>,
-    /// <see cref="char"/>, numeric, enum, <see cref="DateTime"/> or <see cref="DateTimeOffset"/> type.
+    /// Thrown for any other <paramref name="targetType"/>, for example a <see cref="string"/>, a
+    /// number, a list or a <see cref="GeoPoint"/>.
     /// </exception>
     public static void EnsureMapTarget(Type? targetType, string? field = null)
-    {
-        EnsureCollectionTarget("a map", targetType, field);
-    }
-
-    /// <summary>
-    /// Throws if an array can't be read into <paramref name="targetType"/> because the type holds a
-    /// single value.
-    /// </summary>
-    /// <param name="targetType">The requested type, or <see langword="null"/> for an untyped read.</param>
-    /// <param name="field">The Firestore field the array was read from, if known.</param>
-    /// <exception cref="InvalidCastException">
-    /// Thrown if <paramref name="targetType"/> is a <see cref="string"/>, <see cref="bool"/>,
-    /// <see cref="char"/>, numeric, enum, <see cref="DateTime"/> or <see cref="DateTimeOffset"/> type.
-    /// </exception>
-    public static void EnsureArrayTarget(Type? targetType, string? field = null)
-    {
-        EnsureCollectionTarget("an array", targetType, field);
-    }
-
-    private static void EnsureCollectionTarget(string source, Type? targetType, string? field)
     {
         if(targetType == null) {
             return;
         }
 
-        // Without this check a map read into one of these types would come back as its default value.
-        // Every type with a type code other than Object holds a single value: string, bool, char,
-        // the numeric types, enums and DateTime.
         var conversionType = Nullable.GetUnderlyingType(targetType) ?? targetType;
-        if(Type.GetTypeCode(conversionType) != TypeCode.Object || conversionType == typeof(DateTimeOffset)) {
-            throw Mismatch(source, conversionType, field);
+        if(!CanHoldMap(conversionType)) {
+            throw Mismatch("a map", conversionType, field);
         }
+    }
+
+    /// <summary>
+    /// Throws if an array can't be read into <paramref name="targetType"/>. An array reads into
+    /// <see cref="object"/>, or a type that a <see cref="List{T}"/> can be assigned to, such as
+    /// <see cref="IList{T}"/>.
+    /// </summary>
+    /// <param name="targetType">The requested type, or <see langword="null"/> for an untyped read.</param>
+    /// <param name="field">The Firestore field the array was read from, if known.</param>
+    /// <exception cref="InvalidCastException">
+    /// Thrown for any other <paramref name="targetType"/>, for example a <see cref="string"/>, a
+    /// number, a dictionary or a model. An array target such as <c>string[]</c> passes, so that the
+    /// platform can say that lists are supported instead.
+    /// </exception>
+    public static void EnsureArrayTarget(Type? targetType, string? field = null)
+    {
+        if(targetType == null) {
+            return;
+        }
+
+        var conversionType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+        if(!CanHoldArray(conversionType)) {
+            throw Mismatch("an array", conversionType, field);
+        }
+    }
+
+    private static bool CanHoldMap(Type conversionType)
+    {
+        if(conversionType == typeof(object) || IsDictionaryType(conversionType)) {
+            return true;
+        }
+
+        // The platforms create a model with Activator.CreateInstance and fill its properties. An
+        // interface or abstract class can't be created, and a collection, a string, or a value such
+        // as an int or a GeoPoint would come back empty or fail. A struct is only a model if it says so.
+        if(conversionType.IsAbstract
+           || conversionType == typeof(GeoPoint)
+           || typeof(IEnumerable).IsAssignableFrom(conversionType)) {
+            return false;
+        }
+        return conversionType.IsClass || typeof(IFirestoreObject).IsAssignableFrom(conversionType);
+    }
+
+    private static bool CanHoldArray(Type conversionType)
+    {
+        if(conversionType == typeof(object) || conversionType.IsArray) {
+            return true;
+        }
+
+        // The platforms read an array into a List<T> of the target's only type argument.
+        var arguments = conversionType.GenericTypeArguments;
+        return arguments.Length == 1
+               && conversionType.IsAssignableFrom(typeof(List<>).MakeGenericType(arguments[0]));
+    }
+
+    private static bool IsDictionaryType(Type conversionType)
+    {
+        // The same dictionary types the platforms read a map into.
+        return conversionType.IsGenericType
+               && (conversionType.GetGenericTypeDefinition() == typeof(IDictionary<,>)
+                   || conversionType.GetGenericTypeDefinition() == typeof(Dictionary<,>));
     }
 
     private static InvalidCastException Mismatch(string source, Type conversionType, string? field)

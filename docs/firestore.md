@@ -126,6 +126,18 @@ and `RunTransactionAsync` throws a `FirebaseException` whose `InnerException` is
 `CrossPlatformFirebaseFirestoreException` that doesn't carry a native Firestore error, for example one you construct
 yourself, also aborts the transaction without a retry, and `RunTransactionAsync` throws it unchanged.
 
+The update function must be synchronous: the native SDKs commit the transaction as soon as it returns, so an `async`
+update function would commit only the writes made before its first `await`. `RunTransactionAsync` throws an
+`ArgumentException` before the transaction starts when `TResult` is `Task`, `ValueTask` or `ValueTask<T>`, which the
+compiler infers for an `async` lambda. If the update function returns a task through another `TResult`, such as
+`object`, the transaction is aborted without committing and `RunTransactionAsync` throws that `ArgumentException`.
+Do asynchronous work before or after the transaction.
+
+`RunTransactionAsync` returns the value that the update function returned in the attempt that committed, as-is: the
+same instance, never converted to or from a Firestore value. A lazily evaluated result, such as a LINQ query over
+transactional reads, is enumerated only after the transaction has finished, as with the native SDKs, so materialize it
+inside the update function, for example with `ToList()`, if it depends on the transaction.
+
 ### Further information
 
 Take a look at the [documentation](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents/blob/master/docs/Firebase/CloudFirestore/GettingStarted.md) for the AdamE.Firebase.iOS.CloudFirestore packages, because Plugin.Firebase's code is abstracted but still very similar.
@@ -151,6 +163,14 @@ Failures that the native Firestore SDKs report now surface as `CrossPlatformFire
 - Some methods now report an exception that the native SDK throws synchronously through the returned `Task`, instead of throwing it before the `Task` is returned. Examples are an `IllegalStateException` on Android after `TerminateAsync`, or an Objective-C exception on iOS. This applies to `IWriteBatch.CommitAsync`, `WaitForPendingWritesAsync`, `DisableNetworkAsync`, `EnableNetworkAsync`, `ClearPersistenceAsync` and `TerminateAsync` on both platforms, and to `IDocumentReference.SetDataAsync`, `UpdateDataAsync` and `DeleteDocumentAsync` on iOS. These exceptions aren't native Firebase failures, so their type doesn't change. Code that awaits the `Task` sees no difference; code that expected the exception before the `Task` was returned has to await it.
 
 On iOS, `RunTransactionAsync` now also retries the transaction after a retryable Firestore error raised inside the update function, when the update function lets it propagate. An example is `ABORTED` from an `ITransaction.GetDocument` that finds the document changed since an earlier read in the same transaction. iOS already re-ran the update function after a retryable commit failure, such as contention with another write; now the native SDK's retry rules decide for errors raised inside the update function too, as they already do on Android. Previously iOS never retried the transaction after such an error. Make sure the update function doesn't change state outside the transaction.
+
+`RunTransactionAsync` now returns the update function's result as-is on both platforms, instead of converting it to a native value inside the transaction and back to `TResult` after the commit:
+
+- The result is the same instance that the update function returned. It's no longer deep-copied or normalized through `NSNumber`, `java.lang.Integer` and the other native types. For example, `RunTransactionAsync<object>(_ => 5)` used to return the number as read back from the native value, `RunTransactionAsync<object>(_ => DateTime.UtcNow)` returned a `DateTimeOffset`, and an `IFirestoreObject` came back as a new instance without its `[FirestoreDocumentId]` value.
+- Results that the conversion couldn't handle now work. A `DateTime` or array `TResult` used to throw after the writes had been committed, and results such as records, tuples or `HashSet<T>` used to abort the transaction.
+- A lazily evaluated result, such as a LINQ query, is returned as-is too, so it's enumerated only after the transaction has finished. Materialize it inside the update function, for example with `ToList()`, if it reads from the transaction.
+- An `async` update function, or one that returns a task through an `object` result, now makes `RunTransactionAsync` throw `ArgumentException` without committing (see [Error handling](#error-handling)). Previously the conversion rejected the task inside the update function, so the transaction was aborted with a `FirebaseException` whose `InnerException` was an `ArgumentException`.
+- On Android, `Plugin.Firebase.Firestore.Platforms.Android.TransactionFunction<TResult>` is now internal. It was an implementation detail of `RunTransactionAsync`; call `RunTransactionAsync` instead.
 
 ## Release notes
 - Version 3.1.3

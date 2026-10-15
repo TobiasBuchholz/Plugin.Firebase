@@ -34,9 +34,13 @@ public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseF
 
     public async Task<TResult?> RunTransactionAsync<TResult>(Func<ITransaction, TResult> updateFunc)
     {
+        TransactionResultGuard.ThrowIfAsyncResultType(typeof(TResult));
         var function = new TransactionFunction<TResult>(updateFunc);
         try {
             await _firestore.RunTransaction(function);
+        } catch(Exception) when(function.ResultException is { } resultException) {
+            // the update function returned a task, so the attempt was aborted before anything committed
+            throw resultException;
         } catch(Exception) when(function.UpdateException is { } updateException) {
             // the task faulted because the update function threw; surface the managed failure
             if(updateException is CrossPlatformFirebaseFirestoreException) {

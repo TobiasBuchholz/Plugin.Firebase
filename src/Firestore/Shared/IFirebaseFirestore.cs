@@ -60,10 +60,29 @@ public interface IFirebaseFirestore : IDisposable
     /// When the native SDK fails the transaction itself, for example because the backend rejects the commit, the returned
     /// task also faults with a <see cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseFirestoreException"/>.
     /// </para>
+    /// <para>
+    /// <paramref name="updateFunc"/> must be synchronous. The native SDKs commit the transaction as soon as it returns, so an
+    /// <c>async</c> update function would commit only the writes made before its first <c>await</c>. When
+    /// <typeparamref name="TResult"/> is <see cref="Task"/>, <see cref="ValueTask"/> or <see cref="ValueTask{TResult}"/>,
+    /// which the compiler infers for an <c>async</c> lambda, the returned task faults with an
+    /// <see cref="ArgumentException"/> before the transaction starts, so <paramref name="updateFunc"/> never runs. When
+    /// <paramref name="updateFunc"/> returns a task through another <typeparamref name="TResult"/>, such as
+    /// <see cref="object"/>, the transaction is aborted without committing any of its writes and the returned task faults
+    /// with that <see cref="ArgumentException"/>, on both platforms.
+    /// </para>
+    /// <para>
+    /// The result is kept in .NET and never needs to be a Firestore value. A lazily evaluated result, such as a LINQ query
+    /// over transactional reads, is enumerated only after the transaction has finished, as with the native SDKs, so
+    /// materialize it inside <paramref name="updateFunc"/>, for example with <c>ToList()</c>, if it depends on the
+    /// transaction.
+    /// </para>
     /// </remarks>
-    /// <param name="updateFunc">The func to execute within the transaction context.</param>
+    /// <param name="updateFunc">The func to execute within the transaction context. It must be synchronous.</param>
     /// <typeparam name="TResult">The type of the result returned by updateFunc.</typeparam>
-    /// <returns></returns>
+    /// <returns>
+    /// A task whose result is the value returned by the final, committed call of <paramref name="updateFunc"/>, as-is: the
+    /// same instance, not a converted copy.
+    /// </returns>
     Task<TResult?> RunTransactionAsync<TResult>(Func<ITransaction, TResult> updateFunc);
 
     /// <summary>

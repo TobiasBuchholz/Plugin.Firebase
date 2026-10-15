@@ -108,7 +108,7 @@ public sealed class CloudMessagingIosFixture
 
         var args = await tapped.WaitAsync(IntegrationTestTimeouts.ShortCallback, "notification tap with throwing subscriber");
         Assert.Same(notification, args.Notification);
-        Assert.Equal(ActionIdentifier, args.Notification.Data["ActionIdentifier"]);
+        Assert.Equal(ActionIdentifier, args.Notification.Data[ActionIdentifierKey]);
         Assert.Equal("subscriber failure", exception.Message);
         Assert.Equal(1, completions);
     }
@@ -165,13 +165,13 @@ public sealed class CloudMessagingIosFixture
         var args = await tapped.WaitAsync(IntegrationTestTimeouts.ShortCallback, "tap without data");
         Assert.Equal(KeyValuePair.Create(ActionIdentifierKey, DefaultActionIdentifier), Assert.Single(args.Notification.Data));
         Assert.Equal(("Delegate body", "Delegate title"), (args.Notification.Body, args.Notification.Title));
-        Assert.Null(notification.Data);
+        Assert.NotSame(notification, args.Notification);
     }
 
     [IosFact]
     public async Task replays_kept_tap_without_data_as_copy_holding_only_action_identifier()
     {
-        // userInfo with neither aps.alert nor a notification dictionary converts to FCMNotification.Empty()
+        // a local notification's userInfo, with no aps or notification dictionary, converts to FCMNotification.Empty()
         Sut.CompleteNotificationResponse(() => FCMNotification.Empty(), () => ActionIdentifier, () => { });
         using var tapped = ProbeNotificationTapped();
 

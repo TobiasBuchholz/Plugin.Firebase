@@ -230,9 +230,9 @@ public sealed class FirebaseCloudMessagingImplementation
 
         const string key = nameof(UNNotificationResponse.ActionIdentifier);
         if(notification.Data == null) {
-            // userInfo with neither aps.alert nor a notification dictionary, such as a local notification,
-            // converts to FCMNotification.Empty(), whose Data is null and has no setter; copy it with a
-            // dictionary so the action is not dropped
+            // userInfo whose aps dictionary has no alert, or that has neither an aps nor a notification
+            // dictionary (such as a local notification), converts to FCMNotification.Empty(), whose Data is
+            // null and has no setter; copy it with a dictionary so the action is not dropped
             return new FCMNotification(
                 notification.Body,
                 notification.Title,

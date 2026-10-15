@@ -98,7 +98,8 @@ public sealed partial class FirestoreFixture
         Assert.Null((await document.GetDocumentSnapshotAsync<Dictionary<string, object?>>(Source.Server)).Data);
     }
 
-    [Fact]
+    // Android only. iOS accepts the value too, but an existing iOS bug then fails the write: see the next test.
+    [AndroidFact]
     public async Task writes_min_value_date_times_with_utc_kind()
     {
         var sut = CrossFirebaseFirestore.Current;
@@ -111,6 +112,26 @@ public sealed partial class FirestoreFixture
 
         var raw = (await document.GetDocumentSnapshotAsync<Dictionary<string, object?>>(Source.Server)).Data!;
         Assert.Equal(DateTimeOffset.MinValue, Assert.IsType<DateTimeOffset>(raw[DateTimeKindField]));
+    }
+
+    // Pins an existing iOS bug that the Kind check doesn't cause. Microsoft.iOS converts DateTime to NSDate through an
+    // NSCalendar Gregorian calendar, which uses Julian dates before 1582-10-15. That moves DateTime.MinValue two days
+    // earlier, below the smallest Firestore timestamp, so the native SDK rejects it. The native exception still shows
+    // that the Kind check let the value through. Once the conversion is fixed this test fails: delete it and run the
+    // test above on both platforms.
+    [IosFact]
+    public async Task utc_min_value_passes_the_kind_check_but_shifts_below_the_smallest_timestamp_on_ios()
+    {
+        var sut = CrossFirebaseFirestore.Current;
+        var document = GetTestingDocument(sut, "utc-kind-min-value-ios");
+
+        var exception = await Assert.ThrowsAnyAsync<Exception>(() => document.SetDataAsync(new DateTimeKindDocument {
+            Observed = DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc)
+        }));
+
+        Assert.IsNotType<ArgumentException>(exception);
+        // 0001-01-01 read as a Julian date: 172,800 s (two days) before the minimum of -62,135,596,800 s.
+        Assert.Contains("-62135769600", exception.Message);
     }
 
     [Fact]

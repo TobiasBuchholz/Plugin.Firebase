@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Diagnostics;
 using System.Globalization;
-using CoreFoundation;
 using Firebase.CloudFirestore;
 using Firebase.Core;
 using Plugin.Firebase.Core.Platforms.iOS.Extensions;
@@ -14,7 +13,10 @@ namespace Plugin.Firebase.Firestore.Platforms.iOS.Extensions;
 /// </summary>
 public static class NSObjectExtensions
 {
-    private static readonly nint BooleanTypeId = CFType.GetTypeID(NSNumber.FromBoolean(true).Handle);
+    // NSNumber.FromBoolean returns the kCFBooleanTrue and kCFBooleanFalse singletons, which are the
+    // only CFBoolean instances and what Firestore returns for booleans.
+    private static readonly NSNumber BooleanTrue = NSNumber.FromBoolean(true);
+    private static readonly NSNumber BooleanFalse = NSNumber.FromBoolean(false);
 
     /// <summary>
     /// Casts a native iOS NSDictionary to a typed .NET object.
@@ -197,13 +199,13 @@ public static class NSObjectExtensions
     /// <remarks>
     /// This deliberately widens where <see cref="ToUntypedObject"/> preserves the stored width:
     /// an untyped read hands the caller the value's own type, while a typed read only needs a
-    /// source wide enough for the target's range check. Booleans are CFBoolean instances, which
-    /// report the same "c" type encoding as a signed char, so they are told apart by their Core
-    /// Foundation type and are never read as numbers.
+    /// source wide enough for the target's range check. Booleans are the two CFBoolean singletons,
+    /// which report the same "c" type encoding as a signed char, so they are told apart by identity
+    /// and are never read as numbers.
     /// </remarks>
     private static object ToConversionSource(this NSNumber @this)
     {
-        if(CFType.GetTypeID(@this.Handle) == BooleanTypeId) {
+        if(@this.Handle == BooleanTrue.Handle || @this.Handle == BooleanFalse.Handle) {
             return @this.BoolValue;
         }
 

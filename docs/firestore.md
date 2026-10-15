@@ -128,20 +128,32 @@ Since code should be documenting itself you can also take a look at the followin
 ## Next-release migration notes
 
 Typed reads of numbers now follow the same rules on both platforms (see [Usage](#usage)). Compared
-with 4.2.1:
+with Plugin.Firebase.Firestore 4.0.0:
 
 - On iOS, a value outside the range of an integral property wrapped silently, so a stored `300`
   read into a `byte` gave `44`. It now throws `OverflowException`. `decimal` properties, which
-  were left at `0`, now read the stored value.
-- On Android, `int` and `int?` properties rounded fractional values (`Convert.ToInt32`), so
-  `2.5` gave `2` and `3.5` gave `4`. They now truncate, so `3.5` gives `3`.
+  were left at `0` (`null` for `decimal?`), now read the stored value.
+- On Android, `int` and `int?` properties and `IList<int>` and `IList<long>` elements rounded
+  fractional values (`Convert.ToInt32`, `Convert.ToInt64`), so `2.5` gave `2` and `3.5` gave
+  `4`. They now truncate, so `3.5` gives `3`.
 - A fractional value read into any integral or enum property truncates toward zero on both
-  platforms. It is range checked before truncating, so a value just outside the range, like
-  `255.5` for a `byte`, throws `OverflowException` instead of reading as `255`.
+  platforms, after a range check on the stored value. On iOS, a value just outside the range,
+  like `255.5` for a `byte`, read as `255`; it now throws `OverflowException`. On Android, a
+  fractional value read into an integral property other than `int` threw `ArgumentException`;
+  it now converts.
 - Enum properties are range checked against their underlying type on both platforms, so a value
   that doesn't fit throws `OverflowException`.
+- Android wrote `uint`-backed enum values above `int.MaxValue`, and `ulong`-backed values above
+  `long.MaxValue`, as negative numbers when they went through update, list, query or
+  transaction-result writes. This release fixes those writes but can't repair values already
+  stored, which don't fit the enum and now fail to read on both platforms. To recover, read the
+  document as a `Dictionary<string, object>`, convert the stored `long` with
+  `unchecked((uint) value)` or `unchecked((ulong) value)`, and write the field back.
 - A stored NaN or infinity read into an integral, enum or `decimal` property throws
   `OverflowException`, and so does a double too large for a `float` property.
+- On iOS, `char` properties read the stored number through a byte, so values above 255 wrapped.
+  They now cover the full `char` range, and fractional values and booleans read into a `char`
+  throw `InvalidCastException`.
 
 ## Release notes
 - Version 3.1.3

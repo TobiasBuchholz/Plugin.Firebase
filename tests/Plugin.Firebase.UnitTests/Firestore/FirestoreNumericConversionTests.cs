@@ -51,6 +51,7 @@ public class FirestoreNumericConversionTests
         { 2147483647.0, typeof(int), int.MaxValue },
         { 4294967295.0, typeof(uint), uint.MaxValue },
         { -9223372036854775808.0, typeof(long), long.MinValue },
+        { -9223372036854775808f, typeof(long), long.MinValue },
         { 9223372036854774784.0, typeof(long), 9223372036854774784L },
         { 18446744073709549568.0, typeof(ulong), 18446744073709549568UL },
 
@@ -155,10 +156,11 @@ public class FirestoreNumericConversionTests
         { -2147483648.5, typeof(int?) },
 
         // Doubles just outside the range. (double) long.MaxValue rounds up to 2^63, which doesn't
-        // fit a long; the next double below -2^63 is 2^63 + 2048 away from zero.
+        // fit a long, as a double or as a float; the next double below -2^63 is 2^63 + 2048 away
+        // from zero.
         { 9223372036854775808.0, typeof(long) },
+        { 9223372036854775808f, typeof(long) },
         { -9223372036854777856.0, typeof(long) },
-        { (double) long.MaxValue, typeof(long) },
         { 18446744073709551616.0, typeof(ulong) },
         { 256.0, typeof(byte) },
         { -1.0, typeof(byte) },
@@ -172,6 +174,8 @@ public class FirestoreNumericConversionTests
         { double.NaN, typeof(int?) },
         { double.NaN, typeof(decimal) },
         { double.PositiveInfinity, typeof(decimal) },
+        { float.NegativeInfinity, typeof(decimal) },
+        { float.NaN, typeof(decimal) },
         { double.NaN, typeof(ByteLevel) },
 
         // A finite double too large for the target.

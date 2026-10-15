@@ -88,7 +88,7 @@ public sealed partial class FirestoreFixture
         var fractional = await document.GetDocumentSnapshotAsync<FractionalCharDocument>();
         Assert.Throws<InvalidCastException>(() => _ = fractional.Data);
 
-        await AssertOutOfRangeAsync<CharRangeDocument>(document);
+        await FirestoreAssertions.OutOfRangeReadAsync<CharRangeDocument>(document);
     }
 
     [Fact]
@@ -111,24 +111,15 @@ public sealed partial class FirestoreFixture
         var withinRange = (await document.GetDocumentSnapshotAsync<ByteWithinRangeDocument>()).Data!;
         Assert.Equal((byte) 200, withinRange.Value);
 
-        await AssertOutOfRangeAsync<ByteRangeDocument>(document);
-        await AssertOutOfRangeAsync<SByteRangeDocument>(document);
-        await AssertOutOfRangeAsync<ShortRangeDocument>(document);
-        await AssertOutOfRangeAsync<UShortRangeDocument>(document);
-        await AssertOutOfRangeAsync<IntRangeDocument>(document);
-        await AssertOutOfRangeAsync<NullableIntRangeDocument>(document);
-        await AssertOutOfRangeAsync<UIntRangeDocument>(document);
-        await AssertOutOfRangeAsync<ULongRangeDocument>(document);
+        await FirestoreAssertions.OutOfRangeReadAsync<ByteRangeDocument>(document);
+        await FirestoreAssertions.OutOfRangeReadAsync<SByteRangeDocument>(document);
+        await FirestoreAssertions.OutOfRangeReadAsync<ShortRangeDocument>(document);
+        await FirestoreAssertions.OutOfRangeReadAsync<UShortRangeDocument>(document);
+        await FirestoreAssertions.OutOfRangeReadAsync<IntRangeDocument>(document);
+        await FirestoreAssertions.OutOfRangeReadAsync<NullableIntRangeDocument>(document);
+        await FirestoreAssertions.OutOfRangeReadAsync<UIntRangeDocument>(document);
+        await FirestoreAssertions.OutOfRangeReadAsync<ULongRangeDocument>(document);
         // A double too large for a float throws instead of becoming infinity.
-        await AssertOutOfRangeAsync<FloatRangeDocument>(document);
-    }
-
-    private static async Task AssertOutOfRangeAsync<T>(IDocumentReference document)
-    {
-        // Snapshots are typed, so each target type needs a snapshot of its own. Callers read the
-        // document from the server first, so these come from the local cache instead of repeating
-        // the round trip.
-        var snapshot = await document.GetDocumentSnapshotAsync<T>(Source.Cache);
-        Assert.Throws<OverflowException>(() => _ = snapshot.Data);
+        await FirestoreAssertions.OutOfRangeReadAsync<FloatRangeDocument>(document);
     }
 }

@@ -8,7 +8,8 @@ namespace Plugin.Firebase.Firestore.Internal;
 /// Android and iOS. The platforms unwrap the native value to a .NET primitive first.
 /// </summary>
 /// <remarks>
-/// The rules follow the native Android SDK's <c>CustomClassMapper</c>:
+/// Range checking a fractional value and then truncating it follows the native Android SDK's
+/// <c>CustomClassMapper</c>. The rules:
 /// <list type="bullet">
 /// <item>
 /// A value outside the target's range throws <see cref="OverflowException"/>. So does NaN or
@@ -85,7 +86,8 @@ internal static class FirestoreNumericConversion
             return typeCode switch {
                 TypeCode.Double => Convert.ToDouble(value, CultureInfo.InvariantCulture),
                 TypeCode.Single => ToSingle(value),
-                TypeCode.Decimal => Convert.ToDecimal(RequireFinite(value), CultureInfo.InvariantCulture),
+                // Convert.ToDecimal throws OverflowException for NaN and infinity as well.
+                TypeCode.Decimal => Convert.ToDecimal(value, CultureInfo.InvariantCulture),
                 _ => ToIntegral(value, conversionType, typeCode)
             };
         } catch(OverflowException exception) {
@@ -110,21 +112,11 @@ internal static class FirestoreNumericConversion
         return single;
     }
 
-    private static object RequireFinite(object value)
-    {
-        var isFinite = value switch {
-            double d => double.IsFinite(d),
-            float f => float.IsFinite(f),
-            _ => true
-        };
-        return isFinite ? value : throw new OverflowException();
-    }
-
     private static object ToIntegral(object value, Type conversionType, TypeCode typeCode)
     {
-        // Like the native Android SDK, a fractional source is range checked as stored and only then
-        // truncated, so 2147483647.9 doesn't fit an int. After truncating, Convert has nothing left
-        // to round; it range checks integral sources itself.
+        // The order follows the native Android SDK: a fractional source is range checked as stored
+        // and only then truncated, so 2147483647.9 doesn't fit an int. After truncating, Convert has
+        // nothing left to round; it range checks integral sources itself.
         object integral = value switch {
             double d => FitsIntegral(d, typeCode) ? Math.Truncate(d) : throw new OverflowException(),
             float f => FitsIntegral(f, typeCode) ? Math.Truncate((double) f) : throw new OverflowException(),
@@ -145,7 +137,9 @@ internal static class FirestoreNumericConversion
             TypeCode.Int32 => value >= int.MinValue && value <= int.MaxValue,
             TypeCode.UInt32 => value >= uint.MinValue && value <= uint.MaxValue,
             // long.MaxValue and ulong.MaxValue round up to 2^63 and 2^64 as doubles, so the upper
-            // bounds are those powers of two, compared strictly.
+            // bounds are those powers of two, compared strictly. Native Android compares against
+            // (double) Long.MAX_VALUE inclusively, which accepts 2^63 and saturates it to
+            // Long.MAX_VALUE; rejecting it here is deliberate.
             TypeCode.Int64 => value >= -9223372036854775808.0 && value < 9223372036854775808.0,
             TypeCode.UInt64 => value >= 0.0 && value < 18446744073709551616.0,
             _ => false

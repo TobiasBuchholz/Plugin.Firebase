@@ -12,6 +12,9 @@ public sealed class CloudMessagingIosFixture
 {
     private const string SilentInForegroundKey = "is_silent_in_foreground";
     private const string ActionIdentifier = "plugin-firebase-test-action";
+    private const string ActionIdentifierKey = "ActionIdentifier";
+    // value of UNNotificationDefaultActionIdentifier, whose binding is not public
+    private const string DefaultActionIdentifier = "com.apple.UNNotificationDefaultActionIdentifier";
     private const UNNotificationPresentationOptions VisibleOptions =
         UNNotificationPresentationOptions.Banner
         | UNNotificationPresentationOptions.List
@@ -105,7 +108,7 @@ public sealed class CloudMessagingIosFixture
 
         var args = await tapped.WaitAsync(IntegrationTestTimeouts.ShortCallback, "notification tap with throwing subscriber");
         Assert.Same(notification, args.Notification);
-        Assert.Equal(ActionIdentifier, args.Notification.Data["ActionIdentifier"]);
+        Assert.Equal(ActionIdentifier, args.Notification.Data[ActionIdentifierKey]);
         Assert.Equal("subscriber failure", exception.Message);
         Assert.Equal(1, completions);
     }
@@ -122,6 +125,58 @@ public sealed class CloudMessagingIosFixture
         var args = await tapped.WaitAsync(IntegrationTestTimeouts.ShortCallback, "kept notification tap replay");
         Assert.Same(notification, args.Notification);
         Assert.Equal(1, completions);
+    }
+
+    [IosFact]
+    public async Task replays_kept_tap_with_custom_action_identifier_replacing_sender_value()
+    {
+        var notification = CreateNotification(isSilentInForeground: false);
+        notification.Data[ActionIdentifierKey] = "sender-value";
+
+        Sut.CompleteNotificationResponse(() => notification, () => ActionIdentifier, () => { });
+        using var tapped = ProbeNotificationTapped();
+
+        var args = await tapped.WaitAsync(IntegrationTestTimeouts.ShortCallback, "kept tap with custom action");
+        Assert.Equal(ActionIdentifier, args.Notification.Data[ActionIdentifierKey]);
+        Assert.Equal("value", args.Notification.Data["custom"]);
+    }
+
+    [IosFact]
+    public async Task raises_tap_for_subscriber_with_default_action_identifier()
+    {
+        var notification = CreateNotification(isSilentInForeground: false);
+        using var tapped = ProbeNotificationTapped();
+
+        Sut.CompleteNotificationResponse(() => notification, () => DefaultActionIdentifier, () => { });
+
+        var args = await tapped.WaitAsync(IntegrationTestTimeouts.ShortCallback, "tap with default action");
+        Assert.Equal(DefaultActionIdentifier, args.Notification.Data[ActionIdentifierKey]);
+        Assert.Equal("value", args.Notification.Data["custom"]);
+    }
+
+    [IosFact]
+    public async Task raises_tap_without_data_as_copy_holding_only_action_identifier()
+    {
+        var notification = new FCMNotification(body: "Delegate body", title: "Delegate title");
+        using var tapped = ProbeNotificationTapped();
+
+        Sut.CompleteNotificationResponse(() => notification, () => DefaultActionIdentifier, () => { });
+
+        var args = await tapped.WaitAsync(IntegrationTestTimeouts.ShortCallback, "tap without data");
+        Assert.Equal(KeyValuePair.Create(ActionIdentifierKey, DefaultActionIdentifier), Assert.Single(args.Notification.Data));
+        Assert.Equal(("Delegate body", "Delegate title"), (args.Notification.Body, args.Notification.Title));
+        Assert.NotSame(notification, args.Notification);
+    }
+
+    [IosFact]
+    public async Task replays_kept_tap_without_data_as_copy_holding_only_action_identifier()
+    {
+        // a local notification's userInfo, with no aps or notification dictionary, converts to FCMNotification.Empty()
+        Sut.CompleteNotificationResponse(() => FCMNotification.Empty(), () => ActionIdentifier, () => { });
+        using var tapped = ProbeNotificationTapped();
+
+        var args = await tapped.WaitAsync(IntegrationTestTimeouts.ShortCallback, "kept tap without data");
+        Assert.Equal(KeyValuePair.Create(ActionIdentifierKey, ActionIdentifier), Assert.Single(args.Notification.Data));
     }
 
     private static FCMNotification CreateNotification(bool isSilentInForeground)

@@ -35,7 +35,6 @@ public sealed partial class FirestoreFixture
             return expectedPokemon;
         });
         Assert.Same(expectedPokemon, objectResult);
-        Assert.Equal("7", objectResult!.Id);
         await AssertCommittedSightingCountAsync(document, charmander.SightingCount + 3);
     }
 

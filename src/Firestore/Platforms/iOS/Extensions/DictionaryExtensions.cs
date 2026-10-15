@@ -141,7 +141,7 @@ public static class DictionaryExtensions
             if(key is null) {
                 throw new ArgumentException("Dictionary contains a null key.");
             }
-            dict[key] = pair.Value.ToObject(valueType);
+            dict[key] = pair.Value.ToObject(valueType, pair.Key.ToString());
         }
         return dict;
     }

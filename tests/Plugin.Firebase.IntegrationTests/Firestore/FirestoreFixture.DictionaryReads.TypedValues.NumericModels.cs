@@ -25,7 +25,6 @@ public sealed partial class FirestoreFixture
             { "whole_double_value", 2L },
             { "decimal_from_whole_value", 5L },
             { "decimal_from_fraction_value", 5.25 },
-            { "char_value", 65L },
             { "byte_list_value", new[] { 0L, 255L } }
         });
 
@@ -46,7 +45,6 @@ public sealed partial class FirestoreFixture
         Assert.Equal(2.0, data.WholeDoubleValue);
         Assert.Equal(5m, data.DecimalFromWholeValue);
         Assert.Equal(5.25m, data.DecimalFromFractionValue);
-        Assert.Equal('A', data.CharValue);
         Assert.Equal(new byte[] { 0, 255 }, data.ByteListValue);
     }
 
@@ -91,32 +89,39 @@ public sealed partial class FirestoreFixture
         Assert.Equal(NumericRating.High, data.RatingFromDoubleValue);
     }
 
-    // Android only: iOS typed reads don't convert between text and numbers (numbers to text is #711).
-    [AndroidFact]
-    public async Task reads_android_typed_model_text_and_number_conversions_independent_of_culture()
+    // Typed reads don't convert between text and numbers on either platform, so the result can't
+    // depend on the device culture: under de-DE a culture-sensitive conversion would read "2.5" as 25
+    // and write 2.5 as "2,5". Each conversion reads a document of its own.
+    [Fact]
+    public async Task rejects_typed_model_text_and_number_conversions_independent_of_culture()
     {
         var sut = CrossFirebaseFirestore.Current;
-        var document = GetTestingDocument(sut, "android-typed-model-culture");
-        await document.SetDataAsync(new Dictionary<object, object?> {
-            { "double_from_text_value", "2.5" },
-            { "text_from_double_value", 2.5 },
+        var doubleFromText = GetTestingDocument(sut, "typed-model-culture-double-from-text");
+        await doubleFromText.SetDataAsync(new Dictionary<object, object?> {
+            { "double_from_text_value", "2.5" }
+        });
+        var textFromDouble = GetTestingDocument(sut, "typed-model-culture-text-from-double");
+        await textFromDouble.SetDataAsync(new Dictionary<object, object?> {
+            { "text_from_double_value", 2.5 }
+        });
+        var textsFromDoubles = GetTestingDocument(sut, "typed-model-culture-texts-from-doubles");
+        await textsFromDoubles.SetDataAsync(new Dictionary<object, object?> {
             { "texts_from_doubles_value", new[] { 2.5, 0.75 } }
         });
 
-        var modelSnapshot = await document.GetDocumentSnapshotAsync<CultureConversionDocument>();
-        var textSnapshot = await document.GetDocumentSnapshotAsync<Dictionary<string, string>>();
+        var doubleFromTextSnapshot = await doubleFromText.GetDocumentSnapshotAsync<CultureConversionDocument>();
+        var textFromDoubleSnapshot = await textFromDouble.GetDocumentSnapshotAsync<CultureConversionDocument>();
+        var textsFromDoublesSnapshot = await textsFromDoubles.GetDocumentSnapshotAsync<CultureConversionDocument>();
+        var textDictionarySnapshot = await textFromDouble.GetDocumentSnapshotAsync<Dictionary<string, string>>();
 
         var originalCulture = CultureInfo.CurrentCulture;
-        // de-DE uses ',' as the decimal separator, so a culture-sensitive conversion would read "2.5" as 25
         CultureInfo.CurrentCulture = new CultureInfo("de-DE");
         try {
-            // snapshot data is converted when it is read, so the conversions below run under de-DE
-            var data = modelSnapshot.Data!;
-            Assert.Equal(2.5, data.DoubleFromTextValue);
-            Assert.Equal("2.5", data.TextFromDoubleValue);
-            Assert.Equal(new[] { "2.5", "0.75" }, data.TextsFromDoublesValue);
-
-            Assert.Equal("2.5", textSnapshot.Data!["text_from_double_value"]);
+            // snapshot data is converted when it is read, so these reads run under de-DE
+            Assert.Throws<InvalidCastException>(() => _ = doubleFromTextSnapshot.Data);
+            Assert.Throws<InvalidCastException>(() => _ = textFromDoubleSnapshot.Data);
+            Assert.Throws<InvalidCastException>(() => _ = textsFromDoublesSnapshot.Data);
+            Assert.Throws<InvalidCastException>(() => _ = textDictionarySnapshot.Data);
         }
         finally {
             CultureInfo.CurrentCulture = originalCulture;

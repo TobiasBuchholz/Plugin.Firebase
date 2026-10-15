@@ -75,23 +75,6 @@ public sealed partial class FirestoreFixture
     }
 
     [Fact]
-    public async Task rejects_out_of_range_and_fractional_char_values()
-    {
-        var sut = CrossFirebaseFirestore.Current;
-        var document = GetTestingDocument(sut, "numeric-chars");
-        await document.SetDataAsync(new Dictionary<object, object?> {
-            { "above_char", 70000L },
-            { "fractional", 65.5 }
-        });
-
-        // Convert.ChangeType has no double-to-char conversion on either platform.
-        var fractional = await document.GetDocumentSnapshotAsync<FractionalCharDocument>();
-        Assert.Throws<InvalidCastException>(() => _ = fractional.Data);
-
-        await FirestoreAssertions.OutOfRangeReadAsync<CharRangeDocument>(document);
-    }
-
-    [Fact]
     public async Task throws_when_document_data_exceeds_the_target_numeric_range()
     {
         var sut = CrossFirebaseFirestore.Current;

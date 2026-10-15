@@ -101,7 +101,7 @@ public sealed class CloudMessagingIosFixture
         var completions = 0;
 
         var exception = Assert.Throws<InvalidOperationException>(
-            () => Sut.CompleteNotificationResponse(() => notification, ActionIdentifier, () => completions++));
+            () => Sut.CompleteNotificationResponse(() => notification, () => ActionIdentifier, () => completions++));
 
         var args = await tapped.WaitAsync(IntegrationTestTimeouts.ShortCallback, "notification tap with throwing subscriber");
         Assert.Same(notification, args.Notification);
@@ -116,7 +116,7 @@ public sealed class CloudMessagingIosFixture
         var notification = CreateNotification(isSilentInForeground: false);
         var completions = 0;
 
-        Sut.CompleteNotificationResponse(() => notification, ActionIdentifier, () => completions++);
+        Sut.CompleteNotificationResponse(() => notification, () => ActionIdentifier, () => completions++);
         using var tapped = ProbeNotificationTapped();
 
         var args = await tapped.WaitAsync(IntegrationTestTimeouts.ShortCallback, "kept notification tap replay");

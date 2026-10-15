@@ -107,11 +107,15 @@ public sealed class FirebaseCloudMessagingImplementation
     /// <remarks>
     /// Raises <see cref="NotificationReceived"/>, then calls <paramref name="completionHandler"/> exactly once.
     /// The presentation options are chosen after the subscribers return, so a subscriber can still set
-    /// <c>is_silent_in_foreground</c> in <see cref="FCMNotification.Data"/>. A silent notification completes
-    /// with <see cref="UNNotificationPresentationOptions.None"/>; any other notification completes with
-    /// <see cref="UNNotificationPresentationOptions.Banner"/>, <see cref="UNNotificationPresentationOptions.List"/>
-    /// and <see cref="UNNotificationPresentationOptions.Sound"/>. If a subscriber throws, the completion handler
-    /// is still called and the exception then propagates out of this method.
+    /// <c>is_silent_in_foreground</c> in <see cref="FCMNotification.Data"/>. Check <see cref="FCMNotification.Data"/>
+    /// for <see langword="null"/> first: it is null when the payload has no alert or <c>notification</c> dictionary,
+    /// for example for local notifications, and such a notification can't be marked silent this way.
+    /// A silent notification completes with <see cref="UNNotificationPresentationOptions.None"/>; any other
+    /// notification completes with <see cref="UNNotificationPresentationOptions.Banner"/>,
+    /// <see cref="UNNotificationPresentationOptions.List"/> and <see cref="UNNotificationPresentationOptions.Sound"/>.
+    /// If a subscriber or the conversion throws, the completion handler is still called with these options, so the
+    /// notification is shown unless it was marked silent before the throw. The exception then propagates out of
+    /// this method.
     /// </remarks>
     /// <param name="center">The notification center.</param>
     /// <param name="notification">The notification being presented.</param>
@@ -183,14 +187,14 @@ public sealed class FirebaseCloudMessagingImplementation
     {
         CompleteNotificationResponse(
             () => response.Notification.ToFCMNotification(),
-            response.ActionIdentifier?.ToString(),
+            () => response.ActionIdentifier?.ToString(),
             completionHandler
         );
     }
 
     internal void CompleteNotificationResponse(
         Func<FCMNotification> getNotification,
-        string actionIdentifier,
+        Func<string> getActionIdentifier,
         Action completionHandler
     )
     {
@@ -199,6 +203,7 @@ public sealed class FirebaseCloudMessagingImplementation
                 _missedTappedNotification = getNotification();
             } else {
                 var notification = getNotification();
+                var actionIdentifier = getActionIdentifier();
                 if(!string.IsNullOrEmpty(actionIdentifier)) {
                     notification.Data[nameof(UNNotificationResponse.ActionIdentifier)] = actionIdentifier;
                 }

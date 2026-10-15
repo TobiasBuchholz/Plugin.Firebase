@@ -179,7 +179,7 @@ curl --location 'https://fcm.googleapis.com/fcm/send' \
 ##### is_silent_in_foreground
 Add `"is_silent_in_foreground": "true"` to the `data` payload to prevent showing the local push notification. The flag prevents a notification to be generated if the app is in foreground - otherwise the notifications will still be shown.  Event `CrossFirebaseCloudMessaging.Current.NotificationReceived` is still triggered to allow for manual notification handling.
 
-The flag is read after the `NotificationReceived` subscribers return. On iOS, a subscriber can set it in `e.Notification.Data` to suppress the banner, and a silent notification completes the `willPresentNotification` delegate with `UNNotificationPresentationOptions.None`.
+The flag is read after the `NotificationReceived` subscribers return. On iOS, a subscriber can set it in `e.Notification.Data` to suppress the banner, and a silent notification completes the `willPresentNotification` delegate with `UNNotificationPresentationOptions.None`. Check `e.Notification.Data` for `null` before writing to it: it is `null` when the payload has no alert or `notification` dictionary, for example for local notifications, and such a notification can't be marked silent this way.
 
 Note: this is a Plugin.Firebase custom field and hence not documented with google FCM documentation.
 
@@ -192,8 +192,10 @@ If you are having trouble receiving push notifications on your device, take a lo
 On iOS, the `willPresentNotification` and `didReceiveNotificationResponse` delegates now call their completion handler exactly once on every path, as Apple requires:
 
 - A foreground notification with `is_silent_in_foreground` set to `true` completes with `UNNotificationPresentationOptions.None`. Previously the completion handler was never called. The notification is still not shown.
-- The presentation options are chosen after the `NotificationReceived` subscribers return, so a subscriber can set `is_silent_in_foreground` in `e.Notification.Data` to suppress the banner. Android already read the flag after its subscribers.
-- If a `NotificationReceived` or `NotificationTapped` subscriber throws, the completion handler is still called. The exception still propagates out of the delegate method into the native caller, as before, so it remains unhandled in your app. Catch exceptions in your subscribers.
+- The presentation options are chosen after the `NotificationReceived` subscribers return, so a subscriber can set `is_silent_in_foreground` in `e.Notification.Data` to suppress the banner. Android already read the flag after its subscribers. `Data` is `null` for notifications without an alert or `notification` dictionary (for example local notifications), so check it before writing.
+- If a `NotificationReceived` subscriber throws, or the notification can't be converted, iOS now completes with `Banner`, `List` and `Sound`, so the notification is shown unless it was marked silent before the throw. Previously the completion handler was skipped and nothing was shown. Android still skips its local notification when a subscriber throws.
+- If a `NotificationTapped` subscriber throws, `didReceiveNotificationResponse` now still completes.
+- In both delegates the exception still propagates out of the delegate method into the native caller, as before, so it remains unhandled in your app. Catch exceptions in your subscribers.
 
 ## Release notes
 - Version 4.0.1

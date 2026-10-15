@@ -43,8 +43,9 @@ public interface IStorageReference
     /// iOS only uploads regular files, so a symbolic link fails the same way; pass the link's target path instead.
     /// </description></item>
     /// <item><description>
-    /// iOS simulator: the native iOS SDK uploads files through a background URL session, which can fail on the simulator with
-    /// Firebase iOS SDK versions older than 12.17.0. Physical devices are not affected.
+    /// Background session: the native iOS SDK uploads files through a background URL session that runs outside the app process.
+    /// On devices, the system may defer an upload that starts while the app is in the background. On the simulator, the upload can
+    /// fail with Firebase iOS SDK versions older than 12.17.0; physical devices are not affected by that failure.
     /// </description></item>
     /// </list>
     /// </remarks>

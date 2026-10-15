@@ -35,9 +35,9 @@ public sealed partial class StorageFixture
         await using var scope = StorageTestPathScope.FromPath("texts");
         var reference = scope.Child("via_read_only_file.txt");
         var filePath = await CreateTempTextFileAsync($"read_only_{Guid.NewGuid():N}.txt", contents);
-        File.SetUnixFileMode(filePath, ReadOnlyFileMode);
 
         try {
+            File.SetUnixFileMode(filePath, ReadOnlyFileMode);
             await reference.PutFile(filePath).AwaitAsync();
         }
         finally {
@@ -92,13 +92,20 @@ public sealed partial class StorageFixture
     [Fact]
     public async Task reports_missing_upload_file_when_awaited()
     {
-        await using var scope = StorageTestPathScope.FromPath("texts");
-        var reference = scope.Child("missing_upload_file.txt");
-        var filePath = Path.Combine(FileSystem.CacheDirectory, $"missing_{Guid.NewGuid():N}.txt");
+        var reference = CrossFirebaseStorage
+            .Current
+            .GetReferenceFromPath($"missing/{IntegrationTestData.UniqueFileName("missing_upload", ".txt")}");
+        var filePath = Path.Combine(
+            FileSystem.CacheDirectory,
+            IntegrationTestData.UniqueFileName("missing_upload_source", ".txt"));
 
         var transferTask = reference.PutFile(filePath);
 
-        await Assert.ThrowsAnyAsync<Exception>(() => transferTask.AwaitAsync());
+        var exception = await Assert.ThrowsAnyAsync<Exception>(
+            () => transferTask.AwaitAsync().WaitForTestAsync(
+                IntegrationTestTimeouts.LongCallback,
+                "missing storage upload file failure"));
+        StorageAssertions.MissingUploadFileFailure(exception, filePath);
     }
 
 

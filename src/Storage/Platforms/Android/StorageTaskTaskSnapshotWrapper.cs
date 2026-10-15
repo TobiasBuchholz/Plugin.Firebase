@@ -17,13 +17,16 @@ public sealed class StorageTaskTaskSnapshotWrapper : IStorageTaskSnapshot
         }
     }
 
+    /// <summary>
+    /// Creates a failure snapshot. A native Firebase exception, such as the <c>StorageException</c> that a failed
+    /// transfer reports, is wrapped in <see cref="CrossPlatformFirebaseStorageException"/>; any other exception is kept
+    /// as it is.
+    /// </summary>
+    /// <param name="error">The exception the transfer failed with.</param>
+    /// <returns>A snapshot whose <see cref="IStorageTaskSnapshot.Error"/> is the wrapped exception.</returns>
     public static IStorageTaskSnapshot FromError(Exception error)
     {
-        return new StorageTaskTaskSnapshotWrapper(
-            error: error is Java.Lang.Throwable throwable
-                ? throwable.ToStorageException()
-                : error
-        );
+        return new StorageTaskTaskSnapshotWrapper(error: StorageExceptionFactory.WrapIfNative(error));
     }
 
     private StorageTaskTaskSnapshotWrapper(

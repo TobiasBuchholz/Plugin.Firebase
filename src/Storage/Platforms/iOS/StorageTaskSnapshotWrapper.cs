@@ -1,4 +1,5 @@
 using Firebase.Storage;
+using Foundation;
 using Plugin.Firebase.Storage.Platforms.iOS.Extensions;
 
 namespace Plugin.Firebase.Storage.Platforms.iOS;
@@ -19,13 +20,15 @@ public class StorageTaskTaskSnapshotWrapper : IStorageTaskSnapshot
     }
 
     /// <summary>
-    /// Creates a new snapshot wrapper representing an error state.
+    /// Creates a new snapshot wrapper representing an error state. A native <see cref="NSErrorException"/> is wrapped
+    /// in <see cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseStorageException"/>; any other exception is
+    /// kept as it is.
     /// </summary>
     /// <param name="error">The exception that occurred.</param>
     /// <returns>An abstract storage task snapshot with the error.</returns>
     public static IStorageTaskSnapshot FromError(Exception error)
     {
-        return new StorageTaskTaskSnapshotWrapper(error: error);
+        return new StorageTaskTaskSnapshotWrapper(error: StorageExceptionFactory.WrapIfNative(error));
     }
 
     private StorageTaskTaskSnapshotWrapper(
@@ -40,7 +43,8 @@ public class StorageTaskTaskSnapshotWrapper : IStorageTaskSnapshot
         }
 
         Metadata = snapshot?.Metadata?.ToAbstract();
-        Error = error ?? snapshot?.Error?.ToStorageException();
+        Error = error
+            ?? (snapshot?.Error is { } nativeError ? StorageExceptionFactory.Create(nativeError) : null);
     }
 
     /// <inheritdoc/>

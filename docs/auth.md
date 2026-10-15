@@ -114,8 +114,10 @@ var user = await CrossFirebaseAuth.Current.SignInWithPhoneNumberVerificationCode
 ```
 
 Android differs from iOS in these ways:
-- Firebase can verify the number instantly without sending a code. The task then completes, and the next sign-in or link call uses that credential once and ignores its code argument. Once a code was sent, the code is always used, even if Android also retrieved the SMS automatically.
-- Another call for the same phone number while the native verification session is still open reuses that session. It completes when the earlier call does, or immediately if the code was already sent, and no new code is sent. A call for a different phone number cancels the task of an earlier call that is still pending.
+- The native SDK keeps a verification session per phone number for 120 seconds after it was last used. Another call for the same number within that window reuses the session and sends no new code: it completes when the earlier call does, or immediately if the code was already sent. A later call starts a new verification, and sign-in keeps using the earlier verification ID until the new code is sent, also if the new verification fails.
+- A call for a different phone number cancels the task of an earlier call that is still pending. Calling again for the earlier number within its window reuses its session and verification ID.
+- The native SDK can drop the callbacks when the activity stops before the code is sent, for example when the user switches to another app. If the native SDK reports no sent code, completion or failure within 120 seconds, the task faults with `TimeoutException`. Call `VerifyPhoneNumberAsync` again.
+- The task also completes if Firebase verifies the number without sending a code. In firebase-auth 23.x that only happens for test numbers set up with the native `FirebaseAuthSettings.setAutoRetrievedSmsCodeForPhoneNumber` setting, which the plugin doesn't wrap; in production a code is always sent. The next sign-in or link call then uses that credential once and ignores its code argument. When Android retrieves the SMS automatically after sending a code, the code you pass is still used.
 - The native callbacks arrive on the main thread. Don't block on the task with `Wait()` or `Result` from the UI thread, which deadlocks; await it instead.
 
 ## Language
@@ -175,18 +177,19 @@ In v5:
 
 ## Next-release migration notes
 
-On Android, `VerifyPhoneNumberAsync` now completes once the verification code has been sent (as on iOS) or the number has been verified instantly. Previously it completed right after starting native verification. This changes behavior in these ways:
+On Android, `VerifyPhoneNumberAsync` now completes once the verification code has been sent, as on iOS. Previously it completed right after starting native verification. This changes behavior in these ways:
 
 - Verification failures, such as an invalid phone number or an exceeded SMS quota, fault the task with `CrossPlatformFirebaseAuthException`. Previously they were dropped, and the next sign-in or link call failed or used an old verification ID.
-- Instant verification completes the task, and the next sign-in or link call uses that credential once. Previously the instant credential was ignored.
+- If the native SDK reports no sent code, completion or failure within 120 seconds, for example because it dropped the callbacks when the activity stopped, the task faults with `TimeoutException`.
 - Code that blocks on the task from the UI thread, with `Wait()` or `Result`, now deadlocks because Android delivers the callbacks on the main thread. Await the task instead.
-- Another call for the same phone number while the native session is open completes with the earlier call; a call for a different number cancels a still-pending earlier task.
+- Another call for the same phone number within the native 120-second session window completes with the earlier call. A call for a different number cancels a still-pending earlier task.
+- A verification completed without a code, which in firebase-auth 23.x only happens for natively configured test numbers, completes the task, and the next sign-in or link call uses that credential once. Previously that credential was ignored.
 
 ## Release notes
 - Next
   - Add email/password user reauthentication and user-level reload APIs.
   - Mark `ReloadCurrentUserAsync()` obsolete; use `CurrentUser.ReloadAsync()` after checking `CurrentUser` is not `null`.
-  - Android: `VerifyPhoneNumberAsync` completes when the code is sent or the number is verified instantly, and faults on verification failure. See the migration notes above.
+  - Android: `VerifyPhoneNumberAsync` completes when the code is sent, faults on verification failure, and faults with `TimeoutException` if the native SDK reports nothing within 120 seconds. See the migration notes above.
 - Version 5.0.1
   - Fix for wrong Core project version dependency at nuget.org
 - Version 5.0.0

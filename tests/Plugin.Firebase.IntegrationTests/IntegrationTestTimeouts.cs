@@ -7,7 +7,7 @@ internal static class IntegrationTestTimeouts
     public static readonly TimeSpan LongCallback = TimeSpan.FromSeconds(20);
     public static readonly TimeSpan Cleanup = TimeSpan.FromSeconds(15);
     public static readonly TimeSpan FcmDelivery = TimeSpan.FromMinutes(2);
-    public static readonly TimeSpan PhoneVerification = TimeSpan.FromMinutes(2);
+    public static readonly TimeSpan PhoneVerification = TimeSpan.FromMinutes(3);
     public static readonly TimeSpan PollInterval = TimeSpan.FromMilliseconds(100);
 
     public static long OneMillisecondTicks => TimeSpan.FromMilliseconds(1).Ticks;

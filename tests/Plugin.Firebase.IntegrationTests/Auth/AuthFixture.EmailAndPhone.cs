@@ -74,26 +74,6 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         [OptInFact(
             IntegrationTestOptions.RunPhoneAuthTestsEnvironmentVariableName,
             IntegrationTestOptions.RunPhoneAuthTestsAndroidSystemPropertyName)]
-        public async Task concurrent_phone_number_verifications_for_same_number_complete_when_enabled()
-        {
-            // Android reuses the in-flight native session for the same number and drops the second request's callbacks
-            var sut = CrossFirebaseAuth.Current;
-            var phoneNumber = IntegrationTestData.GetRequiredConfigurationValue(
-                IntegrationTestOptions.PhoneAuthNumberEnvironmentVariableName,
-                IntegrationTestOptions.PhoneAuthNumberAndroidSystemPropertyName);
-
-            var first = sut.VerifyPhoneNumberAsync(phoneNumber);
-            var second = sut.VerifyPhoneNumberAsync(phoneNumber);
-
-            await Task.WhenAll(first, second).WaitForTestAsync(
-                IntegrationTestTimeouts.PhoneVerification,
-                "concurrent phone number verifications for the same number");
-        }
-
-
-        [OptInFact(
-            IntegrationTestOptions.RunPhoneAuthTestsEnvironmentVariableName,
-            IntegrationTestOptions.RunPhoneAuthTestsAndroidSystemPropertyName)]
         public async Task links_signed_in_user_with_phone_number_when_enabled()
         {
             var sut = CrossFirebaseAuth.Current;

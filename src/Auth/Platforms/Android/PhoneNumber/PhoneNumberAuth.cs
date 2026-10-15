@@ -11,25 +11,25 @@ public sealed class PhoneNumberAuth
 
     public Task VerifyPhoneNumberAsync(Activity activity, string phoneNumber)
     {
-        // each request gets its own callbacks bound to its attempt, so stale callbacks can't touch a newer attempt
-        var attempt = _verifications.Start(phoneNumber);
-        var callbacks = new PhoneVerificationStateChangeCallbacks(
-            onCodeSent: x => attempt.OnCodeSent(x.VerificationId),
-            onVerificationCompleted: attempt.OnVerificationCompleted,
-            onVerificationFailed: exception =>
-                attempt.OnVerificationFailed(FirebaseAuthExceptionFactory.Create(exception)),
-            onCodeAutoRetrievalTimeOut: attempt.OnCodeAutoRetrievalTimeOut
-        );
-        var options = PhoneAuthOptions
-            .NewBuilder()
-            .SetPhoneNumber(phoneNumber)
-            .SetTimeout(Long.ValueOf(60), TimeUnit.Seconds!)
-            .SetActivity(activity)
-            .SetCallbacks(callbacks)
-            .Build();
+        return _verifications.Start(phoneNumber, session => {
+            // each request gets its own callbacks bound to the native session of its phone number
+            var callbacks = new PhoneVerificationStateChangeCallbacks(
+                onCodeSent: x => session.OnCodeSent(x.VerificationId),
+                onVerificationCompleted: session.OnVerificationCompleted,
+                onVerificationFailed: exception =>
+                    session.OnVerificationFailed(FirebaseAuthExceptionFactory.Create(exception)),
+                onCodeAutoRetrievalTimeOut: session.OnCodeAutoRetrievalTimeOut
+            );
+            var options = PhoneAuthOptions
+                .NewBuilder()
+                .SetPhoneNumber(phoneNumber)
+                .SetTimeout(Long.ValueOf(60), TimeUnit.Seconds!)
+                .SetActivity(activity)
+                .SetCallbacks(callbacks)
+                .Build();
 
-        PhoneAuthProvider.VerifyPhoneNumber(options);
-        return attempt.Task;
+            PhoneAuthProvider.VerifyPhoneNumber(options);
+        });
     }
 
     public Task<PhoneAuthCredential> GetCredentialAsync(string verificationCode)

@@ -234,6 +234,33 @@ internal static class FirestoreAssertions
         Assert.Equal($"{expectedMarker}-value", map["sub_field"]);
     }
 
+    public static async Task StoredValuesAsync(IDocumentReference document, IReadOnlyDictionary<string, object?> expected)
+    {
+        var stored = Require((await document.GetDocumentSnapshotAsync<Dictionary<string, object?>>()).Data);
+        // the document holds exactly these fields, so a rejected write can't have added one
+        Assert.Equal(expected.Keys.Order(StringComparer.Ordinal), stored.Keys.Order(StringComparer.Ordinal));
+        foreach(var (field, value) in expected) {
+            StoredValue(field, value, stored[field]);
+        }
+    }
+
+    private static void StoredValue(string field, object? expected, object? actual)
+    {
+        if(expected is object?[] expectedItems) {
+            var items = Assert.IsAssignableFrom<IList<object?>>(actual);
+            Assert.Equal(expectedItems.Length, items.Count);
+            for(var i = 0; i < items.Count; i++) {
+                StoredValue($"{field}[{i}]", expectedItems[i], items[i]);
+            }
+            return;
+        }
+
+        // boxed numbers are only equal when their types match, so an int64 can't pass for a double or a boolean
+        Assert.True(Equals(expected, actual), $"'{field}' was stored as {Describe(actual)}, expected {Describe(expected)}");
+    }
+
+    private static string Describe(object? value) => value is null ? "null" : $"{value} ({value.GetType().Name})";
+
     public static void CrewCheckInDocument(CrewCheckIn? crewCheckIn, DateTime timestamp, DateTime logTimestamp)
     {
         Assert.NotNull(crewCheckIn);

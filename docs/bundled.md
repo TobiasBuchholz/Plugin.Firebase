@@ -81,6 +81,11 @@ if(CrossFirebase.TryGetDefaultApp(out var _)) {
 
 ## Things to check after migrating
 
+- **Android Crashlytics resource.** If you continue using Crashlytics, keep the existing
+  `com.google.firebase.crashlytics.mapping_file_id` entry in `Platforms/Android/Resources/values/strings.xml`;
+  see the [Crashlytics Android setup](crashlytics.md#android-specifics). If you no longer use Crashlytics,
+  you may remove the entry as cleanup.
+
 - **Crashlytics collection is remembered.** `isCrashlyticsEnabled` defaulted to `false`, and the bundled initializer
   applied it on every launch. Firebase persists that choice, so an app that never passed the flag has crash reporting
   switched off on existing installs. Call `SetCrashlyticsCollectionEnabled(true)` explicitly to turn it back on.

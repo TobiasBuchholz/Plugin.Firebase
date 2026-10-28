@@ -18,16 +18,37 @@ namespace Plugin.Firebase.IntegrationTests.AppCheck
         }
 
         [IosFact]
-        public void transitions_between_disabled_and_debug_providers()
+        public void throws_when_configured_after_firebase_initialization()
         {
-            try {
-                CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled);
-                CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
-                CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled);
-            }
-            finally {
-                CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled);
-            }
+            // The native SDK reads the provider factory only when the default app is configured. The harness never
+            // configures DeviceCheck or AppAttest before CrossFirebase.Initialize(), so both would change the provider.
+            var exception = Assert.Throws<InvalidOperationException>(
+                () => CrossFirebaseAppCheck.Configure(AppCheckOptions.DeviceCheck));
+            Assert.Throws<InvalidOperationException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.AppAttest));
+
+            // Names the provider the plugin recorded when it configured the default app.
+            Assert.Contains(
+                $"from the '{FirebaseTestHost.LaunchAppCheckOptions.Provider}' provider",
+                exception.Message);
+        }
+
+        [IosFact]
+        public void accepts_the_provider_in_effect_after_firebase_initialization_on_ios()
+        {
+            var provider = FirebaseTestHost.LaunchAppCheckOptions.Provider;
+
+            // Only a provider the plugin recorded as installed is a no-op; an unrecorded one throws for every provider.
+            CrossFirebaseAppCheck.Configure(new AppCheckOptions(provider));
+
+            // A new instance still sees the provider installed before initialization.
+            CrossFirebaseAppCheck.Dispose();
+            CrossFirebaseAppCheck.Configure(new AppCheckOptions(provider));
+        }
+
+        [IosFact]
+        public void rejects_unsupported_providers_on_ios()
+        {
+            Assert.Throws<NotSupportedException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.PlayIntegrity));
         }
 
         [AndroidFact]
@@ -68,52 +89,35 @@ namespace Plugin.Firebase.IntegrationTests.AppCheck
             Assert.Throws<InvalidOperationException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled));
         }
 
-        [Fact]
-        public void covers_platform_specific_unsupported_provider_behavior()
+        [AndroidFact]
+        public void rejects_unsupported_providers_on_android()
         {
-            if(OperatingSystem.IsAndroid()) {
-                Assert.Throws<NotSupportedException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.DeviceCheck));
-                Assert.Throws<NotSupportedException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.AppAttest));
-            }
-
-            if(OperatingSystem.IsIOS()) {
-                try {
-                    CrossFirebaseAppCheck.Configure(AppCheckOptions.PlayIntegrity);
-                }
-                finally {
-                    CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled);
-                }
-            }
+            Assert.Throws<NotSupportedException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.DeviceCheck));
+            Assert.Throws<NotSupportedException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.AppAttest));
         }
 
-        // iOS only: Android cannot return to Disabled once another test in the run has installed a provider.
+        // The emulator harness configures Disabled before CrossFirebase.Initialize(), so iOS runs without a provider
+        // factory. iOS only: on Android, other tests in the run install a provider factory that can't be removed.
         [EmulatorBackendIosFact]
         public async Task disabled_app_check_does_not_break_auth_or_functions_on_emulator()
         {
             var auth = CrossFirebaseAuth.Current;
             var email = IntegrationTestData.UniqueEmail("app-check-disabled");
 
-            try {
-                CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled);
-                await using var user = await AuthTestUserScope.SignInWithEmailAndPasswordAsync(auth, email);
+            await using var user = await AuthTestUserScope.SignInWithEmailAndPasswordAsync(auth, email);
 
-                var response = await CrossFirebaseFunctions.Current
-                    .GetHttpsCallable("convertToLeet")
-                    .CallAsync<SimpleResponseData>("{\"input_value\":777}");
+            var response = await CrossFirebaseFunctions.Current
+                .GetHttpsCallable("convertToLeet")
+                .CallAsync<SimpleResponseData>("{\"input_value\":777}");
 
-                Assert.Equal(777, response.InputValue);
-                Assert.Equal(1337, response.OutputValue);
-            }
-            finally {
-                CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled);
-            }
+            Assert.Equal(777, response.InputValue);
+            Assert.Equal(1337, response.OutputValue);
         }
 
         [RealFirebaseOptInFact(IntegrationTestEnvironment.RunAppCheckTokenTestsEnvironmentVariableName)]
         public async Task fetches_cached_and_forced_debug_tokens_when_enabled()
         {
-            CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
-
+            // With token tests enabled, the harness configures the Debug provider before CrossFirebase.Initialize().
             var cachedToken = await CrossFirebaseAppCheck.GetTokenAsync();
             var forcedToken = await CrossFirebaseAppCheck.GetTokenAsync(forceRefresh: true);
 

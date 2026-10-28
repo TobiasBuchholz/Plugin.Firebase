@@ -39,20 +39,27 @@ public sealed class StorageReferenceWrapper : IStorageReference
 
     private IStorageTransferTask PutData(NSData data, IStorageMetadata? metadata = null)
     {
-        var wrapper = new StorageTransferTaskWrapper<StorageUploadTask, NativeStorageMetadata>();
-        wrapper.TransferTask = _wrapped.PutData(
-            data,
-            metadata?.ToNative(),
-            (x, e) => wrapper.CompletionHandler(x, e)
-        );
-        return wrapper;
+        return StartUpload(completion => _wrapped.PutData(data, metadata?.ToNative(), completion));
     }
 
     /// <inheritdoc/>
     public IStorageTransferTask PutFile(string filePath, IStorageMetadata? metadata = null)
     {
-        using var fileStream = File.Open(filePath, FileMode.Open);
-        return PutData(CreateData(fileStream), metadata);
+        ArgumentException.ThrowIfNullOrEmpty(filePath);
+
+        return StartUpload(completion => _wrapped.PutFile(
+            NSUrl.FromFilename(filePath),
+            metadata?.ToNative(),
+            completion
+        ));
+    }
+
+    private static IStorageTransferTask StartUpload(
+        Func<StorageGetPutUpdateCompletionHandler, StorageUploadTask> startUpload)
+    {
+        var wrapper = new StorageTransferTaskWrapper<StorageUploadTask, NativeStorageMetadata>();
+        wrapper.TransferTask = startUpload((x, e) => wrapper.CompletionHandler(x, e));
+        return wrapper;
     }
 
     /// <inheritdoc/>

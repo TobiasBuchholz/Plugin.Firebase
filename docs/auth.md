@@ -158,10 +158,27 @@ In v5:
 - Inspect `NativeExceptionTypeName`, `NativeErrorDomain`, `NativeErrorCode`, `NativeErrorMessage`, or `InnerException` when you need precise native details.
 - `SignOutAsync()` now follows the same unified exception model when the underlying native Auth SDK reports a failure.
 
+## Next-release migration notes
+
+`IAuthTokenResult.GetClaim<T>` now converts numeric claims to the requested type, with the same rules on both platforms:
+
+- A numeric claim can be read as any numeric type (including `decimal`), an enum, or a nullable form of either. Previously Android threw `InvalidCastException` unless `T` was exactly the type the native SDK parsed the claim into, so `GetClaim<long>` failed for a small value. iOS returned `null` for `decimal`, so the call threw `NullReferenceException`.
+- A value outside the range of `T` throws `OverflowException`. Previously iOS wrapped it: a claim of 300 read as `byte`, or as a `byte`-backed enum, became 44. Enums are range checked against their underlying type, not against their defined members.
+- A fractional value read as an integral type or an enum truncates toward zero, so 2.7 becomes 2 and -2.7 becomes -2. The range check uses the value before truncation, so 2147483647.9 read as `int` or -0.5 read as `uint` throws `OverflowException`. NaN and infinity throw `OverflowException` when read as an integral type, an enum, or `decimal`. A value that would round to infinity when read as `float` throws `OverflowException`.
+- Claims are not coerced between JSON types. A string or boolean claim read as a number, a numeric or boolean claim read as `string`, a numeric claim read as `bool`, and any claim read as `char` throw `InvalidCastException`. Android already threw in these cases. iOS used to return 1 or 0 for a boolean read as a number, whether a number was non-zero for a number read as `bool`, `null` for a number or boolean read as `string`, and a character made from the low byte of a number read as `char`.
+- The elements of a requested list type, such as `GetClaim<List<long>>`, and the values of a requested dictionary type follow the same rules:
+  - On iOS, a number in a list or dictionary requested with `string` elements used to become `null`, and with `bool` elements `true` or `false`. It now throws `InvalidCastException`. A number that doesn't fit a numeric element type throws `OverflowException` instead of wrapping.
+  - On Android, numbers in a list or dictionary requested with a numeric element type now convert to it. Previously any element type other than the one the native SDK parsed the number into threw `ArgumentException`.
+  - The exception was a dictionary inside a list, whose values went through `Convert.ChangeType`. That rounded fractions (2.7 read as `long` became 3) and coerced between types, for example `"123"` to 123 and `true` to 1.
+  - A number in a list requested with `string` or `bool` elements, or in a dictionary requested with `bool` values, now throws `InvalidCastException`. Dictionary values requested as `string` are still converted with `ToString()`.
+
+On iOS, read each claim as its JSON type and convert it in your own code if you relied on the old coercions.
+
 ## Release notes
 - Next
   - Add email/password user reauthentication and user-level reload APIs.
   - Mark `ReloadCurrentUserAsync()` obsolete; use `CurrentUser.ReloadAsync()` after checking `CurrentUser` is not `null`.
+  - `GetClaim<T>` converts numeric claims to any requested numeric or enum type on both platforms, truncates fractional values toward zero, throws `OverflowException` for out-of-range values, and throws `InvalidCastException` instead of coercing claims between JSON types (issues #709, #710).
 - Version 5.0.1
   - Fix for wrong Core project version dependency at nuget.org
 - Version 5.0.0

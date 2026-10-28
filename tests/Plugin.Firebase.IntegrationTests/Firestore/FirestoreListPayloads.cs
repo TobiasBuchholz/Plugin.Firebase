@@ -12,10 +12,11 @@ internal sealed class ListNullDocument : IFirestoreObject
         // needed for firestore
     }
 
-    public ListNullDocument(IList<object?> values, IList<long?> nullableNumbers)
+    public ListNullDocument(IList<object?> values, IList<long?> nullableNumbers, IList<string?> strings)
     {
         Values = values;
         NullableNumbers = nullableNumbers;
+        Strings = strings;
     }
 
     [FirestoreProperty("values")]
@@ -23,6 +24,22 @@ internal sealed class ListNullDocument : IFirestoreObject
 
     [FirestoreProperty("nullable_numbers")]
     public IList<long?> NullableNumbers { get; private set; } = null!;
+
+    [FirestoreProperty("strings")]
+    public IList<string?> Strings { get; private set; } = null!;
+}
+
+[Preserve(AllMembers = true)]
+internal sealed class NonNullableListDocument : IFirestoreObject
+{
+    [UsedImplicitly]
+    public NonNullableListDocument()
+    {
+        // needed for firestore
+    }
+
+    [FirestoreProperty("counts")]
+    public IList<int> Counts { get; private set; } = null!;
 }
 
 [Preserve(AllMembers = true)]

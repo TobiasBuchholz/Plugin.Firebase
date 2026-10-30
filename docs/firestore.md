@@ -18,6 +18,7 @@ Cloud Firestore is a flexible, scalable database for mobile, web, and server dev
 To be able to fetch your data from Firestore, create a POCO that implements the `IFirestoreObject` interface and has a public parameterless constructor. Use the `FirestoreDocumentId` and `FirestoreProperty` attributes to hook up its properties. For example:
 
 > Firestore's reflection-based model mapping is not currently compatible with full trimming or Native AOT.
+> For the other iOS Native AOT requirements, see [iOS NativeAOT (`PublishAot`)](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/README.md#ios-nativeaot-publishaot) in the README.
 
 ```c#
 

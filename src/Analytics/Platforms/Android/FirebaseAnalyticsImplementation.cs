@@ -74,10 +74,8 @@ public sealed class FirebaseAnalyticsImplementation : DisposableBase, IFirebaseA
     private static FirebaseAnalytics GetInitializedAnalytics()
     {
         return _firebaseAnalytics ?? throw new InvalidOperationException(
-            "Firebase Analytics has not been initialized on Android. "
-                + "When using Plugin.Firebase.Analytics directly, call FirebaseAnalyticsImplementation.Initialize(activity) "
-                + "after CrossFirebase.Initialize(...). When using the bundled Plugin.Firebase package, enable "
-                + "isAnalyticsEnabled: true in CrossFirebaseSettings."
+            "Firebase Analytics has not been initialized on Android. Call "
+                + "FirebaseAnalyticsImplementation.Initialize(activity) after CrossFirebase.Initialize(...)."
         );
     }
 }

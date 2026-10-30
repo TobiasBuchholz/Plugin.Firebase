@@ -57,7 +57,7 @@ for proj in \
   src/RemoteConfig/RemoteConfig.csproj \
   src/Storage/Storage.csproj \
   src/AppCheck/AppCheck.csproj \
-  src/Bundled/Bundled.csproj
+  src/PerformanceMonitoring/PerformanceMonitoring.csproj
 do
   dotnet pack "$proj" -c Release -p:PackageVersion=$VERSION -o output
 done
@@ -81,7 +81,7 @@ For short-cycle validation of binding fixes (for example AppCheck iOS):
 Typical workflow:
 
 1. Publish binding package with temporary prerelease suffix (`-local` or `-fork`).
-2. Update `PackageReference` in `Plugin.Firebase` to that exact prerelease version.
+2. Update the `PackageReference` entries in the consuming app to that exact prerelease version.
 3. Run restore/build and validate on device/simulator.
 4. Revert temporary prerelease `PackageReference` values before preparing upstream PRs.
 

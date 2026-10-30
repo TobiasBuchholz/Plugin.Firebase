@@ -79,11 +79,17 @@
         <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' and '$(_IsPublishing)' != 'true' and $([System.String]::Copy('$(NETCoreSdkRuntimeIdentifier)').StartsWith('osx-'))">$([System.String]::Copy('$(NETCoreSdkRuntimeIdentifier)').Replace('osx-', 'iossimulator-'))</RuntimeIdentifier>
         <CodesignEntitlements>Platforms\iOS\Entitlements.plist</CodesignEntitlements>
         <EnableCodeSigning Condition="'$(EnableCodeSigning)' == '' and $([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('iossimulator'))">false</EnableCodeSigning>
-        <FirebaseCrashlyticsUploadSymbolsEnabled>false</FirebaseCrashlyticsUploadSymbolsEnabled>
     </PropertyGroup>
     <!-- project references -->
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Bundled\Bundled.csproj" />
+        <ProjectReference Include="..\..\src\AppCheck\AppCheck.csproj" />
+        <ProjectReference Include="..\..\src\Auth\Auth.csproj" />
+        <ProjectReference Include="..\..\src\CloudMessaging\CloudMessaging.csproj" />
+        <ProjectReference Include="..\..\src\Core\Core.csproj" />
+        <ProjectReference Include="..\..\src\Functions\Functions.csproj" />
+        <ProjectReference Include="..\..\src\Installations\Installations.csproj" />
+        <ProjectReference Include="..\..\src\RemoteConfig\RemoteConfig.csproj" />
+        <ProjectReference Include="..\..\src\Storage\Storage.csproj" />
     </ItemGroup>
     <!-- nuget packages -->
     <ItemGroup>

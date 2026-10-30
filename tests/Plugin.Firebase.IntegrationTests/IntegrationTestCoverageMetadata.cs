@@ -5,7 +5,7 @@ internal enum IntegrationTestPackage
     Analytics,
     AppCheck,
     Auth,
-    Bundled,
+    Core,
     CloudMessaging,
     Crashlytics,
     Firestore,

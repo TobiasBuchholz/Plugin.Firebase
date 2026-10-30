@@ -101,6 +101,31 @@ public sealed partial class FirestoreFixture
     }
 
     [Fact]
+    public async Task increments_integer_field_values_beyond_double_precision()
+    {
+        var sut = CrossFirebaseFirestore.Current;
+        var document = GetTestingDocument(sut, "integer-increment-precision");
+        // 2^53 + 1 is the smallest positive long a double can't represent; long.MaxValue - 1 rounds up to 2^63 as a double
+        const long beyondDoublePrecision = 9_007_199_254_740_993L;
+        const long belowMaxValue = long.MaxValue - 1;
+        await document.SetDataAsync(new Dictionary<object, object?> {
+            { "positive", 0L },
+            { "negative", 0L },
+            { "below_max", 0L }
+        });
+
+        await document.UpdateDataAsync(
+            ("positive", FieldValue.IntegerIncrement(beyondDoublePrecision)),
+            ("negative", FieldValue.IntegerIncrement(-beyondDoublePrecision)),
+            ("below_max", FieldValue.IntegerIncrement(belowMaxValue)));
+
+        var data = (await document.GetDocumentSnapshotAsync<Dictionary<string, long>>()).Data!;
+        Assert.Equal(beyondDoublePrecision, data["positive"]);
+        Assert.Equal(-beyondDoublePrecision, data["negative"]);
+        Assert.Equal(belowMaxValue, data["below_max"]);
+    }
+
+    [Fact]
     public async Task runs_transaction()
     {
         var sut = CrossFirebaseFirestore.Current;
@@ -131,6 +156,27 @@ public sealed partial class FirestoreFixture
         Assert.Equal(otherMoves, charmanderSnapshot.Data!.Moves);
         Assert.Null(charmanderSnapshot.Data!.Items);
         Assert.Null((await documentBulbasur.GetDocumentSnapshotAsync<Pokemon>()).Data);
+    }
+
+    [Fact]
+    public async Task does_not_commit_transaction_when_update_function_throws()
+    {
+        var sut = CrossFirebaseFirestore.Current;
+        var charmander = PokemonFactory.CreateCharmander();
+        var document = GetTestingDocument(sut, "4");
+        await document.SetDataAsync(charmander);
+
+        var exception = await Record.ExceptionAsync(() => sut.RunTransactionAsync<string?>(transaction => {
+            transaction.UpdateData(document, (Pokemon.SightingCountField, charmander.SightingCount + 100));
+            throw new InvalidOperationException("transaction aborted by update function");
+        }));
+
+        // iOS wraps the failure in FirebaseException and Android surfaces the native task's RuntimeException;
+        // both keep the exception thrown by the update function as the inner exception.
+        Assert.NotNull(exception);
+        var original = Assert.IsType<InvalidOperationException>(exception.InnerException);
+        Assert.Equal("transaction aborted by update function", original.Message);
+        Assert.Equal(charmander, (await document.GetDocumentSnapshotAsync<Pokemon>()).Data);
     }
 
     [Fact]

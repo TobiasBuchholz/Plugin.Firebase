@@ -35,6 +35,28 @@ internal static class FirestoreAssertions
         Assert.NotEmpty(snapshot.GetDocumentChanges(includeMetadataChanges: false));
     }
 
+    public static void SameDocuments<T>(IReadOnlyList<IDocumentSnapshot<T>> expected, IEnumerable<IDocumentSnapshot<T>> actual)
+        where T : class
+    {
+        var actualDocuments = actual.ToList();
+        Assert.Equal(expected.Count, actualDocuments.Count);
+        for(var i = 0; i < expected.Count; i++) {
+            Assert.Same(expected[i], actualDocuments[i]);
+            Assert.Same(expected[i].Data, actualDocuments[i].Data);
+        }
+    }
+
+    public static void SameDocumentChanges<T>(IReadOnlyList<DocumentChange<T>> expected, IEnumerable<DocumentChange<T>> actual)
+        where T : class
+    {
+        var actualChanges = actual.ToList();
+        Assert.Equal(expected.Count, actualChanges.Count);
+        for(var i = 0; i < expected.Count; i++) {
+            Assert.Same(expected[i], actualChanges[i]);
+            Assert.Same(expected[i].DocumentSnapshot.Data, actualChanges[i].DocumentSnapshot.Data);
+        }
+    }
+
     public static void WrittenDocument<T>(
         IDocumentSnapshot<T> snapshot,
         string expectedId,
@@ -250,6 +272,15 @@ internal static class FirestoreAssertions
         Assert.Equal("created", log.Action);
         Assert.Equal("check-in created", log.Message);
         Assert.InRange(Math.Abs(log.Timestamp.Ticks - logTimestamp.Ticks), 0, 10);
+    }
+
+    public static void SameInstant(DateTimeOffset expected, DateTimeOffset actual)
+    {
+        // Reads come back with a zero offset, so instants are compared through UtcTicks instead of wall-clock ticks.
+        Assert.InRange(
+            Math.Abs(actual.UtcTicks - expected.UtcTicks),
+            0,
+            IntegrationTestTimeouts.OneMillisecondTicks);
     }
 
     public static T Require<T>(T? value) where T : class

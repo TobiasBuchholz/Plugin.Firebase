@@ -12,6 +12,8 @@ namespace Plugin.Firebase.Firestore;
 /// </summary>
 public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseFirestore
 {
+    private static readonly NSString TransactionUpdateErrorDomain = new NSString("Plugin.Firebase.Firestore");
+
     private FBFirestore _firestore;
 
     /// <summary>
@@ -44,21 +46,30 @@ public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseF
     public async Task<TResult?> RunTransactionAsync<TResult>(Func<ITransaction, TResult> updateFunc)
     {
         FirebaseException? exception = null;
-        var result = await _firestore.RunTransactionAsync(
-            (Transaction transaction, ref NSError? error) => {
-                try {
-                    if(error == null) {
+        NSObject? result;
+        try {
+            result = await _firestore.RunTransactionAsync(
+                (Transaction transaction, ref NSError? error) => {
+                    try {
                         return updateFunc(transaction.ToAbstract())?.ToNSObject();
-                    } else {
-                        exception = new FirebaseException(error.LocalizedDescription);
+                    } catch(Exception e) {
+                        exception = new FirebaseException(e.Message, e);
+                        // Only an error assigned to the ref parameter aborts the native transaction. A domain
+                        // other than the Firestore error domain also marks the transaction permanently failed,
+                        // so the writes queued before the failure can neither be retried nor committed.
+                        error = NSError.FromDomain(
+                            TransactionUpdateErrorDomain,
+                            -1,
+                            new NSDictionary<NSString, NSObject>(NSError.LocalizedDescriptionKey, new NSString(e.Message)));
+                        return null;
                     }
-                } catch(Exception e) {
-                    exception = new FirebaseException(e.Message);
                 }
-                return null;
-            }
-        );
-        return exception is null ? (TResult?) result?.ToObject(typeof(TResult)) : throw exception;
+            );
+        } catch(Exception) when(exception != null) {
+            // the task faulted with the native error assigned above; surface the original managed failure instead
+            throw exception;
+        }
+        return (TResult?) result?.ToObject(typeof(TResult));
     }
 
     /// <inheritdoc/>

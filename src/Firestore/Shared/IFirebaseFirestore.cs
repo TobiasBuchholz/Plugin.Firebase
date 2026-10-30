@@ -29,6 +29,13 @@ public interface IFirebaseFirestore : IDisposable
     /// <summary>
     /// Executes the given updateBlock and then attempts to commit the changes applied within an atomic transaction.
     /// </summary>
+    /// <remarks>
+    /// <paramref name="updateFunc"/> may run more than once when the transaction is retried, so it should not change state
+    /// outside the transaction. Throwing from <paramref name="updateFunc"/> aborts the transaction without committing any of
+    /// its writes and faults the returned task. The exception type differs by platform: iOS throws a <c>FirebaseException</c>
+    /// and Android surfaces the native task's <c>RuntimeException</c>. On both, the exception thrown by
+    /// <paramref name="updateFunc"/> is the <see cref="Exception.InnerException"/>.
+    /// </remarks>
     /// <param name="updateFunc">The func to execute within the transaction context.</param>
     /// <typeparam name="TResult">The type of the result returned by updateFunc.</typeparam>
     /// <returns></returns>

@@ -3,8 +3,12 @@ using Plugin.Firebase.Core;
 
 namespace Plugin.Firebase.UnitTests;
 
+[Collection(CollectionName)]
 public class FirebaseInitializationHooksTests
 {
+    // Tests that reset or invoke the static hooks share this collection so they never run in parallel.
+    public const string CollectionName = "FirebaseInitializationHooks";
+
     public FirebaseInitializationHooksTests()
     {
         // Reset the static state before each test to ensure test isolation
@@ -56,6 +60,30 @@ public class FirebaseInitializationHooksTests
 
         var callCount = 0;
         using var registration = FirebaseInitializationHooks.RegisterAfterInitialize(() => callCount++);
+
+        Assert.Equal(1, callCount);
+    }
+
+    [Fact]
+    public void register_after_initialize_before_invoke_runs_after_every_invoke()
+    {
+        var callCount = 0;
+        using var registration = FirebaseInitializationHooks.RegisterAfterInitialize(() => callCount++);
+
+        InvokeInternal("InvokeAfterInitialize");
+        InvokeInternal("InvokeAfterInitialize");
+
+        Assert.Equal(2, callCount);
+    }
+
+    [Fact]
+    public void register_after_initialize_after_invoke_runs_only_once()
+    {
+        InvokeInternal("InvokeAfterInitialize");
+
+        var callCount = 0;
+        using var registration = FirebaseInitializationHooks.RegisterAfterInitialize(() => callCount++);
+        InvokeInternal("InvokeAfterInitialize");
 
         Assert.Equal(1, callCount);
     }

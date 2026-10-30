@@ -25,7 +25,7 @@ public static class DateExtensions
     /// <returns>An NSDate representing the same point in time.</returns>
     public static NSDate ToNSDate(this DateTimeOffset @this)
     {
-        return @this.DateTime.ToNSDate();
+        return @this.UtcDateTime.ToNSDate();
     }
 
     /// <summary>

@@ -73,9 +73,8 @@ public sealed class StorageReferenceWrapper : IStorageReference
 
     public async Task<Stream> GetStreamAsync(long maxSize)
     {
-        var snapshot = await _wrapped.GetStream(new StreamProcessor()).AsAsync<StreamDownloadTask.TaskSnapshot>();
-        return snapshot.Stream
-            ?? throw new InvalidOperationException("Firebase Storage returned a null download stream.");
+        var bytes = await GetBytesAsync(maxSize);
+        return new MemoryStream(bytes, writable: false);
     }
 
     public async Task<byte[]> GetBytesAsync(long maxDownloadSizeBytes)

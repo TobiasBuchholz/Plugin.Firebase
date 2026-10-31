@@ -283,6 +283,14 @@ internal static class FirestoreAssertions
             IntegrationTestTimeouts.OneMillisecondTicks);
     }
 
+    public static void SameInstantToTheMicrosecond(DateTimeOffset expected, DateTimeOffset actual)
+    {
+        Assert.InRange(
+            Math.Abs(actual.UtcTicks - expected.UtcTicks),
+            0,
+            IntegrationTestTimeouts.OneMicrosecondTicks);
+    }
+
     public static T Require<T>(T? value) where T : class
     {
         return value ?? throw new InvalidOperationException("Expected a non-null value.");

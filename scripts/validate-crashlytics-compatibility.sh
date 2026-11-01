@@ -10,10 +10,10 @@ versions=(
   "120.0.0"
   "120.0.5"
 )
-projects=(
-  "$repo_root/src/Crashlytics/Crashlytics.csproj"
-  "$repo_root/src/Bundled/Bundled.csproj"
-)
+# PerformanceMonitoring pins the AndroidX Lifecycle.Process version that has to co-resolve with the Crashlytics
+# binding. The probe references both projects, so each Crashlytics version is restored in one graph with that pin,
+# as it is in an app that uses both packages.
+project="$repo_root/scripts/crashlytics-compatibility/CrashlyticsCompatibility.csproj"
 
 for version in "${versions[@]}"; do
   datastore_version="1.1.1.8"
@@ -41,19 +41,17 @@ for version in "${versions[@]}"; do
     echo "Validating Xamarin.Firebase.Crashlytics $version with Xamarin.AndroidX.DataStore $datastore_version and Xamarin.AndroidX.Lifecycle.Process $lifecycle_process_version"
   fi
 
-  for project in "${projects[@]}"; do
-    dotnet build "$project" \
-      -c Release \
-      -f net10.0-android \
-      -p:TargetFrameworks=net10.0-android \
-      -m:1 \
-      --disable-build-servers \
-      -p:UseSharedCompilation=false \
-      -p:TreatWarningsAsErrors=false \
-      -p:XamarinFirebaseCrashlyticsVersion="$version" \
-      -p:XamarinAndroidXDataStoreVersion="$datastore_version" \
-      -p:XamarinAndroidXLifecycleProcessVersion="$lifecycle_process_version"
-  done
+  dotnet build "$project" \
+    -c Release \
+    -f net10.0-android \
+    -p:TargetFrameworks=net10.0-android \
+    -m:1 \
+    --disable-build-servers \
+    -p:UseSharedCompilation=false \
+    -p:TreatWarningsAsErrors=false \
+    -p:XamarinFirebaseCrashlyticsVersion="$version" \
+    -p:XamarinAndroidXDataStoreVersion="$datastore_version" \
+    -p:XamarinAndroidXLifecycleProcessVersion="$lifecycle_process_version"
 
   dotnet build-server shutdown >/dev/null 2>&1 || true
 

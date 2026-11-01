@@ -57,7 +57,7 @@ for proj in \
   src/RemoteConfig/RemoteConfig.csproj \
   src/Storage/Storage.csproj \
   src/AppCheck/AppCheck.csproj \
-  src/Bundled/Bundled.csproj
+  src/PerformanceMonitoring/PerformanceMonitoring.csproj
 do
   dotnet pack "$proj" -c Release -p:PackageVersion=$VERSION -o output
 done
@@ -81,7 +81,7 @@ For short-cycle validation of binding fixes (for example AppCheck iOS):
 Typical workflow:
 
 1. Publish binding package with temporary prerelease suffix (`-local` or `-fork`).
-2. Update `PackageReference` in `Plugin.Firebase` to that exact prerelease version.
+2. Update the `PackageReference` entries in the consuming app to that exact prerelease version.
 3. Run restore/build and validate on device/simulator.
 4. Revert temporary prerelease `PackageReference` values before preparing upstream PRs.
 
@@ -337,6 +337,7 @@ Required functions:
 | `createCustomToken` | `https.onCall` | Emulator-only helper that mints custom tokens for Auth acceptance tests; it rejects non-emulator calls and must not be deployed as a real token-minting endpoint |
 | `echoAuthContext` | `https.onCall` | Verifies callable auth context propagation |
 | `throwStructuredError` | `https.onCall` | Verifies callable error propagation |
+| `echoRequestData` | `https.onCall` | Echoes callable request data to verify object, array, scalar, and null request payloads |
 | `regionalPing` | `https.onCall`, `southamerica-east1` | Verifies configured Functions regions |
 | `addMessage` | `https.onRequest` | Writes to Firestore `messages` collection |
 | `makeUppercase` | `firestore.onCreate` | Triggered on `/messages/{documentId}` |

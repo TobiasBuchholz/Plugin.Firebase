@@ -168,6 +168,11 @@ exports.throwStructuredError = functions.https.onCall(async () =>  {
   );
 });
 
+exports.echoRequestData = functions.https.onCall(async (data, context) => {
+  functions.logger.log('[+] echoRequestData:', data);
+  return data;
+});
+
 exports.echo = functions.https.onRequest(async (request, response) => {
     functions.logger.log(`[+] echo: headers = ${JSON.stringify(request.headers)}`);
     response.send(request.body);

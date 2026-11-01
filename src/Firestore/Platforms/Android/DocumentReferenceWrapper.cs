@@ -75,12 +75,14 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
                         tcs.SetException(new FirebaseException("Unknown error"));
                     }
                 } else if(task.Exception is not null) {
-                    tcs.SetException(task.Exception);
+                    tcs.SetException(FirestoreExceptionFactory.IsNativeFirestoreException(task.Exception)
+                        ? FirestoreExceptionFactory.Create(task.Exception)
+                        : task.Exception);
                 } else {
                     tcs.SetException(new FirebaseException("Unknown error"));
                 }
             }));
-        return FirestoreExceptionFactory.Wrap(() => tcs.Task);
+        return tcs.Task;
     }
 
     public IDisposable AddSnapshotListener<T>(

@@ -41,7 +41,9 @@ public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseF
         } catch(Exception) when(function.UpdateException is { } updateException) {
             // the task faulted because the update function threw; surface the managed failure
             if(updateException is CrossPlatformFirebaseFirestoreException) {
-                // rethrow without resetting the stack trace of the call that failed inside the update function
+                // Only reached when the inner exception isn't a native FirebaseFirestoreException; TransactionFunction
+                // hands those back to the runner, so a failed GetDocument is wrapped again by the catch below and
+                // its stack trace starts here. Rethrow without wrapping it twice or resetting its stack trace.
                 ExceptionDispatchInfo.Throw(updateException);
             }
             throw new FirebaseException(updateException.Message, updateException);

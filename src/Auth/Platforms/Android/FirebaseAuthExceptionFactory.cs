@@ -54,10 +54,7 @@ internal static class FirebaseAuthExceptionFactory
             : canonicalName;
     }
 
-    // A static reference, not reflection: it keeps FirebaseAuthException, its ErrorCode getter and
-    // its Java type mapping in trimmed (Release) builds. Every Auth exception subclass then surfaces
-    // as at least this type, even when the subclass binding is trimmed away. Reflection found no
-    // ErrorCode property in trimmed builds, so the code was always null there.
+    // Direct cast, not reflection: reflection loses ErrorCode in trimmed (Release) builds.
     private static string? GetNativeErrorCode(Exception exception)
     {
         var errorCode = (exception as NativeFirebaseAuthException)?.ErrorCode;

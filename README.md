@@ -212,6 +212,15 @@ A common mistake is keeping the file in `Platforms/iOS/` and adding `<BundleReso
 
 To check the result, build the app and look inside `bin/<Configuration>/net10.0-ios/<RuntimeIdentifier>/<AssemblyName>.app/`, for example `bin/Debug/net10.0-ios/iossimulator-arm64/MyApp.app/` for a simulator build (`ios-arm64` for a device build). `GoogleService-Info.plist`, with exactly that name, must be directly in that folder, not in a subfolder.
 
+### iOS NativeAOT (`PublishAot`)
+As of .NET 10 and the AdamE Firebase iOS bindings 12.x, Native AOT needs the trimmer to process the `Firebase.*` binding assemblies. While linking, the iOS SDK rewrites their block code (completion handlers and listeners) so it no longer needs the dynamic registrar, which Native AOT removes. `PublishAot` only takes effect when publishing (for example an archive for TestFlight), so Debug and plain `dotnet build` runs don't show the problem. See [#715](https://github.com/TobiasBuchholz/Plugin.Firebase/issues/715).
+
+- Leave `MtouchLink` and `TrimMode` unset so the SDK links every assembly. An explicit `TrimMode`, even `full`, makes the SDK warn that all assemblies must be processed by the linker.
+- Don't use `MtouchLink=SdkOnly`/`None`, `TrimMode=partial`, or a per-assembly `TrimMode=copy` on a `Firebase.*` assembly: these leave the binding assemblies unprocessed. Rooting them with `TrimmerRootAssembly` is fine.
+- Symptoms of an unprocessed binding assembly: the build warns `MT2387: It's not safe to remove the dynamic registrar, because Firebase.<Name> references 'ObjCRuntime.BlockLiteral..ctor ...'`, and at runtime any call that passes a block throws `System.Diagnostics.UnreachableException` from `BlockLiteral.FindTrampoline`. That includes `SubscribeToTopicAsync` and listeners such as `AddAuthStateListener` and `AddSnapshotListener`, which apps often register at startup.
+- Reflection-based code isn't trim-safe either: Firestore's model mapping is not currently compatible with full trimming or Native AOT (see the [Firestore docs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/firestore.md)), and Functions `CallAsync<TResponse>` deserializes the response with reflection-based `System.Text.Json`.
+- If you can't meet these requirements, remove `PublishAot`. iOS Release builds then use Mono, whose default `SdkOnly` link mode leaves the binding assemblies untrimmed, and the SDK keeps the dynamic registrar for them.
+
 ## Contributions
 
 You are welcome to contribute to this project by creating a [Pull Request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests). See `CONTRIBUTING.md` and `BUILDING.md` for contribution and build guidance. The project contains an .editorconfig file that handles the code formatting, so please apply the formatting rules by running `dotnet format Plugin.Firebase.sln` in the console before creating a Pull Request (see [dotnet-format docs](https://github.com/dotnet/format) or [this video](https://www.youtube.com/watch?v=lGvP9SZ98vM&t) for more information).

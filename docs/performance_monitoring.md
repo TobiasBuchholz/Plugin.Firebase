@@ -12,7 +12,12 @@ Firebase [Performance Monitoring](https://firebase.google.com/docs/perf-mon) hel
 
 - Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/README.md#basic-setup).
 - Use Firebase's official [Performance Monitoring setup docs](https://firebase.google.com/docs/perf-mon/get-started) for Firebase Console and platform configuration.
-- The native Firebase Performance Monitoring SDK can start automatic collection when linked into the app. If collection must be disabled before startup, configure Firebase's documented Android manifest or iOS plist disable keys before initialization.
+- The native Firebase Performance Monitoring SDK starts automatic collection as soon as it is linked into the app. To disable it before startup, set `firebase_performance_collection_enabled` to `false` (runtime re-enabling stays possible) or `firebase_performance_collection_deactivated` to `true` (it does not) in `AndroidManifest.xml` or `Info.plist`. See Firebase's [disable guide](https://firebase.google.com/docs/perf-mon/disable-sdk).
+- At runtime, `IsDataCollectionEnabled` turns all Performance Monitoring data collection on or off, automatic traces included, on both platforms.
+- On iOS, `IsInstrumentationEnabled` also controls whether the SDK instruments the app for the automatic app start, screen rendering and network traces. Its build-time counterpart is the `firebase_performance_instrumentation_enabled` key in `Info.plist`. The native SDK persists a value set at runtime, and that value overrides the key on later launches:
+  - Enabling it takes effect immediately: the SDK starts instrumenting right away, even before `CrossFirebase.Initialize()`.
+  - Disabling it only takes effect immediately while instrumentation hasn't started, that is before `CrossFirebase.Initialize()` and before anything enabled it in the same launch. Otherwise it applies from the next app start, and the getter keeps returning `true` while instrumentation is still running.
+- Android has no runtime instrumentation switch: `IsInstrumentationEnabled` throws `NotSupportedException` there. Use `IsDataCollectionEnabled` or the manifest keys above instead.
 - On Android, `Plugin.Firebase.PerformanceMonitoring` uses `Xamarin.Firebase.Perf` v121.0.0, which maps to Firebase Android BoM 33.0.0.
 
 ## Usage
@@ -22,6 +27,13 @@ using System.Net.Http;
 using Plugin.Firebase.PerformanceMonitoring;
 
 CrossFirebasePerformanceMonitoring.Current.IsDataCollectionEnabled = true;
+
+#if IOS
+// Automatic instrumentation, iOS only. The value is persisted over the Info.plist key, and enabling it starts
+// instrumenting right away, so set it from an explicit choice. Set it before CrossFirebase.Initialize() to cover
+// app start.
+CrossFirebasePerformanceMonitoring.Current.IsInstrumentationEnabled = userAllowsAutomaticTraces;
+#endif
 
 var trace = CrossFirebasePerformanceMonitoring.Current.NewTrace("load_items");
 trace.PutAttribute("screen", "items");
@@ -47,5 +59,8 @@ Since code should be documenting itself you can also take a look at the followin
 - [tests/.../PerformanceMonitoringFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/PerformanceMonitoring/PerformanceMonitoringFixture.cs)
 
 ## Release notes
+- Next
+  - Added `IsInstrumentationEnabled` to control the native automatic instrumentation on iOS.
+  - Breaking for custom implementations: `IFirebasePerformanceMonitoring` gained this member, so hand-written implementations (for example test fakes) have to add it.
 - Version 4.0.0
   - Initial Firebase Performance Monitoring support for collection control, custom code traces, and custom HTTP metrics.

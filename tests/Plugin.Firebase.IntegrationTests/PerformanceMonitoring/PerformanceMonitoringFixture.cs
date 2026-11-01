@@ -39,6 +39,38 @@ public sealed class PerformanceMonitoringFixture
         }
     }
 
+    [IosFact]
+    public void keeps_instrumentation_running_after_a_late_disable_on_ios()
+    {
+        var sut = CrossFirebasePerformanceMonitoring.Current;
+
+        // The iOS test host enables instrumentation before Firebase configures, so this run is instrumented.
+        Assert.True(sut.IsInstrumentationEnabled);
+        PerformanceAssertions.PersistedInstrumentationEnabled(true);
+
+        try {
+            // A disable after Firebase configures is persisted for the next app start. The running app stays
+            // instrumented, and the native getter keeps reporting that.
+            sut.IsInstrumentationEnabled = false;
+            PerformanceAssertions.PersistedInstrumentationEnabled(false);
+            Assert.True(sut.IsInstrumentationEnabled);
+        }
+        finally {
+            sut.IsInstrumentationEnabled = true;
+        }
+
+        PerformanceAssertions.PersistedInstrumentationEnabled(true);
+    }
+
+    [AndroidFact]
+    public void rejects_instrumentation_toggling_on_android()
+    {
+        var sut = CrossFirebasePerformanceMonitoring.Current;
+
+        Assert.Throws<NotSupportedException>(() => { _ = sut.IsInstrumentationEnabled; });
+        Assert.Throws<NotSupportedException>(() => { sut.IsInstrumentationEnabled = false; });
+    }
+
     [Fact]
     public void records_custom_trace_attributes_and_metrics()
     {

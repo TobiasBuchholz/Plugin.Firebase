@@ -36,7 +36,7 @@ public static class CrossFirebase
             } catch(NotSupportedException e) {
                 // A provider configured earlier, or the native default (DeviceCheck), stays in place.
                 Console.WriteLine($"Plugin.Firebase AppCheck: {e.Message} Continuing without changing the App Check provider.");
-            } catch(InvalidOperationException e) when(e is not ObjectDisposedException) {
+            } catch(InvalidOperationException e) {
                 // The native SDK reads the provider factory only when the default app is configured, so it can't be
                 // changed once the default app exists.
                 Console.WriteLine($"Plugin.Firebase AppCheck: {e.Message} Continuing without changing the App Check provider.");

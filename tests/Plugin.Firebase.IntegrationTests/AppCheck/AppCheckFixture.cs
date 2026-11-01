@@ -18,7 +18,7 @@ namespace Plugin.Firebase.IntegrationTests.AppCheck
         }
 
         [IosFact]
-        public void throws_when_configured_after_firebase_initialization()
+        public void throws_when_configured_after_firebase_initialization_on_ios()
         {
             // The native SDK reads the provider factory only when the default app is configured. The harness never
             // configures DeviceCheck or AppAttest before CrossFirebase.Initialize(), so both would change the provider.
@@ -43,6 +43,14 @@ namespace Plugin.Firebase.IntegrationTests.AppCheck
             // A new instance still sees the provider installed before initialization.
             CrossFirebaseAppCheck.Dispose();
             CrossFirebaseAppCheck.Configure(new AppCheckOptions(provider));
+        }
+
+        [IosFact]
+        public void installs_the_launch_provider_on_the_default_app_on_ios()
+        {
+            // Checks native state, not the plugin's record: the default app has an App Check instance exactly when the
+            // harness configured a provider other than Disabled before initialization.
+            AppCheckAssertions.IosDefaultAppCheckInstanceMatches(FirebaseTestHost.LaunchAppCheckOptions.Provider);
         }
 
         [IosFact]

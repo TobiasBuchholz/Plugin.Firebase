@@ -95,7 +95,7 @@ namespace Plugin.Firebase.IntegrationTests.AppCheck
 
             try {
                 CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled);
-                await using var user = await AuthTestUserScope.SignInWithEmailAndPasswordAsync(auth, email);
+                await using var user = await AuthTestUserScope.CreateWithEmailAndPasswordAsync(auth, email);
 
                 var response = await CrossFirebaseFunctions.Current
                     .GetHttpsCallable("convertToLeet")

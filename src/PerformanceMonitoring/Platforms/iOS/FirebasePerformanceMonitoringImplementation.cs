@@ -26,6 +26,12 @@ public sealed class FirebasePerformanceMonitoringImplementation : DisposableBase
     }
 
     /// <inheritdoc/>
+    public bool IsInstrumentationEnabled {
+        get => _instance.InstrumentationEnabled;
+        set => _instance.InstrumentationEnabled = value;
+    }
+
+    /// <inheritdoc/>
     public IFirebasePerformanceTrace NewTrace(string traceName)
     {
         return new FirebasePerformanceTraceWrapper(_instance.GetTrace(traceName)!);

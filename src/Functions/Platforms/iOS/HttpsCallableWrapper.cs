@@ -32,7 +32,9 @@ public sealed class HttpsCallableWrapper : IHttpsCallable
     {
         var data = NSJsonSerialization.Deserialize(
             NSData.FromString(dataJson, NSStringEncoding.UTF8),
-            0,
+            // the callable protocol accepts any valid JSON value for data, including
+            // fragments like strings, numbers, booleans, and null
+            NSJsonReadingOptions.FragmentsAllowed,
             out var error
         );
         if(error != null) {

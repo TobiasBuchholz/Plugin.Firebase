@@ -1,5 +1,6 @@
 using Firebase.CloudFirestore;
 using Plugin.Firebase.Firestore.Platforms.iOS.Extensions;
+using NativeDocumentChange = Firebase.CloudFirestore.DocumentChange;
 
 namespace Plugin.Firebase.Firestore.Platforms.iOS;
 
@@ -10,6 +11,11 @@ namespace Plugin.Firebase.Firestore.Platforms.iOS;
 public sealed class QuerySnapshotWrapper<T> : IQuerySnapshot<T>
 {
     private readonly QuerySnapshot _wrapped;
+    // each list is built on its first read; it isn't stored if building it throws, so a native error is raised again on
+    // the next read. The fields are checked first so that reading a built list doesn't allocate a delegate
+    private IReadOnlyList<IDocumentSnapshot<T>>? _documents;
+    private IReadOnlyList<DocumentChange<T>>? _documentChanges;
+    private IReadOnlyList<DocumentChange<T>>? _documentChangesWithMetadata;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="QuerySnapshotWrapper{T}"/> class.
@@ -23,19 +29,29 @@ public sealed class QuerySnapshotWrapper<T> : IQuerySnapshot<T>
     /// <inheritdoc/>
     public IEnumerable<DocumentChange<T>> GetDocumentChanges(bool includeMetadataChanges)
     {
-        return _wrapped.GetDocumentChanges(includeMetadataChanges).Select(x => x.ToAbstract<T>());
+        return includeMetadataChanges
+            ? _documentChangesWithMetadata
+                ?? LazyInitializer.EnsureInitialized(
+                    ref _documentChangesWithMetadata,
+                    () => WrapChanges(_wrapped.GetDocumentChanges(true))
+                )
+            : _documentChanges
+                ?? LazyInitializer.EnsureInitialized(ref _documentChanges, () => WrapChanges(_wrapped.DocumentChanges));
     }
 
     /// <inheritdoc/>
     public IEnumerable<IDocumentSnapshot<T>> Documents =>
-        _wrapped.Documents.Select(x => x.ToAbstract<T>());
+        _documents
+        ?? LazyInitializer.EnsureInitialized(
+            ref _documents,
+            () => _wrapped.Documents.Select(x => x.ToAbstract<T>()).ToList().AsReadOnly()
+        );
 
     /// <inheritdoc/>
     public ISnapshotMetadata Metadata => _wrapped.Metadata.ToAbstract();
 
     /// <inheritdoc/>
-    public IEnumerable<DocumentChange<T>> DocumentChanges =>
-        _wrapped.DocumentChanges.Select(x => x.ToAbstract<T>());
+    public IEnumerable<DocumentChange<T>> DocumentChanges => GetDocumentChanges(false);
 
     /// <inheritdoc/>
     public IQuery Query => _wrapped.Query.ToAbstract();
@@ -45,4 +61,9 @@ public sealed class QuerySnapshotWrapper<T> : IQuerySnapshot<T>
 
     /// <inheritdoc/>
     public int Count => (int) _wrapped.Count;
+
+    private static IReadOnlyList<DocumentChange<T>> WrapChanges(IEnumerable<NativeDocumentChange> changes)
+    {
+        return changes.Select(x => x.ToAbstract<T>()).ToList().AsReadOnly();
+    }
 }

@@ -52,8 +52,15 @@ internal sealed class AuthTestUserScope : IAsyncDisposable
         IFirebaseUser user;
         try {
             user = await auth.SignInWithEmailAndPasswordAsync(email, password);
-        } catch(CrossPlatformFirebaseAuthException) {
-            user = await auth.CreateUserAsync(email, password);
+        } catch(CrossPlatformFirebaseAuthException signInException) {
+            try {
+                user = await auth.CreateUserAsync(email, password);
+            } catch(CrossPlatformFirebaseAuthException createException) {
+                throw new AggregateException(
+                    $"Sign-in and account creation both failed for {email}.",
+                    signInException,
+                    createException);
+            }
         }
         return new AuthTestUserScope(auth, user, email, password, deleteOnDispose);
     }

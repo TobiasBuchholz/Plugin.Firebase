@@ -14,7 +14,7 @@ Firebase Analytics collects usage and behavior data for your app. The SDK logs t
 ## Setup
 
 - Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/README.md#basic-setup)
-- When using the standalone `Plugin.Firebase.Analytics` package on Android, initialize Analytics after calling `CrossFirebase.Initialize(...)`:
+- On Android, initialize Analytics after calling `CrossFirebase.Initialize(...)`:
 
 ```c#
 using Microsoft.Maui.ApplicationModel;
@@ -41,15 +41,7 @@ builder.ConfigureLifecycleEvents(events => {
 });
 ```
 
-The `FirebaseAnalyticsImplementation.Initialize(activity)` call is only required on Android when using the standalone Analytics package. If you use the bundled `Plugin.Firebase` package, enable Analytics through `CrossFirebaseSettings` instead:
-
-```c#
-#if ANDROID
-using Plugin.Firebase.Bundled.Shared;
-
-var settings = new CrossFirebaseSettings(isAnalyticsEnabled: true);
-#endif
-```
+The `FirebaseAnalyticsImplementation.Initialize(activity)` call is only required on Android; iOS needs no Analytics initialization. Use `CrossFirebaseAnalytics.Current.IsAnalyticsCollectionEnabled` to turn collection on or off at runtime.
 
 ## Usage
 

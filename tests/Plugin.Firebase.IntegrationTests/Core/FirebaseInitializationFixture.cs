@@ -10,16 +10,16 @@ using Plugin.Firebase.PerformanceMonitoring;
 using Plugin.Firebase.RemoteConfig;
 using Plugin.Firebase.Storage;
 
-namespace Plugin.Firebase.IntegrationTests.Bundled
+namespace Plugin.Firebase.IntegrationTests.Core
 {
     [Collection("Sequential")]
     [TestLogging]
-    [IntegrationTestFixture(IntegrationTestPackage.Bundled)]
+    [IntegrationTestFixture(IntegrationTestPackage.Core)]
     [Preserve(AllMembers = true)]
-    public sealed class BundledInitializerFixture
+    public sealed class FirebaseInitializationFixture
     {
         [Fact]
-        public void active_services_are_available_after_bundled_initialization()
+        public void active_services_are_available_after_initialization()
         {
             Assert.NotNull(CrossFirebaseAnalytics.Current);
             Assert.NotNull(CrossFirebaseAppCheck.Current);

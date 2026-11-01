@@ -1,4 +1,3 @@
-using System.Runtime.ExceptionServices;
 using Firebase.Auth;
 using Plugin.Firebase.Auth.Platforms.iOS.Email;
 using Plugin.Firebase.Auth.Platforms.iOS.Extensions;
@@ -92,18 +91,14 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
             return await SignInWithCredentialAsync(credential);
         } catch(CrossPlatformFirebaseAuthException e)
             when(createsUserAutomatically && ShouldAttemptCreateUser(e)) {
-            // The account may not exist: UserNotFound, or InvalidCredential (INVALID_LOGIN_CREDENTIALS,
-            // iOS SDK 10.18+) when email enumeration protection (the default) hides whether it exists.
-            // Try to create it. The sign-in error is rethrown when creation shows the account exists
-            // (EmailAlreadyInUse) or that this project can't create accounts from the client
-            // (AdminRestrictedOperation, OperationNotAllowed). Any other creation failure, such as a
-            // weak password, an invalid email, a blocking function or a network error, propagates.
+            // Firebase iOS SDK 10.18+ returns InvalidCredential (INVALID_LOGIN_CREDENTIALS)
+            // instead of UserNotFound when Email Enumeration Protection is enabled (default).
+            // We attempt user creation for both error codes; if the user actually exists
+            // (wrong password scenario), creation fails and we re-throw the original error.
             try {
                 return await CreateUserAsync(email, password);
-            } catch(CrossPlatformFirebaseAuthException createException)
-                when(ShouldRethrowSignInError(createException)) {
-                ExceptionDispatchInfo.Capture(e).Throw();
-                throw; // unreachable: Throw() always throws
+            } catch(CrossPlatformFirebaseAuthException) {
+                throw e;
             }
         }
     }
@@ -267,14 +262,6 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         return exception.NativeErrorCode is
             nameof(AuthErrorCode.UserNotFound) or
             nameof(AuthErrorCode.InvalidCredential);
-    }
-
-    private static bool ShouldRethrowSignInError(CrossPlatformFirebaseAuthException createException)
-    {
-        return createException.NativeErrorCode is
-            nameof(AuthErrorCode.EmailAlreadyInUse) or
-            nameof(AuthErrorCode.AdminRestrictedOperation) or
-            nameof(AuthErrorCode.OperationNotAllowed);
     }
 
     private static UIViewController GetViewController()

@@ -28,7 +28,7 @@ CrossFirebase.Initialize(activity, activityProvider);      // hook fires here
 ### Providers
 | Provider | Platforms | Typical usage |
 |---|---|---|
-| `Disabled` | All | No provider installed (default) |
+| `Disabled` | All | No provider installed. On iOS this is also what you need when App Check is referenced but unused, because the native SDK otherwise falls back to DeviceCheck. |
 | `Debug` | iOS, Android | Development / CI — prints a debug token to the console |
 | `DeviceCheck` | iOS | Production fallback on older devices |
 | `AppAttest` | iOS (14+) | Production (preferred on iOS) |
@@ -42,7 +42,7 @@ On Android, `Configure()` maps to the native `FirebaseAppCheck.installAppCheckPr
 
 - Configuring `Debug` or `PlayIntegrity` after `CrossFirebase.Initialize()` installs that provider factory right away, in place of any factory installed before. Configuring the provider that is already installed does nothing. The plugin only tracks factories it installed itself, so it doesn't see one installed directly through the native binding.
 - The native SDK has no API to remove an installed provider factory. While one is installed on the default Firebase app, `Configure(AppCheckOptions.Disabled)` throws an `InvalidOperationException`, and the provider stays active until the app process restarts. To run without App Check, don't configure a provider in that process.
-- Android can recreate the activity without restarting the process (for example after a language or font-size change), so code in `OnCreate` runs again. A `Configure(AppCheckOptions.Disabled)` there throws if an earlier activity in the same process installed a provider, even when it comes before `CrossFirebase.Initialize()`. The bundled initializer logs this and keeps the installed provider.
+- Android can recreate the activity without restarting the process (for example after a language or font-size change), so code in `OnCreate` runs again. A `Configure(AppCheckOptions.Disabled)` there throws if an earlier activity in the same process installed a provider, even when it comes before `CrossFirebase.Initialize()`. Catch the exception there to keep the installed provider.
 - Configuring `Disabled` while no provider factory is installed does not throw. Before the first `CrossFirebase.Initialize()`, it replaces a provider that was configured earlier. A factory belongs to the Firebase app it was installed on, so after that app is deleted, `Disabled` is accepted again.
 
 ```c#
@@ -114,7 +114,7 @@ See also the [sample Playground project](../sample/Playground/Playground.csproj)
 On Android, `CrossFirebaseAppCheck.Configure` now reaches the native SDK after initialization, and fails explicitly where the native SDK can't do what was asked:
 
 - Configuring `Debug` or `PlayIntegrity` after `CrossFirebase.Initialize()` installs that provider factory. Previously only the first provider was installed and later changes were silently ignored.
-- Configuring `Disabled` while a provider factory is installed throws `InvalidOperationException`. Previously the call succeeded but the provider stayed active. The bundled initializer logs this and keeps the installed provider.
-- `DeviceCheck` and `AppAttest` throw `NotSupportedException` from `Configure` itself. Previously, when configured before initialization, the exception came from `CrossFirebase.Initialize()`. The bundled initializer now logs it and leaves App Check as it was.
+- Configuring `Disabled` while a provider factory is installed throws `InvalidOperationException`. Previously the call succeeded but the provider stayed active.
+- `DeviceCheck` and `AppAttest` throw `NotSupportedException` from `Configure` itself. Previously, when configured before initialization, the exception came from `CrossFirebase.Initialize()`.
 - `CrossFirebaseAppCheck.Dispose()` no longer cancels a provider configured before initialization. Configure `Disabled` instead.
 - Configuring the provider that is already installed does nothing.

@@ -1,4 +1,5 @@
 using Plugin.Firebase.Auth;
+using Plugin.Firebase.Core.Exceptions;
 
 namespace Plugin.Firebase.IntegrationTests;
 
@@ -40,31 +41,41 @@ internal sealed class AuthTestUserScope : IAsyncDisposable
         return new AuthTestUserScope(auth, user, email, password, deleteOnDispose);
     }
 
-    public static async Task<AuthTestUserScope> SignInWithEmailAndPasswordAsync(
+    // For shared test accounts: the emulator seed deletes them before each run, while a real
+    // backend keeps them between runs.
+    public static async Task<AuthTestUserScope> SignInOrCreateWithEmailAndPasswordAsync(
         IFirebaseAuth auth,
         string email,
         string password = IntegrationTestUsers.DefaultPassword,
-        bool createsUserAutomatically = true,
         bool deleteOnDispose = true)
     {
-        var user = await auth.SignInWithEmailAndPasswordAsync(
-            email,
-            password,
-            createsUserAutomatically);
+        IFirebaseUser user;
+        try {
+            user = await auth.SignInWithEmailAndPasswordAsync(email, password);
+        } catch(CrossPlatformFirebaseAuthException signInException) {
+            try {
+                user = await auth.CreateUserAsync(email, password);
+            } catch(CrossPlatformFirebaseAuthException createException) {
+                throw new AggregateException(
+                    $"Sign-in and account creation both failed for {email}.",
+                    signInException,
+                    createException);
+            }
+        }
         return new AuthTestUserScope(auth, user, email, password, deleteOnDispose);
     }
 
-    public static Task<AuthTestUserScope> SignInWithUniqueEmailAndPasswordAsync(
+    public static Task<AuthTestUserScope> CreateWithUniqueEmailAndPasswordAsync(
         IFirebaseAuth auth,
         string prefix,
         string password = IntegrationTestUsers.DefaultPassword,
         bool deleteOnDispose = true)
     {
-        return SignInWithEmailAndPasswordAsync(
+        return CreateWithEmailAndPasswordAsync(
             auth,
             IntegrationTestData.UniqueEmail(prefix),
             password,
-            deleteOnDispose: deleteOnDispose);
+            deleteOnDispose);
     }
 
     public static async Task<AuthTestUserScope> SignInAnonymouslyAsync(
@@ -110,10 +121,7 @@ internal sealed class AuthTestUserScope : IAsyncDisposable
         }
 
         if(!string.IsNullOrWhiteSpace(_email) && !string.IsNullOrWhiteSpace(_password)) {
-            _user = await _auth.SignInWithEmailAndPasswordAsync(
-                _email,
-                _password,
-                createsUserAutomatically: false);
+            _user = await _auth.SignInWithEmailAndPasswordAsync(_email, _password);
         }
     }
 }

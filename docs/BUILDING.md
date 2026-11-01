@@ -496,7 +496,7 @@ This typically occurs due to a mismatch between your .NET workload version and i
 # Download from https://dotnet.microsoft.com/download or use a version manager
 
 # Update workloads to the matching version
-sudo dotnet workload update --version 10.0.302.1
+sudo dotnet workload update --version 10.0.401
 sudo dotnet workload restore
 ```
 

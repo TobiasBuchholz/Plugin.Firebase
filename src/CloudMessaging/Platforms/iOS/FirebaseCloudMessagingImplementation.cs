@@ -174,6 +174,10 @@ public sealed class FirebaseCloudMessagingImplementation
     /// Raises <see cref="NotificationTapped"/>, or keeps the notification until the first subscriber is added,
     /// then calls <paramref name="completionHandler"/> exactly once. If a subscriber throws, the completion
     /// handler is still called and the exception then propagates out of this method.
+    /// On both paths, <see cref="FCMNotification.Data"/> carries the response's
+    /// <see cref="UNNotificationResponse.ActionIdentifier"/> under the <c>ActionIdentifier</c> key, replacing a
+    /// sender-supplied value with that key. A notification without <see cref="FCMNotification.Data"/> is raised
+    /// as a copy whose data holds only that entry.
     /// </remarks>
     /// <param name="center">The notification center.</param>
     /// <param name="response">The user's response to the notification.</param>
@@ -199,14 +203,13 @@ public sealed class FirebaseCloudMessagingImplementation
     )
     {
         try {
+            // enrich with the action before choosing immediate or deferred delivery, so a
+            // response arriving before any subscriber keeps its ActionIdentifier too
+            var notification = WithActionIdentifier(getNotification(), getActionIdentifier());
+
             if(_notificationTapped == null) {
-                _missedTappedNotification = getNotification();
+                _missedTappedNotification = notification;
             } else {
-                var notification = getNotification();
-                var actionIdentifier = getActionIdentifier();
-                if(!string.IsNullOrEmpty(actionIdentifier)) {
-                    notification.Data[nameof(UNNotificationResponse.ActionIdentifier)] = actionIdentifier;
-                }
                 _notificationTapped.Invoke(this, new FCMNotificationTappedEventArgs(notification));
             }
         }
@@ -214,6 +217,32 @@ public sealed class FirebaseCloudMessagingImplementation
             // the delegate contract requires completing exactly once, even if a subscriber throws
             completionHandler();
         }
+    }
+
+    private static FCMNotification WithActionIdentifier(
+        FCMNotification notification,
+        string actionIdentifier
+    )
+    {
+        if(string.IsNullOrEmpty(actionIdentifier)) {
+            return notification;
+        }
+
+        const string key = nameof(UNNotificationResponse.ActionIdentifier);
+        if(notification.Data == null) {
+            // userInfo whose aps dictionary has no alert, or that has neither an aps nor a notification
+            // dictionary (such as a local notification), converts to FCMNotification.Empty(), whose Data is
+            // null and has no setter; copy it with a dictionary so the action is not dropped
+            return new FCMNotification(
+                notification.Body,
+                notification.Title,
+                notification.ImageUrl,
+                new Dictionary<string, string> { { key, actionIdentifier } }
+            ) { ChannelId = notification.ChannelId };
+        }
+
+        notification.Data[key] = actionIdentifier;
+        return notification;
     }
 
     /// <summary>

@@ -11,6 +11,14 @@ namespace Plugin.Firebase.IntegrationTests;
 
 internal static partial class FirebaseTestHost
 {
+    /// <summary>
+    /// The App Check options the host configures before Firebase is initialized.
+    /// </summary>
+    public static AppCheckOptions LaunchAppCheckOptions =>
+        IntegrationTestEnvironment.UsesRealBackend && IntegrationTestEnvironment.ShouldRunAppCheckTokenTests
+            ? AppCheckOptions.Debug
+            : AppCheckOptions.Disabled;
+
     public static MauiAppBuilder RegisterFirebaseServices(this MauiAppBuilder builder)
     {
         builder.ConfigureLifecycleEvents(ConfigureFirebaseLifecycleEvents);
@@ -26,10 +34,7 @@ internal static partial class FirebaseTestHost
     /// </summary>
     private static void ConfigureAppCheckBeforeInitialize()
     {
-        CrossFirebaseAppCheck.Configure(
-            IntegrationTestEnvironment.UsesRealBackend && IntegrationTestEnvironment.ShouldRunAppCheckTokenTests
-                ? AppCheckOptions.Debug
-                : AppCheckOptions.Disabled);
+        CrossFirebaseAppCheck.Configure(LaunchAppCheckOptions);
     }
 
     /// <summary>

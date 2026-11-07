@@ -64,6 +64,8 @@ The native binding packages are published using a versioning scheme `[MAJOR].[MI
 
 #### iOS Dependencies
 
+Plugin.Firebase requires `AdamE.Firebase.iOS.*` binding packages version 12.19.3 or later.
+
 When selecting package versions for iOS, best practice is to make sure that the MAJOR and MINOR versions match across all packages (e.g. 11.8.*.*). Then, for each package, select the latest PATCH.REVISION.
 
 - AdamE.Firebase.iOS.Analytics
@@ -72,8 +74,8 @@ When selecting package versions for iOS, best practice is to make sure that the 
 - AdamE.Firebase.iOS.CloudMessaging
 - AdamE.Firebase.iOS.Core
 - AdamE.Firebase.iOS.Crashlytics
-- AdamE.Firebase.iOS.Firestore
-- AdamE.Firebase.iOS.Functions
+- AdamE.Firebase.iOS.CloudFirestore
+- AdamE.Firebase.iOS.CloudFunctions
 - AdamE.Firebase.iOS.Installations
 - AdamE.Firebase.iOS.PerformanceMonitoring
 - AdamE.Firebase.iOS.RemoteConfig

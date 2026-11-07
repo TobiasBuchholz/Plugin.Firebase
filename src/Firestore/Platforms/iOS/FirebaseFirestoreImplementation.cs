@@ -1,3 +1,4 @@
+using System.Runtime.ExceptionServices;
 using Firebase.CloudFirestore;
 using Plugin.Firebase.Core;
 using Plugin.Firebase.Core.Exceptions;
@@ -53,7 +54,9 @@ public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseF
                     try {
                         return updateFunc(transaction.ToAbstract())?.ToNSObject();
                     } catch(Exception e) {
-                        exception = new FirebaseException(e.Message, e);
+                        // A failure already wrapped by this plugin, such as a failed transactional read,
+                        // surfaces as-is instead of being wrapped twice.
+                        exception = e as CrossPlatformFirebaseFirestoreException ?? new FirebaseException(e.Message, e);
                         // Only an error assigned to the ref parameter aborts the native transaction. A domain
                         // other than the Firestore error domain also marks the transaction permanently failed,
                         // so the writes queued before the failure can neither be retried nor committed.
@@ -67,7 +70,13 @@ public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseF
             );
         } catch(Exception) when(exception != null) {
             // the task faulted with the native error assigned above; surface the original managed failure instead
+            if(exception is CrossPlatformFirebaseFirestoreException) {
+                // rethrow without resetting the stack trace of the call that failed inside the update function
+                ExceptionDispatchInfo.Throw(exception);
+            }
             throw exception;
+        } catch(Exception e) when(FirestoreExceptionFactory.IsNativeFirestoreException(e)) {
+            throw FirestoreExceptionFactory.Create(e);
         }
         return (TResult?) result?.ToObject(typeof(TResult));
     }
@@ -81,31 +90,31 @@ public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseF
     /// <inheritdoc/>
     public Task WaitForPendingWritesAsync()
     {
-        return _firestore.WaitForPendingWritesAsync();
+        return FirestoreExceptionFactory.Wrap(() => _firestore.WaitForPendingWritesAsync());
     }
 
     /// <inheritdoc/>
     public Task DisableNetworkAsync()
     {
-        return _firestore.DisableNetworkAsync();
+        return FirestoreExceptionFactory.Wrap(() => _firestore.DisableNetworkAsync());
     }
 
     /// <inheritdoc/>
     public Task EnableNetworkAsync()
     {
-        return _firestore.EnableNetworkAsync();
+        return FirestoreExceptionFactory.Wrap(() => _firestore.EnableNetworkAsync());
     }
 
     /// <inheritdoc/>
     public Task ClearPersistenceAsync()
     {
-        return _firestore.ClearPersistenceAsync();
+        return FirestoreExceptionFactory.Wrap(() => _firestore.ClearPersistenceAsync());
     }
 
     /// <inheritdoc/>
     public Task TerminateAsync()
     {
-        return _firestore.TerminateAsync();
+        return FirestoreExceptionFactory.Wrap(() => _firestore.TerminateAsync());
     }
 
     /// <inheritdoc/>

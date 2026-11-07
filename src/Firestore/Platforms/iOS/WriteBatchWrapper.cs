@@ -101,7 +101,7 @@ public sealed class WriteBatchWrapper : IWriteBatch
     /// <inheritdoc/>
     public Task CommitAsync()
     {
-        return _wrapped.CommitAsync();
+        return FirestoreExceptionFactory.Wrap(() => _wrapped.CommitAsync());
     }
 
     /// <inheritdoc/>

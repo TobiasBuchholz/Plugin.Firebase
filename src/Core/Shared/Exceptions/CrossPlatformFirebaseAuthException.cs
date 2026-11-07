@@ -3,7 +3,7 @@ namespace Plugin.Firebase.Core.Exceptions;
 /// <summary>
 /// Cross-platform wrapper for native Firebase Auth failures.
 /// </summary>
-public sealed class CrossPlatformFirebaseAuthException : FirebaseException
+public sealed class CrossPlatformFirebaseAuthException : CrossPlatformFirebaseException
 {
     /// <summary>
     /// Creates a new instance wrapping a native Firebase Auth exception.
@@ -20,34 +20,13 @@ public sealed class CrossPlatformFirebaseAuthException : FirebaseException
         string? nativeErrorDomain = null,
         string? nativeErrorCode = null
     )
-        : base(nativeErrorMessage ?? innerException.Message, innerException)
+        : base(
+            nativeExceptionTypeName,
+            nativeErrorMessage,
+            innerException,
+            nativeErrorDomain,
+            nativeErrorCode
+        )
     {
-        ArgumentNullException.ThrowIfNull(nativeExceptionTypeName);
-        ArgumentNullException.ThrowIfNull(innerException);
-
-        NativeExceptionTypeName = nativeExceptionTypeName;
-        NativeErrorDomain = nativeErrorDomain;
-        NativeErrorCode = nativeErrorCode;
-        NativeErrorMessage = nativeErrorMessage ?? innerException.Message;
     }
-
-    /// <summary>
-    /// The native exception type name.
-    /// </summary>
-    public string NativeExceptionTypeName { get; }
-
-    /// <summary>
-    /// The native error domain, when available.
-    /// </summary>
-    public string? NativeErrorDomain { get; }
-
-    /// <summary>
-    /// The native error code, when available.
-    /// </summary>
-    public string? NativeErrorCode { get; }
-
-    /// <summary>
-    /// The native error message.
-    /// </summary>
-    public string NativeErrorMessage { get; }
 }

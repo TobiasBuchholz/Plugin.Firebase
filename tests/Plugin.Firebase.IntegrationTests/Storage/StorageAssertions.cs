@@ -1,4 +1,5 @@
 using System.Net;
+using Plugin.Firebase.Core.Exceptions;
 using Plugin.Firebase.Storage;
 
 namespace Plugin.Firebase.IntegrationTests.Storage;
@@ -35,5 +36,24 @@ internal static class StorageAssertions
         Assert.StartsWith(
             $"https://firebasestorage.googleapis.com{port}/v0/b/{bucket}/o/{pathToFile}?alt=media&token=",
             decodedUrl);
+    }
+
+    // Pins the failure each platform reports today for a PutFile source that doesn't exist. Once #741 lands,
+    // both platforms throw CrossPlatformFirebaseStorageException wrapping these native errors instead.
+    public static void MissingUploadFileFailure(Exception exception, string filePath)
+    {
+        var failure = Assert.IsType<CrossPlatformFirebaseStorageException>(exception);
+#if ANDROID
+        var storageException = Assert.IsType<global::Firebase.Storage.StorageException>(failure.InnerException);
+        Assert.Equal(global::Firebase.Storage.StorageException.ErrorUnknown, storageException.ErrorCode);
+        Assert.IsType<Java.IO.FileNotFoundException>(storageException.Cause);
+#elif IOS
+        var nativeError = Assert.IsType<Foundation.NSErrorException>(failure.InnerException);
+        Assert.Equal(nativeError.Error.Domain, failure.NativeErrorDomain);
+        Assert.Contains("is not reachable", failure.NativeErrorMessage, StringComparison.Ordinal);
+        Assert.Contains(Path.GetFileName(filePath), failure.NativeErrorMessage, StringComparison.Ordinal);
+#else
+        throw new PlatformNotSupportedException("Native Storage upload failures are only defined on Android and iOS.");
+#endif
     }
 }

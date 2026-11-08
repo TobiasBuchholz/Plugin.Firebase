@@ -69,24 +69,10 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
         ).ToAbstract(authResult.AdditionalUserInfo);
     }
 
-    public async Task<IFirebaseUser> SignInWithEmailAndPasswordAsync(string email, string password, bool createsUserAutomatically = true)
+    public async Task<IFirebaseUser> SignInWithEmailAndPasswordAsync(string email, string password)
     {
-        try {
-            var credential = await _emailAuth.GetCredentialAsync(email, password);
-            return await SignInWithCredentialAsync(credential);
-        } catch(CrossPlatformFirebaseAuthException e)
-            when(createsUserAutomatically && ShouldAttemptCreateUser(e)) {
-            // Firebase Android SDK with Email Enumeration Protection enabled (default)
-            // may return FirebaseAuthInvalidCredentialsException instead of
-            // FirebaseAuthInvalidUserException when the user does not exist.
-            // We attempt user creation for both; if the user actually exists
-            // (wrong password scenario), creation fails and we re-throw the original error.
-            try {
-                return await CreateUserAsync(email, password);
-            } catch(CrossPlatformFirebaseAuthException) {
-                throw e;
-            }
-        }
+        var credential = await _emailAuth.GetCredentialAsync(email, password);
+        return await SignInWithCredentialAsync(credential);
     }
 
     public Task<IFirebaseUser> CreateUserAsync(string email, string password)
@@ -231,13 +217,6 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
     }
 
     public IFirebaseUser? CurrentUser => _firebaseAuth.CurrentUser?.ToAbstract();
-
-    private static bool ShouldAttemptCreateUser(CrossPlatformFirebaseAuthException exception)
-    {
-        return exception.NativeExceptionTypeName is
-            FirebaseAuthAndroidExceptionTypeNames.InvalidUserException or
-            FirebaseAuthAndroidExceptionTypeNames.InvalidCredentialsException;
-    }
 
     private class AuthStateListener : Java.Lang.Object, FirebaseAuth.IAuthStateListener
     {

@@ -51,16 +51,23 @@ public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseF
         try {
             result = await _firestore.RunTransactionAsync(
                 (Transaction transaction, ref NSError? error) => {
+                    // Captured state is per attempt: when a retry fails after its update function completed,
+                    // for example at commit, the failure of an earlier attempt must not be surfaced instead.
+                    exception = null;
                     try {
                         return updateFunc(transaction.ToAbstract())?.ToNSObject();
                     } catch(Exception e) {
                         // A failure already wrapped by this plugin, such as a failed transactional read,
                         // surfaces as-is instead of being wrapped twice.
                         exception = e as CrossPlatformFirebaseFirestoreException ?? new FirebaseException(e.Message, e);
-                        // Only an error assigned to the ref parameter aborts the native transaction. A domain
-                        // other than the Firestore error domain also marks the transaction permanently failed,
-                        // so the writes queued before the failure can neither be retried nor committed.
-                        error = NSError.FromDomain(
+                        // Only an error assigned to the ref parameter aborts the native transaction. Native
+                        // Firestore applies its retry rules only to an error in the Firestore domain, so when
+                        // updateFunc lets a failed transactional read propagate, the SDK's own NSError is handed
+                        // back and the transaction is retried if its code is retryable, as on Android. Any other
+                        // failure, including one that wraps a failed read, is reported in the plugin's domain,
+                        // which marks the transaction permanently failed, so the writes queued before the
+                        // failure can neither be retried nor committed.
+                        error = FirestoreExceptionFactory.GetFirestoreError(e) ?? NSError.FromDomain(
                             TransactionUpdateErrorDomain,
                             -1,
                             new NSDictionary<NSString, NSObject>(NSError.LocalizedDescriptionKey, new NSString(e.Message)));
@@ -69,7 +76,7 @@ public sealed class FirebaseFirestoreImplementation : DisposableBase, IFirebaseF
                 }
             );
         } catch(Exception) when(exception != null) {
-            // the task faulted with the native error assigned above; surface the original managed failure instead
+            // the task faulted with the error assigned in the last attempt; surface its managed failure instead
             if(exception is CrossPlatformFirebaseFirestoreException) {
                 // rethrow without resetting the stack trace of the call that failed inside the update function
                 ExceptionDispatchInfo.Throw(exception);

@@ -60,6 +60,19 @@ internal static class FirestoreExceptionFactory
         }
     }
 
+    /// <summary>
+    /// Returns the Firestore-domain <see cref="NSError"/> that <paramref name="exception"/> was created for by
+    /// <see cref="Create(Exception)"/>, or <see langword="null"/>. Only <paramref name="exception"/> itself is
+    /// inspected, not its inner exceptions, so an exception that wraps a Firestore failure doesn't match.
+    /// </summary>
+    public static NSError? GetFirestoreError(Exception exception)
+    {
+        return exception is CrossPlatformFirebaseFirestoreException { InnerException: NSErrorException { Error: { } error } }
+            && IsFirestoreErrorDomain(error)
+            ? error
+            : null;
+    }
+
     private static string GetNativeErrorCode(NSError error)
     {
         var code = (long) error.Code;

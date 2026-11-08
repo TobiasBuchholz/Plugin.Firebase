@@ -187,7 +187,9 @@ Firestore methods and snapshot listeners expose native Firebase failures as `Cro
 
 On iOS, `RunTransactionAsync` now also retries the transaction after a retryable Firestore error raised inside the update function, when the update function lets it propagate. An example is `ABORTED` from an `ITransaction.GetDocument` that finds the document changed since an earlier read in the same transaction. iOS already re-ran the update function after a retryable commit failure, such as contention with another write; now the native SDK's retry rules decide for errors raised inside the update function too, as they already do on Android. Previously iOS never retried the transaction after such an error. Make sure the update function doesn't change state outside the transaction.
 
-`RunTransactionAsync` now returns the update function's result as-is on both platforms, instead of converting it to a native value inside the transaction and back to `TResult` after the commit:
+### Transaction result migration
+
+`RunTransactionAsync` returns the update function’s result directly on both platforms. Earlier releases converted it through the native SDK.
 
 - The result is the same instance that the update function returned. It's no longer deep-copied or normalized through `NSNumber`, `java.lang.Integer` and the other native types. For example, `RunTransactionAsync<object>(_ => 5)` used to return the number as read back from the native value, `RunTransactionAsync<object>(_ => DateTime.UtcNow)` returned a `DateTimeOffset`, and an `IFirestoreObject` came back as a new instance without its `[FirestoreDocumentId]` value.
 - Results that the conversion couldn't handle now work. A `DateTime` or array `TResult` used to throw after the writes had been committed. Results such as records, tuples or `HashSet<T>` made the conversion fail inside the update function, which aborted the transaction on Android; on iOS the writes were committed and `RunTransactionAsync` threw afterwards.

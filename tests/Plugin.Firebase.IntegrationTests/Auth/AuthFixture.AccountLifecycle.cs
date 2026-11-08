@@ -9,7 +9,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         public async Task signs_out_user()
         {
             var sut = CrossFirebaseAuth.Current;
-            await using var user = await AuthTestUserScope.SignInWithEmailAndPasswordAsync(
+            await using var user = await AuthTestUserScope.SignInOrCreateWithEmailAndPasswordAsync(
                 sut,
                 IntegrationTestUsers.SignOutEmail,
                 deleteOnDispose: false);
@@ -23,7 +23,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         public async Task reloads_current_user()
         {
             var sut = CrossFirebaseAuth.Current;
-            await using var user = await AuthTestUserScope.SignInWithEmailAndPasswordAsync(
+            await using var user = await AuthTestUserScope.SignInOrCreateWithEmailAndPasswordAsync(
                 sut,
                 IntegrationTestUsers.ReloadCurrentUserEmail,
                 deleteOnDispose: false);
@@ -41,7 +41,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         {
             var sut = CrossFirebaseAuth.Current;
             var email = IntegrationTestData.UniqueEmail("reload-user");
-            await using var user = await AuthTestUserScope.SignInWithEmailAndPasswordAsync(sut, email);
+            await using var user = await AuthTestUserScope.CreateWithEmailAndPasswordAsync(sut, email);
             Assert.NotNull(sut.CurrentUser);
 
             var uid = sut.CurrentUser!.Uid;
@@ -66,12 +66,13 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         public async Task deletes_user()
         {
             var sut = CrossFirebaseAuth.Current;
-            var user = await sut.SignInWithEmailAndPasswordAsync(
+            await using var user = await AuthTestUserScope.SignInOrCreateWithEmailAndPasswordAsync(
+                sut,
                 IntegrationTestUsers.DeleteUserEmail,
-                IntegrationTestUsers.DefaultPassword);
+                deleteOnDispose: false);
             Assert.NotNull(sut.CurrentUser);
 
-            await user.DeleteAsync();
+            await user.User.DeleteAsync();
             Assert.Null(sut.CurrentUser);
         }
     }

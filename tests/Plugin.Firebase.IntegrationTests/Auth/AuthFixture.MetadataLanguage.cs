@@ -8,7 +8,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         public async Task sets_language_code()
         {
             var sut = CrossFirebaseAuth.Current;
-            await using var user = await AuthTestUserScope.SignInWithEmailAndPasswordAsync(
+            await using var user = await AuthTestUserScope.SignInOrCreateWithEmailAndPasswordAsync(
                 sut,
                 IntegrationTestUsers.SetLanguageCodeEmail,
                 deleteOnDispose: false);
@@ -25,7 +25,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         {
             var sut = CrossFirebaseAuth.Current;
             var email = IntegrationTestData.UniqueEmail("user-metadata");
-            await using var user = await AuthTestUserScope.SignInWithEmailAndPasswordAsync(sut, email);
+            await using var user = await AuthTestUserScope.CreateWithEmailAndPasswordAsync(sut, email);
 
             Assert.False(string.IsNullOrWhiteSpace(user.User.ProviderId));
             Assert.NotNull(user.User.ProviderInfos);

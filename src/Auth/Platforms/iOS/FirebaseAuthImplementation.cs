@@ -80,27 +80,10 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
     }
 
     /// <inheritdoc/>
-    public async Task<IFirebaseUser> SignInWithEmailAndPasswordAsync(
-        string email,
-        string password,
-        bool createsUserAutomatically = true
-    )
+    public async Task<IFirebaseUser> SignInWithEmailAndPasswordAsync(string email, string password)
     {
-        try {
-            var credential = await _emailAuth.GetCredentialAsync(email, password);
-            return await SignInWithCredentialAsync(credential);
-        } catch(CrossPlatformFirebaseAuthException e)
-            when(createsUserAutomatically && ShouldAttemptCreateUser(e)) {
-            // Firebase iOS SDK 10.18+ returns InvalidCredential (INVALID_LOGIN_CREDENTIALS)
-            // instead of UserNotFound when Email Enumeration Protection is enabled (default).
-            // We attempt user creation for both error codes; if the user actually exists
-            // (wrong password scenario), creation fails and we re-throw the original error.
-            try {
-                return await CreateUserAsync(email, password);
-            } catch(CrossPlatformFirebaseAuthException) {
-                throw e;
-            }
-        }
+        var credential = await _emailAuth.GetCredentialAsync(email, password);
+        return await SignInWithCredentialAsync(credential);
     }
 
     /// <inheritdoc/>
@@ -255,13 +238,6 @@ public sealed class FirebaseAuthImplementation : DisposableBase, IFirebaseAuth
     {
         var handle = _firebaseAuth.AddAuthStateDidChangeListener((_, _) => listener.Invoke(this));
         return new DisposableWithAction(() => _firebaseAuth.RemoveAuthStateDidChangeListener(handle));
-    }
-
-    private static bool ShouldAttemptCreateUser(CrossPlatformFirebaseAuthException exception)
-    {
-        return exception.NativeErrorCode is
-            nameof(AuthErrorCode.UserNotFound) or
-            nameof(AuthErrorCode.InvalidCredential);
     }
 
     private static UIViewController GetViewController()

@@ -25,12 +25,15 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         public async Task signs_in_user_via_email_and_password()
         {
             var sut = CrossFirebaseAuth.Current;
-            await using var user = await AuthTestUserScope.SignInWithEmailAndPasswordAsync(
-                sut,
-                IntegrationTestUsers.SignInWithPasswordEmail,
-                deleteOnDispose: false);
-            Assert.Equal(IntegrationTestUsers.SignInWithPasswordEmail, user.User.Email);
-            Assert.Equal(IntegrationTestUsers.SignInWithPasswordEmail, sut.CurrentUser!.Email);
+            var email = IntegrationTestData.UniqueEmail("email-password-sign-in");
+            await using var createdUser = await AuthTestUserScope.CreateWithEmailAndPasswordAsync(sut, email);
+            await sut.SignOutAsync();
+
+            var user = await sut.SignInWithEmailAndPasswordAsync(email, IntegrationTestUsers.DefaultPassword);
+
+            Assert.Equal(email, user.Email);
+            Assert.Equal(createdUser.User.Uid, user.Uid);
+            Assert.Equal(email, sut.CurrentUser!.Email);
         }
 
 
@@ -53,29 +56,15 @@ namespace Plugin.Firebase.IntegrationTests.Auth
 
 
         [Fact]
-        public async Task sign_in_with_email_and_password_creates_user_automatically()
-        {
-            var sut = CrossFirebaseAuth.Current;
-            var email = IntegrationTestData.UniqueEmail("auto-create-sign-in");
-
-            await using var user = await AuthTestUserScope.SignInWithEmailAndPasswordAsync(sut, email);
-
-            Assert.NotNull(sut.CurrentUser);
-            Assert.Equal(email, user.User.Email);
-            Assert.Equal(email, sut.CurrentUser!.Email);
-            Assert.Equal(user.User.Uid, sut.CurrentUser!.Uid);
-        }
-
-
-        [Fact]
         public async Task throws_error_if_credentials_are_invalid_when_signing_in_user_via_email_and_password()
         {
             var sut = CrossFirebaseAuth.Current;
+            var email = IntegrationTestData.UniqueEmail("wrong-password");
+            await using var user = await AuthTestUserScope.CreateWithEmailAndPasswordAsync(sut, email);
+            await sut.SignOutAsync();
+
             var ex = await Assert.ThrowsAnyAsync<CrossPlatformFirebaseAuthException>(
-                () => sut.SignInWithEmailAndPasswordAsync(
-                    IntegrationTestUsers.SignInWithPasswordEmail,
-                    "000000",
-                    createsUserAutomatically: false)
+                () => sut.SignInWithEmailAndPasswordAsync(email, "000000")
             );
 
             AuthAssertions.NativeAuthExceptionCaptured(ex);
@@ -83,17 +72,17 @@ namespace Plugin.Firebase.IntegrationTests.Auth
 
 
         [Fact]
-        public async Task throws_error_if_user_does_not_exist_and_should_not_be_created_automatically_due_sign_in_via_email_and_password()
+        public async Task throws_error_without_creating_user_if_user_does_not_exist_when_signing_in_via_email_and_password()
         {
             var sut = CrossFirebaseAuth.Current;
             var ex = await Assert.ThrowsAnyAsync<CrossPlatformFirebaseAuthException>(
                 () => sut.SignInWithEmailAndPasswordAsync(
                     IntegrationTestUsers.MissingUserEmail,
-                    IntegrationTestUsers.DefaultPassword,
-                    createsUserAutomatically: false)
+                    IntegrationTestUsers.DefaultPassword)
             );
 
             AuthAssertions.NativeAuthExceptionCaptured(ex);
+            Assert.Null(sut.CurrentUser);
         }
 
 
@@ -188,7 +177,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         {
             var sut = CrossFirebaseAuth.Current;
             var email = IntegrationTestData.UniqueEmail("reauth-email-password");
-            await using var user = await AuthTestUserScope.SignInWithEmailAndPasswordAsync(sut, email);
+            await using var user = await AuthTestUserScope.CreateWithEmailAndPasswordAsync(sut, email);
             var uid = user.User.Uid;
 
             await sut.CurrentUser!.ReauthenticateWithEmailAndPasswordAsync(
@@ -203,14 +192,12 @@ namespace Plugin.Firebase.IntegrationTests.Auth
             await Assert.ThrowsAnyAsync<CrossPlatformFirebaseAuthException>(
                 () => sut.SignInWithEmailAndPasswordAsync(
                     email,
-                    IntegrationTestUsers.DefaultPassword,
-                    createsUserAutomatically: false)
+                    IntegrationTestUsers.DefaultPassword)
             );
 
             var updatedUser = await sut.SignInWithEmailAndPasswordAsync(
                 email,
-                IntegrationTestUsers.UpdatedPassword,
-                createsUserAutomatically: false);
+                IntegrationTestUsers.UpdatedPassword);
             Assert.Equal(uid, updatedUser.Uid);
         }
 
@@ -220,7 +207,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         {
             var sut = CrossFirebaseAuth.Current;
             var email = IntegrationTestData.UniqueEmail("reauth-invalid");
-            await using var user = await AuthTestUserScope.SignInWithEmailAndPasswordAsync(sut, email);
+            await using var user = await AuthTestUserScope.CreateWithEmailAndPasswordAsync(sut, email);
 
             var ex = await Assert.ThrowsAnyAsync<CrossPlatformFirebaseAuthException>(
                 () => sut.CurrentUser!.ReauthenticateWithEmailAndPasswordAsync(email, "000000")

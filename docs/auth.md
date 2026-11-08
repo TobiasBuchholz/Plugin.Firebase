@@ -168,6 +168,7 @@ In v5:
   - Mark `ReloadCurrentUserAsync()` obsolete; use `CurrentUser.ReloadAsync()` after checking `CurrentUser` is not `null`.
   - Add request-based profile updates that distinguish omitted fields, `null`, and empty strings; mark the legacy string overload obsolete.
   - Correct nullable contracts for the current user and native values returned by Firebase.
+  - Set `CrossPlatformFirebaseAuthException.NativeErrorCode` on Android in trimmed (Release) builds, where it was always `null`.
 - Version 5.0.1
   - Fix for wrong Core project version dependency at nuget.org
 - Version 5.0.0

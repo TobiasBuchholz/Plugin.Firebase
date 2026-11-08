@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace Plugin.Firebase.Firestore.Platforms.Android.Extensions;
 
 internal static class TargetTypeConversionExtensions
@@ -17,9 +19,14 @@ internal static class TargetTypeConversionExtensions
         }
 
         if(conversionType.IsEnum) {
+            // Enum.ToObject only accepts integral values, so values stored as doubles go through the underlying type first
+            if(value is double or float or decimal) {
+                value = Convert.ChangeType(value, Enum.GetUnderlyingType(conversionType), CultureInfo.InvariantCulture);
+            }
             return Enum.ToObject(conversionType, value);
         }
 
-        return Convert.ChangeType(value, conversionType);
+        // the invariant culture keeps string <-> number conversions independent of the device locale
+        return Convert.ChangeType(value, conversionType, CultureInfo.InvariantCulture);
     }
 }

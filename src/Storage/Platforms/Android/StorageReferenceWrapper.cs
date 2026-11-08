@@ -46,41 +46,52 @@ public sealed class StorageReferenceWrapper : IStorageReference
 
     public async Task<IStorageMetadata> GetMetadataAsync()
     {
-        return (await _wrapped.GetMetadata().AsAsync<NativeStorageMetadata>()).ToAbstract();
+        var metadata = await StorageExceptionFactory.Wrap(
+            () => _wrapped.GetMetadata().AsAsync<NativeStorageMetadata>()
+        );
+        return metadata.ToAbstract();
     }
 
     public async Task<IStorageMetadata> UpdateMetadataAsync(IStorageMetadata metadata)
     {
-        return (await _wrapped.UpdateMetadata(metadata.ToNative()).AsAsync<NativeStorageMetadata>()).ToAbstract();
+        var updated = await StorageExceptionFactory.Wrap(
+            () => _wrapped.UpdateMetadata(metadata.ToNative()).AsAsync<NativeStorageMetadata>()
+        );
+        return updated.ToAbstract();
     }
 
     public async Task<string> GetDownloadUrlAsync()
     {
-        var uri = await _wrapped.GetDownloadUrlAsync();
+        var uri = await StorageExceptionFactory.Wrap(() => _wrapped.GetDownloadUrlAsync());
         return uri.ToString()
             ?? throw new InvalidOperationException("Firebase Storage returned a null download URL string.");
     }
 
-    public async Task<IStorageListResult> ListAsync(long maxResults)
+    public Task<IStorageListResult> ListAsync(long maxResults)
     {
-        return (await _wrapped.List((int) maxResults).AsAsync<ListResult>()).ToAbstract();
+        if(maxResults is < int.MinValue or > int.MaxValue) {
+            throw new ArgumentOutOfRangeException(nameof(maxResults), maxResults, "The Android SDK requires a 32-bit integer.");
+        }
+        return StorageExceptionFactory.Wrap(
+            async () => (await _wrapped.List((int) maxResults).AsAsync<ListResult>()).ToAbstract()
+        );
     }
 
     public async Task<IStorageListResult> ListAllAsync()
     {
-        return (await _wrapped.ListAll().AsAsync<ListResult>()).ToAbstract();
+        var result = await StorageExceptionFactory.Wrap(() => _wrapped.ListAll().AsAsync<ListResult>());
+        return result.ToAbstract();
     }
 
     public async Task<Stream> GetStreamAsync(long maxSize)
     {
-        var snapshot = await _wrapped.GetStream(new StreamProcessor()).AsAsync<StreamDownloadTask.TaskSnapshot>();
-        return snapshot.Stream
-            ?? throw new InvalidOperationException("Firebase Storage returned a null download stream.");
+        var bytes = await GetBytesAsync(maxSize);
+        return new MemoryStream(bytes, writable: false);
     }
 
     public async Task<byte[]> GetBytesAsync(long maxDownloadSizeBytes)
     {
-        return (byte[]?) await _wrapped.GetBytes(maxDownloadSizeBytes)
+        return (byte[]?) await StorageExceptionFactory.Wrap(async () => await _wrapped.GetBytes(maxDownloadSizeBytes))
             ?? throw new InvalidOperationException("Firebase Storage returned null download data.");
     }
 
@@ -94,7 +105,7 @@ public sealed class StorageReferenceWrapper : IStorageReference
 
     public Task DeleteAsync()
     {
-        return _wrapped.DeleteAsync();
+        return StorageExceptionFactory.Wrap(() => _wrapped.DeleteAsync());
     }
 
     public IStorageReference? Parent => _wrapped.Parent?.ToAbstract();

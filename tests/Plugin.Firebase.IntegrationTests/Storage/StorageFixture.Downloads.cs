@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text;
+using Plugin.Firebase.Core.Exceptions;
 using Plugin.Firebase.Storage;
 
 namespace Plugin.Firebase.IntegrationTests.Storage;
@@ -13,8 +14,12 @@ public sealed partial class StorageFixture
             .Current
             .GetReferenceFromPath("files_to_keep/text_1.txt");
 
-        var stream = await reference.GetStreamAsync(1 * 1024 * 1024);
-        Assert.NotNull(stream);
+        using var stream = await reference.GetStreamAsync(1 * 1024 * 1024);
+        using var contents = new MemoryStream();
+        await stream.CopyToAsync(contents);
+
+        Assert.Equal(34, contents.Length);
+        Assert.Equal(await reference.GetBytesAsync(1 * 1024 * 1024), contents.ToArray());
     }
 
 
@@ -38,7 +43,27 @@ public sealed partial class StorageFixture
             .Current
             .GetReferenceFromPath("files_to_keep/text_1.txt");
 
-        await Assert.ThrowsAnyAsync<Exception>(() => reference.GetBytesAsync(1));
+        var exception = await Assert.ThrowsAsync<CrossPlatformFirebaseStorageException>(
+            () => reference.GetBytesAsync(1)
+        );
+        StorageErrorAssertions.DownloadSizeExceeded(exception);
+    }
+
+    [Fact]
+    public async Task fails_when_stream_download_exceeds_max_size()
+    {
+        var reference = CrossFirebaseStorage
+            .Current
+            .GetReferenceFromPath("files_to_keep/text_1.txt");
+
+        // The object is exactly 34 bytes, so the only difference between these calls is the size limit.
+        using var atLimit = await reference.GetStreamAsync(34);
+        Assert.Equal(34, atLimit.Length);
+
+        var exception = await Assert.ThrowsAsync<CrossPlatformFirebaseStorageException>(
+            () => reference.GetStreamAsync(33)
+        );
+        StorageErrorAssertions.DownloadSizeExceeded(exception);
     }
 
 
@@ -98,16 +123,17 @@ public sealed partial class StorageFixture
         transferTask.AddObserver(StorageTaskStatus.Failure, observer);
 
         try {
-            await Assert.ThrowsAnyAsync<Exception>(
+            var exception = await Assert.ThrowsAsync<CrossPlatformFirebaseStorageException>(
                 () => transferTask.AwaitAsync().WaitForTestAsync(
                     IntegrationTestTimeouts.LongCallback,
                     "missing storage download failure"));
+            StorageErrorAssertions.ObjectNotFound(exception);
             var snapshot = await failure.WaitAsync(
                 IntegrationTestTimeouts.Callback,
                 "storage download failure snapshot");
 
             Assert.NotNull(snapshot);
-            Assert.NotNull(snapshot.Error);
+            StorageErrorAssertions.ObjectNotFound(snapshot.Error);
             Assert.Null(snapshot.Metadata);
         }
         finally {

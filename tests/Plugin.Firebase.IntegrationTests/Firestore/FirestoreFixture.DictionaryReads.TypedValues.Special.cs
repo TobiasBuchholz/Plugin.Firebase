@@ -41,4 +41,33 @@ public sealed partial class FirestoreFixture
         var references = (await referenceDocument.GetDocumentSnapshotAsync<Dictionary<string, IDocumentReference>>()).Data!;
         Assert.Equal(documentReference.Path, references["original"].Path);
     }
+
+    [Fact]
+    public async Task round_trips_datetime_offsets_with_non_zero_utc_offsets()
+    {
+        var sut = CrossFirebaseFirestore.Current;
+        // 2026-01-01 12:00:00 -05:00 is the instant 17:00:00 UTC; a discarded offset would store 12:00 UTC instead.
+        var expected = new DateTimeOffset(2026, 1, 1, 12, 0, 0, TimeSpan.FromHours(-5));
+        // The bounds use a zero offset so a discarded offset on the stored value cannot shift them by the same amount.
+        var lowerBound = new DateTimeOffset(2026, 1, 1, 16, 59, 0, TimeSpan.Zero);
+        var upperBound = new DateTimeOffset(2026, 1, 1, 17, 1, 0, TimeSpan.Zero);
+        var document = GetTestingDocument(sut, "typed-datetime-offset-non-zero-offset");
+
+        await document.SetDataAsync(new Dictionary<object, object?> {
+            { "observed", expected }
+        });
+
+        var typed = (await document.GetDocumentSnapshotAsync<Dictionary<string, DateTimeOffset>>()).Data!;
+        FirestoreAssertions.SameInstant(expected, typed["observed"]);
+
+        var raw = (await document.GetDocumentSnapshotAsync<Dictionary<string, object?>>()).Data!;
+        FirestoreAssertions.SameInstant(expected, Assert.IsType<DateTimeOffset>(raw["observed"]));
+
+        var windowSnapshot = await GetTestingCollection(sut)
+            .WhereGreaterThan("observed", lowerBound)
+            .WhereLessThan("observed", upperBound)
+            .GetDocumentsAsync<Dictionary<string, object?>>();
+        var match = Assert.Single(windowSnapshot.Documents);
+        Assert.Equal(document.Id, match.Reference.Id);
+    }
 }

@@ -31,6 +31,21 @@ internal sealed class EmulatorBackendTheoryAttribute : TheoryAttribute, IIntegra
 }
 
 [AttributeUsage(AttributeTargets.Method)]
+internal sealed class EmulatorBackendIosFactAttribute : FactAttribute, IIntegrationTestCaseMetadata
+{
+    public IntegrationTestBackendRequirement Backend => IntegrationTestBackendRequirement.Emulator;
+
+    public IntegrationTestPlatformRequirement Platform => IntegrationTestPlatformRequirement.Ios;
+
+    public string? OptIn => null;
+
+    public EmulatorBackendIosFactAttribute()
+    {
+        Skip = IntegrationTestSkipPolicy.RequireIos() ?? IntegrationTestSkipPolicy.RequireEmulatorBackend();
+    }
+}
+
+[AttributeUsage(AttributeTargets.Method)]
 internal sealed class RealFirebaseFactAttribute : FactAttribute, IIntegrationTestCaseMetadata
 {
     public IntegrationTestBackendRequirement Backend => IntegrationTestBackendRequirement.Real;

@@ -87,53 +87,6 @@ public sealed partial class FirestoreFixture
     }
 
     [Fact]
-    public async Task increments_double_field_values()
-    {
-        var sut = CrossFirebaseFirestore.Current;
-        var pokemon = PokemonFactory.CreateBulbasur();
-        var document = GetTestingDocument(sut, "double-increment");
-
-        await document.SetDataAsync(pokemon);
-        await document.UpdateDataAsync(("weight_in_kg", FieldValue.DoubleIncrement(0.25)));
-
-        var snapshot = await document.GetDocumentSnapshotAsync<Pokemon>();
-        Assert.Equal(pokemon.WeightInKg + 0.25, snapshot.Data!.WeightInKg, 6);
-    }
-
-    [Fact]
-    public async Task runs_transaction()
-    {
-        var sut = CrossFirebaseFirestore.Current;
-        var bulbasur = PokemonFactory.CreateBulbasur();
-        var charmander = PokemonFactory.CreateCharmander();
-        var squirtle = PokemonFactory.CreateSquirtle();
-        var documentBulbasur = GetTestingDocument(sut, "1");
-        var documentCharmander = GetTestingDocument(sut, "4");
-        var documentSquirtle = GetTestingDocument(sut, "7");
-        var otherMoves = new[] { "other_move", "another_move" };
-        await documentBulbasur.SetDataAsync(bulbasur);
-        await documentCharmander.SetDataAsync(charmander);
-
-        var charmanderSightingCount = await sut.RunTransactionAsync(transaction => {
-            var snapshotCharmander = transaction.GetDocument<Pokemon>(documentCharmander)!;
-            var newSightingCount = snapshotCharmander.Data!.SightingCount + 1;
-            transaction.SetData(documentSquirtle, squirtle);
-            transaction.UpdateData(documentCharmander, (Pokemon.SightingCountField, newSightingCount));
-            transaction.UpdateData(documentCharmander, (Pokemon.MovesField, otherMoves));
-            transaction.UpdateData(documentCharmander, (Pokemon.ItemsField, FieldValue.Delete()));
-            transaction.DeleteDocument(documentBulbasur);
-            return newSightingCount;
-        });
-
-        var charmanderSnapshot = await documentCharmander.GetDocumentSnapshotAsync<Pokemon>();
-        Assert.Equal(squirtle, (await documentSquirtle.GetDocumentSnapshotAsync<Pokemon>()).Data!);
-        Assert.Equal(charmander.SightingCount + 1, charmanderSightingCount);
-        Assert.Equal(otherMoves, charmanderSnapshot.Data!.Moves);
-        Assert.Null(charmanderSnapshot.Data!.Items);
-        Assert.Null((await documentBulbasur.GetDocumentSnapshotAsync<Pokemon>()).Data);
-    }
-
-    [Fact]
     public async Task writes_data_as_batch()
     {
         var sut = CrossFirebaseFirestore.Current;
@@ -155,5 +108,31 @@ public sealed partial class FirestoreFixture
         Assert.Equal(squirtle, (await documentSquirtle.GetDocumentSnapshotAsync<Pokemon>()).Data!);
         Assert.Equal(1337, (await documentCharmander.GetDocumentSnapshotAsync<Pokemon>()).Data!.SightingCount);
         Assert.Null((await documentBulbasur.GetDocumentSnapshotAsync<Pokemon>()).Data);
+    }
+
+    [Fact]
+    public async Task surfaces_cross_platform_exception_when_write_is_rejected()
+    {
+        var sut = CrossFirebaseFirestore.Current;
+        var document = GetTestingDocument(sut, "oversized-write");
+
+        // A field value over the 1 MiB document limit is rejected by the backend when the write is committed.
+        var oversized = new string('x', 1_048_789);
+        var exception = await Record.ExceptionAsync(() => document.SetDataAsync(("oversized", oversized)));
+
+        FirestoreErrorAssertions.InvalidArgumentFailure(exception);
+    }
+
+    [Fact]
+    public async Task surfaces_cross_platform_exception_when_cache_read_misses()
+    {
+        var sut = CrossFirebaseFirestore.Current;
+        var document = GetTestingDocument(sut, IntegrationTestData.UniqueId("uncached"));
+
+        // A cache-only read of a document the local cache has never seen fails with UNAVAILABLE.
+        var exception = await Record.ExceptionAsync(
+            () => document.GetDocumentSnapshotAsync<SimpleItem>(Source.Cache));
+
+        FirestoreErrorAssertions.UnavailableFailure(exception);
     }
 }

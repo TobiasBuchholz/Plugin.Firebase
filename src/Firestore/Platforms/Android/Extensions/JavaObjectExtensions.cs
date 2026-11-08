@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Globalization;
 using Java.Util;
 using Android.Runtime;
 using AndroidX.Collection;
@@ -36,9 +37,9 @@ public static class JavaObjectExtensions
             case Java.Lang.ICharSequence x:
                 return x.ToString();
             case DateTime x:
-                return x.ToJavaDate();
+                return x.ToTimestamp();
             case DateTimeOffset x:
-                return x.ToJavaDate();
+                return x.ToTimestamp();
             case FieldValue x:
                 return x.ToNative();
             case JavaDictionary x:
@@ -111,13 +112,15 @@ public static class JavaObjectExtensions
                 return x.FloatValue().ConvertToTargetType(targetType);
             case Java.Lang.Long x:
                 return x.LongValue().ConvertToTargetType(targetType);
+            // Firestore reads return Timestamp, never java.util.Date. The case stays because ToObject is a public
+            // extension method, and callers can pass it a Date directly.
             case Date x:
                 return x.ToDateTimeOffset();
             case NativeFirebase.Timestamp x:
                 if(targetType == typeof(DateTime))
-                    return x.ToDate().ToDateTime();
+                    return x.ToDateTime();
                 else
-                    return x.ToDate().ToDateTimeOffset();
+                    return x.ToDateTimeOffset();
             case IDictionary x:
                 return x.ToDictionaryObject(targetType);
             case JavaList x:
@@ -214,18 +217,9 @@ public static class JavaObjectExtensions
                     continue;
                 }
 
-                var value = @this[attribute.PropertyName];
-                if(value is null) {
-                    property.SetValue(instance, null);
-                } else if(value is Java.Lang.Object javaValue) {
-                    property.SetValue(instance, javaValue.ToObject(property.PropertyType));
-                } else if(property.PropertyType == typeof(float)) {
-                    property.SetValue(instance, Convert.ToSingle(value));
-                } else if((Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType) == typeof(int)) {
-                    property.SetValue(instance, Convert.ToInt32(value));
-                } else {
-                    property.SetValue(instance, value);
-                }
+                // values that aren't java peers arrive as CTS-mapped CLR types (e.g. long, double), so they still need
+                // to be narrowed to the declared property type; sharing the dictionary path's conversion keeps both identical
+                property.SetValue(instance, ConvertToObject(property.PropertyType, @this[attribute.PropertyName]));
             }
 
             var timestampAttributes = property.GetCustomAttributes(typeof(FirestoreServerTimestampAttribute), true);
@@ -235,7 +229,7 @@ public static class JavaObjectExtensions
                 if(value == null) {
                     Debug.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because value is null");
                 } else if(property.PropertyType == typeof(DateTimeOffset) && value is NativeFirebase.Timestamp timestamp) {
-                    property.SetValue(instance, timestamp.ToDate().ToDateTimeOffset());
+                    property.SetValue(instance, timestamp.ToDateTimeOffset());
                 } else {
                     Debug.WriteLine($"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because properties that use the {nameof(FirestoreServerTimestampAttribute)} need to be of type {nameof(DateTimeOffset)} and value of type {nameof(NativeFirebase.Timestamp)}");
                 }
@@ -253,7 +247,7 @@ public static class JavaObjectExtensions
         } else if(conversionType == typeof(string)) {
             return value is Java.Lang.ICharSequence charSequence
                 ? charSequence.ToString()
-                : value.ToString();
+                : Convert.ToString(value, CultureInfo.InvariantCulture);
         } else if(value is IDictionary dictionary) {
             return dictionary.ToDictionaryObject(targetType);
         } else if(value is Java.Lang.Object javaValue) {

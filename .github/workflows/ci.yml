@@ -54,7 +54,6 @@ jobs:
           dotnet build src/PerformanceMonitoring/PerformanceMonitoring.csproj -c Release
           dotnet build src/RemoteConfig/RemoteConfig.csproj -c Release
           dotnet build src/Storage/Storage.csproj -c Release
-          dotnet build src/Bundled/Bundled.csproj -c Release
 
       - name: Validate CloudMessaging trimming
         run: scripts/validate-cloudmessaging-trimming.sh

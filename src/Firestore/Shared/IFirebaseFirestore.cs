@@ -29,6 +29,38 @@ public interface IFirebaseFirestore : IDisposable
     /// <summary>
     /// Executes the given updateBlock and then attempts to commit the changes applied within an atomic transaction.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <paramref name="updateFunc"/> may run more than once when the transaction is retried, so it should not change state
+    /// outside the transaction. Throwing from <paramref name="updateFunc"/> aborts the transaction without committing any of
+    /// its writes and faults the returned task with a <see cref="Plugin.Firebase.Core.Exceptions.FirebaseException"/> whose
+    /// <see cref="Exception.InnerException"/> is the exception thrown by <paramref name="updateFunc"/>, on both platforms.
+    /// </para>
+    /// <para>
+    /// A <see cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseFirestoreException"/> that the plugin raised for a
+    /// native Firestore error, for example from a failed <see cref="ITransaction.GetDocument{T}"/>, is instead handed back to
+    /// the native SDK when <paramref name="updateFunc"/> lets it propagate. Its <see cref="Exception.InnerException"/> is
+    /// the native <c>FirebaseFirestoreException</c> on Android, or the <c>NSErrorException</c> for a
+    /// <c>FIRFirestoreErrorDomain</c> error on iOS. The native SDK applies its transaction retry rules to that error on both
+    /// platforms. If the error is retryable, such as <c>ABORTED</c> because a document changed between two reads, the
+    /// transaction is retried and <paramref name="updateFunc"/> runs again. Otherwise, or once no retries are left, the
+    /// returned task faults with a <see cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseFirestoreException"/> for
+    /// the same native error; it isn't wrapped again. On Android the same applies to a native
+    /// <c>FirebaseFirestoreException</c> that <paramref name="updateFunc"/> throws directly.
+    /// </para>
+    /// <para>
+    /// Only the exception thrown by <paramref name="updateFunc"/> is checked, not its
+    /// <see cref="Exception.InnerException"/>: an exception of your own that wraps a failed read aborts the transaction
+    /// without a retry, like any other exception. A
+    /// <see cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseFirestoreException"/> that doesn't carry a native
+    /// Firestore error, for example one you construct yourself, also aborts the transaction without a retry, and the
+    /// returned task faults with it unchanged.
+    /// </para>
+    /// <para>
+    /// When the native SDK fails the transaction itself, for example because the backend rejects the commit, the returned
+    /// task also faults with a <see cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseFirestoreException"/>.
+    /// </para>
+    /// </remarks>
     /// <param name="updateFunc">The func to execute within the transaction context.</param>
     /// <typeparam name="TResult">The type of the result returned by updateFunc.</typeparam>
     /// <returns></returns>

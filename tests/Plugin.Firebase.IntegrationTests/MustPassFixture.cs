@@ -31,27 +31,25 @@ public class MustPassFixture
         Assert.True(CrossFirebaseStorage.IsSupported);
         Assert.True(CrossFirebaseRemoteConfig.IsSupported);
         Assert.True(CrossFirebaseAppCheck.IsSupported);
-        CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled);
 
         if(OperatingSystem.IsAndroid()) {
             Assert.Throws<NotSupportedException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.DeviceCheck));
             Assert.Throws<NotSupportedException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.AppAttest));
-            CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
+            // Android cannot remove a provider factory, so finish on Debug for the rest of the run.
             CrossFirebaseAppCheck.Configure(AppCheckOptions.PlayIntegrity);
+            CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
         }
 
         if(OperatingSystem.IsIOS()) {
-            CrossFirebaseAppCheck.Configure(AppCheckOptions.PlayIntegrity);
-            CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
-            CrossFirebaseAppCheck.Configure(AppCheckOptions.DeviceCheck);
-            CrossFirebaseAppCheck.Configure(AppCheckOptions.AppAttest);
+            // iOS can't change the provider after initialization, so only check the unsupported provider.
+            Assert.Throws<NotSupportedException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.PlayIntegrity));
         }
     }
 
     [RealFirebaseOptInFact(IntegrationTestEnvironment.RunAppCheckTokenTestsEnvironmentVariableName)]
     public async Task fetches_app_check_token_when_enabled_via_environment()
     {
-        CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
+        // With token tests enabled, the harness configures the Debug provider before CrossFirebase.Initialize().
         var token = await CrossFirebaseAppCheck.GetTokenAsync(forceRefresh: true);
 
         Assert.False(string.IsNullOrWhiteSpace(token));

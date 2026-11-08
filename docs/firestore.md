@@ -131,8 +131,22 @@ and `RunTransactionAsync` throws a `FirebaseException` whose `InnerException` is
 `CrossPlatformFirebaseFirestoreException` that doesn't carry a native Firestore error, for example one you construct
 yourself, also aborts the transaction without a retry, and `RunTransactionAsync` throws it unchanged.
 
-### Writing dates
+The update function must be synchronous: the native SDKs commit the transaction as soon as it returns, so an `async`
+update function would commit only the writes made before its first `await`. `RunTransactionAsync` throws an
+`ArgumentException` before the transaction starts when `TResult` is `Task`, `ValueTask` or `ValueTask<T>`, which the
+compiler infers for an `async` lambda. If the update function returns a task through another `TResult`, such as
+`object`, the transaction is aborted without committing and `RunTransactionAsync` throws that `ArgumentException`.
+The code after the first `await` of such an update function still runs, outside the transaction: its writes are
+silently discarded, and an exception it throws is never observed. Custom task-like types and awaitables such as
+`ConfiguredTaskAwaitable` aren't detected, so don't return those either. Do asynchronous work before or after the
+transaction.
 
+`RunTransactionAsync` returns the value that the update function returned in the attempt that committed, as-is: the
+same instance, never converted to or from a Firestore value. A lazily evaluated result, such as a LINQ query over
+transactional reads, is enumerated only after the transaction has finished, as with the native SDKs, so materialize it
+inside the update function, for example with `ToList()`, if it depends on the transaction.
+
+### Writing dates
 
 Firestore stores dates as instants. A `DateTimeOffset` always identifies one. A `DateTime` must have `DateTimeKind.Utc` or `DateTimeKind.Local` and is stored as its UTC instant; writing one with `DateTimeKind.Unspecified`, such as `default(DateTime)`, throws `ArgumentException`. Use `DateTime.SpecifyKind` to say which time zone such a value is in. Dates are read back in UTC.
 
@@ -177,11 +191,12 @@ Firestore methods and snapshot listeners expose native Firebase failures as `Cro
 
 On iOS, `RunTransactionAsync` now also retries the transaction after a retryable Firestore error raised inside the update function, when the update function lets it propagate. An example is `ABORTED` from an `ITransaction.GetDocument` that finds the document changed since an earlier read in the same transaction. iOS already re-ran the update function after a retryable commit failure, such as contention with another write; now the native SDK's retry rules decide for errors raised inside the update function too, as they already do on Android. Previously iOS never retried the transaction after such an error. Make sure the update function doesn't change state outside the transaction.
 
+### Unspecified date migration
+
 Writing a `DateTime` whose `Kind` is `DateTimeKind.Unspecified` now throws `ArgumentException` on both platforms. Such a value could be UTC or local time, and the platforms disagreed: Android stored it as local time and iOS stored it as UTC, so the same value became a different instant on each platform unless the device ran in UTC. `Utc` and `Local` values are still stored as their UTC instant, and `DateTimeOffset` values are unaffected.
 
 - The check applies wherever Firestore converts a value: `SetDataAsync` with or without `SetOptions`, `UpdateDataAsync`, batch and transaction writes, `IFirestoreObject` properties, list elements, `FieldValue.ArrayUnion` and `FieldValue.ArrayRemove` elements, query filter values and cursor values.
 - In a transaction, `ITransaction.SetData` and `UpdateData` throw inside the update function, so `RunTransactionAsync` fails as it does for any exception thrown there: nothing is committed, and the `ArgumentException` is the `InnerException` of the exception it throws rather than the exception itself.
-- Returning an Unspecified `DateTime` from the update function also fails the transaction for now, because the result is converted to a native value and back. #740 removes that conversion.
 - `default(DateTime)` and `DateTime.MinValue` are Unspecified, so a `DateTime` property that was never set now throws. Set it, or make the property `DateTime?` or `DateTimeOffset?` if "not set" should be stored and read back as null.
 - Typed reads into `DateTime?`, in models and in typed dictionaries such as `Dictionary<string, DateTime?>`, now return a UTC `DateTime`. Previously they threw, because a `DateTimeOffset` came back.
 - Common sources of Unspecified values:
@@ -203,6 +218,16 @@ await document.SetDataAsync(("due", dueDate));
 await document.SetDataAsync(("due", DateTime.SpecifyKind(dueDate, DateTimeKind.Local)));
 await document.SetDataAsync(("due", new DateTimeOffset(dueDate, TimeSpan.FromHours(-5))));
 ```
+
+### Transaction result migration
+
+`RunTransactionAsync` returns the update function’s result directly on both platforms. Earlier releases converted it through the native SDK.
+
+- The result is the same instance that the update function returned. It's no longer deep-copied or normalized through `NSNumber`, `java.lang.Integer` and the other native types. For example, `RunTransactionAsync<object>(_ => 5)` used to return the number as read back from the native value, `RunTransactionAsync<object>(_ => DateTime.UtcNow)` returned a `DateTimeOffset`, and an `IFirestoreObject` came back as a new instance without its `[FirestoreDocumentId]` value.
+- Results that the conversion couldn't handle now work. A `DateTime` or array `TResult` used to throw after the writes had been committed. Results such as records, tuples or `HashSet<T>` made the conversion fail inside the update function, which aborted the transaction on Android; on iOS the writes were committed and `RunTransactionAsync` threw afterwards.
+- A lazily evaluated result, such as a LINQ query, is returned as-is too, so it's enumerated only after the transaction has finished. Materialize it inside the update function, for example with `ToList()`, if it reads from the transaction.
+- An `async` update function, or one that returns a task through an `object` result, now makes `RunTransactionAsync` throw `ArgumentException` without committing (see [Error handling](#error-handling)). Previously the conversion failed on the task inside the update function. On Android that aborted the transaction, and `RunTransactionAsync` threw the native task's `Java.Lang.RuntimeException`. On iOS the failure didn't abort the transaction, so the writes made before the first `await` were committed, and `RunTransactionAsync` then threw a `FirebaseException` carrying the conversion error's message.
+- On Android, `Plugin.Firebase.Firestore.Platforms.Android.TransactionFunction<TResult>` is now internal. It was an implementation detail of `RunTransactionAsync`; call `RunTransactionAsync` instead.
 
 ## Release notes
 - Version 3.1.3

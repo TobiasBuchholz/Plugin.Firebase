@@ -26,7 +26,7 @@ public sealed class CollectionReferenceWrapper : QueryWrapper, ICollectionRefere
 
     public async Task<IDocumentReference> AddDocumentAsync(object data)
     {
-        var documentReference = (DocumentReference) await _wrapped.Add(data.ToHashMap());
+        var documentReference = await FirestoreExceptionFactory.Wrap(() => _wrapped.Add(data.ToHashMap()).AsAsync<DocumentReference>());
         return new DocumentReferenceWrapper(documentReference);
     }
 

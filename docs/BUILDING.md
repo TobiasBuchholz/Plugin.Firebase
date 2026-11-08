@@ -337,6 +337,7 @@ Required functions:
 | `createCustomToken` | `https.onCall` | Emulator-only helper that mints custom tokens for Auth acceptance tests; it rejects non-emulator calls and must not be deployed as a real token-minting endpoint |
 | `echoAuthContext` | `https.onCall` | Verifies callable auth context propagation |
 | `throwStructuredError` | `https.onCall` | Verifies callable error propagation |
+| `echoRequestData` | `https.onCall` | Echoes callable request data to verify object, array, scalar, and null request payloads |
 | `regionalPing` | `https.onCall`, `southamerica-east1` | Verifies configured Functions regions |
 | `addMessage` | `https.onRequest` | Writes to Firestore `messages` collection |
 | `makeUppercase` | `firestore.onCreate` | Triggered on `/messages/{documentId}` |
@@ -496,7 +497,7 @@ This typically occurs due to a mismatch between your .NET workload version and i
 # Download from https://dotnet.microsoft.com/download or use a version manager
 
 # Update workloads to the matching version
-sudo dotnet workload update --version 10.0.302.1
+sudo dotnet workload update --version 10.0.401
 sudo dotnet workload restore
 ```
 

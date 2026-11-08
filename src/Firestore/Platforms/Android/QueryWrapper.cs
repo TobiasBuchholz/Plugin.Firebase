@@ -1,6 +1,5 @@
 using Android.Gms.Extensions;
 using Android.Runtime;
-using Firebase;
 using Firebase.Firestore;
 using Plugin.Firebase.Core;
 using Plugin.Firebase.Firestore.Platforms.Android.Extensions;
@@ -159,7 +158,7 @@ public class QueryWrapper : IQuery
 
     public async Task<IQuerySnapshot<T>> GetDocumentsAsync<T>(Source source = Source.Default)
     {
-        var querySnapshot = (QuerySnapshot) await _wrapped.Get(source.ToNative());
+        var querySnapshot = await FirestoreExceptionFactory.Wrap(() => _wrapped.Get(source.ToNative()).AsAsync<QuerySnapshot>());
         return new QuerySnapshotWrapper<T>(querySnapshot);
     }
 
@@ -172,7 +171,7 @@ public class QueryWrapper : IQuery
         var registration = _wrapped
             .AddSnapshotListener(includeMetaDataChanges ? MetadataChanges.Include : MetadataChanges.Exclude, new EventListener(
                 x => onChanged(new QuerySnapshotWrapper<T>(x.JavaCast<QuerySnapshot>())),
-                e => onError?.Invoke(new FirebaseException(e.LocalizedMessage ?? "Unknown error", e))));
+                e => onError?.Invoke(FirestoreExceptionFactory.Create(e))));
         return new DisposableWithAction(registration.Remove);
     }
 }

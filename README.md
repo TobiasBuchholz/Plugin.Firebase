@@ -50,7 +50,7 @@ This plugin is a thin wrapper around the native Firebase binding packages, which
 
 1. Create a Firebase project in the [Firebase Console](https://console.firebase.google.com/), if you don't already have one. If you already have an existing Google project associated with your mobile app, click **Import Google Project**. Otherwise, click **Create New Project**.
 2. Click **Add Firebase to your *[iOS|Android]* app** and follow the setup steps. If you're importing an existing Google project, this may happen automatically and you can just download the config file.
-3. Add `[GoogleService-Info.plist|google-services.json]` file to your app project.
+3. Add `[GoogleService-Info.plist|google-services.json]` file to your app project. On iOS, put `GoogleService-Info.plist` in the project root or in `Platforms/iOS/Resources/`, not directly in `Platforms/iOS/` (see [Troubleshooting](#ios-could-not-find-a-valid-googleservice-infoplist)).
 4. Set `[GoogleService-Info.plist|google-services.json]` **build action** behaviour to `[Bundle Resource|GoogleServicesJson]` by Right clicking/Build Action.
 5. **IMPORTANT (iOS only)** Check the Readme at [AdamEssenmacher/GoogleApisForiOSComponents](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents) for additional setup steps that are required.
 6. Additional setup instructions for individual components (e.g. Auth, Analytics, Firestore, etc.) are linked in the above table.
@@ -110,6 +110,8 @@ To get started add the `GoogleService-Info.plist` and the `google-services.json`
     <BundleResource Include="GoogleService-Info.plist" />
 </ItemGroup>
 ```
+
+If initialization on iOS fails because Firebase could not find a valid `GoogleService-Info.plist`, see [Troubleshooting](#ios-could-not-find-a-valid-googleservice-infoplist).
 
 Initialize the plugin in your `MauiProgram.cs` like this:
 
@@ -192,6 +194,32 @@ For example the [`Plugin.Firebase.IntegrationTests`](https://github.com/TobiasBu
 ## Troubleshooting
 ### Windows + Visual Studio + iOS long path issue
 Visual Studio and Windows both have issues with long paths. The issue is explained (along with best-known workarounds) [here](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents?tab=readme-ov-file#windows--visual-studio-long-path-issue).
+
+### iOS: could not find a valid GoogleService-Info.plist
+If startup fails with `` `FirebaseApp.configure()` could not find a valid GoogleService-Info.plist in your project ``, Firebase did not find a readable `GoogleService-Info.plist` at the root of the app bundle. The device log shows which case it is: `I-COR000012` means the file was not found, and `I-COR000011` means it was found but is not a valid plist dictionary. These lines may not appear in your IDE's output; look in Console.app (select the device or simulator), or for a simulator run `xcrun simctl spawn booted log stream`. A `BUNDLE_ID` mismatch does not cause this error; it is logged separately as `I-COR000008`.
+
+The file in the bundle must be named exactly `GoogleService-Info.plist`, including case. A browser download renamed to `GoogleService-Info (1).plist`, or a casing difference, gives `I-COR000012` even when the file is at the bundle root. Don't rely on the simulator to catch a casing difference: the Mac's file system is usually case-insensitive, while a device's is case-sensitive.
+
+Either of these setups embeds the file at the bundle root:
+- Keep the file in the project root folder and include it with `<BundleResource Include="GoogleService-Info.plist" />`, as shown in [MAUI Project Configuration](#maui-project-configuration). Having the file in the folder is not enough on its own.
+- Put the file in `Platforms/iOS/Resources/`. MAUI single projects include that folder as bundle resources automatically and drop the `Platforms/iOS/Resources/` prefix, so no `.csproj` entry is needed. If you move the file there, remove the root `<BundleResource>` entry: a leftover entry fails the build once the root file is gone, or triggers warning `MT7156` if a second copy remains.
+
+A common mistake is keeping the file in `Platforms/iOS/` and adding `<BundleResource Include="Platforms/iOS/GoogleService-Info.plist" />`. That embeds it as `Platforms/iOS/GoogleService-Info.plist` inside the bundle, where Firebase does not look. Either move the file to one of the locations above, or set `LogicalName` so it is embedded at the root:
+
+```xml
+<BundleResource Include="Platforms/iOS/GoogleService-Info.plist" LogicalName="GoogleService-Info.plist" />
+```
+
+To check the result, build the app and look inside `bin/<Configuration>/net10.0-ios/<RuntimeIdentifier>/<AssemblyName>.app/`, for example `bin/Debug/net10.0-ios/iossimulator-arm64/MyApp.app/` for a simulator build (`ios-arm64` for a device build). `GoogleService-Info.plist`, with exactly that name, must be directly in that folder, not in a subfolder.
+
+### iOS NativeAOT (`PublishAot`)
+As of .NET 10 and the AdamE Firebase iOS bindings 12.x, Native AOT needs the trimmer to process the `Firebase.*` binding assemblies. While linking, the iOS SDK rewrites their block code (completion handlers and listeners) so it no longer needs the dynamic registrar, which Native AOT removes. `PublishAot` only takes effect when publishing (for example an archive for TestFlight), so Debug and plain `dotnet build` runs don't show the problem. See [#715](https://github.com/TobiasBuchholz/Plugin.Firebase/issues/715).
+
+- Leave `MtouchLink` and `TrimMode` unset so the SDK links every assembly. An explicit `TrimMode`, even `full`, makes the SDK warn that all assemblies must be processed by the linker.
+- Don't use `MtouchLink=SdkOnly`/`None`, `TrimMode=partial`, or a per-assembly `TrimMode=copy` on a `Firebase.*` assembly: these leave the binding assemblies unprocessed. Rooting them with `TrimmerRootAssembly` is fine.
+- Symptoms of an unprocessed binding assembly: the build warns `MT2387: It's not safe to remove the dynamic registrar, because Firebase.<Name> references 'ObjCRuntime.BlockLiteral..ctor ...'`, and at runtime any call that passes a block throws `System.Diagnostics.UnreachableException` from `BlockLiteral.FindTrampoline`. That includes `SubscribeToTopicAsync` and listeners such as `AddAuthStateListener` and `AddSnapshotListener`, which apps often register at startup.
+- Reflection-based code isn't trim-safe either: Firestore's model mapping is not currently compatible with full trimming or Native AOT (see the [Firestore docs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/docs/firestore.md)), and Functions `CallAsync<TResponse>` deserializes the response with reflection-based `System.Text.Json`.
+- If you can't meet these requirements, remove `PublishAot`. iOS Release builds then use Mono, whose default `SdkOnly` link mode leaves the binding assemblies untrimmed, and the SDK keeps the dynamic registrar for them.
 
 ## Contributions
 

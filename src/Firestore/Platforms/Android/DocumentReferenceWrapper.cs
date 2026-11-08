@@ -21,18 +21,18 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
     public async Task SetDataAsync(object data, SetOptions? options = null)
     {
         if(options == null) {
-            await Wrapped.Set(data.ToHashMap());
+            await FirestoreExceptionFactory.Wrap(() => Wrapped.Set(data.ToHashMap()).AsAsync());
         } else {
-            await Wrapped.Set(data.ToHashMap(), options.ToNative());
+            await FirestoreExceptionFactory.Wrap(() => Wrapped.Set(data.ToHashMap(), options.ToNative()).AsAsync());
         }
     }
 
     public async Task SetDataAsync(Dictionary<object, object?> data, SetOptions? options = null)
     {
         if(options == null) {
-            await Wrapped.Set(data.ToHashMap());
+            await FirestoreExceptionFactory.Wrap(() => Wrapped.Set(data.ToHashMap()).AsAsync());
         } else {
-            await Wrapped.Set(data.ToHashMap(), options.ToNative());
+            await FirestoreExceptionFactory.Wrap(() => Wrapped.Set(data.ToHashMap(), options.ToNative()).AsAsync());
         }
     }
 
@@ -48,17 +48,17 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
 
     public async Task UpdateDataAsync(Dictionary<object, object?> data)
     {
-        await Wrapped.Update(data.ToJavaObjectDictionary());
+        await FirestoreExceptionFactory.Wrap(() => Wrapped.Update(data.ToJavaObjectDictionary()).AsAsync());
     }
 
     public async Task UpdateDataAsync(params (string, object?)[] data)
     {
-        await Wrapped.Update(data.ToJavaObjectDictionary());
+        await FirestoreExceptionFactory.Wrap(() => Wrapped.Update(data.ToJavaObjectDictionary()).AsAsync());
     }
 
     public async Task DeleteDocumentAsync()
     {
-        await Wrapped.Delete();
+        await FirestoreExceptionFactory.Wrap(() => Wrapped.Delete().AsAsync());
     }
 
     public Task<IDocumentSnapshot<T>> GetDocumentSnapshotAsync<T>(Source source = Source.Default)
@@ -75,7 +75,9 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
                         tcs.SetException(new FirebaseException("Unknown error"));
                     }
                 } else if(task.Exception is not null) {
-                    tcs.SetException(task.Exception);
+                    tcs.SetException(FirestoreExceptionFactory.IsNativeFirestoreException(task.Exception)
+                        ? FirestoreExceptionFactory.Create(task.Exception)
+                        : task.Exception);
                 } else {
                     tcs.SetException(new FirebaseException("Unknown error"));
                 }
@@ -95,7 +97,7 @@ public sealed class DocumentReferenceWrapper : IDocumentReference
         var registration = Wrapped
             .AddSnapshotListener(includeMetaDataChanges ? MetadataChanges.Include : MetadataChanges.Exclude, new EventListener(
                 x => onChanged(x.JavaCast<DocumentSnapshot>().ToAbstract<T>()),
-                e => onError?.Invoke(new FirebaseException(e.LocalizedMessage ?? "Unknown error", e))));
+                e => onError?.Invoke(FirestoreExceptionFactory.Create(e))));
         return new DisposableWithAction(registration.Remove);
     }
 

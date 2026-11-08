@@ -104,6 +104,19 @@ public sealed class FirebaseCloudMessagingImplementation
     /// <summary>
     /// Handles notification presentation when the app is in the foreground.
     /// </summary>
+    /// <remarks>
+    /// Raises <see cref="NotificationReceived"/>, then calls <paramref name="completionHandler"/> exactly once.
+    /// The presentation options are chosen after the subscribers return, so a subscriber can still set
+    /// <c>is_silent_in_foreground</c> in <see cref="FCMNotification.Data"/>. Check <see cref="FCMNotification.Data"/>
+    /// for <see langword="null"/> first: it is null when the payload has no alert or <c>notification</c> dictionary,
+    /// for example for local notifications, and such a notification can't be marked silent this way.
+    /// A silent notification completes with <see cref="UNNotificationPresentationOptions.None"/>; any other
+    /// notification completes with <see cref="UNNotificationPresentationOptions.Banner"/>,
+    /// <see cref="UNNotificationPresentationOptions.List"/> and <see cref="UNNotificationPresentationOptions.Sound"/>.
+    /// If a subscriber or the conversion throws, the completion handler is still called with these options, so the
+    /// notification is shown unless it was marked silent before the throw. The exception then propagates out of
+    /// this method.
+    /// </remarks>
     /// <param name="center">The notification center.</param>
     /// <param name="notification">The notification being presented.</param>
     /// <param name="completionHandler">The completion handler to call with presentation options.</param>
@@ -114,22 +127,35 @@ public sealed class FirebaseCloudMessagingImplementation
         Action<UNNotificationPresentationOptions> completionHandler
     )
     {
-        var fcmNotification = notification.ToFCMNotification();
-        OnNotificationReceived(fcmNotification);
-        if(!fcmNotification.IsSilentInForeground) {
-            if(OperatingSystem.IsIOSVersionAtLeast(14)) {
-                completionHandler(
-                    UNNotificationPresentationOptions.Banner
-                        | UNNotificationPresentationOptions.List
-                        | UNNotificationPresentationOptions.Sound
-                );
-            } else {
-                completionHandler(
-                    UNNotificationPresentationOptions.Alert
-                        | UNNotificationPresentationOptions.Sound
-                );
-            }
+        CompleteForegroundNotification(() => notification.ToFCMNotification(), completionHandler);
+    }
+
+    internal void CompleteForegroundNotification(
+        Func<FCMNotification> getNotification,
+        Action<UNNotificationPresentationOptions> completionHandler
+    )
+    {
+        FCMNotification fcmNotification = null;
+        try {
+            fcmNotification = getNotification();
+            OnNotificationReceived(fcmNotification);
         }
+        finally {
+            // the delegate contract requires completing exactly once on every path; reading the
+            // options here lets subscribers mark the notification silent before it is presented
+            completionHandler(GetPresentationOptions(fcmNotification));
+        }
+    }
+
+    private static UNNotificationPresentationOptions GetPresentationOptions(
+        FCMNotification notification
+    )
+    {
+        return notification?.IsSilentInForeground == true
+            ? UNNotificationPresentationOptions.None
+            : UNNotificationPresentationOptions.Banner
+                | UNNotificationPresentationOptions.List
+                | UNNotificationPresentationOptions.Sound;
     }
 
     /// <summary>
@@ -144,6 +170,15 @@ public sealed class FirebaseCloudMessagingImplementation
     /// <summary>
     /// Handles the user's response to a notification (e.g., tapping on it).
     /// </summary>
+    /// <remarks>
+    /// Raises <see cref="NotificationTapped"/>, or keeps the notification until the first subscriber is added,
+    /// then calls <paramref name="completionHandler"/> exactly once. If a subscriber throws, the completion
+    /// handler is still called and the exception then propagates out of this method.
+    /// On both paths, <see cref="FCMNotification.Data"/> carries the response's
+    /// <see cref="UNNotificationResponse.ActionIdentifier"/> under the <c>ActionIdentifier</c> key, replacing a
+    /// sender-supplied value with that key. A notification without <see cref="FCMNotification.Data"/> is raised
+    /// as a copy whose data holds only that entry.
+    /// </remarks>
     /// <param name="center">The notification center.</param>
     /// <param name="response">The user's response to the notification.</param>
     /// <param name="completionHandler">The completion handler to call when processing is complete.</param>
@@ -154,18 +189,60 @@ public sealed class FirebaseCloudMessagingImplementation
         Action completionHandler
     )
     {
-        if(_notificationTapped == null) {
-            _missedTappedNotification = response.Notification.ToFCMNotification();
-        } else {
-            var notification = response.Notification.ToFCMNotification();
-            var actionId = response.ActionIdentifier?.ToString();
-            if(!string.IsNullOrEmpty(actionId)) {
-                notification.Data[nameof(response.ActionIdentifier)] = actionId;
+        CompleteNotificationResponse(
+            () => response.Notification.ToFCMNotification(),
+            () => response.ActionIdentifier?.ToString(),
+            completionHandler
+        );
+    }
+
+    internal void CompleteNotificationResponse(
+        Func<FCMNotification> getNotification,
+        Func<string> getActionIdentifier,
+        Action completionHandler
+    )
+    {
+        try {
+            // enrich with the action before choosing immediate or deferred delivery, so a
+            // response arriving before any subscriber keeps its ActionIdentifier too
+            var notification = WithActionIdentifier(getNotification(), getActionIdentifier());
+
+            if(_notificationTapped == null) {
+                _missedTappedNotification = notification;
+            } else {
+                _notificationTapped.Invoke(this, new FCMNotificationTappedEventArgs(notification));
             }
-            _notificationTapped.Invoke(this, new FCMNotificationTappedEventArgs(notification));
+        }
+        finally {
+            // the delegate contract requires completing exactly once, even if a subscriber throws
+            completionHandler();
+        }
+    }
+
+    private static FCMNotification WithActionIdentifier(
+        FCMNotification notification,
+        string actionIdentifier
+    )
+    {
+        if(string.IsNullOrEmpty(actionIdentifier)) {
+            return notification;
         }
 
-        completionHandler();
+        const string key = nameof(UNNotificationResponse.ActionIdentifier);
+        if(notification.Data == null) {
+            // userInfo whose aps dictionary has no alert, or that has neither an aps nor a notification
+            // dictionary (such as a local notification), converts to FCMNotification.Empty(), whose Data is
+            // null and has no setter; copy it with a dictionary so the action is not dropped
+            return new FCMNotification(
+                notification.Body,
+                notification.Title,
+                notification.ImageUrl,
+                new Dictionary<string, string> { { key, actionIdentifier } }
+            ) { ChannelId = notification.ChannelId };
+        }
+
+        notification.Data[key] = actionIdentifier;
+        return notification;
     }
 
     /// <summary>

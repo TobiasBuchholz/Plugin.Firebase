@@ -41,18 +41,15 @@ public class MustPassFixture
         }
 
         if(OperatingSystem.IsIOS()) {
-            CrossFirebaseAppCheck.Configure(AppCheckOptions.Disabled);
-            CrossFirebaseAppCheck.Configure(AppCheckOptions.PlayIntegrity);
-            CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
-            CrossFirebaseAppCheck.Configure(AppCheckOptions.DeviceCheck);
-            CrossFirebaseAppCheck.Configure(AppCheckOptions.AppAttest);
+            // iOS can't change the provider after initialization, so only check the unsupported provider.
+            Assert.Throws<NotSupportedException>(() => CrossFirebaseAppCheck.Configure(AppCheckOptions.PlayIntegrity));
         }
     }
 
     [RealFirebaseOptInFact(IntegrationTestEnvironment.RunAppCheckTokenTestsEnvironmentVariableName)]
     public async Task fetches_app_check_token_when_enabled_via_environment()
     {
-        CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
+        // With token tests enabled, the harness configures the Debug provider before CrossFirebase.Initialize().
         var token = await CrossFirebaseAppCheck.GetTokenAsync(forceRefresh: true);
 
         Assert.False(string.IsNullOrWhiteSpace(token));

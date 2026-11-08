@@ -1,4 +1,5 @@
 using JavaThrowable = Java.Lang.Throwable;
+using NativeFirebaseAuthException = Firebase.Auth.FirebaseAuthException;
 using NativeFirebaseException = Firebase.FirebaseException;
 using Plugin.Firebase.Core.Exceptions;
 
@@ -53,12 +54,10 @@ internal static class FirebaseAuthExceptionFactory
             : canonicalName;
     }
 
+    // Direct cast, not reflection: reflection loses ErrorCode in trimmed (Release) builds.
     private static string? GetNativeErrorCode(Exception exception)
     {
-        var errorCode = exception
-            .GetType()
-            .GetProperty("ErrorCode")?
-            .GetValue(exception) as string;
+        var errorCode = (exception as NativeFirebaseAuthException)?.ErrorCode;
 
         return string.IsNullOrEmpty(errorCode)
             ? null

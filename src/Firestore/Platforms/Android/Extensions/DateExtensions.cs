@@ -61,8 +61,10 @@ public static class DateExtensions
     /// </summary>
     /// <remarks>
     /// <see cref="DateTimeKind.Local"/> and <see cref="DateTimeKind.Utc"/> values convert through their UTC
-    /// instant. <see cref="DateTimeKind.Unspecified"/> values are read as local time.
+    /// instant. <see cref="DateTimeKind.Unspecified"/> values throw, as they do on iOS, because they could be
+    /// UTC or local time.
     /// </remarks>
+    /// <exception cref="ArgumentException"><paramref name="this"/> has <see cref="DateTimeKind.Unspecified"/>.</exception>
     internal static Timestamp ToTimestamp(this DateTime @this)
     {
         var (seconds, nanoseconds) = TimestampConversion.ToUnixSecondsAndNanoseconds(@this);

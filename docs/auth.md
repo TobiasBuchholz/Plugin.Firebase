@@ -178,6 +178,20 @@ In v5:
 
 ## Next-release migration notes
 
+`SignInWithEmailAndPasswordAsync(email, password)` no longer has a `createsUserAutomatically` parameter, and it no longer creates an account when sign-in fails. It only signs in, like the native call, and throws the native sign-in error (#764).
+
+- Calls that pass `createsUserAutomatically` no longer compile. Remove the argument.
+- Calls that relied on the default (`true`) to create accounts now get the sign-in error instead. Call `CreateUserAsync` yourself where your app should create an account:
+
+```csharp
+try {
+    await CrossFirebaseAuth.Current.SignInWithEmailAndPasswordAsync(email, password);
+} catch(CrossPlatformFirebaseAuthException) {
+    // Your app decides which sign-in failures should lead to creating an account.
+    await CrossFirebaseAuth.Current.CreateUserAsync(email, password);
+}
+```
+
 On Android, `VerifyPhoneNumberAsync` now completes once the verification code has been sent, as on iOS. Previously it completed right after starting native verification. This changes behavior in these ways:
 
 - Verification failures, such as an invalid phone number or an exceeded SMS quota, fault the task with `CrossPlatformFirebaseAuthException`. Previously they were dropped, and the next sign-in or link call failed or used an old verification ID.
@@ -188,6 +202,7 @@ On Android, `VerifyPhoneNumberAsync` now completes once the verification code ha
 
 ## Release notes
 - Next
+  - **Breaking:** Remove the `createsUserAutomatically` parameter from `SignInWithEmailAndPasswordAsync`. It now only signs in; call `CreateUserAsync` to create accounts (#764).
   - Add email/password user reauthentication and user-level reload APIs.
   - Mark `ReloadCurrentUserAsync()` obsolete; use `CurrentUser.ReloadAsync()` after checking `CurrentUser` is not `null`.
   - Android: `VerifyPhoneNumberAsync` completes when the code is sent and faults on verification failure, or with `TimeoutException` if the native SDK reports nothing within five minutes. A repeat call for the same number sends a new code. See the migration notes above.

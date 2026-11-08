@@ -109,7 +109,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
                 IntegrationTestOptions.PhoneAuthCodeEnvironmentVariableName,
                 IntegrationTestOptions.PhoneAuthCodeAndroidSystemPropertyName);
 
-            await using var user = await AuthTestUserScope.SignInWithUniqueEmailAndPasswordAsync(
+            await using var user = await AuthTestUserScope.CreateWithUniqueEmailAndPasswordAsync(
                 sut,
                 "update-phone");
             Assert.NotNull(sut.CurrentUser);
@@ -123,7 +123,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         public async Task sends_verification_email()
         {
             var sut = CrossFirebaseAuth.Current;
-            await using var user = await AuthTestUserScope.SignInWithEmailAndPasswordAsync(
+            await using var user = await AuthTestUserScope.SignInOrCreateWithEmailAndPasswordAsync(
                 sut,
                 IntegrationTestUsers.VerificationEmail,
                 deleteOnDispose: false);
@@ -137,7 +137,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         public async Task sends_verification_email_with_action_code_settings()
         {
             var sut = CrossFirebaseAuth.Current;
-            await using var user = await AuthTestUserScope.SignInWithUniqueEmailAndPasswordAsync(
+            await using var user = await AuthTestUserScope.CreateWithUniqueEmailAndPasswordAsync(
                 sut,
                 "verification-settings");
             Assert.NotNull(sut.CurrentUser);
@@ -150,7 +150,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         public async Task sends_password_reset_email_for_current_user()
         {
             var sut = CrossFirebaseAuth.Current;
-            await using var user = await AuthTestUserScope.SignInWithUniqueEmailAndPasswordAsync(
+            await using var user = await AuthTestUserScope.CreateWithUniqueEmailAndPasswordAsync(
                 sut,
                 "pw-reset-current");
 
@@ -162,7 +162,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         public async Task sends_password_reset_email_for_explicit_email()
         {
             var sut = CrossFirebaseAuth.Current;
-            await using var user = await AuthTestUserScope.SignInWithUniqueEmailAndPasswordAsync(
+            await using var user = await AuthTestUserScope.CreateWithUniqueEmailAndPasswordAsync(
                 sut,
                 "pw-reset-explicit");
             var email = user.Email ?? throw new InvalidOperationException("Expected scoped user email.");

@@ -28,7 +28,7 @@ public sealed partial class FunctionsFixture
         var auth = CrossFirebaseAuth.Current;
         var email = IntegrationTestData.UniqueEmail("functions-auth-context");
 
-        await using var user = await AuthTestUserScope.SignInWithEmailAndPasswordAsync(auth, email);
+        await using var user = await AuthTestUserScope.CreateWithEmailAndPasswordAsync(auth, email);
         var response = await CrossFirebaseFunctions.Current
             .GetHttpsCallable("echoAuthContext")
             .CallAsync<AuthContextResponseData>(new SimpleRequestData(654).ToJson());

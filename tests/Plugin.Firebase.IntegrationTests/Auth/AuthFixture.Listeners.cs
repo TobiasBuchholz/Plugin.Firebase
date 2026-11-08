@@ -28,8 +28,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
 
             await sut.SignInWithEmailAndPasswordAsync(
                 email,
-                IntegrationTestUsers.DefaultPassword,
-                createsUserAutomatically: false);
+                IntegrationTestUsers.DefaultPassword);
             await sawSignedIn.WaitAsync(
                 IntegrationTestTimeouts.Callback,
                 "auth state listener sign-in");
@@ -41,8 +40,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
 
             await sut.SignInWithEmailAndPasswordAsync(
                 email,
-                IntegrationTestUsers.DefaultPassword,
-                createsUserAutomatically: false);
+                IntegrationTestUsers.DefaultPassword);
             Assert.NotNull(sut.CurrentUser);
         }
 

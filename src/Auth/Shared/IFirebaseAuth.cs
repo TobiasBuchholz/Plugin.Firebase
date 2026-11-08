@@ -76,13 +76,8 @@ public partial interface IFirebaseAuth : IDisposable
     /// </summary>
     /// <param name="email">The user’s email address.</param>
     /// <param name="password">The user’s password.</param>
-    /// <param name="createsUserAutomatically">If the user doesn't exist, it will be created automatically and signed in afterwards if the value is true.</param>
     /// <returns>The signed in <c>IFirebaseUser</c> object.</returns>
-    Task<IFirebaseUser> SignInWithEmailAndPasswordAsync(
-        string email,
-        string password,
-        bool createsUserAutomatically = true
-    );
+    Task<IFirebaseUser> SignInWithEmailAndPasswordAsync(string email, string password);
 
     /// <summary>
     /// Signs in using an email address and email sign-in link.

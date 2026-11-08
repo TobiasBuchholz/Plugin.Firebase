@@ -27,7 +27,8 @@ public interface IStorageTaskSnapshot
     IStorageMetadata? Metadata { get; }
 
     /// <summary>
-    /// Error during task execution, or null if no error occurred.
+    /// Error during task execution, or null if no error occurred. A failure that the native SDK reports is a
+    /// <see cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseStorageException"/> on both platforms.
     /// </summary>
     Exception? Error { get; }
 }

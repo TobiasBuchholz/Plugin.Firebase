@@ -9,6 +9,10 @@ public interface IStorageTransferTask
     /// Waits for the transfer task to complete.
     /// </summary>
     /// <returns>A task that completes when the transfer is finished.</returns>
+    /// <exception cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseStorageException">
+    /// The native SDK failed the transfer, for example because the object to download doesn't exist (error code
+    /// <c>-13010</c>).
+    /// </exception>
     Task AwaitAsync();
 
     /// <summary>

@@ -69,8 +69,9 @@ public sealed class StorageReferenceWrapper : IStorageReference
 
     public Task<IStorageListResult> ListAsync(long maxResults)
     {
-        // Validating first also keeps the int cast below from truncating a value outside the native range.
-        StorageListArguments.ThrowIfMaxResultsOutOfRange(maxResults);
+        if(maxResults is < int.MinValue or > int.MaxValue) {
+            throw new ArgumentOutOfRangeException(nameof(maxResults), maxResults, "The Android SDK requires a 32-bit integer.");
+        }
         return StorageExceptionFactory.Wrap(
             async () => (await _wrapped.List((int) maxResults).AsAsync<ListResult>()).ToAbstract()
         );

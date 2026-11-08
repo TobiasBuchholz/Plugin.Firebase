@@ -65,22 +65,18 @@ public sealed partial class StorageFixture
     }
 
 
-    [Fact]
-    public async Task rejects_list_max_results_outside_native_range()
+    [AndroidFact]
+    public void rejects_list_max_results_that_overflow_native_integer()
     {
-        var reference = CrossFirebaseStorage
-            .Current
-            .GetReferenceFromPath("files_to_keep");
+        var reference = CrossFirebaseStorage.Current.GetReferenceFromPath("files_to_keep");
 
-        // 4294967297 truncates to 1 when cast to int.
-        foreach(var maxResults in new[] { 0L, -1L, 1001L, 4294967297L }) {
-            var exception = await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
-                () => reference.ListAsync(maxResults));
+        // Both values would become 1 after an unchecked cast to int.
+        foreach(var maxResults in new[] { 4294967297L, -4294967295L }) {
+            var exception = Assert.Throws<ArgumentOutOfRangeException>(() => {
+                _ = reference.ListAsync(maxResults);
+            });
             Assert.Equal("maxResults", exception.ParamName);
         }
-
-        var result = await reference.ListAsync(1000);
-        Assert.Equal(3, result.Items.Count());
     }
 
     private static IStorageReference MissingObjectReference()

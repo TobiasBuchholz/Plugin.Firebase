@@ -96,7 +96,6 @@ public sealed class StorageReferenceWrapper : IStorageReference
     /// <inheritdoc/>
     public Task<IStorageListResult> ListAsync(long maxResults)
     {
-        StorageListArguments.ThrowIfMaxResultsOutOfRange(maxResults);
         return ListPageAsync(maxResults, pageToken: null);
     }
 

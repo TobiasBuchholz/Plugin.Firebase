@@ -71,10 +71,10 @@ public interface IStorageReference
     /// Firebase Storage does not support unsupported object paths that end with “/” or contain two consecutive “/"s. All invalid objects
     /// in GCS will be filtered. <c>ListAsync(maxResults)</c> is only available for projects using Firebase Rules Version 2.
     /// </summary>
-    /// <param name="maxResults">The maximum number of results to return in a single page. Must be greater than 0 and at most 1000.</param>
+    /// <param name="maxResults">The maximum number of results to return in a single page. The native SDK enforces its supported page-size range.</param>
     /// <exception cref="ArgumentOutOfRangeException">
-    /// <paramref name="maxResults"/> is less than 1 or greater than 1000, the range that both native SDKs accept. On both
-    /// platforms the exception is thrown synchronously, before the native SDK is called, instead of faulting the returned task.
+    /// On Android, <paramref name="maxResults"/> cannot be represented as a 32-bit integer. The exception is thrown
+    /// synchronously, before the native SDK is called.
     /// </exception>
     /// <exception cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseStorageException">
     /// The native SDK failed the request.

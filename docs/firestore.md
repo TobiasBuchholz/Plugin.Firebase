@@ -131,6 +131,9 @@ and `RunTransactionAsync` throws a `FirebaseException` whose `InnerException` is
 `CrossPlatformFirebaseFirestoreException` that doesn't carry a native Firestore error, for example one you construct
 yourself, also aborts the transaction without a retry, and `RunTransactionAsync` throws it unchanged.
 
+### Writing dates
+
+
 Firestore stores dates as instants. A `DateTimeOffset` always identifies one. A `DateTime` must have `DateTimeKind.Utc` or `DateTimeKind.Local` and is stored as its UTC instant; writing one with `DateTimeKind.Unspecified`, such as `default(DateTime)`, throws `ArgumentException`. Use `DateTime.SpecifyKind` to say which time zone such a value is in. Dates are read back in UTC.
 
 ### Further information

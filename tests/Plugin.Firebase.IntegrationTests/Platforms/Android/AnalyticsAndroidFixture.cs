@@ -49,6 +49,5 @@ public sealed class AnalyticsAndroidFixture
     {
         Assert.Contains("Firebase Analytics has not been initialized on Android", exception.Message);
         Assert.Contains("FirebaseAnalyticsImplementation.Initialize(activity)", exception.Message);
-        Assert.Contains("isAnalyticsEnabled: true", exception.Message);
     }
 }

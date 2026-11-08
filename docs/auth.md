@@ -179,6 +179,7 @@ On iOS, read each claim as its JSON type and convert it in your own code if you 
   - Add email/password user reauthentication and user-level reload APIs.
   - Mark `ReloadCurrentUserAsync()` obsolete; use `CurrentUser.ReloadAsync()` after checking `CurrentUser` is not `null`.
   - `GetClaim<T>` converts numeric claims to any requested numeric or enum type on both platforms, truncates fractional values toward zero, throws `OverflowException` for out-of-range values, and throws `InvalidCastException` instead of coercing claims between JSON types (issues #709, #710).
+  - Set `CrossPlatformFirebaseAuthException.NativeErrorCode` on Android in trimmed (Release) builds, where it was always `null`.
 - Version 5.0.1
   - Fix for wrong Core project version dependency at nuget.org
 - Version 5.0.0

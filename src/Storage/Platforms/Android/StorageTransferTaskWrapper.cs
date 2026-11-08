@@ -20,7 +20,7 @@ public sealed class StorageTransferTaskWrapper : IStorageTransferTask
 
     public Task AwaitAsync()
     {
-        return _transferTask.AsAsync();
+        return StorageExceptionFactory.Wrap(() => _transferTask.AsAsync());
     }
 
     public void AddObserver(StorageTaskStatus status, Action<IStorageTaskSnapshot> observer)

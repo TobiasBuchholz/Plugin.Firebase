@@ -241,7 +241,10 @@ public interface IQuery
     /// Attaches a listener for QuerySnapshot events.
     /// </summary>
     /// <param name="onChanged">Gets invoked when the document changed.</param>
-    /// <param name="onError">Gets invoked when something went wrong.</param>
+    /// <param name="onError">
+    /// Gets invoked with a <see cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseFirestoreException"/> when the
+    /// native listener reports an error.
+    /// </param>
     /// <param name="includeMetaDataChanges">
     /// Whether metadata-only changes (i.e. only <c>IDocumentSnapshot.Metadata</c> changed) should trigger snapshot events.
     /// </param>

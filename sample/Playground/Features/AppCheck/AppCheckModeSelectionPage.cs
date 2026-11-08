@@ -28,7 +28,12 @@ public sealed class AppCheckModeSelectionPage : ContentPageBase
         }
         .Bind(nameof(Vm.StatusMessage));
 
+        // Only the providers this platform supports; the others throw during Firebase initialization.
+#if ANDROID
+        var modes = new[] { "Disabled", "Debug", "Play Integrity" };
+#else
         var modes = new[] { "Disabled", "Debug", "Device Check", "App Attest" };
+#endif
         var stackView = new VerticalStackLayout { Spacing = 12 };
 
         foreach(var mode in modes) {

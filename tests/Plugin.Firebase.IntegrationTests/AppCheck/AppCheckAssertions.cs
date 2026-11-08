@@ -28,5 +28,22 @@ namespace Plugin.Firebase.IntegrationTests.AppCheck
             throw new PlatformNotSupportedException("Installed App Check provider factories are only inspectable on Android.");
 #endif
         }
+
+        // iOS has no getter for the installed factory, but FIRAppCheck.initWithApp: returns nil without one, so the
+        // native instance of the default app shows whether a factory was in place when the app was configured.
+        public static void IosDefaultAppCheckInstanceMatches(AppCheckProviderType provider)
+        {
+#if IOS
+            global::Firebase.AppCheck.AppCheck? appCheck = global::Firebase.AppCheck.AppCheck.SharedInstance;
+
+            if(provider == AppCheckProviderType.Disabled) {
+                Assert.Null(appCheck);
+            } else {
+                Assert.NotNull(appCheck);
+            }
+#else
+            throw new PlatformNotSupportedException("The native iOS App Check instance is only inspectable on iOS.");
+#endif
+        }
     }
 }

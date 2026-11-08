@@ -9,6 +9,8 @@ namespace Plugin.Firebase.Firestore.Platforms.iOS;
 /// <typeparam name="T">The type to deserialize the document data into.</typeparam>
 public sealed class DocumentSnapshotWrapper<T> : DocumentSnapshotWrapper, IDocumentSnapshot<T>
 {
+    private ConvertedData<T>? _data;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="DocumentSnapshotWrapper{T}"/> class.
     /// </summary>
@@ -17,7 +19,13 @@ public sealed class DocumentSnapshotWrapper<T> : DocumentSnapshotWrapper, IDocum
         : base(documentSnapshot) { }
 
     /// <inheritdoc/>
-    public new T? Data => Wrapped.Data == null ? default(T) : Wrapped.Data.Cast<T>(Wrapped.Id);
+    public new T? Data => ConvertedData<T>.GetOrConvert(ref _data, Wrapped, ConvertData);
+
+    private static T? ConvertData(DocumentSnapshot snapshot)
+    {
+        var data = snapshot.Data;
+        return data == null ? default(T) : data.Cast<T>(snapshot.Id);
+    }
 }
 
 /// <summary>

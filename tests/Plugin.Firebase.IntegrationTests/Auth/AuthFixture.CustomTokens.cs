@@ -114,7 +114,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         public async Task retrieves_custom_claims()
         {
             var sut = CrossFirebaseAuth.Current;
-            await using var user = await AuthTestUserScope.SignInWithEmailAndPasswordAsync(
+            await using var user = await AuthTestUserScope.SignInOrCreateWithEmailAndPasswordAsync(
                 sut,
                 IntegrationTestUsers.CustomClaimsEmail,
                 deleteOnDispose: false);
@@ -129,7 +129,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         {
             var sut = CrossFirebaseAuth.Current;
             var email = IntegrationTestData.UniqueEmail("token-metadata");
-            await using var user = await AuthTestUserScope.SignInWithEmailAndPasswordAsync(sut, email);
+            await using var user = await AuthTestUserScope.CreateWithEmailAndPasswordAsync(sut, email);
 
             var idTokenResult = await user.User.GetIdTokenResultAsync();
             var refreshedIdTokenResult = await user.User.GetIdTokenResultAsync(forceRefresh: true);

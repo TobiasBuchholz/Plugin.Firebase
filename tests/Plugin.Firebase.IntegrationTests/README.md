@@ -65,6 +65,7 @@
 - Use `scripts/check-integration-environment.sh android|ios` before a device run to verify CLIs, function build output, emulator ports, and target availability.
 - `scripts/run-integration-emulators.sh android|ios` calls preflight automatically. Set `SKIP_INTEGRATION_PREFLIGHT=1` only for CI edge cases where another step has already guaranteed the environment.
 - GitHub summaries from `scripts/write-trx-github-summary.rb` include totals, failures, skips, slowest tests, and recent `[TEST START]` breadcrumbs when logs are present.
+- CI runs both suites in a non-UTC time zone, `Asia/Kolkata` (+05:30): the Android emulator starts with `-timezone Asia/Kolkata`, and the iOS app gets `SIMCTL_CHILD_TZ=Asia/Kolkata`. Use the same settings to reproduce a failure that only shows up outside UTC, and keep tests independent of the device time zone.
 
 The project references `DeviceRunners.Testing.Targets`, which provides the device implementation of `dotnet test` and bundles its CLI. It builds, deploys, starts the app in headless mode, and writes TRX results without a separately installed runner tool.
 

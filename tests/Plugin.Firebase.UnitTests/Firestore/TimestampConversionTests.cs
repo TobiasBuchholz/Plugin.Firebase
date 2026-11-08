@@ -121,6 +121,40 @@ public class TimestampConversionTests
         Assert.Equal(SubMillisecondNanoseconds, nanoseconds);
     }
 
+    public static TheoryData<DateTime> UnspecifiedDateTimes()
+    {
+        return new TheoryData<DateTime> {
+            DateTime.SpecifyKind(Instant.UtcDateTime, DateTimeKind.Unspecified),
+            // Also default(DateTime).
+            DateTime.MinValue,
+            DateTime.MaxValue
+        };
+    }
+
+    [Theory]
+    [MemberData(nameof(UnspecifiedDateTimes))]
+    public void rejects_unspecified_date_times(DateTime value)
+    {
+        // Passes in any machine time zone. Reading these as local time would give a different instant per zone, and
+        // throw ArgumentOutOfRangeException for DateTime.MinValue east of UTC and DateTime.MaxValue west of it.
+        Assert.Equal(DateTimeKind.Unspecified, value.Kind);
+        Assert.Throws<ArgumentException>(() => TimestampConversion.ToUnixSecondsAndNanoseconds(value));
+    }
+
+    [Fact]
+    public void converts_the_smallest_and_largest_utc_date_times()
+    {
+        var (minSeconds, minNanoseconds) = TimestampConversion.ToUnixSecondsAndNanoseconds(
+            DateTime.SpecifyKind(DateTime.MinValue, DateTimeKind.Utc));
+        var (maxSeconds, maxNanoseconds) = TimestampConversion.ToUnixSecondsAndNanoseconds(
+            DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc));
+
+        Assert.Equal(-62_135_596_800L, minSeconds);
+        Assert.Equal(0, minNanoseconds);
+        Assert.Equal(253_402_300_799L, maxSeconds);
+        Assert.Equal(999_999_900, maxNanoseconds);
+    }
+
     [Theory]
     [InlineData(0, 0L)]
     [InlineData(99, 0L)]

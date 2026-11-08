@@ -10,7 +10,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
             const string displayName = "Bruce Wayne";
             const string photoUrl = "https://url.to/image.jpg";
             var sut = CrossFirebaseAuth.Current;
-            await using var user = await AuthTestUserScope.SignInWithUniqueEmailAndPasswordAsync(
+            await using var user = await AuthTestUserScope.CreateWithUniqueEmailAndPasswordAsync(
                 sut,
                 "update-profile");
             Assert.NotNull(sut.CurrentUser);
@@ -73,7 +73,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
             const string displayName = "Bruce Wayne";
             const string photoUrl = "https://url.to/image.jpg";
             var sut = CrossFirebaseAuth.Current;
-            await using var user = await AuthTestUserScope.SignInWithUniqueEmailAndPasswordAsync(
+            await using var user = await AuthTestUserScope.CreateWithUniqueEmailAndPasswordAsync(
                 sut,
                 "legacy-update-profile");
             Assert.NotNull(sut.CurrentUser);

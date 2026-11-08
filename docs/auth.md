@@ -160,6 +160,20 @@ In v5:
 
 ## Next-release migration notes
 
+`SignInWithEmailAndPasswordAsync(email, password)` no longer has a `createsUserAutomatically` parameter, and it no longer creates an account when sign-in fails. It only signs in, like the native call, and throws the native sign-in error (#764).
+
+- Calls that pass `createsUserAutomatically` no longer compile. Remove the argument.
+- Calls that relied on the default (`true`) to create accounts now get the sign-in error instead. Call `CreateUserAsync` yourself where your app should create an account:
+
+```csharp
+try {
+    await CrossFirebaseAuth.Current.SignInWithEmailAndPasswordAsync(email, password);
+} catch(CrossPlatformFirebaseAuthException) {
+    // Your app decides which sign-in failures should lead to creating an account.
+    await CrossFirebaseAuth.Current.CreateUserAsync(email, password);
+}
+```
+
 `IAuthTokenResult.GetClaim<T>` now converts numeric claims to the requested type, with the same rules on both platforms:
 
 - A numeric claim can be read as any numeric type (including `decimal`), an enum, or a nullable form of either. Previously Android threw `InvalidCastException` unless `T` was exactly the type the native SDK parsed the claim into, so `GetClaim<long>` failed for a small value. iOS returned `null` for `decimal`, so the call threw `NullReferenceException`.
@@ -176,6 +190,7 @@ On iOS, read each claim as its JSON type and convert it in your own code if you 
 
 ## Release notes
 - Next
+  - **Breaking:** Remove the `createsUserAutomatically` parameter from `SignInWithEmailAndPasswordAsync`. It now only signs in; call `CreateUserAsync` to create accounts (#764).
   - Add email/password user reauthentication and user-level reload APIs.
   - Mark `ReloadCurrentUserAsync()` obsolete; use `CurrentUser.ReloadAsync()` after checking `CurrentUser` is not `null`.
   - `GetClaim<T>` converts numeric claims to any requested numeric or enum type on both platforms, truncates fractional values toward zero, throws `OverflowException` for out-of-range values, and throws `InvalidCastException` instead of coercing claims between JSON types (issues #709, #710).

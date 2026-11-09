@@ -76,7 +76,7 @@ A stored array can contain `null` entries. Reading it into a list property keeps
 
 Firestore stores every number as a signed 64-bit integer or a double. Android and iOS convert .NET numbers the
 same way wherever they are written: model properties, dictionary values, list elements, `FieldValue.ArrayUnion` and
-`ArrayRemove` elements, query operands and transaction results.
+`ArrayRemove` elements and query operands.
 
 | .NET type | Stored as |
 |---|---|
@@ -151,6 +151,25 @@ and `RunTransactionAsync` throws a `FirebaseException` whose `InnerException` is
 `CrossPlatformFirebaseFirestoreException` that doesn't carry a native Firestore error, for example one you construct
 yourself, also aborts the transaction without a retry, and `RunTransactionAsync` throws it unchanged.
 
+The update function must be synchronous: the native SDKs commit the transaction as soon as it returns, so an `async`
+update function would commit only the writes made before its first `await`. `RunTransactionAsync` throws an
+`ArgumentException` before the transaction starts when `TResult` is `Task`, `ValueTask` or `ValueTask<T>`, which the
+compiler infers for an `async` lambda. If the update function returns a task through another `TResult`, such as
+`object`, the transaction is aborted without committing and `RunTransactionAsync` throws that `ArgumentException`.
+The code after the first `await` of such an update function still runs, outside the transaction: its writes are
+silently discarded, and an exception it throws is never observed. Custom task-like types and awaitables such as
+`ConfiguredTaskAwaitable` aren't detected, so don't return those either. Do asynchronous work before or after the
+transaction.
+
+`RunTransactionAsync` returns the value that the update function returned in the attempt that committed, as-is: the
+same instance, never converted to or from a Firestore value. A lazily evaluated result, such as a LINQ query over
+transactional reads, is enumerated only after the transaction has finished, as with the native SDKs, so materialize it
+inside the update function, for example with `ToList()`, if it depends on the transaction.
+
+### Writing dates
+
+Firestore stores dates as instants. A `DateTimeOffset` always identifies one. A `DateTime` must have `DateTimeKind.Utc` or `DateTimeKind.Local` and is stored as its UTC instant; writing one with `DateTimeKind.Unspecified`, such as `default(DateTime)`, throws `ArgumentException`. Use `DateTime.SpecifyKind` to say which time zone such a value is in. Dates are read back in UTC.
+
 ### Further information
 
 Take a look at the [documentation](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents/blob/master/docs/Firebase/CloudFirestore/GettingStarted.md) for the AdamE.Firebase.iOS.CloudFirestore packages, because Plugin.Firebase's code is abstracted but still very similar.
@@ -192,14 +211,53 @@ Firestore methods and snapshot listeners expose native Firebase failures as `Cro
 
 On iOS, `RunTransactionAsync` now also retries the transaction after a retryable Firestore error raised inside the update function, when the update function lets it propagate. An example is `ABORTED` from an `ITransaction.GetDocument` that finds the document changed since an earlier read in the same transaction. iOS already re-ran the update function after a retryable commit failure, such as contention with another write; now the native SDK's retry rules decide for errors raised inside the update function too, as they already do on Android. Previously iOS never retried the transaction after such an error. Make sure the update function doesn't change state outside the transaction.
 
+### Unspecified date migration
+
+Writing a `DateTime` whose `Kind` is `DateTimeKind.Unspecified` now throws `ArgumentException` on both platforms. Such a value could be UTC or local time, and the platforms disagreed: Android stored it as local time and iOS stored it as UTC, so the same value became a different instant on each platform unless the device ran in UTC. `Utc` and `Local` values are still stored as their UTC instant, and `DateTimeOffset` values are unaffected.
+
+- The check applies wherever Firestore converts a value: `SetDataAsync` with or without `SetOptions`, `UpdateDataAsync`, batch and transaction writes, `IFirestoreObject` properties, list elements, `FieldValue.ArrayUnion` and `FieldValue.ArrayRemove` elements, query filter values and cursor values.
+- In a transaction, `ITransaction.SetData` and `UpdateData` throw inside the update function, so `RunTransactionAsync` fails as it does for any exception thrown there: nothing is committed, and the `ArgumentException` is the `InnerException` of the exception it throws rather than the exception itself.
+- `default(DateTime)` and `DateTime.MinValue` are Unspecified, so a `DateTime` property that was never set now throws. Set it, or make the property `DateTime?` or `DateTimeOffset?` if "not set" should be stored and read back as null.
+- Typed reads into `DateTime?`, in models and in typed dictionaries such as `Dictionary<string, DateTime?>`, now return a UTC `DateTime`. Previously they threw, because a `DateTimeOffset` came back.
+- Common sources of Unspecified values:
+  - `new DateTime(...)` without a kind, and `DateTime.Parse` of a string without an offset.
+  - `DateTimeOffset.DateTime`, which drops the offset. Use `DateTimeOffset.UtcDateTime` instead.
+  - A model's `DateTime` property whose field is missing or null in the document. It reads as `default(DateTime)`, so writing the model back throws.
+  - UI controls: .NET MAUI `DatePicker.Date` can be Unspecified.
+- `DateTime` values read from Firestore are `Utc`, so writing them back is unaffected.
+
+Say which time zone the value is in, or use `DateTimeOffset`. `DateTimeKind.Utc` keeps the instant iOS stored before, and `DateTimeKind.Local` keeps the one Android stored:
+
+```c#
+var dueDate = DateTime.Parse("2026-01-01T09:00:00"); // Kind is Unspecified
+
+// Before: stored as 09:00 UTC on iOS and 09:00 device time on Android. Now: throws ArgumentException.
+await document.SetDataAsync(("due", dueDate));
+
+// Either of these works on both platforms.
+await document.SetDataAsync(("due", DateTime.SpecifyKind(dueDate, DateTimeKind.Local)));
+await document.SetDataAsync(("due", new DateTimeOffset(dueDate, TimeSpan.FromHours(-5))));
+```
+
+### Transaction result migration
+
+`RunTransactionAsync` returns the update function’s result directly on both platforms. Earlier releases converted it through the native SDK.
+
+- The result is the same instance that the update function returned. It's no longer deep-copied or normalized through `NSNumber`, `java.lang.Integer` and the other native types. For example, `RunTransactionAsync<object>(_ => 5)` used to return the number as read back from the native value, `RunTransactionAsync<object>(_ => DateTime.UtcNow)` returned a `DateTimeOffset`, and an `IFirestoreObject` came back as a new instance without its `[FirestoreDocumentId]` value.
+- Results that the conversion couldn't handle now work. A `DateTime` or array `TResult` used to throw after the writes had been committed. Results such as records, tuples or `HashSet<T>` made the conversion fail inside the update function, which aborted the transaction on Android; on iOS the writes were committed and `RunTransactionAsync` threw afterwards.
+- A lazily evaluated result, such as a LINQ query, is returned as-is too, so it's enumerated only after the transaction has finished. Materialize it inside the update function, for example with `ToList()`, if it reads from the transaction.
+- An `async` update function, or one that returns a task through an `object` result, now makes `RunTransactionAsync` throw `ArgumentException` without committing (see [Error handling](#error-handling)). Previously the conversion failed on the task inside the update function. On Android that aborted the transaction, and `RunTransactionAsync` threw the native task's `Java.Lang.RuntimeException`. On iOS the failure didn't abort the transaction, so the writes made before the first `await` were committed, and `RunTransactionAsync` then threw a `FirebaseException` carrying the conversion error's message.
+- On Android, `Plugin.Firebase.Firestore.Platforms.Android.TransactionFunction<TResult>` is now internal. It was an implementation detail of `RunTransactionAsync`; call `RunTransactionAsync` instead.
+
+### Numeric write migration
+
 Numeric writes follow one set of rules on both platforms (see [Writing numbers](#writing-numbers)):
 
 - `byte`, `sbyte`, `ushort`, `uint` and `ulong` values, and `short` values on Android, can now be written. Previously they were rejected on at least one platform or write path.
 - `decimal` and `char` writes throw `ArgumentException` with a message that says how to convert the value. Previously the failure depended on the platform and write path; on Android a `char` model property or dictionary value failed inside the native SDK with a Java `IllegalArgumentException`.
 - `ulong` values and `ulong`-backed enums above `long.MaxValue` throw `ArgumentException` instead of wrapping or failing inside the native SDK.
-- An untyped transaction result, such as `RunTransactionAsync<object>(t => 5)`, comes back as a boxed `long`, and a `float` result as a boxed `double`, because results go through the same conversion. Previously an `int` came back as an `int` and a `float` as a `float`. Typed results such as `RunTransactionAsync<int>` are unaffected.
 - The public `ToJavaObject` (Android) and `ToNSObject` (iOS) extension methods return a `Java.Lang.Long` or `Java.Lang.Double`, or an int64 or double `NSNumber`, for every number. Previously they returned a value of the source width, such as a `Java.Lang.Integer`.
-- On Android, enums in update data, lists, array unions, query operands and transaction results were converted with wrapping casts: a `uint`-backed enum above `int.MaxValue` became a negative number, and `byte`-, `sbyte`-, `short`- and `ushort`-backed enums failed. They now keep their actual value.
+- On Android, enums in update data, lists, array unions and query operands were converted with wrapping casts: a `uint`-backed enum above `int.MaxValue` became a negative number, and `byte`-, `sbyte`-, `short`- and `ushort`-backed enums failed. They now keep their actual value.
 - On iOS, `byte`- and `sbyte`-backed enums were stored as booleans. They are now stored as integers.
 
 Because of the last two changes, anything that compares those enum values with documents that earlier versions wrote with the wrapped or boolean value stops matching them: `WhereEqualsTo`, `WhereFieldIn`, `WhereArrayContains` and `WhereArrayContainsAny` filters, range filters such as `WhereGreaterThan`, and cursors such as `StartingAt`. `FieldValue.ArrayRemove` won't remove the old elements, and `OrderBy` places the old values elsewhere in the order, because wrapped values are negative and booleans sort before all numbers. Rewrite the affected documents if you query, order or remove on those fields.

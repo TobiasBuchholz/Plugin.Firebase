@@ -90,6 +90,10 @@ public static class NSObjectExtensions
     /// <summary>
     /// Converts a native iOS NSObject to a .NET object.
     /// </summary>
+    /// <remarks>
+    /// A Firestore <see cref="Timestamp"/> becomes a UTC <see cref="DateTime"/> when <paramref name="targetType"/> is
+    /// <see cref="DateTime"/> or <c>DateTime?</c>, and a <see cref="DateTimeOffset"/> otherwise.
+    /// </remarks>
     /// <param name="this">The NSObject to convert.</param>
     /// <param name="targetType">Optional target type for the conversion.</param>
     /// <returns>The converted .NET object.</returns>
@@ -110,7 +114,8 @@ public static class NSObjectExtensions
             case global::Firebase.CloudFirestore.GeoPoint x:
                 return new GeoPoint(x.Latitude, x.Longitude);
             case Timestamp x:
-                if(targetType == typeof(DateTime))
+                // DateTime? targets get a DateTime too: a boxed DateTimeOffset can't be assigned to them.
+                if(targetType is not null && (Nullable.GetUnderlyingType(targetType) ?? targetType) == typeof(DateTime))
                     return x.ToDateTime();
                 else
                     return x.ToDateTimeOffset();
@@ -231,6 +236,9 @@ public static class NSObjectExtensions
     /// Converts a .NET object to a native iOS NSObject.
     /// </summary>
     /// <remarks>
+    /// A <see cref="DateTime"/> with <see cref="DateTimeKind.Local"/> or <see cref="DateTimeKind.Utc"/> converts to the
+    /// <see cref="NSDate"/> for its UTC instant. One with <see cref="DateTimeKind.Unspecified"/> throws, as it does on
+    /// Android, because it could be UTC or local time.
     /// Numbers and enums follow the write rules shared with Android: integral values become an int64
     /// <see cref="NSNumber"/> and <see cref="float"/> and <see cref="double"/> become a double <see cref="NSNumber"/>.
     /// </remarks>
@@ -238,7 +246,7 @@ public static class NSObjectExtensions
     /// <returns>The native iOS NSObject representation.</returns>
     /// <exception cref="ArgumentException">
     /// Thrown if the object type cannot be converted, including numbers with no Firestore representation such as a
-    /// <see cref="decimal"/>, a <see cref="char"/> or a <see cref="ulong"/> above <see cref="long.MaxValue"/>.
+    /// <see cref="decimal"/>, a <see cref="char"/> or a <see cref="ulong"/> above <see cref="long.MaxValue"/>, or a <see cref="DateTime"/> with <see cref="DateTimeKind.Unspecified"/>.
     /// </exception>
     public static NSObject ToNSObject(this object? @this)
     {
@@ -258,6 +266,7 @@ public static class NSObjectExtensions
             case bool x:
                 return new NSNumber(x);
             case DateTime x:
+                DateTimeKindGuard.ThrowIfUnspecified(x);
                 return x.ToNSDate();
             case DateTimeOffset x:
                 return x.ToNSDate();

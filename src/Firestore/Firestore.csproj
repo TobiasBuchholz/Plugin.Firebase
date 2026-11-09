@@ -91,7 +91,7 @@
     </ItemGroup>
     
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
-        <PackageReference Include="AdamE.Firebase.iOS.CloudFirestore" Version="[12.7.0,)" />
+        <PackageReference Include="AdamE.Firebase.iOS.CloudFirestore" Version="[12.19.3,)" />
     </ItemGroup>
     
 </Project>

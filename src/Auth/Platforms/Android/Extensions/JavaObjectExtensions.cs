@@ -2,6 +2,7 @@ using System.Collections;
 using Android.Runtime;
 using AndroidX.Collection;
 using Java.Util;
+using Plugin.Firebase.Auth.Internal;
 using IList = System.Collections.IList;
 
 namespace Plugin.Firebase.Auth.Platforms.Android.Extensions;
@@ -12,17 +13,17 @@ public static class JavaObjectExtensions
     {
         switch(@this) {
             case Java.Lang.ICharSequence x:
-                return x.ToString();
+                return ClaimValueConverter.ToRequestedType(x.ToString(), targetType);
             case Java.Lang.Boolean x:
-                return x.BooleanValue();
+                return ClaimValueConverter.ToRequestedType(x.BooleanValue(), targetType);
             case Java.Lang.Integer x:
-                return x.IntValue();
+                return ClaimValueConverter.ToRequestedType(x.IntValue(), targetType);
             case Java.Lang.Double x:
-                return x.DoubleValue();
+                return ClaimValueConverter.ToRequestedType(x.DoubleValue(), targetType);
             case Java.Lang.Float x:
-                return x.FloatValue();
+                return ClaimValueConverter.ToRequestedType(x.FloatValue(), targetType);
             case Java.Lang.Long x:
-                return x.LongValue();
+                return ClaimValueConverter.ToRequestedType(x.LongValue(), targetType);
             case Date x:
                 return x.ToDateTimeOffset();
             case ArrayMap x:

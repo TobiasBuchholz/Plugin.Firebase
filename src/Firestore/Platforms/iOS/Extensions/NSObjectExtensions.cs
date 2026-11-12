@@ -2,6 +2,7 @@ using System.Collections;
 using System.Diagnostics;
 using Firebase.CloudFirestore;
 using Firebase.Core;
+using Plugin.Firebase.Firestore.Internal;
 
 namespace Plugin.Firebase.Firestore.Platforms.iOS.Extensions;
 

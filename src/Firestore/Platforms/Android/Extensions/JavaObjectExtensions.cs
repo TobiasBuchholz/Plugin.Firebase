@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Java.Util;
 using Android.Runtime;
@@ -7,6 +8,7 @@ using Firebase.Firestore;
 using IList = System.Collections.IList;
 using NativeFirebase = Firebase;
 using System.Diagnostics;
+using Plugin.Firebase.Firestore.Internal;
 
 namespace Plugin.Firebase.Firestore.Platforms.Android.Extensions;
 
@@ -17,20 +19,25 @@ public static class JavaObjectExtensions
         return (T) ((IDictionary) @this).Cast(typeof(T), documentId);
     }
 
+    /// <summary>
+    /// Converts a .NET value to the Java object the native Firestore SDK writes. Numbers and enums follow the
+    /// write rules shared with iOS: integral values become <see cref="Java.Lang.Long"/> and <see cref="float"/>
+    /// and <see cref="double"/> become <see cref="Java.Lang.Double"/>.
+    /// </summary>
+    /// <exception cref="ArgumentException">
+    /// The value has no Firestore representation, for example a <see cref="decimal"/>, a <see cref="char"/> or a
+    /// <see cref="ulong"/> above <see cref="long.MaxValue"/>.
+    /// </exception>
     public static Java.Lang.Object? ToJavaObject(this object? @this)
     {
+        if(TryToJavaNumber(@this, out var number)) {
+            return number;
+        }
+
         switch(@this) {
             case null:
                 return null;
             case string x:
-                return x;
-            case int x:
-                return x;
-            case long x:
-                return x;
-            case float x:
-                return x;
-            case double x:
                 return x;
             case bool x:
                 return x;
@@ -61,28 +68,31 @@ public static class JavaObjectExtensions
             case IFirestoreObject x:
                 return x.ToJavaObject();
             default:
-                if(@this is Enum) {
-                    var enumType = Enum.GetUnderlyingType(@this.GetType());
-                    if(enumType == typeof(int)) {
-                        return Convert.ToInt32(@this);
-                    } else if(enumType == typeof(uint)) {
-                        return (int) Convert.ToUInt32(@this);
-                    } else if(enumType == typeof(long)) {
-                        return Convert.ToInt64(@this);
-                    } else if(enumType == typeof(ulong)) {
-                        return (long) Convert.ToUInt64(@this);
-                    } else if(enumType == typeof(sbyte)) {
-                        return Convert.ToSByte(@this);
-                    } else if(enumType == typeof(byte)) {
-                        return (sbyte) Convert.ToByte(@this);
-                    } else if(enumType == typeof(short)) {
-                        return Convert.ToInt16(@this);
-                    } else if(enumType == typeof(ushort)) {
-                        return (short) Convert.ToUInt16(@this);
-                    }
-                }
                 throw new ArgumentException($"Could not convert object of type {@this.GetType()} to Java.Lang.Object. Does it extend {nameof(IFirestoreObject)}?");
         }
+    }
+
+    /// <summary>
+    /// Converts a number or enum with <see cref="FirestoreNumericWrites"/>. <see cref="DictionaryExtensions"/> uses
+    /// this as well, so set and update writes store numbers the same way.
+    /// </summary>
+    /// <remarks>
+    /// Like <see cref="FirestoreNumericWrites.TryWiden"/>, this throws despite its name: false only means that
+    /// <paramref name="value"/> isn't a number.
+    /// </remarks>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="value"/> is a number with no Firestore representation, or a <see cref="byte"/> or
+    /// <see cref="sbyte"/> array.
+    /// </exception>
+    internal static bool TryToJavaNumber(object? value, [NotNullWhen(true)] out Java.Lang.Object? number)
+    {
+        if(!FirestoreNumericWrites.TryWiden(value, out var widened)) {
+            number = null;
+            return false;
+        }
+
+        number = widened is long int64 ? Java.Lang.Long.ValueOf(int64) : Java.Lang.Double.ValueOf((double) widened);
+        return true;
     }
 
     public static Java.Lang.Object ToJavaObject(this IFirestoreObject @this)

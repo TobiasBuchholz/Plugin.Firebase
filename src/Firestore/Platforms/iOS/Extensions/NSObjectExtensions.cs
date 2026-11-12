@@ -2,6 +2,7 @@ using System.Collections;
 using System.Diagnostics;
 using Firebase.CloudFirestore;
 using Firebase.Core;
+using Plugin.Firebase.Firestore.Internal;
 
 namespace Plugin.Firebase.Firestore.Platforms.iOS.Extensions;
 
@@ -254,13 +255,23 @@ public static class NSObjectExtensions
     /// <see cref="DateTimeKind.Utc"/>, converts to the native <see cref="Timestamp"/> for its exact UTC instant,
     /// including dates before 1582-10-15. A <see cref="DateTime"/> with <see cref="DateTimeKind.Unspecified"/> throws,
     /// because it could be UTC or local time. Both behave as they do on Android.
+    /// Numbers and enums follow the write rules shared with Android: integral values become an int64
+    /// <see cref="NSNumber"/> and <see cref="float"/> and <see cref="double"/> become a double <see cref="NSNumber"/>.
     /// </remarks>
     /// <param name="this">The object to convert.</param>
     /// <returns>The native iOS NSObject representation.</returns>
-    /// <exception cref="ArgumentException">Thrown if the object type cannot be converted, or if it is a
-    /// <see cref="DateTime"/> with <see cref="DateTimeKind.Unspecified"/>.</exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown if the object type cannot be converted, including numbers with no Firestore representation such as a
+    /// <see cref="decimal"/>, a <see cref="char"/> or a <see cref="ulong"/> above <see cref="long.MaxValue"/>, or a <see cref="DateTime"/> with <see cref="DateTimeKind.Unspecified"/>.
+    /// </exception>
     public static NSObject ToNSObject(this object? @this)
     {
+        if(FirestoreNumericWrites.TryWiden(@this, out var number)) {
+            // the native SDK stores an NSNumber whose objCType is 'c' or 'C' (sbyte, byte) as a boolean, so every
+            // integral value goes through the int64 overload
+            return number is long int64 ? new NSNumber(int64) : new NSNumber((double) number);
+        }
+
         switch(@this) {
             case null:
                 return new NSNull();
@@ -268,16 +279,6 @@ public static class NSObjectExtensions
                 return x;
             case string x:
                 return new NSString(x);
-            case int x:
-                return new NSNumber(x);
-            case long x:
-                return new NSNumber(x);
-            case short x:
-                return new NSNumber(x);
-            case float x:
-                return new NSNumber(x);
-            case double x:
-                return new NSNumber(x);
             case bool x:
                 return new NSNumber(x);
             case DateTime x:
@@ -298,26 +299,6 @@ public static class NSObjectExtensions
             case IFirestoreObject x:
                 return x.ToNSObject();
             default:
-                if(@this is Enum) {
-                    var enumType = Enum.GetUnderlyingType(@this.GetType());
-                    if(enumType == typeof(int)) {
-                        return new NSNumber(Convert.ToInt32(@this));
-                    } else if(enumType == typeof(uint)) {
-                        return new NSNumber(Convert.ToUInt32(@this));
-                    } else if(enumType == typeof(long)) {
-                        return new NSNumber(Convert.ToInt64(@this));
-                    } else if(enumType == typeof(ulong)) {
-                        return new NSNumber(Convert.ToUInt64(@this));
-                    } else if(enumType == typeof(sbyte)) {
-                        return new NSNumber(Convert.ToSByte(@this));
-                    } else if(enumType == typeof(byte)) {
-                        return new NSNumber(Convert.ToByte(@this));
-                    } else if(enumType == typeof(short)) {
-                        return new NSNumber(Convert.ToInt16(@this));
-                    } else if(enumType == typeof(ushort)) {
-                        return new NSNumber(Convert.ToUInt16(@this));
-                    }
-                }
                 throw new ArgumentException(
                     $"Could not convert object of type {@this.GetType()} to NSObject. Does it extend {nameof(IFirestoreObject)}?"
                 );

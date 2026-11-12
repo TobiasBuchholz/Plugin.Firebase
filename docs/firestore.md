@@ -72,6 +72,26 @@ This class is represented in firestore like this:
 
 A stored array can contain `null` entries. Reading it into a list property keeps them as `null` when the element type is a reference type such as `string` or `object`, or a nullable value type such as `int?`. A list of a non-nullable value type such as `IList<int>` can't hold `null`, so reading an array with a `null` entry into it throws an `ArgumentNullException` when you read `snapshot.Data`. Both platforms behave the same way.
 
+### Writing numbers
+
+Firestore stores every number as a signed 64-bit integer or a double. Android and iOS convert .NET numbers the
+same way wherever they are written: model properties, dictionary values, list elements, `FieldValue.ArrayUnion` and
+`ArrayRemove` elements and query operands.
+
+| .NET type | Stored as |
+|---|---|
+| `sbyte`, `byte`, `short`, `ushort`, `int`, `uint`, `long` | 64-bit integer |
+| `ulong` | 64-bit integer. Values above `long.MaxValue` throw `ArgumentException`. |
+| `float`, `double` | double. A `float` is widened, so `0.1f` is stored as `0.10000000149011612`. |
+| enum | Its underlying value, under the rules above. |
+| `decimal` | Not supported. Throws `ArgumentException`, because Firestore has no decimal type. |
+| `char` | Not supported. Throws `ArgumentException`, because Firestore has no character type. |
+| `nint`, `nuint`, `Half`, `Int128`, `UInt128`, `BigInteger` | Not supported. Throws `ArgumentException`. |
+| `byte[]`, `sbyte[]` | Not supported. Throws `ArgumentException`, because this API doesn't map Firestore bytes (Blob) values. |
+
+Nullable forms follow the rules of their underlying type, and `null` is stored as a Firestore null. To store an
+unsupported value, convert it explicitly first, for example `(double) price`.
+
 Documents can also be read as raw dictionaries when the field set is not known at compile time:
 ```c#
 var snapshot = await CrossFirebaseFirestore.Current
@@ -241,6 +261,19 @@ await document.SetDataAsync(("due", new DateTimeOffset(dueDate, TimeSpan.FromHou
 - A lazily evaluated result, such as a LINQ query, is returned as-is too, so it's enumerated only after the transaction has finished. Materialize it inside the update function, for example with `ToList()`, if it reads from the transaction.
 - An `async` update function, or one that returns a task through an `object` result, now makes `RunTransactionAsync` throw `ArgumentException` without committing (see [Error handling](#error-handling)). Previously the conversion failed on the task inside the update function. On Android that aborted the transaction, and `RunTransactionAsync` threw the native task's `Java.Lang.RuntimeException`. On iOS the failure didn't abort the transaction, so the writes made before the first `await` were committed, and `RunTransactionAsync` then threw a `FirebaseException` carrying the conversion error's message.
 - On Android, `Plugin.Firebase.Firestore.Platforms.Android.TransactionFunction<TResult>` is now internal. It was an implementation detail of `RunTransactionAsync`; call `RunTransactionAsync` instead.
+
+### Numeric write migration
+
+Numeric writes follow one set of rules on both platforms (see [Writing numbers](#writing-numbers)):
+
+- `byte`, `sbyte`, `ushort`, `uint` and `ulong` values, and `short` values on Android, can now be written. Previously they were rejected on at least one platform or write path.
+- `decimal` and `char` writes throw `ArgumentException` with a message that says how to convert the value. Previously the failure depended on the platform and write path; on Android a `char` model property or dictionary value failed inside the native SDK with a Java `IllegalArgumentException`.
+- `ulong` values and `ulong`-backed enums above `long.MaxValue` throw `ArgumentException` instead of wrapping or failing inside the native SDK.
+- The public `ToJavaObject` (Android) and `ToNSObject` (iOS) extension methods return a `Java.Lang.Long` or `Java.Lang.Double`, or an int64 or double `NSNumber`, for every number. Previously they returned a value of the source width, such as a `Java.Lang.Integer`.
+- On Android, enums in update data, lists, array unions and query operands were converted with wrapping casts: a `uint`-backed enum above `int.MaxValue` became a negative number, and `byte`-, `sbyte`-, `short`- and `ushort`-backed enums failed. They now keep their actual value.
+- On iOS, `byte`- and `sbyte`-backed enums were stored as booleans. They are now stored as integers.
+
+Because of the last two changes, anything that compares those enum values with documents that earlier versions wrote with the wrapped or boolean value stops matching them: `WhereEqualsTo`, `WhereFieldIn`, `WhereArrayContains` and `WhereArrayContainsAny` filters, range filters such as `WhereGreaterThan`, and cursors such as `StartingAt`. `FieldValue.ArrayRemove` won't remove the old elements, and `OrderBy` places the old values elsewhere in the order, because wrapped values are negative and booleans sort before all numbers. Rewrite the affected documents if you query, order or remove on those fields.
 
 ## Release notes
 - Version 3.1.3

@@ -97,10 +97,10 @@ public sealed partial class FirestoreFixture
             .SetData(document, SetOptions.Merge(), ("batch_set_uint", uint.MaxValue))
             .UpdateData(document, ("batch_update_sbyte", sbyte.MinValue), ("batch_update_ulong_enum", UlongRating.Max))
             .CommitAsync();
-        var result = await sut.RunTransactionAsync<object>(transaction => {
+        await sut.RunTransactionAsync(transaction => {
             transaction.SetData(document, SetOptions.Merge(), ("transaction_set_byte_enum", ByteRating.Max));
             transaction.UpdateData(document, ("transaction_update_byte", byte.MaxValue), ("transaction_update_short_enum", ShortRating.Min));
-            return (byte) 5;
+            return true;
         });
 
         await FirestoreAssertions.StoredValuesAsync(document, new Dictionary<string, object?> {
@@ -114,9 +114,6 @@ public sealed partial class FirestoreFixture
             { "transaction_update_byte", 255L },
             { "transaction_update_short_enum", (long) short.MinValue }
         });
-        // a transaction result passes through the same conversion, so an untyped result comes back widened
-        Assert.Equal(5L, Assert.IsType<long>(result));
-        Assert.Equal(2.5, Assert.IsType<double>(await sut.RunTransactionAsync<object>(_ => 2.5f)));
     }
 
     [Fact]

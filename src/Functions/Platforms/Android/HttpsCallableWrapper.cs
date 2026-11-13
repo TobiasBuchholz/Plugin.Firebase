@@ -84,7 +84,8 @@ public sealed class HttpsCallableWrapper : IHttpsCallable
         }
 
         try {
-            return JsonSerializer.Deserialize<string>(value);
+            using var json = JsonDocument.Parse(value);
+            return json.RootElement.GetString();
         } catch(JsonException) {
             return value;
         }

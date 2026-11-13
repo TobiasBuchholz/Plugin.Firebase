@@ -63,6 +63,37 @@ namespace Plugin.Firebase.IntegrationTests.CloudMessaging
             Assert.Equal("reflection", args.Notification.Data["source"]);
         }
 
+#if FCM_INSTALLATION_ID_ENABLED
+        [RealFirebaseOptInFact(IntegrationTestOptions.RunFcmRegistrationTestsEnvironmentVariableName, skipIosSimulator: true)]
+        public async Task registers_and_reports_the_same_installation_id_on_repeat_registration()
+        {
+            var sut = CrossFirebaseCloudMessaging.Current;
+            var installationId = await RegisterAndReceiveInstallationIdAsync(sut);
+
+            Assert.False(string.IsNullOrWhiteSpace(installationId));
+            Assert.Equal(installationId, await RegisterAndReceiveInstallationIdAsync(sut));
+
+            using var tokenChanged = new EventProbe<FCMTokenChangedEventArgs>(
+                handler => sut.TokenChanged += handler,
+                handler => sut.TokenChanged -= handler);
+            await sut.CheckIfValidAsync();
+            await sut.OnTokenRefreshAsync();
+            Assert.False(tokenChanged.IsCompleted);
+        }
+
+        private static async Task<string> RegisterAndReceiveInstallationIdAsync(IFirebaseCloudMessaging sut)
+        {
+            using var registered = new EventProbe<FCMRegistrationReceivedEventArgs>(
+                handler => sut.RegistrationReceived += handler,
+                handler => sut.RegistrationReceived -= handler);
+
+            await sut.RegisterAsync().WaitForTestAsync(
+                IntegrationTestTimeouts.LongCallback, "FCM installation ID registration");
+            var args = await registered.WaitAsync(
+                IntegrationTestTimeouts.LongCallback, "FCM installation ID registration event");
+            return args.InstallationId;
+        }
+#else
         [RealFirebaseOptInFact(IntegrationTestOptions.RunFcmTokenTestsEnvironmentVariableName, skipIosSimulator: true)]
         public async Task gets_token_raises_token_changed_and_manages_topic_when_enabled()
         {
@@ -84,17 +115,23 @@ namespace Plugin.Firebase.IntegrationTests.CloudMessaging
             Assert.False(string.IsNullOrWhiteSpace(token));
             Assert.False(string.IsNullOrWhiteSpace(args.Token));
         }
+#endif
 
         [RealFirebaseOptInFact(IntegrationTestOptions.RunFcmDeliveryTestsEnvironmentVariableName, skipIosSimulator: true)]
         public async Task receives_real_push_delivery_when_enabled()
         {
             var sut = CrossFirebaseCloudMessaging.Current;
-            var token = await sut.GetTokenAsync();
             using var notificationReceived = new EventProbe<FCMNotificationReceivedEventArgs>(
                 handler => sut.NotificationReceived += handler,
                 handler => sut.NotificationReceived -= handler);
 
+#if FCM_INSTALLATION_ID_ENABLED
+            var installationId = await RegisterAndReceiveInstallationIdAsync(sut);
+            TestLog.Write($"[FCM INSTALLATION ID] {installationId}");
+#else
+            var token = await sut.GetTokenAsync();
             TestLog.Write($"[FCM TOKEN] {token}");
+#endif
             var args = await notificationReceived.WaitAsync(
                 IntegrationTestTimeouts.FcmDelivery,
                 "real FCM push delivery");

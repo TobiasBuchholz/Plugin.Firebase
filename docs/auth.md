@@ -103,6 +103,24 @@ await CrossFirebaseAuth.Current.CurrentUser.UpdateProfileAsync(
 
 The legacy `UpdateProfileAsync(string? displayName = "", string? photoUrl = "")` overload treats `""` as omitted and is obsolete.
 
+### Phone number verification
+
+Await `VerifyPhoneNumberAsync(phoneNumber)` before calling `SignInWithPhoneNumberVerificationCodeAsync(code)` or `LinkWithPhoneNumberVerificationCodeAsync(code)`. The task completes when the verification code has been sent and faults with `CrossPlatformFirebaseAuthException` when verification fails, for example for an invalid phone number or when the SMS quota is exceeded.
+
+```csharp
+await CrossFirebaseAuth.Current.VerifyPhoneNumberAsync("+15555550100");
+// ask the user for the code from the SMS
+var user = await CrossFirebaseAuth.Current.SignInWithPhoneNumberVerificationCodeAsync(code);
+```
+
+Android differs from iOS in these ways:
+- A repeat call for a phone number that already received a code sends a new code: the plugin passes the native resend token (`ForceResendingToken`), so Firebase starts a new verification, as a "Resend" button expects. Until the new code is sent, sign-in keeps using the previous code, also if the new verification fails or times out.
+- A call for the same number while the previous call is still pending returns that call's task.
+- A call for a different phone number cancels the task of an earlier call that is still pending. Sign-in then uses only the new number's verification.
+- Before it sends the code, the native SDK runs app verification, which can show a reCAPTCHA challenge in a browser tab. The native SDK can drop the callbacks if the activity stops before the code is sent, for example when the user switches to another app. If the native SDK reports no sent code, completion or failure within five minutes of the call, the task faults with `TimeoutException`; call `VerifyPhoneNumberAsync` again. Apply a shorter timeout of your own if your UI needs one.
+- The task also completes if Firebase verifies the number without sending a code. In firebase-auth 23.x that only happens for test numbers set up with the native `FirebaseAuthSettings.setAutoRetrievedSmsCodeForPhoneNumber` setting, which the plugin doesn't wrap; in production a code is always sent. Sign-in and link then use that credential and ignore their code argument until the next `VerifyPhoneNumberAsync` call. When Android retrieves the SMS automatically after sending a code, the code you pass is still used.
+- The native callbacks arrive on the main thread. Don't block on the task with `Wait()` or `Result` from the UI thread, which deadlocks; await it instead.
+
 ## Language
 
 Set `LanguageCode = "fr"` (or any BCP-47 code) before invoking an Auth flow that triggers user-facing content such as password-reset emails, email-verification emails, or phone-auth SMS.
@@ -158,10 +176,55 @@ In v5:
 - Inspect `NativeExceptionTypeName`, `NativeErrorDomain`, `NativeErrorCode`, `NativeErrorMessage`, or `InnerException` when you need precise native details.
 - `SignOutAsync()` now follows the same unified exception model when the underlying native Auth SDK reports a failure.
 
+## Next-release migration notes
+
+`SignInWithEmailAndPasswordAsync(email, password)` no longer has a `createsUserAutomatically` parameter, and it no longer creates an account when sign-in fails. It only signs in, like the native call, and throws the native sign-in error (#764).
+
+- Calls that pass `createsUserAutomatically` no longer compile. Remove the argument.
+- Calls that relied on the default (`true`) to create accounts now get the sign-in error instead. Call `CreateUserAsync` yourself where your app should create an account:
+
+```csharp
+try {
+    await CrossFirebaseAuth.Current.SignInWithEmailAndPasswordAsync(email, password);
+} catch(CrossPlatformFirebaseAuthException) {
+    // Your app decides which sign-in failures should lead to creating an account.
+    await CrossFirebaseAuth.Current.CreateUserAsync(email, password);
+}
+```
+
+### Android phone verification
+
+On Android, `VerifyPhoneNumberAsync` now completes once the verification code has been sent, as on iOS. Previously it completed right after starting native verification. This changes behavior in these ways:
+
+- Verification failures, such as an invalid phone number or an exceeded SMS quota, fault the task with `CrossPlatformFirebaseAuthException`. Previously they were dropped, and the next sign-in or link call failed or used an old verification ID.
+- If the native SDK reports no sent code, completion or failure within five minutes, for example because it dropped the callbacks when the activity stopped, the task faults with `TimeoutException`.
+- Code that blocks on the task from the UI thread, with `Wait()` or `Result`, now deadlocks because Android delivers the callbacks on the main thread. Await the task instead.
+- A repeat call for a number that already received a code now sends a new code, using the native resend token. Previously the native SDK could reuse its session for that number and send nothing. A call for the same number while the previous call is still pending returns that call's task, and a call for a different number cancels a still-pending earlier task.
+- A verification completed without a code, which in firebase-auth 23.x only happens for natively configured test numbers, completes the task, and sign-in or link uses that credential. Previously that credential was ignored.
+
+### Typed claim reads
+
+`IAuthTokenResult.GetClaim<T>` now converts numeric claims to the requested type, with the same rules on both platforms:
+
+- A numeric claim can be read as any numeric type (including `decimal`), an enum, or a nullable form of either. Previously Android threw `InvalidCastException` unless `T` was exactly the type the native SDK parsed the claim into, so `GetClaim<long>` failed for a small value. iOS returned `null` for `decimal`, so the call threw `NullReferenceException`.
+- A value outside the range of `T` throws `OverflowException`. Previously iOS wrapped it: a claim of 300 read as `byte`, or as a `byte`-backed enum, became 44. Enums are range checked against their underlying type, not against their defined members.
+- A fractional value read as an integral type or an enum truncates toward zero, so 2.7 becomes 2 and -2.7 becomes -2. The range check uses the value before truncation, so 2147483647.9 read as `int` or -0.5 read as `uint` throws `OverflowException`. NaN and infinity throw `OverflowException` when read as an integral type, an enum, or `decimal`. A value that would round to infinity when read as `float` throws `OverflowException`.
+- Claims are not coerced between JSON types. A string or boolean claim read as a number, a numeric or boolean claim read as `string`, a numeric claim read as `bool`, and any claim read as `char` throw `InvalidCastException`. Android already threw in these cases. iOS used to return 1 or 0 for a boolean read as a number, whether a number was non-zero for a number read as `bool`, `null` for a number or boolean read as `string`, and a character made from the low byte of a number read as `char`.
+- The elements of a requested list type, such as `GetClaim<List<long>>`, and the values of a requested dictionary type follow the same rules:
+  - On iOS, a number in a list or dictionary requested with `string` elements used to become `null`, and with `bool` elements `true` or `false`. It now throws `InvalidCastException`. A number that doesn't fit a numeric element type throws `OverflowException` instead of wrapping.
+  - On Android, numbers in a list or dictionary requested with a numeric element type now convert to it. Previously any element type other than the one the native SDK parsed the number into threw `ArgumentException`.
+  - The exception was a dictionary inside a list, whose values went through `Convert.ChangeType`. That rounded fractions (2.7 read as `long` became 3) and coerced between types, for example `"123"` to 123 and `true` to 1.
+  - A number in a list requested with `string` or `bool` elements, or in a dictionary requested with `bool` values, now throws `InvalidCastException`. Dictionary values requested as `string` are still converted with `ToString()`.
+
+On iOS, read each claim as its JSON type and convert it in your own code if you relied on the old coercions.
+
 ## Release notes
 - Next
+  - **Breaking:** Remove the `createsUserAutomatically` parameter from `SignInWithEmailAndPasswordAsync`. It now only signs in; call `CreateUserAsync` to create accounts (#764).
   - Add email/password user reauthentication and user-level reload APIs.
   - Mark `ReloadCurrentUserAsync()` obsolete; use `CurrentUser.ReloadAsync()` after checking `CurrentUser` is not `null`.
+  - Android: `VerifyPhoneNumberAsync` completes when the code is sent and faults on verification failure, or with `TimeoutException` if the native SDK reports nothing within five minutes. A repeat call for the same number sends a new code. See the migration notes above.
+  - `GetClaim<T>` converts numeric claims to any requested numeric or enum type on both platforms, truncates fractional values toward zero, throws `OverflowException` for out-of-range values, and throws `InvalidCastException` instead of coercing claims between JSON types (issues #709, #710).
   - Set `CrossPlatformFirebaseAuthException.NativeErrorCode` on Android in trimmed (Release) builds, where it was always `null`.
 - Version 5.0.1
   - Fix for wrong Core project version dependency at nuget.org

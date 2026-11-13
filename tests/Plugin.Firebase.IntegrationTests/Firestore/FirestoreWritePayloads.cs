@@ -45,3 +45,25 @@ internal sealed class WriteWrapperDictionaryDocument : IFirestoreObject
     [FirestoreProperty("untouched")]
     public string Untouched { get; [UsedImplicitly] private set; } = null!;
 }
+
+[Preserve(AllMembers = true)]
+internal sealed class DateTimeKindDocument : IFirestoreObject
+{
+    internal const string ObservedField = "observed";
+
+    [FirestoreProperty(ObservedField)]
+    public DateTime Observed { get; set; }
+}
+
+[Preserve(AllMembers = true)]
+internal sealed class NullableDateTimeDocument : IFirestoreObject
+{
+    internal const string ObservedField = "observed";
+    internal const string ObservedOffsetField = "observed_offset";
+
+    [FirestoreProperty(ObservedField)]
+    public DateTime? Observed { get; set; }
+
+    [FirestoreProperty(ObservedOffsetField)]
+    public DateTimeOffset? ObservedOffset { get; set; }
+}

@@ -8,7 +8,6 @@ process.env.FIREBASE_AUTH_EMULATOR_HOST =
 
 const knownEmails = [
   "created-user@test.com",
-  "sign-in-with-pw@test.com",
   "does-not-exist@test.com",
   "sign-out@test.com",
   "to-update-email@test.com",

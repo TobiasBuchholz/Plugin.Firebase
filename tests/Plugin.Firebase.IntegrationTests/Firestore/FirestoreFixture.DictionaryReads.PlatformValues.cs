@@ -9,8 +9,8 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
         {
             var sut = CrossFirebaseFirestore.Current;
             var document = GetTestingDocument(sut, "typed-boolean-and-datetime-map-values");
-            // Each value is half a microsecond past a whole microsecond, so the iOS conversions through NSDate (a
-            // double) can't move it into a neighbouring microsecond. Firestore keeps the microsecond and drops the rest.
+            // Each value is half a microsecond past a whole microsecond. Firestore keeps the microsecond and drops
+            // the rest.
             var expectedEarlyDate = new DateTimeOffset(2026, 5, 2, 13, 14, 15, TimeSpan.Zero)
                 .AddTicks(1234565);
             var expectedLateDate = new DateTimeOffset(2026, 5, 3, 16, 17, 18, TimeSpan.Zero)
@@ -30,14 +30,8 @@ namespace Plugin.Firebase.IntegrationTests.Firestore
 
             Assert.True(snapshot.Data!.BooleanMaps["enabled"]);
             Assert.False(snapshot.Data!.BooleanMaps["disabled"]);
-            Assert.InRange(
-                Math.Abs(snapshot.Data!.DateMaps["early"].Ticks - expectedEarlyDate.Ticks),
-                0,
-                IntegrationTestTimeouts.OneMicrosecondTicks);
-            Assert.InRange(
-                Math.Abs(snapshot.Data!.DateMaps["late"].Ticks - expectedLateDate.Ticks),
-                0,
-                IntegrationTestTimeouts.OneMicrosecondTicks);
+            FirestoreAssertions.SameInstantToTheMicrosecond(expectedEarlyDate, snapshot.Data!.DateMaps["early"]);
+            FirestoreAssertions.SameInstantToTheMicrosecond(expectedLateDate, snapshot.Data!.DateMaps["late"]);
         }
 
 

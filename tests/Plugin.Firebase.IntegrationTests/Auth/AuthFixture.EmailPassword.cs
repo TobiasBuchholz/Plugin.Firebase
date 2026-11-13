@@ -10,7 +10,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         public async Task updates_user_email()
         {
             var sut = CrossFirebaseAuth.Current;
-            await using var user = await AuthTestUserScope.SignInWithEmailAndPasswordAsync(
+            await using var user = await AuthTestUserScope.SignInOrCreateWithEmailAndPasswordAsync(
                 sut,
                 IntegrationTestUsers.UpdateEmailEmail,
                 deleteOnDispose: false);
@@ -25,7 +25,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         {
             var sut = CrossFirebaseAuth.Current;
             var email = IntegrationTestData.UniqueEmail("update-password");
-            await using var user = await AuthTestUserScope.SignInWithEmailAndPasswordAsync(sut, email);
+            await using var user = await AuthTestUserScope.CreateWithEmailAndPasswordAsync(sut, email);
             Assert.NotNull(sut.CurrentUser);
 
             await sut.CurrentUser!.UpdatePasswordAsync(IntegrationTestUsers.UpdatedPassword);

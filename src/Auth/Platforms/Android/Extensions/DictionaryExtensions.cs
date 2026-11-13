@@ -155,10 +155,9 @@ public static class DictionaryExtensions
             return null;
         }
 
-        if(targetType == typeof(string)) {
-            return value is Java.Lang.ICharSequence charSequence
-                ? charSequence.ToString()
-                : value.ToString();
+        // keys are always Java strings; any other value read as string goes through the converter and throws
+        if(targetType == typeof(string) && value is Java.Lang.ICharSequence charSequence) {
+            return charSequence.ToString();
         }
 
         if(value is Java.Lang.Object javaValue) {

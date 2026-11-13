@@ -102,6 +102,26 @@ public class ClaimValueConverterTests
         { double.PositiveInfinity, typeof(double), double.PositiveInfinity },
         { double.NegativeInfinity, typeof(float), float.NegativeInfinity },
 
+        // decimal targets keep every digit a double holds, not just the 15 the decimal cast keeps
+        // 2^53 + 2
+        { 9007199254740994.0, typeof(decimal), 9007199254740994m },
+        { 0.1, typeof(decimal), 0.1m },
+
+        // decimals, which iOS reads NSDecimalNumber claims as, keep their exact value through the range check
+        { 9223372036854775807m, typeof(long), long.MaxValue },
+        { -9223372036854775808m, typeof(long), long.MinValue },
+        { 18446744073709551615m, typeof(ulong), ulong.MaxValue },
+        { 9223372036854775806.9m, typeof(long), 9223372036854775806L },
+        { -2.7m, typeof(int), -2 },
+        { 0.5m, typeof(uint), 0U },
+        { 254.9m, typeof(byte), (byte) 254 },
+        { decimal.MaxValue, typeof(decimal), decimal.MaxValue },
+        { decimal.MinValue, typeof(decimal?), decimal.MinValue },
+        { 1.5m, typeof(double), 1.5 },
+        { 1.5m, typeof(float), 1.5f },
+        { 255m, typeof(ByteLevel), ByteLevel.Max },
+        { 2.7m, typeof(ByteLevel?), (ByteLevel) 2 },
+
         // enums convert through their underlying type, and fractions truncate
         { 0L, typeof(ByteLevel), ByteLevel.None },
         { 255L, typeof(ByteLevel), ByteLevel.Max },
@@ -186,6 +206,17 @@ public class ClaimValueConverterTests
         { double.MaxValue, typeof(float) },
         { 1e29, typeof(decimal) },
 
+        // decimals are range checked before truncation too
+        { 9223372036854775808m, typeof(long) },
+        { 9223372036854775807.5m, typeof(long) },
+        { -9223372036854775809m, typeof(long) },
+        { 18446744073709551616m, typeof(ulong) },
+        { -0.5m, typeof(ulong) },
+        { 2147483647.9m, typeof(int) },
+        { 255.9m, typeof(byte) },
+        { 256m, typeof(ByteLevel) },
+        { decimal.MaxValue, typeof(long?) },
+
         // enums are range checked against their underlying type
         { 256L, typeof(ByteLevel) },
         { 300L, typeof(ByteLevel) },
@@ -231,6 +262,9 @@ public class ClaimValueConverterTests
         { 7L, typeof(bool) },
         { 1.5, typeof(bool?) },
         { "true", typeof(bool) },
+
+        { 7m, typeof(string) },
+        { 7m, typeof(bool) },
 
         // nor into any other type they aren't
         { 7L, typeof(DateTimeOffset) },

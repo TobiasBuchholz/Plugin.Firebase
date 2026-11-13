@@ -20,7 +20,9 @@ internal static class ClaimValueConverter
     /// target, or a nullable one, gets a converted number. Any other target gets <paramref name="value"/> itself when
     /// the value is already of that type.
     /// </summary>
-    /// <param name="value">The claim value: a string, a bool, or a CLR integral or floating-point number.</param>
+    /// <param name="value">
+    /// The claim value: a string, a bool, or a CLR integral, floating-point or <see cref="decimal"/> number.
+    /// </param>
     /// <param name="targetType">The requested type, or null to keep the natural type.</param>
     /// <returns>The converted value, or <paramref name="value"/> itself for a non-numeric target.</returns>
     /// <exception cref="OverflowException">
@@ -86,6 +88,8 @@ internal static class ClaimValueConverter
                     return FromInteger(value, typeCode);
                 case float or double:
                     return FromDouble(Convert.ToDouble(value, CultureInfo.InvariantCulture), typeCode);
+                case decimal number:
+                    return FromDecimal(number, typeCode);
                 default:
                     throw Mismatch(value, targetType);
             }
@@ -162,11 +166,58 @@ internal static class ClaimValueConverter
             case TypeCode.Double:
                 return value;
             case TypeCode.Decimal:
-                // throws OverflowException for NaN, infinity and values outside the decimal range
-                return (decimal) value;
+                // NaN and infinity throw here, values outside the decimal range in Parse. The cast (decimal) value
+                // would keep only 15 significant digits, so 2^53 + 2 would come back as 9007199254740990.
+                if(!double.IsFinite(value)) {
+                    throw new OverflowException();
+                }
+                return decimal.Parse(
+                    value.ToString("R", CultureInfo.InvariantCulture),
+                    NumberStyles.Float,
+                    CultureInfo.InvariantCulture
+                );
             default:
                 throw new ArgumentOutOfRangeException(nameof(target), target, null);
         }
+    }
+
+    private static object FromDecimal(decimal value, TypeCode target)
+    {
+        // Every integral bound is exact as a decimal, so the range check sees the value as it is and the cast that
+        // follows only truncates toward zero.
+        switch(target) {
+            case TypeCode.SByte:
+                return (sbyte) InRange(value, sbyte.MinValue, sbyte.MaxValue);
+            case TypeCode.Byte:
+                return (byte) InRange(value, byte.MinValue, byte.MaxValue);
+            case TypeCode.Int16:
+                return (short) InRange(value, short.MinValue, short.MaxValue);
+            case TypeCode.UInt16:
+                return (ushort) InRange(value, ushort.MinValue, ushort.MaxValue);
+            case TypeCode.Int32:
+                return (int) InRange(value, int.MinValue, int.MaxValue);
+            case TypeCode.UInt32:
+                return (uint) InRange(value, uint.MinValue, uint.MaxValue);
+            case TypeCode.Int64:
+                return (long) InRange(value, long.MinValue, long.MaxValue);
+            case TypeCode.UInt64:
+                return (ulong) InRange(value, ulong.MinValue, ulong.MaxValue);
+            case TypeCode.Single:
+                // the decimal range is far inside the float range, so this only rounds
+                return (float) value;
+            case TypeCode.Double:
+                return (double) value;
+            case TypeCode.Decimal:
+                return value;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(target), target, null);
+        }
+    }
+
+    private static decimal InRange(decimal value, decimal min, decimal max)
+    {
+        // an integral value at max + 0.9 doesn't fit, even though truncating it would give max
+        return value >= min && value <= max ? value : throw new OverflowException();
     }
 
     private static double InRange(double value, double min, double max, bool maxIsExclusive = false)

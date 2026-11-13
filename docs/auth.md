@@ -214,7 +214,8 @@ On Android, `VerifyPhoneNumberAsync` now completes once the verification code ha
   - On iOS, a number in a list or dictionary requested with `string` elements used to become `null`, and with `bool` elements `true` or `false`. It now throws `InvalidCastException`. A number that doesn't fit a numeric element type throws `OverflowException` instead of wrapping.
   - On Android, numbers in a list or dictionary requested with a numeric element type now convert to it. Previously any element type other than the one the native SDK parsed the number into threw `ArgumentException`.
   - The exception was a dictionary inside a list, whose values went through `Convert.ChangeType`. That rounded fractions (2.7 read as `long` became 3) and coerced between types, for example `"123"` to 123 and `true` to 1.
-  - A number in a list requested with `string` or `bool` elements, or in a dictionary requested with `bool` values, now throws `InvalidCastException`. Dictionary values requested as `string` are still converted with `ToString()`.
+  - A number in a list requested with `string` or `bool` elements, or in a dictionary requested with `string` or `bool` values, now throws `InvalidCastException`. Previously Android converted dictionary values requested as `string` with `ToString()`, so `GetClaim<Dictionary<string, string>>` returned `"7"` for a numeric value.
+- On iOS, a number too large or too precise for a `double`, which the native JSON parser keeps as an `NSDecimalNumber`, is converted from its exact value, so 9223372036854775807 reads as `long.MaxValue`. A value with more significant digits than `decimal` holds (28 or 29) is rounded to the nearest `decimal` before the range check.
 
 On iOS, read each claim as its JSON type and convert it in your own code if you relied on the old coercions.
 

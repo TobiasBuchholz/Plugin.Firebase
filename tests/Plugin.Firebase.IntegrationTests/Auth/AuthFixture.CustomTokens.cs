@@ -101,6 +101,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
             Assert.Equal(7L, limits["daily"]);
             Assert.Equal(2L, limits["ratio"]);
             Assert.Throws<InvalidCastException>(() => result.GetClaim<Dictionary<string, bool>>("limits"));
+            Assert.Throws<InvalidCastException>(() => result.GetClaim<Dictionary<string, string>>("limits"));
             var listedLimits = Assert.Single(result.GetClaim<List<Dictionary<string, long>>>("limit_list"));
             Assert.Equal(7L, listedLimits["daily"]);
             Assert.Equal(2L, listedLimits["ratio"]);

@@ -37,7 +37,8 @@ public interface IAuthTokenResult
     /// </description></item>
     /// </list>
     /// <para>
-    /// The elements of a requested list type follow the same rules.
+    /// The elements of a requested list type and the values of a requested dictionary type follow the same rules, so a
+    /// numeric value in a dictionary read with <see cref="string"/> values throws <see cref="InvalidCastException"/>.
     /// </para>
     /// <para>
     /// A JSON <c>null</c> claim read as a non-nullable value type throws; currently that is a

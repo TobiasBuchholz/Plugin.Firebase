@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Runtime.InteropServices;
 using CoreFoundation;
 using ObjCRuntime;
@@ -91,11 +92,16 @@ public static class NSObjectExtensions
     private static extern nint CFBooleanGetTypeID();
 
     /// <summary>
-    /// Reads the stored value as long, ulong or double, which hold every value of the NSNumber's ObjCType, so the
+    /// Reads the stored value as long, ulong, double or, for an NSDecimalNumber, decimal, which hold every value of the
+    /// NSNumber's ObjCType, so the
     /// conversion to the requested type range checks it instead of a narrower NSNumber accessor wrapping it.
     /// </summary>
     private static object ToWidenedValue(NSNumber @this, string? objCType)
     {
+        if(@this is NSDecimalNumber decimalNumber) {
+            return ToWidenedValue(decimalNumber);
+        }
+
         switch(objCType) {
             case "f":
             case "d":
@@ -109,6 +115,20 @@ public static class NSObjectExtensions
             default:
                 return @this.Int64Value;
         }
+    }
+
+    /// <summary>
+    /// Reads an NSDecimalNumber, which NSJSONSerialization uses for numbers a double can't hold exactly, as a
+    /// <see cref="decimal"/> so its exact value reaches the range check. Its <c>DoubleValue</c> would round
+    /// 9223372036854775807 up to 2^63, which no longer fits <see cref="long"/>. NaN, and values outside the
+    /// <see cref="decimal"/> range, fall back to <c>DoubleValue</c>.
+    /// </summary>
+    private static object ToWidenedValue(NSDecimalNumber @this)
+    {
+        // StringValue is locale independent and never uses exponent notation
+        return decimal.TryParse(@this.StringValue, NumberStyles.Float, CultureInfo.InvariantCulture, out var value)
+            ? value
+            : @this.DoubleValue;
     }
 
     private static object ToUntypedObject(NSNumber @this, string? objCType)

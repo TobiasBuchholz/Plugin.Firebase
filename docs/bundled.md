@@ -41,7 +41,6 @@ CrossFirebase.Initialize(activity, () => Platform.CurrentActivity, settings);
 
 ```c#
 using Plugin.Firebase.Analytics;
-using Plugin.Firebase.AppCheck;
 using Plugin.Firebase.CloudMessaging;
 using Plugin.Firebase.Crashlytics;
 #if IOS
@@ -49,9 +48,6 @@ using Plugin.Firebase.Core.Platforms.iOS;
 #elif ANDROID
 using Plugin.Firebase.Core.Platforms.Android;
 #endif
-
-// App Check must be configured before Firebase is initialized.
-CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
 
 #if IOS
 CrossFirebase.Initialize();
@@ -67,6 +63,25 @@ if(CrossFirebase.TryGetDefaultApp(out var _)) {
 }
 #endif
 ```
+
+### App Check
+
+If the old initializer took `appCheckOptions`, pass the same options to
+`CrossFirebaseAppCheck.Configure(options)` before Core initialization. For production builds with App Check
+enabled, keep the provider registered for your app in Firebase, such as App Attest on iOS or Play Integrity on
+Android. If you do not use App Check, omit the package reference, or configure `AppCheckOptions.Disabled`
+before initialization when the package is required by your app.
+
+For local testing, apps that reference `Plugin.Firebase.AppCheck` can select the debug provider in a debug build.
+Use the namespace `Plugin.Firebase.AppCheck` and run this before Core initialization:
+
+```csharp
+#if DEBUG
+CrossFirebaseAppCheck.Configure(AppCheckOptions.Debug);
+#endif
+```
+
+See [App Check setup](app_check.md) for provider configuration.
 
 ## Settings and their replacements
 

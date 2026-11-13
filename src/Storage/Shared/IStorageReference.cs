@@ -59,7 +59,7 @@ public interface IStorageReference
     /// </remarks>
     /// <param name="filePath">The path of the regular file to upload.</param>
     /// <param name="metaData">Optional metadata to store with the uploaded object.</param>
-    /// <exception cref="ArgumentException">On iOS, <paramref name="filePath"/> is null or empty.</exception>
+    /// <exception cref="ArgumentException"><paramref name="filePath"/> is null or empty.</exception>
     IStorageTransferTask PutFile(string filePath, IStorageMetadata? metaData = null);
 
     /// <summary>

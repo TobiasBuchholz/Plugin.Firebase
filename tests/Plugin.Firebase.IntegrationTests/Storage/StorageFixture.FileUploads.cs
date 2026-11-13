@@ -10,18 +10,10 @@ public sealed partial class StorageFixture
     [Fact]
     public async Task uploads_via_file_path()
     {
-        const string path = "texts/via_file.txt";
         const string contents = "Some text via file";
-        var filePath = await CreateTempTextFileAsync($"via_file_{Guid.NewGuid():N}.txt", contents);
-        var reference = CrossFirebaseStorage.Current.GetReferenceFromPath(path);
+        var reference = CrossFirebaseStorage.Current.GetReferenceFromPath("texts/via_file.txt");
 
-        try {
-            // iOS reads the file after PutFile returns, so it must stay in place until the upload completes.
-            await reference.PutFile(filePath).AwaitAsync();
-        }
-        finally {
-            File.Delete(filePath);
-        }
+        await UploadTempTextFileAsync(reference, "via_file", contents);
 
         var bytes = await reference.GetBytesAsync(1 * 1024 * 1024);
         Assert.Equal(contents, Encoding.UTF8.GetString(bytes));
@@ -34,15 +26,12 @@ public sealed partial class StorageFixture
         const string contents = "Some text via read-only file";
         await using var scope = StorageTestPathScope.FromPath("texts");
         var reference = scope.Child("via_read_only_file.txt");
-        var filePath = await CreateTempTextFileAsync($"read_only_{Guid.NewGuid():N}.txt", contents);
 
-        try {
-            File.SetUnixFileMode(filePath, ReadOnlyFileMode);
-            await reference.PutFile(filePath).AwaitAsync();
-        }
-        finally {
-            File.Delete(filePath);
-        }
+        await UploadTempTextFileAsync(
+            reference,
+            "read_only",
+            contents,
+            prepareFile: filePath => File.SetUnixFileMode(filePath, ReadOnlyFileMode));
 
         var bytes = await reference.GetBytesAsync(1 * 1024 * 1024);
         Assert.Equal(contents, Encoding.UTF8.GetString(bytes));
@@ -54,14 +43,8 @@ public sealed partial class StorageFixture
     {
         await using var scope = StorageTestPathScope.FromPath("texts");
         var reference = scope.Child("file_default_content_type.txt");
-        var filePath = await CreateTempTextFileAsync($"default_content_type_{Guid.NewGuid():N}.txt", "plain text");
 
-        try {
-            await reference.PutFile(filePath).AwaitAsync();
-        }
-        finally {
-            File.Delete(filePath);
-        }
+        await UploadTempTextFileAsync(reference, "default_content_type", "plain text");
 
         // Native iOS infers the content type from the file extension; native Android stores the default type.
         var expectedContentType = OperatingSystem.IsIOS() ? "text/plain" : "application/octet-stream";
@@ -75,14 +58,12 @@ public sealed partial class StorageFixture
     {
         await using var scope = StorageTestPathScope.FromPath("texts");
         var reference = scope.Child("file_explicit_content_type.txt");
-        var filePath = await CreateTempTextFileAsync($"explicit_content_type_{Guid.NewGuid():N}.txt", "{}");
 
-        try {
-            await reference.PutFile(filePath, new StorageMetadata(contentType: "application/json")).AwaitAsync();
-        }
-        finally {
-            File.Delete(filePath);
-        }
+        await UploadTempTextFileAsync(
+            reference,
+            "explicit_content_type",
+            "{}",
+            new StorageMetadata(contentType: "application/json"));
 
         var metadata = await reference.GetMetadataAsync();
         Assert.Equal("application/json", metadata.ContentType);
@@ -109,11 +90,31 @@ public sealed partial class StorageFixture
     }
 
 
-    [IosFact]
-    public void rejects_empty_upload_file_path_on_ios()
+    [Fact]
+    public void rejects_empty_upload_file_path()
     {
         var reference = CrossFirebaseStorage.Current.GetReferenceFromPath("texts/empty_upload_file_path.txt");
 
         Assert.Throws<ArgumentException>(() => reference.PutFile(""));
+    }
+
+    // Writes a uniquely named .txt file, uploads it, and deletes it afterwards. iOS reads the file after
+    // PutFile returns, so it must stay in place until the upload completes.
+    private static async Task UploadTempTextFileAsync(
+        IStorageReference reference,
+        string fileNamePrefix,
+        string contents,
+        IStorageMetadata? metadata = null,
+        Action<string>? prepareFile = null)
+    {
+        var filePath = await CreateTempTextFileAsync($"{fileNamePrefix}_{Guid.NewGuid():N}.txt", contents);
+
+        try {
+            prepareFile?.Invoke(filePath);
+            await reference.PutFile(filePath, metadata).AwaitAsync();
+        }
+        finally {
+            File.Delete(filePath);
+        }
     }
 }

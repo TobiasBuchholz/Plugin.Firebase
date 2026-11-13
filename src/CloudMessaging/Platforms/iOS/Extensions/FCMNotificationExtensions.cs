@@ -33,8 +33,9 @@ public static class FCMNotificationExtension
     /// <param name="userInfo">The user info dictionary from the notification.</param>
     /// <returns>
     /// An <see cref="FCMNotification"/> containing the notification data. When the payload has no alert or
-    /// <c>notification</c> dictionary (for example a local notification), body and title are empty and
-    /// <see cref="FCMNotification.Data"/> still holds the user info entries.
+    /// <c>notification</c> dictionary (for example a local notification), <see cref="FCMNotification.Data"/>
+    /// holds the user info entries, and <see cref="FCMNotification.Body"/> and <see cref="FCMNotification.Title"/>
+    /// come from its <c>body</c> and <c>title</c> keys when present.
     /// </returns>
     public static FCMNotification ToFCMNotification(this NSDictionary userInfo)
     {
@@ -62,7 +63,7 @@ public static class FCMNotificationExtension
             }
         }
         // no alert or notification dictionary: keep the user info so custom keys aren't dropped
-        return new FCMNotification(data: userInfo.ToDictionary());
+        return new FCMNotification(imageUrl: GetImageUrl(userInfo), data: userInfo.ToDictionary());
     }
 
     private static string GetBody(NSDictionary dict)

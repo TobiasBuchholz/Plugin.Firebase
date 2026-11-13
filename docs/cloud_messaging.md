@@ -181,7 +181,7 @@ curl --location 'https://fcm.googleapis.com/fcm/send' \
 ##### is_silent_in_foreground
 Add `"is_silent_in_foreground": "true"` to the `data` payload to prevent showing the local push notification. The flag prevents a notification to be generated if the app is in foreground - otherwise the notifications will still be shown.  Event `CrossFirebaseCloudMessaging.Current.NotificationReceived` is still triggered to allow for manual notification handling.
 
-The flag is read after the `NotificationReceived` subscribers return. On iOS, a subscriber can set it in `e.Notification.Data` to suppress the banner, and a silent notification completes the `willPresentNotification` delegate with `UNNotificationPresentationOptions.None`. Check `e.Notification.Data` for `null` before writing to it: it is `null` when the payload has no alert or `notification` dictionary, for example for local notifications, and such a notification can't be marked silent this way.
+The flag is read after the `NotificationReceived` subscribers return. On iOS, a subscriber can set it in `e.Notification.Data` to suppress the banner, and a silent notification completes the `willPresentNotification` delegate with `UNNotificationPresentationOptions.None`. This also works for a payload without an alert or `notification` dictionary, such as a local notification, because `Data` holds its user info entries.
 
 Note: this is a Plugin.Firebase custom field and hence not documented with google FCM documentation.
 
@@ -201,10 +201,10 @@ On iOS, the `willPresentNotification` and `didReceiveNotificationResponse` deleg
 - If a `NotificationTapped` subscriber throws, `didReceiveNotificationResponse` now still completes.
 - In both delegates the exception still propagates out of the delegate method into the native caller, as before, so it remains unhandled in your app. Catch exceptions in your subscribers.
 
-On iOS, `NotificationTapped` and `NotificationReceived` changes:
+On iOS, `NotificationTapped` and `NotificationReceived` deliver more of the payload:
 
 - A tap that arrives before the first `NotificationTapped` subscriber, such as the tap that cold-starts the app, keeps its action identifier when it is raised for that subscriber. Previously only an immediate tap had it. On this path too, it overwrites a sender-supplied `ActionIdentifier` data key.
-- A payload with an `aps` dictionary without `alert`, or with neither an `aps` nor a `notification` dictionary (for example a local notification), now converts with `Data` holding its user info entries, with empty `Body` and `Title`. Previously `Data` was `null`: the custom keys were dropped, an immediate tap threw a `NullReferenceException`, and a `NotificationReceived` subscriber couldn't mark such a notification `is_silent_in_foreground`.
+- A payload with an `aps` dictionary without `alert`, or with neither an `aps` nor a `notification` dictionary (for example a local notification), now converts with `Data` holding its user info entries. `Body` and `Title` come from `Data["body"]` and `Data["title"]` when present, as on Android, and are empty otherwise; a local notification's displayed title and body aren't read. Previously `Data` was `null` and `Body` and `Title` were empty: the custom keys were dropped, an immediate tap threw a `NullReferenceException`, and a `NotificationReceived` subscriber couldn't mark such a notification `is_silent_in_foreground`.
 
 ## Release notes
 - Version 4.0.1

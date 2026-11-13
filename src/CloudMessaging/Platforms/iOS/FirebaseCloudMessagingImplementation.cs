@@ -175,8 +175,7 @@ public sealed class FirebaseCloudMessagingImplementation
     /// handler is still called and the exception then propagates out of this method.
     /// On both paths, <see cref="FCMNotification.Data"/> carries the response's
     /// <see cref="UNNotificationResponse.ActionIdentifier"/> under the <c>ActionIdentifier</c> key, replacing a
-    /// sender-supplied value with that key. A notification without <see cref="FCMNotification.Data"/> is raised
-    /// as a copy whose data holds only that entry.
+    /// sender-supplied value with that key.
     /// </remarks>
     /// <param name="center">The notification center.</param>
     /// <param name="response">The user's response to the notification.</param>
@@ -227,19 +226,8 @@ public sealed class FirebaseCloudMessagingImplementation
             return notification;
         }
 
-        const string key = nameof(UNNotificationResponse.ActionIdentifier);
-        if(notification.Data == null) {
-            // the native conversion always gives Data; a hand-built notification may not, and Data has no
-            // setter, so copy it with a dictionary so the action is not dropped
-            return new FCMNotification(
-                notification.Body,
-                notification.Title,
-                notification.ImageUrl,
-                new Dictionary<string, string> { { key, actionIdentifier } }
-            ) { ChannelId = notification.ChannelId };
-        }
-
-        notification.Data[key] = actionIdentifier;
+        // the native conversion always gives a writable Data
+        notification.Data[nameof(UNNotificationResponse.ActionIdentifier)] = actionIdentifier;
         return notification;
     }
 

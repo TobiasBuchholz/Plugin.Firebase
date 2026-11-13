@@ -151,5 +151,6 @@ On iOS, `CrossFirebaseAppCheck.Configure` now fails explicitly instead of being 
 ## Release notes
 
 - Next
-  - Target .NET 10 and raise the minimum Firebase iOS binding version to 12.7; the minimum platform versions remain iOS 15 and Android 23.
+  - Target .NET 10 and raise the minimum Firebase iOS binding version to 12.19.3; the minimum platform versions remain iOS 15 and Android 23.
   - Enable nullable reference-type analysis and correct nullable provider-factory, registration, and cross-platform implementation contracts.
+  - Fix Android provider changes after initialization. On iOS, call `Configure` before Firebase initialization. A late call now throws.

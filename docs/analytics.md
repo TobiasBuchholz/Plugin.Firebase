@@ -87,7 +87,7 @@ Passing a typed null to the dictionary overload clears all default event paramet
 ## Release notes
 
 - Next
-  - Target .NET 10 and raise the minimum Firebase iOS binding version to 12.7; the minimum platform versions remain iOS 15 and Android 23.
+  - Target .NET 10 and raise the minimum Firebase iOS binding version to 12.19.3; the minimum platform versions remain iOS 15 and Android 23.
   - Add `SetConsent(...)` with Firebase consent types and statuses.
   - Add `SetDefaultEventParameters(...)`, including clearing defaults by passing a typed `null`.
   - Guard standalone Android use before initialization with an actionable `InvalidOperationException`.

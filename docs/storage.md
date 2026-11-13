@@ -85,9 +85,11 @@ Failures that the native Storage SDKs report now surface as `CrossPlatformFireba
 ## Release notes
 
 - Next
-  - Target .NET 10 and raise the minimum Firebase iOS binding version to 12.7; the minimum platform versions remain iOS 15 and Android 23.
+  - Target .NET 10 and raise the minimum Firebase iOS binding version to 12.19.3; the minimum platform versions remain iOS 15 and Android 23.
   - Corrected nullable reference and value contracts, constructor defaults, timestamp mapping, iOS metadata forwarding, and native task-snapshot error propagation. See [Next-release migration notes](#next-release-migration-notes).
   - Added Storage emulator support, fixed iOS `ListAllAsync()` paging, and enforced iOS in-memory download size limits.
+  - Normalize native Storage errors and return a readable, size-limited Android download stream.
+
 - Version 3.1.1
   - Using AdamE.Firebase.iOS.* minimum version 11
 - Version 3.1.0

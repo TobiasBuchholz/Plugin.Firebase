@@ -57,10 +57,12 @@ Android and iOS still handle a few inputs differently:
 ## Release notes
 
 - Next
-  - Target .NET 10 and raise the minimum Firebase iOS binding version to 12.7; the minimum platform versions remain iOS 15 and Android 23.
+  - Target .NET 10 and raise the minimum Firebase iOS binding version to 12.19.3; the minimum platform versions remain iOS 15 and Android 23.
   - Fixed typed callable responses for native object, array, scalar, and null payloads.
   - Fixed regional initialization after `Current` is created and preserved emulator settings when changing regions.
   - Kept global region initialization; the breaking redesign in #661 is explicitly excluded.
+  - Accept array and scalar JSON request payloads in addition to objects.
+
 - Version 3.1.1
   - Using AdamE.Firebase.iOS.* minimum version 11
 - Version 3.1.0

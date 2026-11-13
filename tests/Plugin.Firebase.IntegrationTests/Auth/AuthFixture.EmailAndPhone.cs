@@ -42,13 +42,32 @@ namespace Plugin.Firebase.IntegrationTests.Auth
                 IntegrationTestOptions.PhoneAuthCodeAndroidSystemPropertyName);
 
             await sut.SignOutAsync();
-            await sut.VerifyPhoneNumberAsync(phoneNumber);
+            await sut.VerifyPhoneNumberAsync(phoneNumber).WaitForTestAsync(
+                IntegrationTestTimeouts.PhoneVerification,
+                "phone number verification before sign-in");
 
             var user = await sut.SignInWithPhoneNumberVerificationCodeAsync(verificationCode);
             await using var testUser = AuthTestUserScope.TrackCurrentUser(sut, deleteOnDispose: false);
 
             Assert.NotNull(user);
             Assert.Equal(user.Uid, sut.CurrentUser!.Uid);
+        }
+
+
+        [OptInFact(
+            IntegrationTestOptions.RunPhoneAuthTestsEnvironmentVariableName,
+            IntegrationTestOptions.RunPhoneAuthTestsAndroidSystemPropertyName)]
+        public async Task verify_phone_number_faults_for_invalid_number_when_enabled()
+        {
+            // OnVerificationFailed must fault the returned task, not leave it completed
+            var sut = CrossFirebaseAuth.Current;
+            var ex = await Assert.ThrowsAnyAsync<CrossPlatformFirebaseAuthException>(
+                () => sut.VerifyPhoneNumberAsync("not-a-phone-number").WaitForTestAsync(
+                    IntegrationTestTimeouts.PhoneVerification,
+                    "invalid phone number verification failure")
+            );
+
+            AuthAssertions.NativeAuthExceptionCaptured(ex);
         }
 
 
@@ -66,7 +85,9 @@ namespace Plugin.Firebase.IntegrationTests.Auth
                 IntegrationTestOptions.PhoneAuthCodeAndroidSystemPropertyName);
 
             await using var user = await AuthTestUserScope.SignInAnonymouslyAsync(sut);
-            await sut.VerifyPhoneNumberAsync(phoneNumber);
+            await sut.VerifyPhoneNumberAsync(phoneNumber).WaitForTestAsync(
+                IntegrationTestTimeouts.PhoneVerification,
+                "phone number verification before linking");
 
             var linkedUser = await sut.LinkWithPhoneNumberVerificationCodeAsync(verificationCode);
 
@@ -88,7 +109,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
                 IntegrationTestOptions.PhoneAuthCodeEnvironmentVariableName,
                 IntegrationTestOptions.PhoneAuthCodeAndroidSystemPropertyName);
 
-            await using var user = await AuthTestUserScope.SignInWithUniqueEmailAndPasswordAsync(
+            await using var user = await AuthTestUserScope.CreateWithUniqueEmailAndPasswordAsync(
                 sut,
                 "update-phone");
             Assert.NotNull(sut.CurrentUser);
@@ -102,7 +123,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         public async Task sends_verification_email()
         {
             var sut = CrossFirebaseAuth.Current;
-            await using var user = await AuthTestUserScope.SignInWithEmailAndPasswordAsync(
+            await using var user = await AuthTestUserScope.SignInOrCreateWithEmailAndPasswordAsync(
                 sut,
                 IntegrationTestUsers.VerificationEmail,
                 deleteOnDispose: false);
@@ -116,7 +137,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         public async Task sends_verification_email_with_action_code_settings()
         {
             var sut = CrossFirebaseAuth.Current;
-            await using var user = await AuthTestUserScope.SignInWithUniqueEmailAndPasswordAsync(
+            await using var user = await AuthTestUserScope.CreateWithUniqueEmailAndPasswordAsync(
                 sut,
                 "verification-settings");
             Assert.NotNull(sut.CurrentUser);
@@ -129,7 +150,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         public async Task sends_password_reset_email_for_current_user()
         {
             var sut = CrossFirebaseAuth.Current;
-            await using var user = await AuthTestUserScope.SignInWithUniqueEmailAndPasswordAsync(
+            await using var user = await AuthTestUserScope.CreateWithUniqueEmailAndPasswordAsync(
                 sut,
                 "pw-reset-current");
 
@@ -141,7 +162,7 @@ namespace Plugin.Firebase.IntegrationTests.Auth
         public async Task sends_password_reset_email_for_explicit_email()
         {
             var sut = CrossFirebaseAuth.Current;
-            await using var user = await AuthTestUserScope.SignInWithUniqueEmailAndPasswordAsync(
+            await using var user = await AuthTestUserScope.CreateWithUniqueEmailAndPasswordAsync(
                 sut,
                 "pw-reset-explicit");
             var email = user.Email ?? throw new InvalidOperationException("Expected scoped user email.");

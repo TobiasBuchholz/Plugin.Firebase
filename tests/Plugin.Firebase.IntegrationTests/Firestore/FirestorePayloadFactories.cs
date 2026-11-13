@@ -188,3 +188,78 @@ internal static class CrewCheckInFactory
         return new CrewCheckInScenario(crewCheckIn, timestamp, logTimestamp);
     }
 }
+
+internal static class NumericWritesFactory
+{
+    public static NumericWritesDocument CreateMinimums()
+    {
+        return new NumericWritesDocument {
+            ByteValue = byte.MinValue,
+            SbyteValue = sbyte.MinValue,
+            ShortValue = short.MinValue,
+            UshortValue = ushort.MinValue,
+            IntValue = int.MinValue,
+            UintValue = uint.MinValue,
+            LongValue = long.MinValue,
+            UlongValue = ulong.MinValue,
+            FloatValue = float.MinValue,
+            DoubleValue = double.MinValue
+        };
+    }
+
+    public static NumericWritesDocument CreateMaximums()
+    {
+        return new NumericWritesDocument {
+            ByteValue = byte.MaxValue,
+            SbyteValue = sbyte.MaxValue,
+            ShortValue = short.MaxValue,
+            UshortValue = ushort.MaxValue,
+            IntValue = int.MaxValue,
+            UintValue = uint.MaxValue,
+            LongValue = long.MaxValue,
+            // the largest ulong Firestore can store
+            UlongValue = long.MaxValue,
+            FloatValue = float.MaxValue,
+            DoubleValue = double.MaxValue
+        };
+    }
+
+    public static NullableNumericWritesDocument CreateNullableValues()
+    {
+        return new NullableNumericWritesDocument {
+            NullableByteValue = byte.MaxValue,
+            NullableUintValue = uint.MaxValue,
+            NullableUlongValue = long.MaxValue,
+            NullableFloatValue = 1.5f,
+            NullableEnumValue = IntRating.Min
+        };
+    }
+
+    public static EnumWidthsDocument CreateEnumMinimums()
+    {
+        return new EnumWidthsDocument {
+            ByteEnum = ByteRating.Min,
+            SbyteEnum = SbyteRating.Min,
+            ShortEnum = ShortRating.Min,
+            UshortEnum = UshortRating.Min,
+            IntEnum = IntRating.Min,
+            UintEnum = UintRating.Min,
+            LongEnum = LongRating.Min,
+            UlongEnum = UlongRating.Min
+        };
+    }
+
+    public static EnumWidthsDocument CreateEnumMaximums()
+    {
+        return new EnumWidthsDocument {
+            ByteEnum = ByteRating.Max,
+            SbyteEnum = SbyteRating.Max,
+            ShortEnum = ShortRating.Max,
+            UshortEnum = UshortRating.Max,
+            IntEnum = IntRating.Max,
+            UintEnum = UintRating.Max,
+            LongEnum = LongRating.Max,
+            UlongEnum = UlongRating.Max
+        };
+    }
+}

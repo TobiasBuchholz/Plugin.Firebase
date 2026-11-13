@@ -56,7 +56,7 @@ Since code should be documenting itself you can also take a look at the followin
 ## Release notes
 
 - Next
-  - Target .NET 10 and raise the minimum Firebase iOS binding version to 12.7; the minimum platform versions remain iOS 15 and Android 23.
+  - Target .NET 10 and raise the minimum Firebase iOS binding version to 12.19.3; the minimum platform versions remain iOS 15 and Android 23.
   - Document iOS symbol-export diagnostics and Android resource/build-ID troubleshooting.
   - Support newer Android Crashlytics binding shapes and validate targeted compile compatibility across the tested `Xamarin.Firebase.Crashlytics` 119.x and 120.x packages, up to and including 120.0.5. The package still references 119.0.0 by default; override `XamarinFirebaseCrashlyticsVersion` to use a newer binding.
 - Version 3.1.1

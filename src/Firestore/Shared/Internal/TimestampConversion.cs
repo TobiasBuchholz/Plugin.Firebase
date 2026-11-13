@@ -6,7 +6,8 @@ namespace Plugin.Firebase.Firestore.Internal;
 /// <remarks>
 /// Platform-neutral so the arithmetic can be unit tested without a device. A .NET tick is 100 ns, so the
 /// conversions are exact at 100 ns granularity. The native SDKs then truncate written values to the
-/// microseconds that Firestore stores.
+/// microseconds that Firestore stores. .NET dates and Firestore timestamps both use the proleptic Gregorian
+/// calendar, so dates before the 1582-10-15 calendar reform convert without a shift.
 /// </remarks>
 internal static class TimestampConversion
 {
@@ -37,11 +38,13 @@ internal static class TimestampConversion
     /// </summary>
     /// <remarks>
     /// <see cref="DateTimeKind.Local"/> and <see cref="DateTimeKind.Utc"/> values convert through their UTC
-    /// instant. <see cref="DateTimeKind.Unspecified"/> values are read as local time, as the implicit
-    /// <see cref="DateTime"/> to <see cref="DateTimeOffset"/> conversion does.
+    /// instant. <see cref="DateTimeKind.Unspecified"/> values are rejected by
+    /// <see cref="DateTimeKindGuard.ThrowIfUnspecified(DateTime)"/>, because they don't identify an instant.
     /// </remarks>
+    /// <exception cref="ArgumentException"><paramref name="value"/> has <see cref="DateTimeKind.Unspecified"/>.</exception>
     public static (long Seconds, int Nanoseconds) ToUnixSecondsAndNanoseconds(DateTime value)
     {
+        DateTimeKindGuard.ThrowIfUnspecified(value);
         return ToUnixSecondsAndNanoseconds(new DateTimeOffset(value));
     }
 

@@ -1,6 +1,6 @@
 # Core
 
-Plugin.Firebase.Core provides the shared Firebase initialization layer used by the feature packages. It is installed transitively with those packages and with the bundled `Plugin.Firebase` package, so most applications do not need to reference it directly.
+Plugin.Firebase.Core provides the shared Firebase initialization layer used by the feature packages. Feature packages bring in Core as a dependency. Apps can also reference Core directly to make their initialization dependency explicit.
 
 ## Installation
 
@@ -20,5 +20,5 @@ The package supports .NET 10 only: `net10.0`, `net10.0-android`, and `net10.0-io
 
 - Next
   - Target .NET 10 only and require .NET MAUI 10 for MAUI consumers.
-  - Raise the minimum Firebase iOS binding version to 12.7 while retaining iOS 15 and Android API level 23 as the minimum operating-system versions.
+  - Raise the minimum Firebase iOS binding version to 12.19.3 while retaining iOS 15 and Android API level 23 as the minimum operating-system versions.
   - Make the `TryGetDefaultApp` out parameter nullable when no default Android Firebase app exists.

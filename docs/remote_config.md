@@ -41,7 +41,7 @@ Since code should be documenting itself you can also take a look at the followin
 ## Release notes
 
 - Next
-  - Target .NET 10 and raise the minimum Firebase iOS binding version to 12.7; the minimum platform versions remain iOS 15 and Android 23.
+  - Target .NET 10 and raise the minimum Firebase iOS binding version to 12.19.3; the minimum platform versions remain iOS 15 and Android 23.
   - Corrected nullable contracts and native dictionary conversions.
   - Added real-time Remote Config update listeners; retain and dispose the returned registration to remove a listener.
 - Version 3.1.1

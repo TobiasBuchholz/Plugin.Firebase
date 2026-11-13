@@ -41,5 +41,5 @@ Deleting an installation can affect Firebase services that identify app instance
 ## Release notes
 
 - Next
-  - Initial public release targeting .NET 10 with Firebase iOS 12.7, iOS 15, and Android 23 as its initial baselines.
+  - Initial public release targeting .NET 10 with Firebase iOS 12.19.3, iOS 15, and Android 23 as its initial baselines.
   - Add installation ID retrieval, auth-token retrieval and forced refresh, and installation deletion.

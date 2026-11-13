@@ -3,6 +3,12 @@ namespace Plugin.Firebase.Firestore;
 /// <summary>
 /// Specifies a custom property name to use when serializing or deserializing a property to/from Firestore.
 /// </summary>
+/// <remarks>
+/// Firestore stores numbers as signed 64-bit integers or doubles. Integral properties, including enums, are written
+/// as 64-bit integers and <see cref="float"/> properties as doubles. Writing a <see cref="decimal"/> or
+/// <see cref="char"/> property, or a <see cref="ulong"/> above <see cref="long.MaxValue"/>, throws
+/// <see cref="ArgumentException"/>.
+/// </remarks>
 [AttributeUsage(AttributeTargets.Property)]
 public class FirestorePropertyAttribute : Attribute
 {

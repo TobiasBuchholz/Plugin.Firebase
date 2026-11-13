@@ -2,7 +2,7 @@ using System.Collections;
 using System.Diagnostics;
 using Firebase.CloudFirestore;
 using Firebase.Core;
-using Plugin.Firebase.Core.Platforms.iOS.Extensions;
+using Plugin.Firebase.Firestore.Internal;
 
 namespace Plugin.Firebase.Firestore.Platforms.iOS.Extensions;
 
@@ -89,10 +89,26 @@ public static class NSObjectExtensions
     /// <summary>
     /// Converts a native iOS NSObject to a .NET object.
     /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A Firestore <see cref="Timestamp"/> becomes a UTC <see cref="DateTime"/> when <paramref name="targetType"/> is
+    /// <see cref="DateTime"/> or <c>DateTime?</c>, and a <see cref="DateTimeOffset"/> otherwise. Either way it is the
+    /// timestamp's exact instant, truncated to 100 ns ticks.
+    /// </para>
+    /// <para>
+    /// Native Firestore reads return dates as <see cref="Timestamp"/>, so an <see cref="NSDate"/> only gets here when
+    /// the caller passes one in. It becomes a <see cref="DateTimeOffset"/> with a zero offset, computed from its
+    /// seconds since the Unix epoch, whatever <paramref name="targetType"/> is. One before
+    /// <see cref="DateTimeOffset.MinValue"/> throws. That includes <see cref="NSDate.DistantPast"/>, which is
+    /// 0001-01-01 in the Julian calendar, two days before <see cref="DateTimeOffset.MinValue"/>.
+    /// </para>
+    /// </remarks>
     /// <param name="this">The NSObject to convert.</param>
     /// <param name="targetType">Optional target type for the conversion.</param>
     /// <returns>The converted .NET object.</returns>
     /// <exception cref="ArgumentException">Thrown if the NSObject type cannot be converted.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if the NSObject is an <see cref="NSDate"/> outside the
+    /// range of <see cref="DateTimeOffset"/>.</exception>
     public static object? ToObject(this NSObject @this, Type? targetType = null)
     {
         switch(@this) {
@@ -101,7 +117,11 @@ public static class NSObjectExtensions
             case NSString x:
                 return x.ToString();
             case NSDate x:
-                return x.ToDateTimeOffset();
+                // Native Firestore reads return Timestamp, so only an NSDate the caller passed in gets here. Use its
+                // seconds since the Unix epoch: the NSDate to DateTime operator goes through a calendar that is Julian
+                // before 1582-10-15. Out-of-range values, such as NSDate.DistantPast, throw rather than clamp. Like
+                // the old conversion, this ignores targetType.
+                return DateTimeOffset.UnixEpoch.AddSeconds(x.SecondsSince1970);
             case NSDictionary x:
                 return x.ToDictionaryObject(targetType);
             case NSArray x:
@@ -109,7 +129,8 @@ public static class NSObjectExtensions
             case global::Firebase.CloudFirestore.GeoPoint x:
                 return new GeoPoint(x.Latitude, x.Longitude);
             case Timestamp x:
-                if(targetType == typeof(DateTime))
+                // DateTime? targets get a DateTime too: a boxed DateTimeOffset can't be assigned to them.
+                if(targetType is not null && (Nullable.GetUnderlyingType(targetType) ?? targetType) == typeof(DateTime))
                     return x.ToDateTime();
                 else
                     return x.ToDateTimeOffset();
@@ -229,11 +250,28 @@ public static class NSObjectExtensions
     /// <summary>
     /// Converts a .NET object to a native iOS NSObject.
     /// </summary>
+    /// <remarks>
+    /// A <see cref="DateTimeOffset"/>, or a <see cref="DateTime"/> with <see cref="DateTimeKind.Local"/> or
+    /// <see cref="DateTimeKind.Utc"/>, converts to the native <see cref="Timestamp"/> for its exact UTC instant,
+    /// including dates before 1582-10-15. A <see cref="DateTime"/> with <see cref="DateTimeKind.Unspecified"/> throws,
+    /// because it could be UTC or local time. Both behave as they do on Android.
+    /// Numbers and enums follow the write rules shared with Android: integral values become an int64
+    /// <see cref="NSNumber"/> and <see cref="float"/> and <see cref="double"/> become a double <see cref="NSNumber"/>.
+    /// </remarks>
     /// <param name="this">The object to convert.</param>
     /// <returns>The native iOS NSObject representation.</returns>
-    /// <exception cref="ArgumentException">Thrown if the object type cannot be converted.</exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown if the object type cannot be converted, including numbers with no Firestore representation such as a
+    /// <see cref="decimal"/>, a <see cref="char"/> or a <see cref="ulong"/> above <see cref="long.MaxValue"/>, or a <see cref="DateTime"/> with <see cref="DateTimeKind.Unspecified"/>.
+    /// </exception>
     public static NSObject ToNSObject(this object? @this)
     {
+        if(FirestoreNumericWrites.TryWiden(@this, out var number)) {
+            // the native SDK stores an NSNumber whose objCType is 'c' or 'C' (sbyte, byte) as a boolean, so every
+            // integral value goes through the int64 overload
+            return number is long int64 ? new NSNumber(int64) : new NSNumber((double) number);
+        }
+
         switch(@this) {
             case null:
                 return new NSNull();
@@ -241,22 +279,13 @@ public static class NSObjectExtensions
                 return x;
             case string x:
                 return new NSString(x);
-            case int x:
-                return new NSNumber(x);
-            case long x:
-                return new NSNumber(x);
-            case short x:
-                return new NSNumber(x);
-            case float x:
-                return new NSNumber(x);
-            case double x:
-                return new NSNumber(x);
             case bool x:
                 return new NSNumber(x);
             case DateTime x:
-                return x.ToNSDate();
+                // ToTimestamp throws for DateTimeKind.Unspecified.
+                return x.ToTimestamp();
             case DateTimeOffset x:
-                return x.ToNSDate();
+                return x.ToTimestamp();
             case FieldValue x:
                 return x.ToNative();
             case Plugin.Firebase.Firestore.GeoPoint x:
@@ -270,26 +299,6 @@ public static class NSObjectExtensions
             case IFirestoreObject x:
                 return x.ToNSObject();
             default:
-                if(@this is Enum) {
-                    var enumType = Enum.GetUnderlyingType(@this.GetType());
-                    if(enumType == typeof(int)) {
-                        return new NSNumber(Convert.ToInt32(@this));
-                    } else if(enumType == typeof(uint)) {
-                        return new NSNumber(Convert.ToUInt32(@this));
-                    } else if(enumType == typeof(long)) {
-                        return new NSNumber(Convert.ToInt64(@this));
-                    } else if(enumType == typeof(ulong)) {
-                        return new NSNumber(Convert.ToUInt64(@this));
-                    } else if(enumType == typeof(sbyte)) {
-                        return new NSNumber(Convert.ToSByte(@this));
-                    } else if(enumType == typeof(byte)) {
-                        return new NSNumber(Convert.ToByte(@this));
-                    } else if(enumType == typeof(short)) {
-                        return new NSNumber(Convert.ToInt16(@this));
-                    } else if(enumType == typeof(ushort)) {
-                        return new NSNumber(Convert.ToUInt16(@this));
-                    }
-                }
                 throw new ArgumentException(
                     $"Could not convert object of type {@this.GetType()} to NSObject. Does it extend {nameof(IFirestoreObject)}?"
                 );

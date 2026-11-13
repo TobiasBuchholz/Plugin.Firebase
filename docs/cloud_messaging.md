@@ -209,10 +209,12 @@ On iOS, every `NotificationTapped` notification now carries `Data["ActionIdentif
 ## Release notes
 
 - Next
-  - Target .NET 10 and raise the minimum Firebase iOS binding version to 12.7; the minimum platform versions remain iOS 15 and Android 23.
+  - Target .NET 10 and raise the minimum Firebase iOS binding version to 12.19.3; the minimum platform versions remain iOS 15 and Android 23.
   - Register the bundled Android `FirebaseMessagingService` as non-exported and validate it under full Android trimming.
   - Correct nullable Android notification callbacks.
   - Expose the sender-specified Android channel as nullable `FCMNotification.ChannelId` for received, foreground, and tapped notifications. The value remains raw and does not change Firebase or app-defined fallback behavior.
+  - Preserve iOS notification action identifiers on deferred taps and always complete the foreground notification delegate.
+
 - Version 4.0.1
   - Add iOS action identifier to notification body (PR #547)
 - Version 4.0.0

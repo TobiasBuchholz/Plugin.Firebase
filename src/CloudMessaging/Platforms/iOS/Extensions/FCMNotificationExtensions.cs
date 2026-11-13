@@ -22,9 +22,41 @@ public static class FCMNotificationExtension
     /// </summary>
     /// <param name="request">The iOS notification request to convert.</param>
     /// <returns>An <see cref="FCMNotification"/> containing the notification data.</returns>
+    /// <remarks>
+    /// The request's <see cref="UNNotificationContent.UserInfo"/> is converted as described for
+    /// <see cref="ToFCMNotification(NSDictionary)"/>. When the user info has no alert or <c>notification</c>
+    /// dictionary (for example a local notification) and gives no <see cref="FCMNotification.Body"/> or
+    /// <see cref="FCMNotification.Title"/>, the displayed <see cref="UNNotificationContent.Body"/> and
+    /// <see cref="UNNotificationContent.Title"/> are used instead. A payload with an <c>aps.alert</c> or
+    /// <c>notification</c> dictionary is converted from the user info only.
+    /// </remarks>
     public static FCMNotification ToFCMNotification(this UNNotificationRequest request)
     {
-        return request.Content.UserInfo.ToFCMNotification();
+        var content = request.Content;
+        var notification = content.UserInfo.ToFCMNotification();
+        if(HasAlert(content.UserInfo)) {
+            return notification;
+        }
+
+        var body = FallbackOrNull(notification.Body, content.Body);
+        var title = FallbackOrNull(notification.Title, content.Title);
+        if(body == null && title == null) {
+            return notification;
+        }
+        return new FCMNotification(body, title, notification.ImageUrl, notification.Data);
+    }
+
+    private static bool HasAlert(NSDictionary userInfo)
+    {
+        return userInfo["aps"] is NSDictionary apsDict
+            ? apsDict["alert"] != null
+            : userInfo["notification"] is NSDictionary;
+    }
+
+    // null keeps the converted value, which may still come from the body or title data key
+    private static string FallbackOrNull(string converted, string displayed)
+    {
+        return string.IsNullOrEmpty(converted) && !string.IsNullOrEmpty(displayed) ? displayed : null;
     }
 
     /// <summary>
@@ -35,7 +67,8 @@ public static class FCMNotificationExtension
     /// An <see cref="FCMNotification"/> containing the notification data. When the payload has no alert or
     /// <c>notification</c> dictionary (for example a local notification), <see cref="FCMNotification.Data"/>
     /// holds the user info entries, and <see cref="FCMNotification.Body"/> and <see cref="FCMNotification.Title"/>
-    /// come from its <c>body</c> and <c>title</c> keys when present.
+    /// come from its <c>body</c> and <c>title</c> keys when present. The
+    /// <see cref="ToFCMNotification(UNNotificationRequest)"/> overload also falls back to the displayed title and body.
     /// </returns>
     public static FCMNotification ToFCMNotification(this NSDictionary userInfo)
     {

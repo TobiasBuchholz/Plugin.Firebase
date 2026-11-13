@@ -168,6 +168,7 @@ public sealed class CloudMessagingIosFixture
         var args = await tapped.WaitAsync(IntegrationTestTimeouts.ShortCallback, "local notification tap");
         Assert.Equal("orders/42", args.Notification.Data["route"]);
         Assert.Equal(DefaultActionIdentifier, args.Notification.Data[ActionIdentifierKey]);
+        Assert.Equal(("Local body", "Local title"), (args.Notification.Body, args.Notification.Title));
     }
 
     [IosFact]
@@ -212,12 +213,57 @@ public sealed class CloudMessagingIosFixture
         Assert.Equal("https://example.com/image.png", notification.ImageUrl);
     }
 
-    private static UNNotificationRequest CreateLocalNotificationRequest()
+    [IosFact]
+    public void converts_local_notification_request_with_displayed_title_and_body()
+    {
+        var request = CreateLocalNotificationRequest();
+
+        var notification = request.ToFCMNotification();
+
+        Assert.Equal(("Local body", "Local title"), (notification.Body, notification.Title));
+        Assert.Equal("orders/42", notification.Data["route"]);
+    }
+
+    [IosFact]
+    public void converts_local_notification_request_preferring_user_info_title_and_body()
+    {
+        var request = CreateLocalNotificationRequest(
+            new NSDictionary("route", "orders/42", "title", "Data title", "body", "Data body"));
+
+        var notification = request.ToFCMNotification();
+
+        Assert.Equal(("Data body", "Data title"), (notification.Body, notification.Title));
+    }
+
+    [IosFact]
+    public void converts_local_notification_request_filling_only_missing_title_or_body()
+    {
+        var request = CreateLocalNotificationRequest(new NSDictionary("title", "Data title"));
+
+        var notification = request.ToFCMNotification();
+
+        Assert.Equal(("Local body", "Data title"), (notification.Body, notification.Title));
+    }
+
+    [IosFact]
+    public void converts_request_with_aps_alert_from_user_info_only()
+    {
+        var request = CreateLocalNotificationRequest(new NSDictionary(
+            "aps", new NSDictionary("alert", new NSDictionary("body", "Alert body")),
+            "route", "orders/42"));
+
+        var notification = request.ToFCMNotification();
+
+        Assert.Equal(("Alert body", ""), (notification.Body, notification.Title));
+        Assert.Equal("orders/42", notification.Data["route"]);
+    }
+
+    private static UNNotificationRequest CreateLocalNotificationRequest(NSDictionary? userInfo = null)
     {
         var content = new UNMutableNotificationContent {
             Title = "Local title",
             Body = "Local body",
-            UserInfo = new NSDictionary("route", "orders/42")
+            UserInfo = userInfo ?? new NSDictionary("route", "orders/42")
         };
         return UNNotificationRequest.FromIdentifier("plugin-firebase-local-notification", content, null);
     }

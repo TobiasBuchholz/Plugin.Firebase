@@ -3,14 +3,14 @@
 You can use [Firebase Authentication](https://firebase.google.com/docs/auth) to allow users to sign in to your app using one or more sign-in methods, including email address and password sign-in, and federated identity providers such as Google Sign-in and Facebook Login.
 
 ## Installation
-### Nuget
-[![NuGet](https://img.shields.io/nuget/v/plugin.firebase.auth.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Auth/)
+### NuGet
+[![NuGet](https://img.shields.io/nuget/v/Plugin.Firebase.Auth.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Auth/)
 
 > Install-Package Plugin.Firebase.Auth
 
 ## Setup
 
-- Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/README.md#basic-setup)
+- Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/README.md#basic-setup)
 - Enable Authentication at your project in the [Firebase Console](https://console.firebase.google.com/).
 - When using [Plugin.Firebase.Auth.Google](https://www.nuget.org/packages/Plugin.Firebase.Auth.Google/), add the following lines of code after calling `CrossFirebase.Initialize()`:
 ```c#
@@ -65,10 +65,10 @@ For more specific instructions take a look at the official [Firebase documentati
 Take a look at the [documentation](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents/blob/master/docs/Firebase/Auth/GettingStarted.md) for the AdamE.Firebase.iOS.Auth packages, because Plugin.Firebase's code is abstracted but still very similar.
 
 Since code should be documenting itself you can also take a look at the following classes:
-- [src/.../IFirebaseAuth.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Auth/IFirebaseAuth.cs)
-- [src/.../IFirebaseUser.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/Auth/IFirebaseUser.cs)
-- [tests/.../AuthFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/tests/Plugin.Firebase.IntegrationTests/Auth/AuthFixture.cs)
-- [sample/.../AuthService.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/sample/Playground/Common/Services/Auth/AuthService.cs)
+- [src/.../IFirebaseAuth.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/src/Auth/Shared/IFirebaseAuth.cs)
+- [src/.../IFirebaseUser.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/src/Auth/Shared/IFirebaseUser.cs)
+- [tests/.../AuthFixture.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/tests/Plugin.Firebase.IntegrationTests/Auth/AuthFixture.cs)
+- [sample/.../AuthService.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/sample/Playground/Common/Services/Auth/AuthService.cs)
 
 ### Native provider credentials
 
@@ -219,10 +219,16 @@ On Android, `VerifyPhoneNumberAsync` now completes once the verification code ha
 On iOS, read each claim as its JSON type and convert it in your own code if you relied on the old coercions.
 
 ## Release notes
+
 - Next
+  - Target .NET 10 and raise the minimum Firebase iOS binding version to 12.19.3; the minimum platform versions remain iOS 15 and Android 23.
   - **Breaking:** Remove the `createsUserAutomatically` parameter from `SignInWithEmailAndPasswordAsync`. It now only signs in; call `CreateUserAsync` to create accounts (#764).
+  - Preserve nested token claims as dictionaries and lists instead of platform-native container objects.
+  - Add platform-native credential overloads for signing in and linking users.
   - Add email/password user reauthentication and user-level reload APIs.
   - Mark `ReloadCurrentUserAsync()` obsolete; use `CurrentUser.ReloadAsync()` after checking `CurrentUser` is not `null`.
+  - Add request-based profile updates that distinguish omitted fields, `null`, and empty strings; mark the legacy string overload obsolete.
+  - Correct nullable contracts for the current user and native values returned by Firebase.
   - Android: `VerifyPhoneNumberAsync` completes when the code is sent and faults on verification failure, or with `TimeoutException` if the native SDK reports nothing within five minutes. A repeat call for the same number sends a new code. See the migration notes above.
   - `GetClaim<T>` converts numeric claims to any requested numeric or enum type on both platforms, truncates fractional values toward zero, throws `OverflowException` for out-of-range values, and throws `InvalidCastException` instead of coercing claims between JSON types (issues #709, #710).
   - Set `CrossPlatformFirebaseAuthException.NativeErrorCode` on Android in trimmed (Release) builds, where it was always `null`.

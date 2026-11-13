@@ -3,14 +3,14 @@
 Firebase Cloud Messaging offers a broad range of messaging options and capabilities. I invite you to read the following [documentation](https://firebase.google.com/docs/cloud-messaging/concept-options) to have a better understanding about notification messages and data messages and what you can do with them using FCM's options.
 
 ## Installation
-### Nuget
-[![NuGet](https://img.shields.io/nuget/v/plugin.firebase.cloud_messaging.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.CloudMessaging/)
+### NuGet
+[![NuGet](https://img.shields.io/nuget/v/Plugin.Firebase.CloudMessaging.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.CloudMessaging/)
 
 > Install-Package Plugin.Firebase.CloudMessaging
 
 ## Setup
 
-- Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/README.md#basic-setup)
+- Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/README.md#basic-setup)
 - Enable Cloud Messaging at your project in the [Firebase Console](https://console.firebase.google.com/)
 - Add the following line of code after calling `CrossFirebase.Initialize()`:
 ```c#
@@ -149,8 +149,8 @@ You can find more specific instructions for android at the official [Firebase do
 Take a look at the [documentation](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents/blob/master/docs/Firebase/CloudMessaging/GettingStarted.md) for the AdamE.Firebase.iOS.CloudMessaging packages, because Plugin.Firebase's code is abstracted but still very similar.
 
 Since code should be documenting itself you can also take a look at the following classes:
-- [src/.../IFirebaseCloudMessaging.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/src/Shared/CloudMessaging/IFirebaseCloudMessaging.cs)
-- [sample/.../PushNotificationService.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/sample/Playground/Common/Services/PushNotification/PushNotificationService.cs)
+- [src/.../IFirebaseCloudMessaging.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/src/CloudMessaging/Shared/IFirebaseCloudMessaging.cs)
+- [sample/.../PushNotificationService.cs](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/sample/Playground/Common/Services/PushNotification/PushNotificationService.cs)
 
 On iOS only, `NotificationTapped` puts the native `UNNotificationResponse.ActionIdentifier` in `e.Notification.Data["ActionIdentifier"]`, both for an immediate tap and for a cold-start tap kept until the first subscriber is added, and it overwrites a sender-supplied `ActionIdentifier` data key.
 
@@ -207,6 +207,14 @@ On iOS, every `NotificationTapped` notification now carries `Data["ActionIdentif
 - A tapped notification has no `Data` when its payload has an `aps` dictionary without `alert`, or has neither an `aps` nor a `notification` dictionary (for example a local notification). It is now raised as a copy whose `Data` holds only `ActionIdentifier`. Previously an immediate tap of such a notification threw a `NullReferenceException`, and a kept tap was raised with `Data` set to `null`.
 
 ## Release notes
+
+- Next
+  - Target .NET 10 and raise the minimum Firebase iOS binding version to 12.19.3; the minimum platform versions remain iOS 15 and Android 23.
+  - Register the bundled Android `FirebaseMessagingService` as non-exported and validate it under full Android trimming.
+  - Correct nullable Android notification callbacks.
+  - Expose the sender-specified Android channel as nullable `FCMNotification.ChannelId` for received, foreground, and tapped notifications. The value remains raw and does not change Firebase or app-defined fallback behavior.
+  - Preserve iOS notification action identifiers on deferred taps and always complete the foreground notification delegate.
+
 - Version 4.0.1
   - Add iOS action identifier to notification body (PR #547)
 - Version 4.0.0

@@ -107,9 +107,8 @@ public sealed class FirebaseCloudMessagingImplementation
     /// <remarks>
     /// Raises <see cref="NotificationReceived"/>, then calls <paramref name="completionHandler"/> exactly once.
     /// The presentation options are chosen after the subscribers return, so a subscriber can still set
-    /// <c>is_silent_in_foreground</c> in <see cref="FCMNotification.Data"/>. Check <see cref="FCMNotification.Data"/>
-    /// for <see langword="null"/> first: it is null when the payload has no alert or <c>notification</c> dictionary,
-    /// for example for local notifications, and such a notification can't be marked silent this way.
+    /// <c>is_silent_in_foreground</c> in <see cref="FCMNotification.Data"/>, which holds the payload's user info
+    /// entries, also for a payload without an alert or <c>notification</c> dictionary such as a local notification.
     /// A silent notification completes with <see cref="UNNotificationPresentationOptions.None"/>; any other
     /// notification completes with <see cref="UNNotificationPresentationOptions.Banner"/>,
     /// <see cref="UNNotificationPresentationOptions.List"/> and <see cref="UNNotificationPresentationOptions.Sound"/>.
@@ -176,8 +175,7 @@ public sealed class FirebaseCloudMessagingImplementation
     /// handler is still called and the exception then propagates out of this method.
     /// On both paths, <see cref="FCMNotification.Data"/> carries the response's
     /// <see cref="UNNotificationResponse.ActionIdentifier"/> under the <c>ActionIdentifier</c> key, replacing a
-    /// sender-supplied value with that key. A notification without <see cref="FCMNotification.Data"/> is raised
-    /// as a copy whose data holds only that entry.
+    /// sender-supplied value with that key.
     /// </remarks>
     /// <param name="center">The notification center.</param>
     /// <param name="response">The user's response to the notification.</param>
@@ -228,20 +226,8 @@ public sealed class FirebaseCloudMessagingImplementation
             return notification;
         }
 
-        const string key = nameof(UNNotificationResponse.ActionIdentifier);
-        if(notification.Data == null) {
-            // userInfo whose aps dictionary has no alert, or that has neither an aps nor a notification
-            // dictionary (such as a local notification), converts to FCMNotification.Empty(), whose Data is
-            // null and has no setter; copy it with a dictionary so the action is not dropped
-            return new FCMNotification(
-                notification.Body,
-                notification.Title,
-                notification.ImageUrl,
-                new Dictionary<string, string> { { key, actionIdentifier } }
-            ) { ChannelId = notification.ChannelId };
-        }
-
-        notification.Data[key] = actionIdentifier;
+        // the native conversion always gives a writable Data
+        notification.Data[nameof(UNNotificationResponse.ActionIdentifier)] = actionIdentifier;
         return notification;
     }
 

@@ -292,10 +292,10 @@ public sealed class FirebaseCloudMessagingImplementation
     public event EventHandler<FCMNotificationTappedEventArgs> NotificationTapped {
         add {
             _notificationTapped += value;
-            var missedTappedNotification = _missedTappedNotification;
+            // take and clear the kept tap before raising it, so it is raised at most once even if a
+            // subscriber throws or two subscribers are added at the same time
+            var missedTappedNotification = Interlocked.Exchange(ref _missedTappedNotification, null);
             if(missedTappedNotification != null) {
-                // clear before raising, so a throwing subscriber can't get the tap replayed on a later add
-                _missedTappedNotification = null;
                 _notificationTapped?.Invoke(
                     this,
                     new FCMNotificationTappedEventArgs(missedTappedNotification)

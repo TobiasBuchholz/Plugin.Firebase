@@ -199,13 +199,17 @@ On iOS, the `willPresentNotification` and `didReceiveNotificationResponse` deleg
 - The presentation options are chosen after the `NotificationReceived` subscribers return, so a subscriber can set `is_silent_in_foreground` in `e.Notification.Data` to suppress the banner. Android already read the flag after its subscribers. `Data` is `null` for notifications without an alert or `notification` dictionary (for example local notifications), so check it before writing.
 - If a `NotificationReceived` subscriber throws, or the notification can't be converted, iOS now completes with `Banner`, `List` and `Sound`, so the notification is shown unless it was marked silent before the throw. Previously the completion handler was skipped and nothing was shown. Android still skips its local notification when a subscriber throws.
 - If a `NotificationTapped` subscriber throws, `didReceiveNotificationResponse` now still completes.
-- If the first `NotificationTapped` subscriber throws while a kept tap, such as a cold-start tap, is replayed to it, the tap is no longer kept. Previously it stayed kept and was raised again to every subscriber each time another one was added.
 - In both delegates the exception still propagates out of the delegate method into the native caller, as before, so it remains unhandled in your app. Catch exceptions in your subscribers.
 
 On iOS, every `NotificationTapped` notification now carries `Data["ActionIdentifier"]`:
 
 - A tap that arrives before the first `NotificationTapped` subscriber, such as the tap that cold-starts the app, keeps its action identifier when it is raised for that subscriber. Previously only an immediate tap had it. On this path too, it overwrites a sender-supplied `ActionIdentifier` data key.
 - A tapped notification has no `Data` when its payload has an `aps` dictionary without `alert`, or has neither an `aps` nor a `notification` dictionary (for example a local notification). It is now raised as a copy whose `Data` holds only `ActionIdentifier`. Previously an immediate tap of such a notification threw a `NullReferenceException`, and a kept tap was raised with `Data` set to `null`.
+
+On iOS and Android, a kept `NotificationTapped` tap, such as the tap that cold-starts the app, is now raised at most once:
+
+- If the first subscriber throws while the kept tap is replayed to it, the tap is no longer kept. Subscribers added later don't receive it. Previously it stayed kept and was raised again to every subscriber, including the one that threw, each time another subscriber was added.
+- As before, the exception propagates out of `+=` and the throwing handler stays subscribed.
 
 ## Release notes
 - Version 4.0.1

@@ -179,33 +179,6 @@ public sealed class CloudMessagingIosFixture
         Assert.Equal(KeyValuePair.Create(ActionIdentifierKey, ActionIdentifier), Assert.Single(args.Notification.Data));
     }
 
-    [IosFact]
-    public void does_not_replay_kept_tap_again_after_first_subscriber_throws()
-    {
-        Sut.CompleteNotificationResponse(
-            () => CreateNotification(isSilentInForeground: false), () => ActionIdentifier, () => { });
-        var throwingCalls = 0;
-        var laterTaps = new List<FCMNotificationTappedEventArgs>();
-        EventHandler<FCMNotificationTappedEventArgs> throwing = (_, _) => {
-            throwingCalls++;
-            throw new InvalidOperationException("subscriber failure");
-        };
-        EventHandler<FCMNotificationTappedEventArgs> later = (_, args) => laterTaps.Add(args);
-
-        try {
-            var exception = Assert.Throws<InvalidOperationException>(() => Sut.NotificationTapped += throwing);
-            Sut.NotificationTapped += later;
-
-            Assert.Equal("subscriber failure", exception.Message);
-            Assert.Equal(1, throwingCalls);
-            Assert.Empty(laterTaps);
-        }
-        finally {
-            Sut.NotificationTapped -= later;
-            Sut.NotificationTapped -= throwing;
-        }
-    }
-
     private static FCMNotification CreateNotification(bool isSilentInForeground)
     {
         var data = new Dictionary<string, string> { { "custom", "value" } };

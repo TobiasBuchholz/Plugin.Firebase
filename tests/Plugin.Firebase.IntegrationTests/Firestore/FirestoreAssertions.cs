@@ -261,6 +261,15 @@ internal static class FirestoreAssertions
 
     private static string Describe(object? value) => value is null ? "null" : $"{value} ({value.GetType().Name})";
 
+    public static async Task OutOfRangeReadAsync<T>(IDocumentReference document)
+    {
+        // Snapshots are typed, so each target type needs a snapshot of its own. Callers read the
+        // document from the server first, so these come from the local cache instead of repeating
+        // the round trip.
+        var snapshot = await document.GetDocumentSnapshotAsync<T>(Source.Cache);
+        Assert.Throws<OverflowException>(() => _ = snapshot.Data);
+    }
+
     public static void CrewCheckInDocument(CrewCheckIn? crewCheckIn, DateTime timestamp, DateTime logTimestamp)
     {
         Assert.NotNull(crewCheckIn);

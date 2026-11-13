@@ -1,4 +1,5 @@
 using System.Globalization;
+using Plugin.Firebase.Firestore.Internal;
 
 namespace Plugin.Firebase.Firestore.Platforms.Android.Extensions;
 
@@ -18,11 +19,12 @@ internal static class TargetTypeConversionExtensions
             return value;
         }
 
+        // numbers read into numeric and enum targets follow the rules shared with iOS: truncation and range checks
+        if(FirestoreNumericConversion.TryConvert(value, conversionType, out var converted)) {
+            return converted;
+        }
+
         if(conversionType.IsEnum) {
-            // Enum.ToObject only accepts integral values, so values stored as doubles go through the underlying type first
-            if(value is double or float or decimal) {
-                value = Convert.ChangeType(value, Enum.GetUnderlyingType(conversionType), CultureInfo.InvariantCulture);
-            }
             return Enum.ToObject(conversionType, value);
         }
 

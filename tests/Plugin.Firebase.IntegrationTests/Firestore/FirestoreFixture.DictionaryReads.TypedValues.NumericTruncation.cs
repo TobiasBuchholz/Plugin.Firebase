@@ -69,11 +69,12 @@ public sealed partial class FirestoreFixture
         Assert.Equal(expected, data[SingleNumberDocument.Field]);
     }
 
-    private async Task<IDocumentReference> WriteSingleNumberDocumentAsync(double stored)
+    // The enum range tests share this helper and also store whole numbers as long.
+    private async Task<IDocumentReference> WriteSingleNumberDocumentAsync(object stored)
     {
         var document = GetTestingDocument(
             CrossFirebaseFirestore.Current,
-            $"numeric-truncation-{stored.ToString(CultureInfo.InvariantCulture)}");
+            $"single-number-{Convert.ToString(stored, CultureInfo.InvariantCulture)}");
         await document.SetDataAsync(new Dictionary<object, object?> {
             { SingleNumberDocument.Field, stored }
         });

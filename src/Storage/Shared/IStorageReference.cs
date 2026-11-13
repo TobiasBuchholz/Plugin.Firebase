@@ -46,7 +46,9 @@ public interface IStorageReference
     /// result on both platforms.
     /// </description></item>
     /// <item><description>
-    /// Errors: a missing file or a directory is not thrown from this method; <c>AwaitAsync()</c> fails with the native Storage error.
+    /// Errors: a missing file or a directory is not thrown from this method; <c>AwaitAsync()</c> fails with a
+    /// <see cref="Plugin.Firebase.Core.Exceptions.CrossPlatformFirebaseStorageException"/> that keeps the native error as its
+    /// inner exception.
     /// iOS only uploads regular files, so a symbolic link fails the same way; pass the link's target path instead.
     /// </description></item>
     /// <item><description>

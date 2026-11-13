@@ -292,12 +292,14 @@ public sealed class FirebaseCloudMessagingImplementation
     public event EventHandler<FCMNotificationTappedEventArgs> NotificationTapped {
         add {
             _notificationTapped += value;
-            if(_missedTappedNotification != null) {
+            var missedTappedNotification = _missedTappedNotification;
+            if(missedTappedNotification != null) {
+                // clear before raising, so a throwing subscriber can't get the tap replayed on a later add
+                _missedTappedNotification = null;
                 _notificationTapped?.Invoke(
                     this,
-                    new FCMNotificationTappedEventArgs(_missedTappedNotification)
+                    new FCMNotificationTappedEventArgs(missedTappedNotification)
                 );
-                _missedTappedNotification = null;
             }
         }
         remove => _notificationTapped -= value;

@@ -214,7 +214,14 @@ On Android, `VerifyPhoneNumberAsync` now completes once the verification code ha
   - On iOS, a number in a list or dictionary requested with `string` elements used to become `null`, and with `bool` elements `true` or `false`. It now throws `InvalidCastException`. A number that doesn't fit a numeric element type throws `OverflowException` instead of wrapping.
   - On Android, numbers in a list or dictionary requested with a numeric element type now convert to it. Previously any element type other than the one the native SDK parsed the number into threw `ArgumentException`.
   - The exception was a dictionary inside a list, whose values went through `Convert.ChangeType`. That rounded fractions (2.7 read as `long` became 3) and coerced between types, for example `"123"` to 123 and `true` to 1.
-  - A number in a list requested with `string` or `bool` elements, or in a dictionary requested with `bool` values, now throws `InvalidCastException`. Dictionary values requested as `string` are still converted with `ToString()`.
+  - A number in a list requested with `string` or `bool` elements, or in a dictionary requested with `string` or `bool` values, now throws `InvalidCastException`. Previously Android converted dictionary values requested as `string` with `ToString()`, so `GetClaim<Dictionary<string, string>>` returned `"7"` for a numeric value.
+  - An object or array read as a type that isn't a dictionary or list, for example a nested object in a dictionary requested with `string` values, throws `InvalidCastException`. Previously it threw `ArgumentException`, or on Android became the object's `ToString()` text when it was a dictionary value requested as `string`.
+- A numeric claim read as `decimal` keeps every digit of the `double` it was parsed into. Previously only 15 significant digits were kept, so 9007199254740994 read as `decimal` became 9007199254740990.
+- On iOS, the native JSON parser keeps integers outside the 64-bit range, and numbers written with more significant digits than a `double` holds, as `NSDecimalNumber`. A typed numeric read now converts these from their exact value instead of from a rounded `double`:
+  - -9223372036854775809 read as `long` throws `OverflowException`. Previously it rounded to -2^63 and returned `long.MinValue`.
+  - 9223372036854775806.9 read as `long` returns 9223372036854775806. Previously it rounded to 2^63 and threw `OverflowException`.
+  - Read as `float` or `double`, the value is correctly rounded from its digits. Read as `decimal`, it is rounded to the 28 or 29 significant digits a `decimal` holds.
+  - Android parses such numbers as `double`, so there they keep only `double` precision, and the same claim can convert differently on the two platforms. Untyped reads (`Claims`, or `GetClaim<object>`) still return these numbers as `double` on iOS.
 
 On iOS, read each claim as its JSON type and convert it in your own code if you relied on the old coercions.
 

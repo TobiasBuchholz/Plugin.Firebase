@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Diagnostics;
-using System.Globalization;
 using Firebase.CloudFirestore;
 using Firebase.Core;
 using Plugin.Firebase.Firestore.Internal;
@@ -62,7 +61,7 @@ public static class NSObjectExtensions
                         $"[Plugin.Firebase] Couldn't cast property '{attribute.PropertyName}' of '{targetType}' because it's not contained in the NSDictionary."
                     );
                 } else {
-                    property.SetValue(instance, value.ToObject(property.PropertyType));
+                    property.SetValue(instance, value.ToObject(property.PropertyType, attribute.PropertyName));
                 }
             }
 
@@ -97,6 +96,13 @@ public static class NSObjectExtensions
     /// </summary>
     /// <remarks>
     /// <para>
+    /// With a <paramref name="targetType"/>, the rules are the same as on Android: the stored value has
+    /// to match the target type, except that a number read into a numeric or enum target is range
+    /// checked and, if it is fractional and the target is integral or an enum, truncated toward
+    /// zero. Any other mismatch throws, for example a number read into a <see cref="string"/>, text
+    /// read into a number, a boolean read into a number or anything read into a <see cref="char"/>.
+    /// </para>
+    /// <para>
     /// A Firestore <see cref="Timestamp"/> becomes a UTC <see cref="DateTime"/> when <paramref name="targetType"/> is
     /// <see cref="DateTime"/> or <c>DateTime?</c>, and a <see cref="DateTimeOffset"/> otherwise. Either way it is the
     /// timestamp's exact instant, truncated to 100 ns ticks.
@@ -113,13 +119,37 @@ public static class NSObjectExtensions
     /// <param name="targetType">Optional target type for the conversion.</param>
     /// <returns>The converted .NET object.</returns>
     /// <exception cref="ArgumentException">Thrown if the NSObject type cannot be converted.</exception>
+    /// <exception cref="InvalidCastException">
+    /// Thrown if the stored value's type doesn't match <paramref name="targetType"/>.
+    /// </exception>
+    /// <exception cref="OverflowException">
+    /// Thrown if a stored number doesn't fit into <paramref name="targetType"/>, or if it is NaN or
+    /// infinity and <paramref name="targetType"/> is an integral, enum or <see cref="decimal"/> type.
+    /// </exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown if the NSObject is an <see cref="NSDate"/> outside the
     /// range of <see cref="DateTimeOffset"/>.</exception>
     public static object? ToObject(this NSObject @this, Type? targetType = null)
     {
+        return @this.ToObject(targetType, field: null);
+    }
+
+    internal static object? ToObject(this NSObject @this, Type? targetType, string? field)
+    {
+        // the rules are shared with Android: the value has to match the target type, except that
+        // numbers convert between numeric and enum types, so a mismatch throws InvalidCastException
+        var value = @this.Unwrap(targetType, field);
+        return @this is NSDate
+            ? value
+            : FirestoreValueConversion.ToTargetType(value, targetType, field);
+    }
+
+    private static object? Unwrap(this NSObject @this, Type? targetType, string? field)
+    {
         switch(@this) {
             case NSNumber x:
-                return x.ToObject(targetType);
+                return targetType == null || targetType == typeof(object)
+                    ? x.ToUntypedObject()
+                    : x.ToConversionSource();
             case NSString x:
                 return x.ToString();
             case NSDate x:
@@ -129,9 +159,14 @@ public static class NSObjectExtensions
                 // the old conversion, this ignores targetType.
                 return DateTimeOffset.UnixEpoch.AddSeconds(x.SecondsSince1970);
             case NSDictionary x:
+                FirestoreValueConversion.EnsureMapTarget(targetType, field);
                 return x.ToDictionaryObject(targetType);
             case NSArray x:
-                return targetType is null ? x.ToList() : x.ToList(GetGenericListType(targetType));
+                if(targetType is null) {
+                    return x.ToList();
+                }
+                FirestoreValueConversion.EnsureArrayTarget(targetType, field);
+                return x.ToList(GetGenericListType(targetType), field);
             case global::Firebase.CloudFirestore.GeoPoint x:
                 return new GeoPoint(x.Latitude, x.Longitude);
             case Timestamp x:
@@ -152,63 +187,30 @@ public static class NSObjectExtensions
     }
 
     /// <summary>
-    /// Converts a native iOS NSNumber to a .NET object of the appropriate numeric type.
+    /// Converts a native iOS NSNumber, which holds a Firestore number or boolean, to a .NET object.
     /// </summary>
     /// <remarks>
-    /// A number read into a numeric or enum target follows the same rules as on Android: a fractional
-    /// value read into an integral or enum target is truncated toward zero, and an enum is range
-    /// checked against its underlying type.
+    /// Without a <paramref name="targetType"/>, or with <see cref="object"/>, the value keeps the type
+    /// it is stored as. With a target type, the rules are the same as on Android: a boolean only reads
+    /// into a <see cref="bool"/>, and a number only reads into a numeric or enum type. A fractional
+    /// number read into an integral or enum target is range checked as stored and then truncated
+    /// toward zero, and an enum is range checked against its underlying type.
     /// </remarks>
     /// <param name="this">The NSNumber to convert.</param>
     /// <param name="targetType">Optional target type for the conversion.</param>
-    /// <returns>The converted numeric value.</returns>
+    /// <returns>The stored boolean or number, converted to <paramref name="targetType"/> if one is given.</returns>
     /// <exception cref="OverflowException">
-    /// Thrown if the stored value doesn't fit into <paramref name="targetType"/>, or if it is NaN or
+    /// Thrown if the stored number doesn't fit into <paramref name="targetType"/>, or if it is NaN or
     /// infinity and <paramref name="targetType"/> is an integral, enum or <see cref="decimal"/> type.
     /// </exception>
     /// <exception cref="InvalidCastException">
-    /// Thrown if the stored value can't be converted to <paramref name="targetType"/> at all,
-    /// for example a fractional value read into a <see cref="char"/>.
+    /// Thrown if a number is read into a type that isn't numeric or an enum, such as
+    /// <see cref="string"/>, <see cref="bool"/>, <see cref="char"/> or <see cref="DateTime"/>, or if
+    /// a boolean is read into a type other than <see cref="bool"/>.
     /// </exception>
     public static object? ToObject(this NSNumber @this, Type? targetType = null)
     {
-        if(targetType == null || targetType == typeof(object)) {
-            return @this.ToUntypedObject();
-        }
-
-        var conversionType = Nullable.GetUnderlyingType(targetType) ?? targetType;
-        if(conversionType == typeof(bool)) {
-            return @this.BoolValue;
-        }
-
-        var value = @this.ToConversionSource();
-        if(FirestoreNumericConversion.TryConvert(value, conversionType, out var converted)) {
-            return converted;
-        }
-
-        // What's left is a boolean read into a numeric or enum target, or a number read into a
-        // char. Both keep the Convert-based conversion that Android uses.
-        if(conversionType.IsEnum) {
-            return Enum.ToObject(conversionType, value);
-        }
-
-        switch(Type.GetTypeCode(conversionType)) {
-            case TypeCode.Char:
-            case TypeCode.SByte:
-            case TypeCode.Byte:
-            case TypeCode.Int16:
-            case TypeCode.UInt16:
-            case TypeCode.Int32:
-            case TypeCode.UInt32:
-            case TypeCode.Int64:
-            case TypeCode.UInt64:
-            case TypeCode.Single:
-            case TypeCode.Double:
-            case TypeCode.Decimal:
-                return Convert.ChangeType(value, conversionType, CultureInfo.InvariantCulture);
-            default:
-                return null;
-        }
+        return @this.ToObject(targetType, field: null);
     }
 
     /// <summary>

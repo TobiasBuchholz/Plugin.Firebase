@@ -16,6 +16,10 @@ public class FirestoreNumericConversionTests
     [Flags]
     public enum Access : byte { None = 0, Read = 1, Write = 2, Delete = 4 }
 
+    // Admin and All only fit a uint: a cast to int turns them into negative numbers.
+    [Flags]
+    public enum Permissions : uint { None = 0, Read = 1, Write = 2, Admin = 0x80000000, All = 0xFFFFFFFF }
+
     // Firestore returns whole numbers as long and fractional numbers as double; the other sources
     // pin that every .NET numeric primitive follows the same rules.
     public static TheoryData<object, Type, object> Conversions => new() {
@@ -108,13 +112,25 @@ public class FirestoreNumericConversionTests
         { 3L, typeof(Access), Access.Read | Access.Write },
         { 7.9, typeof(Access), Access.Read | Access.Write | Access.Delete },
         { 9L, typeof(Access), (Access) 9 },
+        { 0L, typeof(UIntLevel), (UIntLevel) 0 },
+        { 4294967295.0, typeof(UIntLevel), UIntLevel.Max },
+        { -9223372036854775808.0, typeof(LongLevel), LongLevel.Min },
+        { 0L, typeof(ULongLevel), (ULongLevel) 0 },
+        // long.MaxValue is the largest integer Firestore stores, so it is the top edge for a ulong.
+        { long.MaxValue, typeof(ULongLevel), (ULongLevel) long.MaxValue },
+        { 3L, typeof(Permissions), Permissions.Read | Permissions.Write },
+        { 2147483649L, typeof(Permissions), Permissions.Admin | Permissions.Read },
+        { 4294967295L, typeof(Permissions), Permissions.All },
 
         // Nullable targets convert to their underlying type.
         { 2L, typeof(int?), 2 },
         { 2.7, typeof(long?), 2L },
         { 1.5, typeof(float?), 1.5f },
         { 12.5, typeof(decimal?), 12.5m },
-        { 1L, typeof(ByteLevel?), ByteLevel.Low }
+        { 1L, typeof(ByteLevel?), ByteLevel.Low },
+        { 255L, typeof(ByteLevel?), (ByteLevel) 255 },
+        { 2.7, typeof(ByteLevel?), ByteLevel.High },
+        { 4294967295L, typeof(Permissions?), Permissions.All }
     };
 
     public static TheoryData<object, Type> Overflows => new() {
@@ -198,7 +214,23 @@ public class FirestoreNumericConversionTests
         { (ulong) long.MaxValue + 1, typeof(LongLevel) },
         { -1L, typeof(ULongLevel) },
         { 256L, typeof(Access) },
-        { 300L, typeof(ByteLevel?) }
+        { 300L, typeof(ByteLevel?) },
+        { -1L, typeof(ByteLevel) },
+        { (long) int.MaxValue + 1, typeof(IntLevel) },
+        { (long) int.MinValue - 1, typeof(IntLevel) },
+        { (long) uint.MaxValue + 1, typeof(UIntLevel) },
+        { 4294967295.5, typeof(UIntLevel) },
+        { 9223372036854775808.0, typeof(LongLevel) },
+        { -9223372036854777856.0, typeof(LongLevel) },
+        { 18446744073709551616.0, typeof(ULongLevel) },
+        { -1L, typeof(UIntLevel?) },
+        { 256L, typeof(ByteLevel?) },
+
+        // What wrapping (int) and (long) casts write for uint and ulong enum values above
+        // int.MaxValue and long.MaxValue. Those values don't fit the underlying type.
+        { -1L, typeof(Permissions) },
+        { (long) int.MinValue, typeof(Permissions) },
+        { long.MinValue, typeof(ULongLevel) }
     };
 
     // Pairings outside the numeric rules stay with the platform's own conversion.

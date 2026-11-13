@@ -1,14 +1,13 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using Java.Util;
 using Android.Runtime;
 using AndroidX.Collection;
 using Firebase.Firestore;
+using Plugin.Firebase.Firestore.Internal;
 using IList = System.Collections.IList;
 using NativeFirebase = Firebase;
 using System.Diagnostics;
-using Plugin.Firebase.Firestore.Internal;
 
 namespace Plugin.Firebase.Firestore.Platforms.Android.Extensions;
 
@@ -107,35 +106,52 @@ public static class JavaObjectExtensions
 
     public static object? ToObject(this Java.Lang.Object? @this, Type? targetType = null)
     {
+        return @this.ToObject(targetType, field: null);
+    }
+
+    internal static object? ToObject(this Java.Lang.Object? @this, Type? targetType, string? field)
+    {
+        // the rules are shared with iOS: the value has to match the target type, except that numbers
+        // convert between numeric and enum types, so a mismatch throws InvalidCastException
+        return FirestoreValueConversion.ToTargetType(@this.Unwrap(targetType, field), targetType, field);
+    }
+
+    private static object? Unwrap(this Java.Lang.Object? @this, Type? targetType, string? field)
+    {
         switch(@this) {
             case null:
                 return null;
             case Java.Lang.ICharSequence x:
                 return x.ToString();
             case Java.Lang.Boolean x:
-                return x.BooleanValue().ConvertToTargetType(targetType);
+                return x.BooleanValue();
             case Java.Lang.Integer x:
-                return x.IntValue().ConvertToTargetType(targetType);
+                return x.IntValue();
             case Java.Lang.Double x:
-                return x.DoubleValue().ConvertToTargetType(targetType);
+                return x.DoubleValue();
             case Java.Lang.Float x:
-                return x.FloatValue().ConvertToTargetType(targetType);
+                return x.FloatValue();
             case Java.Lang.Long x:
-                return x.LongValue().ConvertToTargetType(targetType);
+                return x.LongValue();
             // Firestore reads return Timestamp, never java.util.Date. The case stays because ToObject is a public
             // extension method, and callers can pass it a Date directly.
             case Date x:
                 return x.ToDateTimeOffset();
             case NativeFirebase.Timestamp x:
                 // DateTime? targets get a DateTime too: a boxed DateTimeOffset can't be assigned to them.
-                if(targetType.GetConversionType() == typeof(DateTime))
+                if(targetType is not null && (Nullable.GetUnderlyingType(targetType) ?? targetType) == typeof(DateTime))
                     return x.ToDateTime();
                 else
                     return x.ToDateTimeOffset();
             case IDictionary x:
+                FirestoreValueConversion.EnsureMapTarget(targetType, field);
                 return x.ToDictionaryObject(targetType);
             case JavaList x:
-                return targetType is null ? x.ToList() : x.ToList(GetGenericListType(targetType));
+                if(targetType is null) {
+                    return x.ToList();
+                }
+                FirestoreValueConversion.EnsureArrayTarget(targetType, field);
+                return x.ToList(GetGenericListType(targetType), field);
             case global::Firebase.Firestore.GeoPoint x:
                 return new GeoPoint(x.Latitude, x.Longitude);
             case DocumentReference x:
@@ -173,13 +189,10 @@ public static class JavaObjectExtensions
                 throw new ArgumentException("Dictionary contains a null key.");
             }
 
-            var key = ConvertToObject(keyType, rawKey);
-            if(key is null) {
-                throw new ArgumentException("Dictionary contains a null key.");
-            }
-
-            var value = ConvertToObject(valueType, @this[rawKey]);
-            dict[key] = value;
+            // a map key is the field name of its value
+            var field = rawKey.ToString()!;
+            var key = FirestoreValueConversion.ToKeyType(field, keyType);
+            dict[key] = ConvertToObject(valueType, @this[rawKey], field);
         }
         return dict;
     }
@@ -230,7 +243,7 @@ public static class JavaObjectExtensions
 
                 // values that aren't java peers arrive as CTS-mapped CLR types (e.g. long, double), so they still need
                 // to be narrowed to the declared property type; sharing the dictionary path's conversion keeps both identical
-                property.SetValue(instance, ConvertToObject(property.PropertyType, @this[attribute.PropertyName]));
+                property.SetValue(instance, ConvertToObject(property.PropertyType, @this[attribute.PropertyName], attribute.PropertyName));
             }
 
             var timestampAttributes = property.GetCustomAttributes(typeof(FirestoreServerTimestampAttribute), true);
@@ -249,23 +262,18 @@ public static class JavaObjectExtensions
         return instance;
     }
 
-    private static object? ConvertToObject(Type? targetType, object? value)
+    private static object? ConvertToObject(Type? targetType, object? value, string? field = null)
     {
-        var conversionType = targetType.GetConversionType();
-
         if(value == null) {
             return null;
-        } else if(conversionType == typeof(string)) {
-            return value is Java.Lang.ICharSequence charSequence
-                ? charSequence.ToString()
-                : Convert.ToString(value, CultureInfo.InvariantCulture);
-        } else if(value is IDictionary dictionary) {
-            return dictionary.ToDictionaryObject(targetType);
         } else if(value is Java.Lang.Object javaValue) {
-            return javaValue.ToObject(targetType);
+            // maps arrive as JavaDictionary peers, which ToObject converts along with the other peers
+            return javaValue.ToObject(targetType, field);
         }
 
-        return value.ConvertToTargetType(targetType);
+        // values that aren't java peers arrive as CTS-mapped CLR types (string, bool, long, double) and
+        // follow the same rules as the java peers above
+        return FirestoreValueConversion.ToTargetType(value, targetType, field);
     }
 
     private static bool IsDictionaryType(Type targetType)

@@ -36,12 +36,9 @@ public sealed partial class FirestoreFixture
         // conversion runs when Data is first read, so getting the snapshot succeeds
         var snapshot = await document.GetDocumentSnapshotAsync<NullableFirestoreItem>();
 
-        // a failed conversion isn't kept, so the second read converts again and fails with a new exception;
-        // Android rejects the text in Convert.ChangeType and iOS in PropertyInfo.SetValue
-        var firstError = Record.Exception(() => snapshot.Data);
-        var secondError = Record.Exception(() => snapshot.Data);
-        Assert.True(firstError is FormatException or ArgumentException, $"Unexpected conversion error: {firstError}");
-        Assert.True(secondError is FormatException or ArgumentException, $"Unexpected conversion error: {secondError}");
+        // Each read retries the failed conversion and throws a fresh exception.
+        var firstError = Assert.Throws<InvalidCastException>(() => _ = snapshot.Data);
+        var secondError = Assert.Throws<InvalidCastException>(() => _ = snapshot.Data);
         Assert.NotSame(firstError, secondError);
     }
 

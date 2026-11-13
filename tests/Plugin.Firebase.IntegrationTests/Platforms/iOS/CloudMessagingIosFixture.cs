@@ -40,6 +40,21 @@ public sealed class CloudMessagingIosFixture
     }
 
     [IosFact]
+    public async Task forwards_the_unregistered_installation_id_from_the_messaging_delegate()
+    {
+        var sut = Sut;
+        using var unregistration = new EventProbe<FCMUnregistrationReceivedEventArgs>(
+            handler => sut.UnregistrationReceived += handler,
+            handler => sut.UnregistrationReceived -= handler);
+        const string installationId = "synthetic-installation-id";
+
+        sut.DidUnregister(Messaging.SharedInstance, installationId);
+
+        var args = await unregistration.WaitAsync(IntegrationTestTimeouts.ShortCallback, "iOS FCM unregistration callback");
+        Assert.Equal(installationId, args.InstallationId);
+    }
+
+    [IosFact]
     public async Task completes_silent_foreground_notification_once_with_no_presentation_options()
     {
         var notification = CreateNotification(isSilentInForeground: true);

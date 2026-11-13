@@ -24,4 +24,9 @@ public class MyFirebaseMessagingService : FirebaseMessagingService
     {
         ((FirebaseCloudMessagingImplementation) CrossFirebaseCloudMessaging.Current).OnRegistered(installationId);
     }
+
+    public override void OnUnregistered(string installationId)
+    {
+        ((FirebaseCloudMessagingImplementation) CrossFirebaseCloudMessaging.Current).OnUnregistered(installationId);
+    }
 }

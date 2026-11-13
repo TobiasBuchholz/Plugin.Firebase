@@ -177,7 +177,11 @@ await messaging.RegisterAsync();
 
 `RegisterAsync()` reports completion or failure of the native operation. `RegistrationReceived` supplies the FID that Firebase registered for FCM. Firebase can report the same ID again after an explicit registration or report a new ID after rotation. Update your backend when the event fires and use `Message.Fid` in Firebase Admin .NET 3.6.0 or later for direct sends. If you disable Firebase Messaging auto-initialization, call `RegisterAsync()` explicitly at the appropriate point in your app startup. See [Firebase registration management](https://firebase.google.com/docs/cloud-messaging/manage-tokens) and [Firebase Admin .NET release notes](https://firebase.google.com/support/release-notes/admin/dotnet).
 
-In FID mode, use `RegistrationReceived` in place of `TokenChanged` and `RegisterAsync()` in place of fetching an FCM token. `CrossFirebaseInstallations.Current.GetIdAsync()` only retrieves the installation ID. For a custom Android messaging service, derive from `MyFirebaseMessagingService` and call its base `OnRegistered` implementation to forward the event. On iOS the plugin's Messaging delegate forwards the event.
+In FID mode, use `RegistrationReceived` in place of `TokenChanged` and `RegisterAsync()` in place of fetching an FCM token. The plugin doesn't raise `TokenChanged` in FID mode, including from `CheckIfValidAsync()` and `OnTokenRefreshAsync()`. `CrossFirebaseInstallations.Current.GetIdAsync()` only retrieves the installation ID.
+
+Call `UnregisterAsync()` to remove the installation ID's FCM registration, for example on sign-out. `UnregistrationReceived` supplies the FID when Firebase reports an unregistration.
+
+For a custom Android messaging service, derive from `MyFirebaseMessagingService` and call its base `OnRegistered` and `OnUnregistered` implementations to forward the events. On iOS the plugin's Messaging delegate forwards the events.
 
 ### Receiving notifications
 
@@ -229,7 +233,9 @@ If you publish for iOS with Native AOT (`PublishAot`), see [iOS NativeAOT (`Publ
 
 ## Next-release migration notes
 
-Apps can opt into Firebase Installation ID registration using the [FID setup](#firebase-installation-id-registration-opt-in). Projects implementing or mocking `IFirebaseCloudMessaging` need to add `RegisterAsync()` and `RegistrationReceived`.
+Apps can opt into Firebase Installation ID registration using the [FID setup](#firebase-installation-id-registration-opt-in). Projects implementing or mocking `IFirebaseCloudMessaging` need to add `RegisterAsync()`, `UnregisterAsync()`, `RegistrationReceived` and `UnregistrationReceived`.
+
+On Android, Cloud Messaging now references `Xamarin.Firebase.Messaging` 125.1.0, and Core references `Xamarin.Firebase.Common` 122.1.0. These raise the transitive AndroidX and Kotlin versions for every package that depends on Core, not only Cloud Messaging. Apps that reference AndroidX packages such as Activity, Fragment, Collection or Lifecycle directly may get NU1605 package downgrade errors until they raise those versions to at least the ones NuGet resolves transitively.
 
 On iOS, the `willPresentNotification` and `didReceiveNotificationResponse` delegates now call their completion handler exactly once on every path, as Apple requires:
 

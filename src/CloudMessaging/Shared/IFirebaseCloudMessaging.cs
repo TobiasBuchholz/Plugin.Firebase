@@ -15,6 +15,10 @@ namespace Plugin.Firebase.CloudMessaging
         /// <summary>
         /// Call it when the token was refreshed.
         /// </summary>
+        /// <remarks>
+        /// Does nothing when installation ID registration is enabled, so <see cref="TokenChanged"/> is not raised.
+        /// Use <see cref="RegisterAsync"/> and <see cref="RegistrationReceived"/> in that mode.
+        /// </remarks>
         /// <returns></returns>
         Task OnTokenRefreshAsync();
 
@@ -23,6 +27,9 @@ namespace Plugin.Firebase.CloudMessaging
         /// and sends information about the application and the device to the Firebase backend. A network connection is required for
         /// the method to succeed.
         /// </summary>
+        /// <remarks>
+        /// For apps using registration tokens. When installation ID registration is enabled, use <see cref="RegisterAsync"/> instead.
+        /// </remarks>
         Task<string> GetTokenAsync();
 
         /// <summary>
@@ -31,6 +38,13 @@ namespace Plugin.Firebase.CloudMessaging
         /// </summary>
         /// <remarks>Subscribe to <see cref="RegistrationReceived"/> before calling this method to receive the registered ID.</remarks>
         Task RegisterAsync();
+
+        /// <summary>
+        /// Unregisters the app instance's Firebase Installation ID from FCM. Requires opting into
+        /// installation ID registration in the app's Android manifest or iOS Info.plist.
+        /// </summary>
+        /// <remarks>Subscribe to <see cref="UnregistrationReceived"/> before calling this method to receive the unregistered ID.</remarks>
+        Task UnregisterAsync();
 
         /// <summary>
         /// Asynchronously subscribes to a topic. This uses the default FCM registration token to identify the app instance and periodically
@@ -55,12 +69,20 @@ namespace Plugin.Firebase.CloudMessaging
         /// <summary>
         /// Gets invoked when the fcm registration token has changed.
         /// </summary>
+        /// <remarks>
+        /// Not raised when installation ID registration is enabled. Use <see cref="RegistrationReceived"/> in that mode.
+        /// </remarks>
         event EventHandler<FCMTokenChangedEventArgs> TokenChanged;
 
         /// <summary>
         /// Raised when Firebase reports a successful installation ID registration, including registrations from auto-initialization.
         /// </summary>
         event EventHandler<FCMRegistrationReceivedEventArgs> RegistrationReceived;
+
+        /// <summary>
+        /// Raised when Firebase reports that an installation ID was unregistered from FCM.
+        /// </summary>
+        event EventHandler<FCMUnregistrationReceivedEventArgs> UnregistrationReceived;
 
         /// <summary>
         /// Gets invoked when a new fcm notification was received.

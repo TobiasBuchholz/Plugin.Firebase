@@ -67,6 +67,11 @@ public sealed class FirebaseCloudMessagingImplementation : DisposableBase, IFire
         RegistrationReceived?.Invoke(this, new FCMRegistrationReceivedEventArgs(installationId));
     }
 
+    internal void OnUnregistered(string installationId)
+    {
+        UnregistrationReceived?.Invoke(this, new FCMUnregistrationReceivedEventArgs(installationId));
+    }
+
     public void OnNotificationReceived(FCMNotification fcmNotification)
     {
         NotificationReceived?.Invoke(this, new FCMNotificationReceivedEventArgs(fcmNotification));
@@ -148,6 +153,11 @@ public sealed class FirebaseCloudMessagingImplementation : DisposableBase, IFire
         await FirebaseMessaging.Instance.Register().AsAsync();
     }
 
+    public async Task UnregisterAsync()
+    {
+        await FirebaseMessaging.Instance.Unregister().AsAsync();
+    }
+
     public Task SubscribeToTopicAsync(string topic)
     {
         return FirebaseMessaging.Instance.SubscribeToTopic(topic).AsAsync();
@@ -160,6 +170,7 @@ public sealed class FirebaseCloudMessagingImplementation : DisposableBase, IFire
 
     public event EventHandler<FCMTokenChangedEventArgs> TokenChanged;
     public event EventHandler<FCMRegistrationReceivedEventArgs> RegistrationReceived;
+    public event EventHandler<FCMUnregistrationReceivedEventArgs> UnregistrationReceived;
     public event EventHandler<FCMNotificationReceivedEventArgs> NotificationReceived;
     public event EventHandler<FCMErrorEventArgs> Error;
 

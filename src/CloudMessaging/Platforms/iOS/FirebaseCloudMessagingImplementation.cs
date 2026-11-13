@@ -273,10 +273,25 @@ public sealed class FirebaseCloudMessagingImplementation
         RegistrationReceived?.Invoke(this, new FCMRegistrationReceivedEventArgs(installationId));
     }
 
+    /// <summary>
+    /// Forwards the Firebase Installation ID reported by the native unregistration callback.
+    /// </summary>
+    [Export("messaging:didUnregister:")]
+    public void DidUnregister(Messaging messaging, string installationId)
+    {
+        UnregistrationReceived?.Invoke(this, new FCMUnregistrationReceivedEventArgs(installationId));
+    }
+
     /// <inheritdoc/>
     public Task RegisterAsync()
     {
         return Messaging.SharedInstance.RegisterAsync();
+    }
+
+    /// <inheritdoc/>
+    public Task UnregisterAsync()
+    {
+        return Messaging.SharedInstance.UnregisterAsync();
     }
 
     /// <inheritdoc/>
@@ -305,6 +320,9 @@ public sealed class FirebaseCloudMessagingImplementation
 
     /// <inheritdoc/>
     public event EventHandler<FCMRegistrationReceivedEventArgs> RegistrationReceived;
+
+    /// <inheritdoc/>
+    public event EventHandler<FCMUnregistrationReceivedEventArgs> UnregistrationReceived;
 
     /// <inheritdoc/>
     public event EventHandler<FCMNotificationReceivedEventArgs> NotificationReceived;

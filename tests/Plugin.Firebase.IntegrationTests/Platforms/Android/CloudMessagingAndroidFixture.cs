@@ -33,6 +33,22 @@ public sealed class CloudMessagingAndroidFixture
     }
 
     [Fact]
+    public async Task forwards_the_unregistered_installation_id_from_the_messaging_service()
+    {
+        var sut = CrossFirebaseCloudMessaging.Current;
+        using var unregistration = new EventProbe<FCMUnregistrationReceivedEventArgs>(
+            handler => sut.UnregistrationReceived += handler,
+            handler => sut.UnregistrationReceived -= handler);
+        using var service = new MyFirebaseMessagingService();
+        const string installationId = "synthetic-installation-id";
+
+        service.OnUnregistered(installationId);
+
+        var args = await unregistration.WaitAsync(IntegrationTestTimeouts.ShortCallback, "Android FCM unregistration callback");
+        Assert.Equal(installationId, args.InstallationId);
+    }
+
+    [Fact]
     public void maps_android_channel_id_from_remote_message()
     {
         const string expectedChannelId = "plugin-firebase-test-alerts";

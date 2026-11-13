@@ -46,9 +46,9 @@ internal static class FirestoreNumericConversion
     {
         var conversionType = Nullable.GetUnderlyingType(targetType) ?? targetType;
 
-        // Only numbers read into numeric or enum targets are converted here. Rules for any other
-        // pairing, such as text read into a number or a number read into text, belong at this
-        // point; until then the caller handles them.
+        // Only numbers read into numeric or enum targets are converted here.
+        // FirestoreValueConversion rejects every other pairing, such as text read into a number or
+        // a number read into text.
         if(!IsNumber(value) || !IsNumericTarget(conversionType)) {
             result = null;
             return false;

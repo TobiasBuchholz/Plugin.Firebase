@@ -107,9 +107,8 @@ public sealed class FirebaseCloudMessagingImplementation
     /// <remarks>
     /// Raises <see cref="NotificationReceived"/>, then calls <paramref name="completionHandler"/> exactly once.
     /// The presentation options are chosen after the subscribers return, so a subscriber can still set
-    /// <c>is_silent_in_foreground</c> in <see cref="FCMNotification.Data"/>. Check <see cref="FCMNotification.Data"/>
-    /// for <see langword="null"/> first: it is null when the payload has no alert or <c>notification</c> dictionary,
-    /// for example for local notifications, and such a notification can't be marked silent this way.
+    /// <c>is_silent_in_foreground</c> in <see cref="FCMNotification.Data"/>, which holds the payload's user info
+    /// entries, also for a payload without an alert or <c>notification</c> dictionary such as a local notification.
     /// A silent notification completes with <see cref="UNNotificationPresentationOptions.None"/>; any other
     /// notification completes with <see cref="UNNotificationPresentationOptions.Banner"/>,
     /// <see cref="UNNotificationPresentationOptions.List"/> and <see cref="UNNotificationPresentationOptions.Sound"/>.
@@ -230,9 +229,8 @@ public sealed class FirebaseCloudMessagingImplementation
 
         const string key = nameof(UNNotificationResponse.ActionIdentifier);
         if(notification.Data == null) {
-            // userInfo whose aps dictionary has no alert, or that has neither an aps nor a notification
-            // dictionary (such as a local notification), converts to FCMNotification.Empty(), whose Data is
-            // null and has no setter; copy it with a dictionary so the action is not dropped
+            // the native conversion always gives Data; a hand-built notification may not, and Data has no
+            // setter, so copy it with a dictionary so the action is not dropped
             return new FCMNotification(
                 notification.Body,
                 notification.Title,

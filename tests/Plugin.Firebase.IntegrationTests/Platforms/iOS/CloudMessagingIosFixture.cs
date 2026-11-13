@@ -1,6 +1,9 @@
 using Plugin.Firebase.CloudMessaging;
 using Plugin.Firebase.CloudMessaging.EventArgs;
+using Plugin.Firebase.CloudMessaging.Platforms.iOS.Extensions;
 using UserNotifications;
+using NSDictionary = Foundation.NSDictionary;
+using NSNumber = Foundation.NSNumber;
 
 namespace Plugin.Firebase.IntegrationTests.CloudMessaging;
 
@@ -157,26 +160,64 @@ public sealed class CloudMessagingIosFixture
     [IosFact]
     public async Task raises_tap_without_data_as_copy_holding_only_action_identifier()
     {
-        var notification = new FCMNotification(body: "Delegate body", title: "Delegate title");
+        var notification = CreateNotificationWithoutData();
         using var tapped = ProbeNotificationTapped();
 
         Sut.CompleteNotificationResponse(() => notification, () => DefaultActionIdentifier, () => { });
 
         var args = await tapped.WaitAsync(IntegrationTestTimeouts.ShortCallback, "tap without data");
         Assert.Equal(KeyValuePair.Create(ActionIdentifierKey, DefaultActionIdentifier), Assert.Single(args.Notification.Data));
-        Assert.Equal(("Delegate body", "Delegate title"), (args.Notification.Body, args.Notification.Title));
+        AssertCopiedFields(args.Notification);
         Assert.NotSame(notification, args.Notification);
     }
 
     [IosFact]
     public async Task replays_kept_tap_without_data_as_copy_holding_only_action_identifier()
     {
-        // a local notification's userInfo, with no aps or notification dictionary, converts to FCMNotification.Empty()
-        Sut.CompleteNotificationResponse(() => FCMNotification.Empty(), () => ActionIdentifier, () => { });
+        Sut.CompleteNotificationResponse(CreateNotificationWithoutData, () => ActionIdentifier, () => { });
         using var tapped = ProbeNotificationTapped();
 
         var args = await tapped.WaitAsync(IntegrationTestTimeouts.ShortCallback, "kept tap without data");
         Assert.Equal(KeyValuePair.Create(ActionIdentifierKey, ActionIdentifier), Assert.Single(args.Notification.Data));
+        AssertCopiedFields(args.Notification);
+    }
+
+    [IosFact]
+    public void converts_local_notification_user_info_into_data()
+    {
+        var userInfo = new NSDictionary("route", "orders/42");
+
+        var notification = userInfo.ToFCMNotification();
+
+        Assert.Equal("orders/42", notification.Data["route"]);
+        Assert.Equal(("", ""), (notification.Body, notification.Title));
+    }
+
+    [IosFact]
+    public void converts_aps_payload_without_alert_keeping_user_info_in_data()
+    {
+        var userInfo = new NSDictionary(
+            "aps", new NSDictionary("badge", NSNumber.FromInt32(1)),
+            "route", "orders/42");
+
+        var notification = userInfo.ToFCMNotification();
+
+        Assert.Equal("orders/42", notification.Data["route"]);
+        Assert.Equal(("", ""), (notification.Body, notification.Title));
+    }
+
+    private static FCMNotification CreateNotificationWithoutData()
+    {
+        return new FCMNotification(body: "Delegate body", title: "Delegate title", imageUrl: "https://example.com/image.png") {
+            ChannelId = "delegate-channel"
+        };
+    }
+
+    private static void AssertCopiedFields(FCMNotification notification)
+    {
+        Assert.Equal(
+            ("Delegate body", "Delegate title", "https://example.com/image.png", "delegate-channel"),
+            (notification.Body, notification.Title, notification.ImageUrl, notification.ChannelId));
     }
 
     private static FCMNotification CreateNotification(bool isSilentInForeground)

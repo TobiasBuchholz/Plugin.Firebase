@@ -23,6 +23,7 @@ internal static class IntegrationTestDiagnostics
             + $"storageEmulator={FormatEndpoint(IntegrationTestEnvironment.StorageEmulatorEndpoint)}; "
             + $"appCheckTokenOptIn={IntegrationTestEnvironment.ShouldRunAppCheckTokenTests}; "
             + $"fcmTokenOptIn={IsEnabled(IntegrationTestOptions.RunFcmTokenTestsEnvironmentVariableName)}; "
+            + $"fcmRegistrationOptIn={IsEnabled(IntegrationTestOptions.RunFcmRegistrationTestsEnvironmentVariableName)}; "
             + $"fcmDeliveryOptIn={IsEnabled(IntegrationTestOptions.RunFcmDeliveryTestsEnvironmentVariableName)}; "
             + $"crashlyticsForceCrashOptIn={IsEnabled(IntegrationTestOptions.ForceCrashlyticsCrashEnvironmentVariableName)}; "
             + $"crashlyticsPreviousCrashOptIn={IsEnabled(IntegrationTestOptions.ExpectPreviousCrashEnvironmentVariableName)}; "

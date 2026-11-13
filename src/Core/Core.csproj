@@ -80,7 +80,7 @@
 
     <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
       <PackageReference Include="GoogleGson" Version="2.11.0.3" />
-      <PackageReference Include="Xamarin.Firebase.Common" Version="121.0.0.6" />
+      <PackageReference Include="Xamarin.Firebase.Common" Version="122.1.0" />
     </ItemGroup>
 
 </Project>

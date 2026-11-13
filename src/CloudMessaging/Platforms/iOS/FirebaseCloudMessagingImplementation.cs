@@ -51,6 +51,9 @@ public sealed class FirebaseCloudMessagingImplementation
         }
     }
 
+    /// <summary>
+    /// Requests an APNs device token and checks for an FCM token in token mode.
+    /// </summary>
     public static void RequestApnsDeviceToken()
     {
         UIApplication.SharedApplication.RegisterForRemoteNotifications();
@@ -64,7 +67,10 @@ public sealed class FirebaseCloudMessagingImplementation
     /// <returns>A completed task.</returns>
     public Task OnTokenRefreshAsync()
     {
-        OnTokenRefresh(Messaging.SharedInstance.FcmToken);
+        var messaging = Messaging.SharedInstance;
+        if(!messaging.InstallationIdEnabled) {
+            OnTokenRefresh(messaging.FcmToken);
+        }
         return Task.CompletedTask;
     }
 
@@ -253,7 +259,39 @@ public sealed class FirebaseCloudMessagingImplementation
     [Export("messaging:didReceiveRegistrationToken:")]
     public void DidReceiveRegistrationToken(Messaging messaging, string fcmToken)
     {
-        OnTokenRefresh(fcmToken);
+        if(!messaging.InstallationIdEnabled) {
+            OnTokenRefresh(fcmToken);
+        }
+    }
+
+    /// <summary>
+    /// Forwards the Firebase Installation ID reported by the native registration callback.
+    /// </summary>
+    [Export("messaging:didReceiveRegistration:")]
+    public void DidReceiveRegistration(Messaging messaging, string installationId)
+    {
+        RegistrationReceived?.Invoke(this, new FCMRegistrationReceivedEventArgs(installationId));
+    }
+
+    /// <summary>
+    /// Forwards the Firebase Installation ID reported by the native unregistration callback.
+    /// </summary>
+    [Export("messaging:didUnregister:")]
+    public void DidUnregister(Messaging messaging, string installationId)
+    {
+        UnregistrationReceived?.Invoke(this, new FCMUnregistrationReceivedEventArgs(installationId));
+    }
+
+    /// <inheritdoc/>
+    public Task RegisterAsync()
+    {
+        return Messaging.SharedInstance.RegisterAsync();
+    }
+
+    /// <inheritdoc/>
+    public Task UnregisterAsync()
+    {
+        return Messaging.SharedInstance.UnregisterAsync();
     }
 
     /// <inheritdoc/>
@@ -279,6 +317,12 @@ public sealed class FirebaseCloudMessagingImplementation
 
     /// <inheritdoc/>
     public event EventHandler<FCMTokenChangedEventArgs> TokenChanged;
+
+    /// <inheritdoc/>
+    public event EventHandler<FCMRegistrationReceivedEventArgs> RegistrationReceived;
+
+    /// <inheritdoc/>
+    public event EventHandler<FCMUnregistrationReceivedEventArgs> UnregistrationReceived;
 
     /// <inheritdoc/>
     public event EventHandler<FCMNotificationReceivedEventArgs> NotificationReceived;

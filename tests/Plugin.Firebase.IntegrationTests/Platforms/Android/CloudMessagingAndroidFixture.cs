@@ -1,6 +1,8 @@
 using Android.OS;
 using Firebase.Messaging;
 using Plugin.Firebase.CloudMessaging;
+using Plugin.Firebase.CloudMessaging.EventArgs;
+using Plugin.Firebase.CloudMessaging.Platforms.Android;
 using Plugin.Firebase.CloudMessaging.Platforms.Android.Extensions;
 
 namespace Plugin.Firebase.IntegrationTests.CloudMessaging;
@@ -13,6 +15,38 @@ public sealed class CloudMessagingAndroidFixture
 {
     private const string NotificationEnabledKey = "gcm.n.e";
     private const string NotificationChannelIdKey = "gcm.n.android_channel_id";
+
+    [Fact]
+    public async Task forwards_the_installation_id_from_the_messaging_service()
+    {
+        var sut = CrossFirebaseCloudMessaging.Current;
+        using var registration = new EventProbe<FCMRegistrationReceivedEventArgs>(
+            handler => sut.RegistrationReceived += handler,
+            handler => sut.RegistrationReceived -= handler);
+        using var service = new MyFirebaseMessagingService();
+        const string installationId = "synthetic-installation-id";
+
+        service.OnRegistered(installationId);
+
+        var args = await registration.WaitAsync(IntegrationTestTimeouts.ShortCallback, "Android FCM registration callback");
+        Assert.Equal(installationId, args.InstallationId);
+    }
+
+    [Fact]
+    public async Task forwards_the_unregistered_installation_id_from_the_messaging_service()
+    {
+        var sut = CrossFirebaseCloudMessaging.Current;
+        using var unregistration = new EventProbe<FCMUnregistrationReceivedEventArgs>(
+            handler => sut.UnregistrationReceived += handler,
+            handler => sut.UnregistrationReceived -= handler);
+        using var service = new MyFirebaseMessagingService();
+        const string installationId = "synthetic-installation-id";
+
+        service.OnUnregistered(installationId);
+
+        var args = await unregistration.WaitAsync(IntegrationTestTimeouts.ShortCallback, "Android FCM unregistration callback");
+        Assert.Equal(installationId, args.InstallationId);
+    }
 
     [Fact]
     public void maps_android_channel_id_from_remote_message()

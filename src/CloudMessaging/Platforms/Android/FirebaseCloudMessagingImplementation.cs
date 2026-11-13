@@ -1,4 +1,5 @@
 using Android.Content;
+using Android.Content.PM;
 using Android.Gms.Common;
 using Android.Gms.Extensions;
 using AndroidX.Core.App;
@@ -49,7 +50,26 @@ public sealed class FirebaseCloudMessagingImplementation : DisposableBase, IFire
 
     public async Task OnTokenRefreshAsync()
     {
+        var packageManager = _context.PackageManager;
+        var applicationInfo = OperatingSystem.IsAndroidVersionAtLeast(33)
+            ? packageManager.GetApplicationInfo(
+                _context.PackageName, PackageManager.ApplicationInfoFlags.Of((long) PackageInfoFlags.MetaData))
+            : packageManager.GetApplicationInfo(_context.PackageName, PackageInfoFlags.MetaData);
+        if(applicationInfo.MetaData?.GetBoolean("firebase_messaging_installation_id_enabled") == true) {
+            return;
+        }
+
         TokenChanged?.Invoke(this, new FCMTokenChangedEventArgs(await GetTokenAsync()));
+    }
+
+    internal void OnRegistered(string installationId)
+    {
+        RegistrationReceived?.Invoke(this, new FCMRegistrationReceivedEventArgs(installationId));
+    }
+
+    internal void OnUnregistered(string installationId)
+    {
+        UnregistrationReceived?.Invoke(this, new FCMUnregistrationReceivedEventArgs(installationId));
     }
 
     public void OnNotificationReceived(FCMNotification fcmNotification)
@@ -122,8 +142,20 @@ public sealed class FirebaseCloudMessagingImplementation : DisposableBase, IFire
 
     public async Task<string> GetTokenAsync()
     {
+#pragma warning disable CS0618 // Keep FCM token retrieval available for apps using token mode.
         var token = (await FirebaseMessaging.Instance.GetToken()).ToString();
+#pragma warning restore CS0618
         return string.IsNullOrEmpty(token) ? throw new FirebaseException("Couldn't retrieve FCM token") : token;
+    }
+
+    public async Task RegisterAsync()
+    {
+        await FirebaseMessaging.Instance.Register().AsAsync();
+    }
+
+    public async Task UnregisterAsync()
+    {
+        await FirebaseMessaging.Instance.Unregister().AsAsync();
     }
 
     public Task SubscribeToTopicAsync(string topic)
@@ -137,6 +169,8 @@ public sealed class FirebaseCloudMessagingImplementation : DisposableBase, IFire
     }
 
     public event EventHandler<FCMTokenChangedEventArgs> TokenChanged;
+    public event EventHandler<FCMRegistrationReceivedEventArgs> RegistrationReceived;
+    public event EventHandler<FCMUnregistrationReceivedEventArgs> UnregistrationReceived;
     public event EventHandler<FCMNotificationReceivedEventArgs> NotificationReceived;
     public event EventHandler<FCMErrorEventArgs> Error;
 

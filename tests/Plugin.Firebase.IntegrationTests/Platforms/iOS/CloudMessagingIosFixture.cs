@@ -1,3 +1,4 @@
+using Firebase.CloudMessaging;
 using Plugin.Firebase.CloudMessaging;
 using Plugin.Firebase.CloudMessaging.EventArgs;
 using UserNotifications;
@@ -22,6 +23,36 @@ public sealed class CloudMessagingIosFixture
 
     private static FirebaseCloudMessagingImplementation Sut =>
         (FirebaseCloudMessagingImplementation) CrossFirebaseCloudMessaging.Current;
+
+    [IosFact]
+    public async Task forwards_the_installation_id_from_the_messaging_delegate()
+    {
+        var sut = Sut;
+        using var registration = new EventProbe<FCMRegistrationReceivedEventArgs>(
+            handler => sut.RegistrationReceived += handler,
+            handler => sut.RegistrationReceived -= handler);
+        const string installationId = "synthetic-installation-id";
+
+        sut.DidReceiveRegistration(Messaging.SharedInstance, installationId);
+
+        var args = await registration.WaitAsync(IntegrationTestTimeouts.ShortCallback, "iOS FCM registration callback");
+        Assert.Equal(installationId, args.InstallationId);
+    }
+
+    [IosFact]
+    public async Task forwards_the_unregistered_installation_id_from_the_messaging_delegate()
+    {
+        var sut = Sut;
+        using var unregistration = new EventProbe<FCMUnregistrationReceivedEventArgs>(
+            handler => sut.UnregistrationReceived += handler,
+            handler => sut.UnregistrationReceived -= handler);
+        const string installationId = "synthetic-installation-id";
+
+        sut.DidUnregister(Messaging.SharedInstance, installationId);
+
+        var args = await unregistration.WaitAsync(IntegrationTestTimeouts.ShortCallback, "iOS FCM unregistration callback");
+        Assert.Equal(installationId, args.InstallationId);
+    }
 
     [IosFact]
     public async Task completes_silent_foreground_notification_once_with_no_presentation_options()

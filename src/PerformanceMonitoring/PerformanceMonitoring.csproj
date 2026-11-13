@@ -43,7 +43,7 @@
 
         <!--Version of C# to use -->
         <LangVersion>default</LangVersion>
-        <XamarinAndroidXLifecycleProcessVersion Condition="'$(XamarinAndroidXLifecycleProcessVersion)' == ''">2.8.7.4</XamarinAndroidXLifecycleProcessVersion>
+        <XamarinAndroidXLifecycleProcessVersion Condition="'$(XamarinAndroidXLifecycleProcessVersion)' == ''">2.10.0.2</XamarinAndroidXLifecycleProcessVersion>
     </PropertyGroup>
 
     <!-- Define what happens on build and release -->

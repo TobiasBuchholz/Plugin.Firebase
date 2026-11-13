@@ -437,6 +437,16 @@ xcrun simctl launch --terminate-running-process <simulator-udid> <bundle-id>
 
 App Check is disabled by default in the integration tests (`AppCheckOptions.Disabled`). To run the optional App Check token test, set `PLUGIN_FIREBASE_TEST_BACKEND=real` and `PLUGIN_FIREBASE_RUN_APPCHECK_TOKEN_TESTS=1`; the test harness configures `AppCheckOptions.Debug` during app startup for that opt-in path.
 
+### Cloud Messaging (optional)
+
+Use a real Firebase project configured for the test app. On iOS, use a physical device with signing, push entitlements, and APNs configured for the project. Select the real backend with `PLUGIN_FIREBASE_TEST_BACKEND=real`.
+
+- **Token mode** is the default build. Set `PLUGIN_FIREBASE_RUN_FCM_TOKEN_TESTS=1` to verify token retrieval, token events, and topic operations.
+- **Installation ID mode** uses the build property `-p:IntegrationTestsFcmInstallationIdEnabled=true` to set the native FID flag and disable auto-initialization for the test app. Set `PLUGIN_FIREBASE_RUN_FCM_REGISTRATION_TESTS=1` to verify explicit registration and repeat callbacks.
+- **Direct delivery** is available in either build. Set `PLUGIN_FIREBASE_RUN_FCM_DELIVERY_TESTS=1`, then send a notification to the token or installation ID shown in the test log, using the matching destination field in your sender.
+
+Use the device test commands in the [integration harness README](../tests/Plugin.Firebase.IntegrationTests/README.md). Rebuild the test app when switching modes.
+
 ### Installations (optional destructive)
 
 The Firebase Installations delete test is skipped by default. To run it, set `PLUGIN_FIREBASE_RUN_INSTALLATIONS_DELETE_TESTS=1`. This deletes the current Firebase installation ID and may affect other Firebase services tied to that installation.

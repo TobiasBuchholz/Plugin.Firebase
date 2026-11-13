@@ -122,6 +122,32 @@ public class ClaimValueConverterTests
         { 255m, typeof(ByteLevel), ByteLevel.Max },
         { 2.7m, typeof(ByteLevel?), (ByteLevel) 2 },
 
+        // decimal text, which iOS reads NSDecimalNumber claims as, is converted from its exact value
+        { Text("-9223372036854775808"), typeof(long), long.MinValue },
+        { Text("18446744073709551615"), typeof(ulong), ulong.MaxValue },
+        { Text("9223372036854775806.9"), typeof(long), 9223372036854775806L },
+        { Text("-9223372036854775807.99999999999999999999"), typeof(long), -9223372036854775807L },
+        { Text("18446744073709551614.99999999999999999999"), typeof(ulong), 18446744073709551614UL },
+        { Text("0.000000000000000000000000000001"), typeof(uint), 0U },
+        { Text("-2.7"), typeof(int), -2 },
+        { Text("-0"), typeof(uint), 0U },
+        { Text("-127.9"), typeof(sbyte), (sbyte) -127 },
+        { Text("255"), typeof(ByteLevel), ByteLevel.Max },
+        { Text("2.7"), typeof(ByteLevel?), (ByteLevel) 2 },
+        { Text("7"), typeof(int?), 7 },
+        // floating-point targets are rounded from the digits, so tiny values survive
+        { Text("0.000000000000000000000000000001"), typeof(double), 1e-30 },
+        { Text("0.00000000000000000000000000012345678901234567890"), typeof(double), 1.2345678901234567890e-28 },
+        { Text("351166.76399743447806169672774"), typeof(double), 351166.76399743446 },
+        { Text("1.5"), typeof(float), 1.5f },
+        { Text("18446744073709551616"), typeof(double), 18446744073709551616.0 },
+        { Text("NaN"), typeof(double), double.NaN },
+        { Text("NaN"), typeof(float), float.NaN },
+        // decimal targets round to the digits a decimal holds
+        { Text("12345678901234567890.5"), typeof(decimal), 12345678901234567890.5m },
+        { Text("0.30000000000000000000000001"), typeof(decimal), 0.30000000000000000000000001m },
+        { Text("79228162514264337593543950335"), typeof(decimal), decimal.MaxValue },
+
         // enums convert through their underlying type, and fractions truncate
         { 0L, typeof(ByteLevel), ByteLevel.None },
         { 255L, typeof(ByteLevel), ByteLevel.Max },
@@ -217,6 +243,24 @@ public class ClaimValueConverterTests
         { 256m, typeof(ByteLevel) },
         { decimal.MaxValue, typeof(long?) },
 
+        // decimal text is range checked on its exact value, before truncation
+        { Text("-9223372036854775809"), typeof(long) },
+        { Text("9223372036854775808"), typeof(long) },
+        { Text("9223372036854775807.00000000000000000001"), typeof(long) },
+        { Text("-9223372036854775808.00000000000000000001"), typeof(long) },
+        { Text("18446744073709551616"), typeof(ulong) },
+        { Text("18446744073709551615.00000000000000000001"), typeof(ulong) },
+        { Text("-0.000000000000000000000000000001"), typeof(uint) },
+        { Text("-0.5"), typeof(ulong) },
+        { Text("-128.5"), typeof(sbyte) },
+        { Text("256"), typeof(ByteLevel) },
+        { Text("-1"), typeof(ByteLevel?) },
+        { Text("NaN"), typeof(int) },
+        { Text("NaN"), typeof(decimal) },
+        { Text("79228162514264337593543950336"), typeof(decimal) },
+        { Text("1" + new string('0', 165)), typeof(float) },
+        { Text("1" + new string('0', 165)), typeof(long) },
+
         // enums are range checked against their underlying type
         { 256L, typeof(ByteLevel) },
         { 300L, typeof(ByteLevel) },
@@ -266,6 +310,9 @@ public class ClaimValueConverterTests
         { 7m, typeof(string) },
         { 7m, typeof(bool) },
 
+        { Text("7"), typeof(string) },
+        { Text("7"), typeof(char) },
+
         // nor into any other type they aren't
         { 7L, typeof(DateTimeOffset) },
         { "text", typeof(DateTimeOffset?) },
@@ -286,6 +333,27 @@ public class ClaimValueConverterTests
         { 7, null },
         { 1.5, null },
     };
+
+    public static TheoryData<object, Type?> MatchingContainers => new() {
+        { new Dictionary<string, object>(), null },
+        { new Dictionary<string, object>(), typeof(object) },
+        { new Dictionary<string, object>(), typeof(IDictionary<string, object>) },
+        { new Dictionary<string, object>(), typeof(IReadOnlyDictionary<string, object>) },
+        { new Dictionary<string, long>(), typeof(Dictionary<string, long>) },
+        { new List<object>(), typeof(IList<object>) },
+        { new List<long>(), typeof(List<long>) },
+    };
+
+    public static TheoryData<object, Type> MismatchedContainers => new() {
+        // a nested object or array read as a value, for example a dictionary value requested as string
+        { new Dictionary<string, object>(), typeof(string) },
+        { new Dictionary<string, object>(), typeof(long) },
+        { new Dictionary<string, object>(), typeof(long?) },
+        { new List<object>(), typeof(string) },
+        { new List<object>(), typeof(bool) },
+    };
+
+    private static ClaimValueConverter.DecimalText Text(string text) => new(text);
 
     [Theory]
     [MemberData(nameof(InRangeValues))]
@@ -338,5 +406,33 @@ public class ClaimValueConverterTests
 
         Assert.Contains(typeof(string).FullName!, exception.Message);
         Assert.Contains(typeof(long).FullName!, exception.Message);
+    }
+
+    [Theory]
+    [MemberData(nameof(MatchingContainers))]
+    public void returns_container_that_has_the_requested_type(object container, Type? targetType)
+    {
+        Assert.Same(container, ClaimValueConverter.ToRequestedContainer(container, targetType));
+    }
+
+    [Theory]
+    [MemberData(nameof(MismatchedContainers))]
+    public void throws_invalid_cast_for_container_read_as_another_type(object container, Type targetType)
+    {
+        Assert.Throws<InvalidCastException>(() => ClaimValueConverter.ToRequestedContainer(container, targetType));
+    }
+
+    [Fact]
+    public void decimal_text_messages_name_the_value_and_decimal_type()
+    {
+        var overflow = Assert.Throws<OverflowException>(
+            () => ClaimValueConverter.ToRequestedType(Text("-9223372036854775809"), typeof(long))
+        );
+        var mismatch = Assert.Throws<InvalidCastException>(
+            () => ClaimValueConverter.ToRequestedType(Text("7"), typeof(string))
+        );
+
+        Assert.Contains("-9223372036854775809", overflow.Message);
+        Assert.Contains(typeof(decimal).FullName!, mismatch.Message);
     }
 }

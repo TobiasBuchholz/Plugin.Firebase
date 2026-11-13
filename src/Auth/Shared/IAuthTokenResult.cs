@@ -33,12 +33,20 @@ public interface IAuthTokenResult
     /// <item><description>
     /// Claims are not coerced between JSON types. Reading a string or boolean claim as a numeric type or an enum, a
     /// numeric or boolean claim as a <see cref="string"/>, a numeric claim as a <see cref="bool"/>, or any claim as
-    /// <see cref="char"/> throws <see cref="InvalidCastException"/>.
+    /// <see cref="char"/> throws <see cref="InvalidCastException"/>. So does reading an array or object claim as a
+    /// type that isn't a list or dictionary.
     /// </description></item>
     /// </list>
     /// <para>
     /// The elements of a requested list type and the values of a requested dictionary type follow the same rules, so a
-    /// numeric value in a dictionary read with <see cref="string"/> values throws <see cref="InvalidCastException"/>.
+    /// numeric value, or a nested object, in a dictionary read with <see cref="string"/> values throws
+    /// <see cref="InvalidCastException"/>.
+    /// </para>
+    /// <para>
+    /// Numbers are converted from the value the native JSON parser produces. On iOS, an integer outside the 64-bit range
+    /// or a number written with more significant digits than a <see cref="double"/> holds keeps its exact value until
+    /// the range check. Android parses such numbers as <see cref="double"/>, so there they keep only
+    /// <see cref="double"/> precision and can convert differently.
     /// </para>
     /// <para>
     /// A JSON <c>null</c> claim read as a non-nullable value type throws; currently that is a

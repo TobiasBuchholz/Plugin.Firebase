@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Runtime.InteropServices;
 using CoreFoundation;
 using ObjCRuntime;
@@ -24,7 +23,8 @@ public static class NSObjectExtensions
     /// <exception cref="OverflowException">Thrown when a number doesn't fit the numeric or enum target type.</exception>
     /// <exception cref="InvalidCastException">
     /// Thrown when a string, number or boolean is read as a type that doesn't match it, for example a string or boolean
-    /// as a number or a number as <see cref="string"/>, or when any value is read as <see cref="char"/>.
+    /// as a number or a number as <see cref="string"/>, when any value is read as <see cref="char"/>, or when an array
+    /// or object is read as a type that isn't a list or dictionary.
     /// </exception>
     public static object? ToObject(this NSObject @this, Type? targetType = null)
     {
@@ -36,9 +36,9 @@ public static class NSObjectExtensions
             case NSDate x:
                 return x.ToDateTimeOffset();
             case NSDictionary x:
-                return x.ToDictionaryObject(targetType);
+                return ClaimValueConverter.ToRequestedContainer(x.ToDictionaryObject(targetType), targetType);
             case NSArray x:
-                return x.ToList(GetGenericListType(targetType)!);
+                return ClaimValueConverter.ToRequestedContainer(x.ToList(GetGenericListType(targetType)!), targetType);
             case NSNull:
                 return null;
             default:
@@ -92,8 +92,8 @@ public static class NSObjectExtensions
     private static extern nint CFBooleanGetTypeID();
 
     /// <summary>
-    /// Reads the stored value as long, ulong, double or, for an NSDecimalNumber, decimal, which hold every value of the
-    /// NSNumber's ObjCType, so the
+    /// Reads the stored value as long, ulong, double or, for an NSDecimalNumber, its exact text, which hold every value
+    /// of the NSNumber's ObjCType, so the
     /// conversion to the requested type range checks it instead of a narrower NSNumber accessor wrapping it.
     /// </summary>
     private static object ToWidenedValue(NSNumber @this, string? objCType)
@@ -118,17 +118,14 @@ public static class NSObjectExtensions
     }
 
     /// <summary>
-    /// Reads an NSDecimalNumber, which NSJSONSerialization uses for numbers a double can't hold exactly, as a
-    /// <see cref="decimal"/> so its exact value reaches the range check. Its <c>DoubleValue</c> would round
-    /// 9223372036854775807 up to 2^63, which no longer fits <see cref="long"/>. NaN, and values outside the
-    /// <see cref="decimal"/> range, fall back to <c>DoubleValue</c>.
+    /// Reads an NSDecimalNumber, which NSJSONSerialization produces for integers outside the 64-bit range and for
+    /// numbers written with more significant digits than a double holds, as its exact text. Its <c>DoubleValue</c>
+    /// would round -9223372036854775809 to -2^63, which then fits <see cref="long"/>.
     /// </summary>
     private static object ToWidenedValue(NSDecimalNumber @this)
     {
-        // StringValue is locale independent and never uses exponent notation
-        return decimal.TryParse(@this.StringValue, NumberStyles.Float, CultureInfo.InvariantCulture, out var value)
-            ? value
-            : @this.DoubleValue;
+        // StringValue is locale independent, never uses exponent notation, and is "NaN" for notANumber
+        return new ClaimValueConverter.DecimalText(@this.StringValue);
     }
 
     private static object ToUntypedObject(NSNumber @this, string? objCType)

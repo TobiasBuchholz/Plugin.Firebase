@@ -66,13 +66,28 @@ public sealed class HttpsCallableWrapper : IHttpsCallable
         }
 
         if(typeof(TResponse) == typeof(string)) {
-            return (TResponse) (object) value;
+            // Earlier releases decoded JSON string literals returned by the callable.
+            // Plain native strings still pass through as-is.
+            return (TResponse) (object) DecodeStringLiteral(value);
         }
 
         var json = IsJson(value)
             ? value
             : JsonSerializer.Serialize(value);
         return JsonSerializer.Deserialize<TResponse>(json);
+    }
+
+    private static string DecodeStringLiteral(string value)
+    {
+        if(!value.AsSpan().TrimStart().StartsWith("\"".AsSpan(), StringComparison.Ordinal)) {
+            return value;
+        }
+
+        try {
+            return JsonSerializer.Deserialize<string>(value);
+        } catch(JsonException) {
+            return value;
+        }
     }
 
     private static bool IsJson(string value)

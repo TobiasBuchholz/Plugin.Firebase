@@ -107,6 +107,10 @@ exports.returnEscapedStringPayload = functions.https.onCall(async (data, context
   return 'escaped "quote" and backslash \\\\ path';
 });
 
+exports.returnJsonStringLiteralPayload = functions.https.onCall(async () => {
+  return JSON.stringify('escaped "quote" and backslash \\ path');
+});
+
 exports.returnNumberPayload = functions.https.onCall(async (data, context) =>  {
   functions.logger.log('[+] returnNumberPayload:', data);
   return 42;

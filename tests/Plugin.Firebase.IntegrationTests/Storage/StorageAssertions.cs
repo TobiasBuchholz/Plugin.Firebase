@@ -38,8 +38,8 @@ internal static class StorageAssertions
             decodedUrl);
     }
 
-    // Pins the failure each platform reports today for a PutFile source that doesn't exist. Once #741 lands,
-    // both platforms throw CrossPlatformFirebaseStorageException wrapping these native errors instead.
+    // Pins the failure each platform reports for a PutFile source that doesn't exist: a
+    // CrossPlatformFirebaseStorageException that keeps the native error as its inner exception.
     public static void MissingUploadFileFailure(Exception exception, string filePath)
     {
         var failure = Assert.IsType<CrossPlatformFirebaseStorageException>(exception);

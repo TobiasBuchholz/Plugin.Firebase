@@ -341,16 +341,19 @@ with Plugin.Firebase.Firestore 4.0.0:
   now read.
 - Android wrote `uint`-backed enum values above `int.MaxValue`, and `ulong`-backed values above
   `long.MaxValue`, as negative numbers when they went through update, list, query or
-  transaction-result writes. This release fixes those writes but can't repair values already
-  stored, which don't fit the enum and now fail to read on both platforms. To recover, read the
-  document as a `Dictionary<string, object>`, convert the stored `long` with
-  `unchecked((uint) value)` or `unchecked((ulong) value)`, and write the field back.
-- iOS read those wrapped values back as the original member, because its enum reads wrapped too,
-  so documents written on Android round-tripped there. They now throw on iOS as well. Writing a
-  field back as described above stores the actual value only when this release also includes the
-  Android enum write fix (#747). Write a list field back whole: `FieldValue.ArrayUnion` adds the
-  corrected element next to the wrapped one instead of replacing it, and `FieldValue.ArrayRemove`
-  with the enum value doesn't match the wrapped element.
+  transaction-result writes. Those stored values now throw `OverflowException` when read into
+  the enum on either platform, including on iOS, where they previously wrapped back to the
+  original member.
+- To recover a wrapped value, read the document as a `Dictionary<string, object>` to get the
+  stored `long`. For a `uint`-backed enum, recover the value with `unchecked((uint) value)` and
+  write it back as a Firestore integer (for example, as `(long) unchecked((uint) value)`). For a
+  `ulong`-backed enum, `unchecked((ulong) value)` recovers a value above `long.MaxValue`. Firestore
+  integers are signed 64-bit, and the plugin rejects writes of `ulong` values above that limit.
+  To preserve the exact value, store it in another form, such as an invariant-culture decimal
+  string, and update the app to read that form and convert it to the enum.
+- If a list contains wrapped values, rewrite the entire field. `FieldValue.ArrayUnion` adds the
+  corrected element alongside the wrapped one, and `FieldValue.ArrayRemove` with the corrected
+  value leaves the wrapped element in place.
 - A stored NaN or infinity read into an integral, enum or `decimal` property throws
   `OverflowException`, and so does a double too large for a `float` property.
 - On iOS, `char` properties read the stored number through a byte, so values above 255 wrapped.

@@ -31,7 +31,12 @@ public static class FCMNotificationExtension
     /// Converts an <see cref="NSDictionary"/> containing notification user info to an <see cref="FCMNotification"/>.
     /// </summary>
     /// <param name="userInfo">The user info dictionary from the notification.</param>
-    /// <returns>An <see cref="FCMNotification"/> containing the notification data, or an empty notification if parsing fails.</returns>
+    /// <returns>
+    /// An <see cref="FCMNotification"/> containing the notification data. When the payload has no alert or
+    /// <c>notification</c> dictionary (for example a local notification), <see cref="FCMNotification.Data"/>
+    /// holds the user info entries, and <see cref="FCMNotification.Body"/> and <see cref="FCMNotification.Title"/>
+    /// come from its <c>body</c> and <c>title</c> keys when present.
+    /// </returns>
     public static FCMNotification ToFCMNotification(this NSDictionary userInfo)
     {
         if(userInfo["aps"] is NSDictionary apsDict) {
@@ -57,7 +62,8 @@ public static class FCMNotificationExtension
                 );
             }
         }
-        return FCMNotification.Empty();
+        // no alert or notification dictionary: keep the user info so custom keys aren't dropped
+        return new FCMNotification(imageUrl: GetImageUrl(userInfo), data: userInfo.ToDictionary());
     }
 
     private static string GetBody(NSDictionary dict)

@@ -1,6 +1,9 @@
 using Plugin.Firebase.CloudMessaging;
 using Plugin.Firebase.CloudMessaging.EventArgs;
+using Plugin.Firebase.CloudMessaging.Platforms.iOS.Extensions;
 using UserNotifications;
+using NSDictionary = Foundation.NSDictionary;
+using NSNumber = Foundation.NSNumber;
 
 namespace Plugin.Firebase.IntegrationTests.CloudMessaging;
 
@@ -155,28 +158,114 @@ public sealed class CloudMessagingIosFixture
     }
 
     [IosFact]
-    public async Task raises_tap_without_data_as_copy_holding_only_action_identifier()
+    public async Task raises_tap_on_local_notification_with_user_info_and_action_identifier()
     {
-        var notification = new FCMNotification(body: "Delegate body", title: "Delegate title");
+        var request = CreateLocalNotificationRequest();
         using var tapped = ProbeNotificationTapped();
 
-        Sut.CompleteNotificationResponse(() => notification, () => DefaultActionIdentifier, () => { });
+        Sut.CompleteNotificationResponse(() => request.ToFCMNotification(), () => DefaultActionIdentifier, () => { });
 
-        var args = await tapped.WaitAsync(IntegrationTestTimeouts.ShortCallback, "tap without data");
-        Assert.Equal(KeyValuePair.Create(ActionIdentifierKey, DefaultActionIdentifier), Assert.Single(args.Notification.Data));
-        Assert.Equal(("Delegate body", "Delegate title"), (args.Notification.Body, args.Notification.Title));
-        Assert.NotSame(notification, args.Notification);
+        var args = await tapped.WaitAsync(IntegrationTestTimeouts.ShortCallback, "local notification tap");
+        Assert.Equal("orders/42", args.Notification.Data["route"]);
+        Assert.Equal(DefaultActionIdentifier, args.Notification.Data[ActionIdentifierKey]);
+        Assert.Equal(("Local body", "Local title"), (args.Notification.Body, args.Notification.Title));
     }
 
     [IosFact]
-    public async Task replays_kept_tap_without_data_as_copy_holding_only_action_identifier()
+    public async Task completes_local_notification_marked_silent_by_subscriber_with_no_presentation_options()
     {
-        // a local notification's userInfo, with no aps or notification dictionary, converts to FCMNotification.Empty()
-        Sut.CompleteNotificationResponse(() => FCMNotification.Empty(), () => ActionIdentifier, () => { });
-        using var tapped = ProbeNotificationTapped();
+        var request = CreateLocalNotificationRequest();
+        using var received = ProbeNotificationReceived(
+            args => args.Notification.Data[SilentInForegroundKey] = "true");
+        var completions = new List<UNNotificationPresentationOptions>();
 
-        var args = await tapped.WaitAsync(IntegrationTestTimeouts.ShortCallback, "kept tap without data");
-        Assert.Equal(KeyValuePair.Create(ActionIdentifierKey, ActionIdentifier), Assert.Single(args.Notification.Data));
+        Sut.CompleteForegroundNotification(() => request.ToFCMNotification(), completions.Add);
+
+        var args = await received.WaitAsync(IntegrationTestTimeouts.ShortCallback, "local notification marked silent");
+        Assert.Equal("orders/42", args.Notification.Data["route"]);
+        Assert.Equal(UNNotificationPresentationOptions.None, Assert.Single(completions));
+    }
+
+    [IosFact]
+    public void converts_local_notification_user_info_into_data()
+    {
+        var userInfo = new NSDictionary("route", "orders/42");
+
+        var notification = userInfo.ToFCMNotification();
+
+        Assert.Equal("orders/42", notification.Data["route"]);
+        Assert.Equal(("", ""), (notification.Body, notification.Title));
+    }
+
+    [IosFact]
+    public void converts_aps_payload_without_alert_keeping_user_info_in_data()
+    {
+        var userInfo = new NSDictionary(
+            "aps", new NSDictionary("content-available", NSNumber.FromInt32(1)),
+            "fcm_options", new NSDictionary("image", "https://example.com/image.png"),
+            "title", "Data title",
+            "route", "orders/42");
+
+        var notification = userInfo.ToFCMNotification();
+
+        Assert.Equal("orders/42", notification.Data["route"]);
+        Assert.Equal(("", "Data title"), (notification.Body, notification.Title));
+        Assert.Equal("https://example.com/image.png", notification.ImageUrl);
+    }
+
+    [IosFact]
+    public void converts_local_notification_request_with_displayed_title_and_body()
+    {
+        var request = CreateLocalNotificationRequest();
+
+        var notification = request.ToFCMNotification();
+
+        Assert.Equal(("Local body", "Local title"), (notification.Body, notification.Title));
+        Assert.Equal("orders/42", notification.Data["route"]);
+    }
+
+    [IosFact]
+    public void converts_local_notification_request_preferring_user_info_title_and_body()
+    {
+        var request = CreateLocalNotificationRequest(
+            new NSDictionary("route", "orders/42", "title", "Data title", "body", "Data body"));
+
+        var notification = request.ToFCMNotification();
+
+        Assert.Equal(("Data body", "Data title"), (notification.Body, notification.Title));
+    }
+
+    [IosFact]
+    public void converts_local_notification_request_filling_only_missing_title_or_body()
+    {
+        var request = CreateLocalNotificationRequest(new NSDictionary("title", "Data title"));
+
+        var notification = request.ToFCMNotification();
+
+        Assert.Equal(("Local body", "Data title"), (notification.Body, notification.Title));
+    }
+
+    [IosFact]
+    public void converts_request_with_aps_alert_from_user_info_only()
+    {
+        var request = CreateLocalNotificationRequest(new NSDictionary(
+            "aps", new NSDictionary("alert", new NSDictionary("body", "Alert body")),
+            "route", "orders/42"));
+
+        var notification = request.ToFCMNotification();
+
+        Assert.Equal(("Alert body", ""), (notification.Body, notification.Title));
+        Assert.Equal("orders/42", notification.Data["route"]);
+    }
+
+    private static UNNotificationRequest CreateLocalNotificationRequest(NSDictionary? userInfo = null)
+    {
+        var content = new UNMutableNotificationContent {
+            Title = "Local title",
+            Body = "Local body",
+            UserInfo = userInfo ?? new NSDictionary("route", "orders/42")
+        };
+        return UNNotificationRequest.FromIdentifier("plugin-firebase-local-notification", content, null);
     }
 
     private static FCMNotification CreateNotification(bool isSilentInForeground)

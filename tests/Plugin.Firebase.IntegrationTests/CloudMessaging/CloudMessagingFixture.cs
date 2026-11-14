@@ -63,6 +63,39 @@ namespace Plugin.Firebase.IntegrationTests.CloudMessaging
             Assert.Equal("reflection", args.Notification.Data["source"]);
         }
 
+        [Fact]
+        public void does_not_replay_kept_tap_again_after_first_subscriber_throws()
+        {
+            var sut = CrossFirebaseCloudMessaging.Current;
+            var missedNotificationField = sut.GetType().GetField(
+                "_missedTappedNotification",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            Assert.NotNull(missedNotificationField);
+            missedNotificationField.SetValue(sut, new FCMNotification(body: "Kept body", title: "Kept title"));
+            var throwingCalls = 0;
+            var laterTaps = new List<FCMNotificationTappedEventArgs>();
+            EventHandler<FCMNotificationTappedEventArgs> throwing = (_, _) => {
+                throwingCalls++;
+                throw new InvalidOperationException("subscriber failure");
+            };
+            EventHandler<FCMNotificationTappedEventArgs> later = (_, args) => laterTaps.Add(args);
+
+            try {
+                var exception = Assert.Throws<InvalidOperationException>(() => sut.NotificationTapped += throwing);
+                sut.NotificationTapped += later;
+
+                Assert.Equal("subscriber failure", exception.Message);
+                Assert.Equal(1, throwingCalls);
+                Assert.Empty(laterTaps);
+            }
+            finally {
+                sut.NotificationTapped -= later;
+                sut.NotificationTapped -= throwing;
+                // without the fix the tap stays kept; clear it so later tests don't receive it
+                missedNotificationField.SetValue(sut, null);
+            }
+        }
+
         [RealFirebaseOptInFact(IntegrationTestOptions.RunFcmTokenTestsEnvironmentVariableName, skipIosSimulator: true)]
         public async Task gets_token_raises_token_changed_and_manages_topic_when_enabled()
         {

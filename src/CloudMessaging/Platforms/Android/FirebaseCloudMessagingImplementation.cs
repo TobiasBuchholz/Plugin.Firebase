@@ -144,9 +144,11 @@ public sealed class FirebaseCloudMessagingImplementation : DisposableBase, IFire
     public event EventHandler<FCMNotificationTappedEventArgs> NotificationTapped {
         add {
             _notificationTapped += value;
-            if(_missedTappedNotification != null) {
-                _notificationTapped?.Invoke(this, new FCMNotificationTappedEventArgs(_missedTappedNotification));
-                _missedTappedNotification = null;
+            // take and clear the kept tap before raising it, so it is raised at most once even if a
+            // subscriber throws or two subscribers are added at the same time
+            var missedTappedNotification = Interlocked.Exchange(ref _missedTappedNotification, null);
+            if(missedTappedNotification != null) {
+                _notificationTapped?.Invoke(this, new FCMNotificationTappedEventArgs(missedTappedNotification));
             }
         }
         remove => _notificationTapped -= value;

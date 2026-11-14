@@ -206,6 +206,11 @@ On iOS, every `NotificationTapped` notification now carries `Data["ActionIdentif
 - A tap that arrives before the first `NotificationTapped` subscriber, such as the tap that cold-starts the app, keeps its action identifier when it is raised for that subscriber. Previously only an immediate tap had it. On this path too, it overwrites a sender-supplied `ActionIdentifier` data key.
 - A tapped notification has no `Data` when its payload has an `aps` dictionary without `alert`, or has neither an `aps` nor a `notification` dictionary (for example a local notification). It is now raised as a copy whose `Data` holds only `ActionIdentifier`. Previously an immediate tap of such a notification threw a `NullReferenceException`, and a kept tap was raised with `Data` set to `null`.
 
+On iOS and Android, a kept `NotificationTapped` tap, such as the tap that cold-starts the app, is now raised at most once:
+
+- If the first subscriber throws while the kept tap is replayed to it, the tap is no longer kept. Subscribers added later don't receive it. Previously it stayed kept and was raised again to every subscriber, including the one that threw, each time another subscriber was added.
+- As before, the exception propagates out of `+=` and the throwing handler stays subscribed.
+
 ## Release notes
 - Version 4.0.1
   - Add iOS action identifier to notification body (PR #547)

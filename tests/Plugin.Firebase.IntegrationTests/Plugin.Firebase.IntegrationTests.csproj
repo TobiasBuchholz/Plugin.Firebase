@@ -189,16 +189,17 @@
     </Target>
 
     <!--
-      DeviceRunners preview.12 launches the iOS app before opening its TCP
-      listener. Supplying two loopback aliases makes the app use the runner's
-      retry path instead of abandoning its only result channel during startup.
+      DeviceRunners preview.12 starts its IPv4 listener after launching the app.
+      Two hosts enable client retries. Use IPv6 loopback as the second host so
+      only one probe can connect. A cancelled probe that connects and closes
+      before sending its ping makes the listener stop before tests report.
     -->
     <Target
       Name="EnableDeviceRunnersIosConnectionRetries"
       AfterTargets="_DeviceRunnersiOSArgs"
       Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
       <PropertyGroup>
-        <_DeviceRunnersCliArgs>$(_DeviceRunnersCliArgs) --app-host-names &quot;localhost;127.0.0.1&quot;</_DeviceRunnersCliArgs>
+        <_DeviceRunnersCliArgs>$(_DeviceRunnersCliArgs) --app-host-names &quot;127.0.0.1;::1&quot;</_DeviceRunnersCliArgs>
       </PropertyGroup>
     </Target>
 

@@ -29,6 +29,8 @@ public sealed class StorageReferenceWrapper : IStorageReference
 
     public IStorageTransferTask PutFile(string filePath, IStorageMetadata? metadata = null)
     {
+        ArgumentException.ThrowIfNullOrEmpty(filePath);
+
         var uri = AndroidUri.FromFile(new File(filePath))
             ?? throw new InvalidOperationException("Could not create a file URI for the storage upload.");
 

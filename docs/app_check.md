@@ -3,12 +3,14 @@
 Firebase App Check helps protect backend resources from abuse by ensuring requests come from your authentic app.
 
 ## Installation
-### Nuget
+### NuGet
+[![NuGet](https://img.shields.io/nuget/v/Plugin.Firebase.AppCheck.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.AppCheck/)
+
 > Install-Package Plugin.Firebase.AppCheck
 
 ## Setup
 
-- Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/README.md#basic-setup).
+- Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/README.md#basic-setup).
 - Configure App Check **before** calling `CrossFirebase.Initialize()`. On iOS, `Configure()` sets the native provider factory right away, so it is in place when Firebase configures the default app. On Android, the plugin uses an initialization hook to install the provider factory after `InitializeApp()`.
 
 ```c#
@@ -145,3 +147,10 @@ On iOS, `CrossFirebaseAppCheck.Configure` now fails explicitly instead of being 
 - `PlayIntegrity` throws `NotSupportedException` from `Configure` itself. Previously, when configured before initialization, the exception came from `CrossFirebase.Initialize()` before Firebase was configured; after initialization, the call was silently ignored.
 - `CrossFirebaseAppCheck.Dispose()` no longer cancels a provider configured before initialization, as on Android. Configure `Disabled` instead.
 - `Configure` sets the native provider factory right away instead of from `CrossFirebase.Initialize()`. A provider configured before the native `Firebase.Core.App.Configure()` now takes effect; previously it was silently ignored.
+
+## Release notes
+
+- Next
+  - Target .NET 10 and raise the minimum Firebase iOS binding version to 12.19.3; the minimum platform versions remain iOS 15 and Android 23.
+  - Enable nullable reference-type analysis and correct nullable provider-factory, registration, and cross-platform implementation contracts.
+  - Fix Android provider changes after initialization. On iOS, call `Configure` before Firebase initialization. A late call now throws.

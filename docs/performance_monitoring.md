@@ -60,7 +60,5 @@ Since code should be documenting itself you can also take a look at the followin
 
 ## Release notes
 - Next
-  - Added `IsInstrumentationEnabled` to control the native automatic instrumentation on iOS.
-  - Breaking for custom implementations: `IFirebasePerformanceMonitoring` gained this member, so hand-written implementations (for example test fakes) have to add it.
-- Version 4.0.0
-  - Initial Firebase Performance Monitoring support for collection control, custom code traces, and custom HTTP metrics.
+  - Initial public release for .NET 10 with iOS bindings 12.19.3 or later. Includes collection control, custom code traces, and custom HTTP metrics.
+  - Control automatic instrumentation on iOS with `IsInstrumentationEnabled`. Pre-release implementations of `IFirebasePerformanceMonitoring`, including test fakes, need to add this member.

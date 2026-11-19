@@ -6,13 +6,13 @@ Firebase Storage lets you upload and share user generated content, such as image
 
 ### NuGet
 
-[![NuGet](https://img.shields.io/nuget/v/plugin.firebase.storage.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Storage/)
+[![NuGet](https://img.shields.io/nuget/v/Plugin.Firebase.Storage.svg?maxAge=86400&style=flat)](https://www.nuget.org/packages/Plugin.Firebase.Storage/)
 
 > Install-Package Plugin.Firebase.Storage
 
 ## Setup
 
-- Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/master/README.md#basic-setup)
+- Follow the instructions for the [basic setup](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/README.md#basic-setup)
 - Enable Storage at your project in the [Firebase Console](https://console.firebase.google.com/)
 
 ## Usage
@@ -64,16 +64,23 @@ try {
 
 ## Next-release migration notes
 
-The .NET 10 release enables nullable-reference analysis for Storage and aligns the shared contracts with values that the native SDKs can omit:
+The .NET 10 release enables nullable-reference analysis for Storage and aligns the shared contracts with values that the native SDKs can omit. These signature changes require callers and custom implementations of the Storage interfaces to account for the following values:
 
-- `IStorageReference.Parent` is null for the root reference.
-- `IStorageListResult.PageToken` is null when there is no next page.
-- `IStorageTaskSnapshot.Metadata` and `Error` are nullable. Successful snapshots have no error; failure snapshots may have no metadata.
-- Optional metadata strings, custom metadata, and `StorageReference` are nullable. The current iOS Firebase SDK no longer exposes a storage reference from metadata, so `StorageReference` is null on iOS.
-- `Generation`, `MetaGeneration`, `CreationTime`, and `UpdatedTime` are nullable value types. Check `HasValue` before using them.
-- Omitted `StorageMetadata` constructor values now remain null instead of becoming `0` or `default(DateTimeOffset)`.
+- `IStorageReference.Parent` is nullable and is `null` for the root reference.
+- `IStorageListResult.PageToken` is nullable and is `null` for the terminal page.
+- `IStorageTaskSnapshot.Metadata` and `Error` are nullable. Successful snapshots have no error, and failure snapshots may have no metadata.
+- `IStorageMetadata.Bucket`, `Name`, `Path`, `CacheControl`, `ContentDisposition`, `ContentEncoding`, `ContentLanguage`, `ContentType`, `CustomMetadata`, `MD5Hash`, and `StorageReference` are nullable.
+- `IStorageMetadata.Generation`, `MetaGeneration`, `CreationTime`, and `UpdatedTime` are nullable value types. Check `HasValue` before using them.
+- Omitted nullable `StorageMetadata` constructor arguments now remain `null` instead of using sentinel `0` or `default(DateTimeOffset)` values. `Size` remains a non-nullable `long` whose default is `0`.
 
-The release also corrects `StorageMetadata` so `creationTime` and `updatedTime` populate their matching properties, and forwards `CacheControl` when metadata is sent to the iOS SDK. These are breaking behavior and signature changes; update callers and any custom implementations of the Storage interfaces before upgrading.
+The current iOS Firebase SDK does not expose an object reference through native metadata, so `IStorageMetadata.StorageReference` is always `null` on iOS. Metadata conversion now maps `creationTime` to `CreationTime` and `updatedTime` to `UpdatedTime`, and sends `CacheControl` to the iOS SDK. Code that compensated for the previously swapped timestamps should remove that workaround.
+
+Additional behavioral changes in this release are:
+
+- `ListAllAsync()` on iOS follows native page tokens until it has buffered every item and prefix; its composed result has a terminal `PageToken` of `null`.
+- `GetBytesAsync(maxDownloadSizeBytes)` and `GetStreamAsync(maxSize)` on iOS enforce the requested maximum even if the native callback returns a larger payload, and fail with a `FirebaseException` instead of returning the oversized data.
+- `IFirebaseStorage.UseEmulator(host, port)` connects the current native Storage instance to the Firebase Storage emulator. Call it before performing any Storage operation.
+- iOS task snapshots propagate native snapshot failures through the nullable `IStorageTaskSnapshot.Error` property as `NSErrorException`; inspect that exception when native error details are needed.
 
 On iOS, `PutFile` now uploads through the native file upload API instead of reading the whole file into memory and uploading it as data. Large files are no longer copied into memory, and read-only files, which previously failed to open, can now be uploaded. This changes iOS behavior in four ways: the file must stay in place and unchanged until `AwaitAsync()` completes; when no `ContentType` is set, it is inferred from the file extension instead of being stored as `application/octet-stream`; a missing file or a directory now fails the task returned by `PutFile` instead of throwing from `PutFile` (a null or empty path still throws `ArgumentException`); and symbolic links, which were previously followed, now fail. On physical devices, file uploads now run in a background URL session outside the app process, so the system may defer an upload that starts while the app is in the background; the previous data upload ran in the app's own session. See [Uploading files](#uploading-files) for the remaining platform differences, including background behavior.
 
@@ -90,6 +97,12 @@ Failures that the native Storage SDKs report now surface as `CrossPlatformFireba
 - On Android, `ListAsync(maxResults)` throws `ArgumentOutOfRangeException` synchronously if the value is outside the 32-bit integer range. Previously the cast could truncate the value, so `4294967297` listed one item. The native SDKs enforce their own page-size limits.
 
 ## Release notes
+
+- Next
+  - Target .NET 10 and raise the minimum Firebase iOS binding version to 12.19.3; the minimum platform versions remain iOS 15 and Android 23.
+  - Corrected nullable reference and value contracts, constructor defaults, timestamp mapping, iOS metadata forwarding, and native task-snapshot error propagation. See [Next-release migration notes](#next-release-migration-notes).
+  - Added Storage emulator support, fixed iOS `ListAllAsync()` paging, and enforced iOS in-memory download size limits.
+  - Normalize native Storage errors and return a readable, size-limited Android download stream.
 
 - Version 3.1.1
   - Using AdamE.Firebase.iOS.* minimum version 11

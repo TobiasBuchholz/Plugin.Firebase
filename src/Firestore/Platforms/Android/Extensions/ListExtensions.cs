@@ -1,11 +1,17 @@
 using System.Collections;
 using Android.Runtime;
+using Plugin.Firebase.Firestore.Internal;
 
 namespace Plugin.Firebase.Firestore.Platforms.Android.Extensions;
 
 public static class ListExtensions
 {
     public static IList ToList(this JavaList @this, Type? targetType = null)
+    {
+        return @this.ToList(targetType, field: null);
+    }
+
+    internal static IList ToList(this JavaList @this, Type? targetType, string? field)
     {
         var list =
             targetType == null
@@ -17,15 +23,12 @@ public static class ListExtensions
 
         for(var i = 0; i < @this.Size(); i++) {
             var value = @this[i];
-            // CTS-mapped CLR values (e.g. long, double) are narrowed by the same conversion as dictionary and model reads
-            list.AddConvertedValue(value is Java.Lang.Object javaValue ? javaValue.ToObject(targetType) : value, targetType);
+            // CTS-mapped CLR values (e.g. long, double) follow the same rules as dictionary and model reads
+            list.Add(value is Java.Lang.Object javaValue
+                ? javaValue.ToObject(targetType, field)
+                : FirestoreValueConversion.ToTargetType(value, targetType, field));
         }
         return list;
-    }
-
-    private static void AddConvertedValue(this IList list, object? value, Type? targetType)
-    {
-        list.Add(value.ConvertToTargetType(targetType));
     }
 
     public static JavaList ToJavaList(this IEnumerable @this)

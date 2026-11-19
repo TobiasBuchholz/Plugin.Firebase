@@ -29,6 +29,11 @@ public static class ListExtensions
     /// <returns>A typed list containing the converted elements.</returns>
     public static IList ToList(this NSArray @this, Type targetType)
     {
+        return @this.ToList(targetType, field: null);
+    }
+
+    internal static IList ToList(this NSArray @this, Type targetType, string? field)
+    {
         var elementType = targetType == typeof(object) ? typeof(object) : targetType;
         var list = (IList?) Activator.CreateInstance(typeof(List<>).MakeGenericType(elementType));
         if(list is null)
@@ -36,7 +41,7 @@ public static class ListExtensions
 
         for(nuint i = 0; i < @this.Count; i++) {
             var item = @this.GetItem<NSObject>(i);
-            list.Add(item is null ? null : item.ToObject(elementType));
+            list.Add(item is null ? null : item.ToObject(elementType, field));
         }
         return list;
     }

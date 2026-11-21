@@ -17,7 +17,8 @@ emulators="${FIREBASE_EMULATORS:-auth,firestore,functions,storage}"
 cloud_functions_dir="${repo_root}/tests/cloud-functions"
 integration_project="${repo_root}/tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTests.csproj"
 
-export FUNCTIONS_DISCOVERY_TIMEOUT="${FUNCTIONS_DISCOVERY_TIMEOUT:-30}"
+# Cold Functions discovery on macOS CI can take more than 30 seconds.
+export FUNCTIONS_DISCOVERY_TIMEOUT="${FUNCTIONS_DISCOVERY_TIMEOUT:-120}"
 
 quote() {
   printf '%q' "$1"

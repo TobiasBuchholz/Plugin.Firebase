@@ -27,15 +27,15 @@ public static class JavaObjectExtensions
             case Date x:
                 return x.ToDateTimeOffset();
             case ArrayMap x:
-                return x.ToDictionaryObject(targetType);
+                return ClaimValueConverter.ToRequestedContainer(x.ToDictionaryObject(targetType), targetType);
             case IMap x:
-                return x.ToDictionaryObject(targetType);
+                return ClaimValueConverter.ToRequestedContainer(x.ToDictionaryObject(targetType), targetType);
             case IDictionary x:
-                return x.ToDictionaryObject(targetType);
+                return ClaimValueConverter.ToRequestedContainer(x.ToDictionaryObject(targetType), targetType);
             case Java.Util.IList x:
-                return x.ToList(GetGenericListType(targetType));
+                return ClaimValueConverter.ToRequestedContainer(x.ToList(GetGenericListType(targetType)), targetType);
             case JavaList x:
-                return x.ToList(GetGenericListType(targetType));
+                return ClaimValueConverter.ToRequestedContainer(x.ToList(GetGenericListType(targetType)), targetType);
             case Java.Lang.Object x when x.GetType() == typeof(Java.Lang.Object):
                 return null;
             default:

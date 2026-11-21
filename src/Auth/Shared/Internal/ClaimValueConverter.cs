@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Numerics;
 
 namespace Plugin.Firebase.Auth.Internal;
 
@@ -16,11 +17,24 @@ namespace Plugin.Firebase.Auth.Internal;
 internal static class ClaimValueConverter
 {
     /// <summary>
+    /// A number in plain decimal notation, such as an NSDecimalNumber's <c>StringValue</c>, or <c>NaN</c>. It is
+    /// converted from its text, so the range check sees its exact value and no digits are lost by first rounding it to
+    /// a <see cref="double"/> or <see cref="decimal"/>.
+    /// </summary>
+    internal readonly record struct DecimalText(string Text)
+    {
+        public override string ToString() => Text;
+    }
+
+    /// <summary>
     /// Converts <paramref name="value"/> to <paramref name="targetType"/>. A numeric, enum or <see cref="char"/>
     /// target, or a nullable one, gets a converted number. Any other target gets <paramref name="value"/> itself when
     /// the value is already of that type.
     /// </summary>
-    /// <param name="value">The claim value: a string, a bool, or a CLR integral or floating-point number.</param>
+    /// <param name="value">
+    /// The claim value: a string, a bool, a CLR integral, floating-point or <see cref="decimal"/> number, or a
+    /// <see cref="DecimalText"/>.
+    /// </param>
     /// <param name="targetType">The requested type, or null to keep the natural type.</param>
     /// <returns>The converted value, or <paramref name="value"/> itself for a non-numeric target.</returns>
     /// <exception cref="OverflowException">
@@ -50,6 +64,18 @@ internal static class ClaimValueConverter
 
         // checked here rather than left to the caller's cast, so list elements and dictionary values fail the same way
         return conversionType.IsInstanceOfType(value) ? value : throw Mismatch(value, targetType);
+    }
+
+    /// <summary>
+    /// Returns a list or dictionary built for <paramref name="targetType"/>, or throws
+    /// <see cref="InvalidCastException"/> when the claim is an array or object but the target isn't a list or
+    /// dictionary type, for example a nested object in a dictionary read with <see cref="string"/> values.
+    /// </summary>
+    public static object ToRequestedContainer(object container, Type? targetType)
+    {
+        return targetType is null || targetType.IsInstanceOfType(container)
+            ? container
+            : throw Mismatch(container, targetType);
     }
 
     private static bool IsNumeric(Type type)
@@ -86,6 +112,10 @@ internal static class ClaimValueConverter
                     return FromInteger(value, typeCode);
                 case float or double:
                     return FromDouble(Convert.ToDouble(value, CultureInfo.InvariantCulture), typeCode);
+                case decimal number:
+                    return FromDecimal(number, typeCode);
+                case DecimalText number:
+                    return FromDecimalText(number.Text, typeCode);
                 default:
                     throw Mismatch(value, targetType);
             }
@@ -162,11 +192,147 @@ internal static class ClaimValueConverter
             case TypeCode.Double:
                 return value;
             case TypeCode.Decimal:
-                // throws OverflowException for NaN, infinity and values outside the decimal range
-                return (decimal) value;
+                // NaN and infinity throw here, values outside the decimal range in Parse. The cast (decimal) value
+                // would keep only 15 significant digits, so 2^53 + 2 would come back as 9007199254740990.
+                if(!double.IsFinite(value)) {
+                    throw new OverflowException();
+                }
+                return decimal.Parse(
+                    value.ToString("R", CultureInfo.InvariantCulture),
+                    NumberStyles.Float,
+                    CultureInfo.InvariantCulture
+                );
             default:
                 throw new ArgumentOutOfRangeException(nameof(target), target, null);
         }
+    }
+
+    private static object FromDecimal(decimal value, TypeCode target)
+    {
+        // Every integral bound is exact as a decimal, so the range check sees the value as it is and the cast that
+        // follows only truncates toward zero.
+        switch(target) {
+            case TypeCode.SByte:
+                return (sbyte) InRange(value, sbyte.MinValue, sbyte.MaxValue);
+            case TypeCode.Byte:
+                return (byte) InRange(value, byte.MinValue, byte.MaxValue);
+            case TypeCode.Int16:
+                return (short) InRange(value, short.MinValue, short.MaxValue);
+            case TypeCode.UInt16:
+                return (ushort) InRange(value, ushort.MinValue, ushort.MaxValue);
+            case TypeCode.Int32:
+                return (int) InRange(value, int.MinValue, int.MaxValue);
+            case TypeCode.UInt32:
+                return (uint) InRange(value, uint.MinValue, uint.MaxValue);
+            case TypeCode.Int64:
+                return (long) InRange(value, long.MinValue, long.MaxValue);
+            case TypeCode.UInt64:
+                return (ulong) InRange(value, ulong.MinValue, ulong.MaxValue);
+            case TypeCode.Single:
+                // the decimal range is far inside the float range, so this only rounds
+                return (float) value;
+            case TypeCode.Double:
+                return (double) value;
+            case TypeCode.Decimal:
+                return value;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(target), target, null);
+        }
+    }
+
+    private static object FromDecimalText(string text, TypeCode target)
+    {
+        var approximation = double.Parse(text, NumberStyles.Float, CultureInfo.InvariantCulture);
+        if(double.IsNaN(approximation)) {
+            return FromDouble(approximation, target);
+        }
+
+        switch(target) {
+            case TypeCode.Single:
+                // parsed from the text, so the result is correctly rounded; a finite value past float's range throws
+                var single = float.Parse(text, NumberStyles.Float, CultureInfo.InvariantCulture);
+                return float.IsInfinity(single) ? throw new OverflowException() : single;
+            case TypeCode.Double:
+                return approximation;
+            case TypeCode.Decimal:
+                // rounds to the 28 or 29 significant digits a decimal holds, like any decimal parse
+                return decimal.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var value)
+                    ? value
+                    : throw new OverflowException();
+            default:
+                return FromIntegralText(text, target);
+        }
+    }
+
+    private static object FromIntegralText(string text, TypeCode target)
+    {
+        // Split the exact value into its integer part and whether it has a fraction, without rounding either.
+        var point = text.IndexOf('.');
+        var integerText = point < 0 ? text : text[..point];
+        var hasFraction = point >= 0 && text.AsSpan(point + 1).IndexOfAnyExcept('0') >= 0;
+        var integer = integerText is "" or "-" or "+"
+            ? BigInteger.Zero
+            : BigInteger.Parse(integerText, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture);
+
+        // Range check before truncating: an integer part at a bound only fits without a fraction past that bound, so
+        // max + 0.5 and min - 0.5 (including -0.5 for an unsigned type) throw.
+        var (min, max) = IntegralRange(target);
+        var isNegative = text.StartsWith('-');
+        var fits = integer >= min && integer <= max && !(hasFraction && integer == (isNegative ? min : max));
+        if(!fits) {
+            throw new OverflowException();
+        }
+
+        switch(target) {
+            case TypeCode.SByte:
+                return (sbyte) integer;
+            case TypeCode.Byte:
+                return (byte) integer;
+            case TypeCode.Int16:
+                return (short) integer;
+            case TypeCode.UInt16:
+                return (ushort) integer;
+            case TypeCode.Int32:
+                return (int) integer;
+            case TypeCode.UInt32:
+                return (uint) integer;
+            case TypeCode.Int64:
+                return (long) integer;
+            case TypeCode.UInt64:
+                return (ulong) integer;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(target), target, null);
+        }
+    }
+
+    private static (BigInteger Min, BigInteger Max) IntegralRange(TypeCode target)
+    {
+        switch(target) {
+            case TypeCode.SByte:
+                return (sbyte.MinValue, sbyte.MaxValue);
+            case TypeCode.Byte:
+                return (byte.MinValue, byte.MaxValue);
+            case TypeCode.Int16:
+                return (short.MinValue, short.MaxValue);
+            case TypeCode.UInt16:
+                return (ushort.MinValue, ushort.MaxValue);
+            case TypeCode.Int32:
+                return (int.MinValue, int.MaxValue);
+            case TypeCode.UInt32:
+                return (uint.MinValue, uint.MaxValue);
+            case TypeCode.Int64:
+                return (long.MinValue, long.MaxValue);
+            case TypeCode.UInt64:
+                return (ulong.MinValue, ulong.MaxValue);
+            default:
+                throw new ArgumentOutOfRangeException(nameof(target), target, null);
+        }
+    }
+
+    private static decimal InRange(decimal value, decimal min, decimal max)
+    {
+        // an integral value at max + 0.9 doesn't fit, even though truncating it would give max
+        return value >= min && value <= max ? value : throw new OverflowException();
     }
 
     private static double InRange(double value, double min, double max, bool maxIsExclusive = false)
@@ -182,6 +348,7 @@ internal static class ClaimValueConverter
 
     private static InvalidCastException Mismatch(object value, Type targetType)
     {
-        return new InvalidCastException($"Can't read a claim of type {value.GetType()} as {targetType}.");
+        var valueType = value is DecimalText ? typeof(decimal) : value.GetType();
+        return new InvalidCastException($"Can't read a claim of type {valueType} as {targetType}.");
     }
 }

@@ -115,7 +115,7 @@ dotnet test tests/Plugin.Firebase.IntegrationTests/Plugin.Firebase.IntegrationTe
   --results-directory artifacts/test-results/android
 ```
 
-The emulator wrapper runs those commands inside `firebase emulators:exec`, seeds Auth, and uses ten-minute DeviceRunners connection/data timeouts:
+The emulator wrapper runs those commands inside `firebase emulators:exec` and seeds Auth. It allows 120 seconds for Functions discovery by default (override with `FUNCTIONS_DISCOVERY_TIMEOUT`) and uses ten-minute DeviceRunners connection and data timeouts.
 
 ```
 scripts/run-integration-emulators.sh android

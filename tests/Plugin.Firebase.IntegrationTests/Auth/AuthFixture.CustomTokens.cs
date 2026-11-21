@@ -3,6 +3,10 @@ using Plugin.Firebase.Auth;
 using Plugin.Firebase.Core.Exceptions;
 using Plugin.Firebase.Functions;
 using Plugin.Firebase.IntegrationTests.Functions;
+#if IOS
+using Foundation;
+using Plugin.Firebase.Auth.Platforms.iOS.Extensions;
+#endif
 
 namespace Plugin.Firebase.IntegrationTests.Auth
 {
@@ -101,14 +105,39 @@ namespace Plugin.Firebase.IntegrationTests.Auth
             Assert.Equal(7L, limits["daily"]);
             Assert.Equal(2L, limits["ratio"]);
             Assert.Throws<InvalidCastException>(() => result.GetClaim<Dictionary<string, bool>>("limits"));
+            Assert.Throws<InvalidCastException>(() => result.GetClaim<Dictionary<string, string>>("limits"));
             var listedLimits = Assert.Single(result.GetClaim<List<Dictionary<string, long>>>("limit_list"));
             Assert.Equal(7L, listedLimits["daily"]);
             Assert.Equal(2L, listedLimits["ratio"]);
             Assert.Throws<InvalidCastException>(
                 () => result.GetClaim<List<Dictionary<string, bool>>>("limit_list")
             );
+            // an object read as a plain value doesn't fit either
+            Assert.Throws<InvalidCastException>(() => result.GetClaim<List<string>>("limit_list"));
+            Assert.Throws<InvalidCastException>(() => result.GetClaim<string>("limits"));
         }
 
+
+#if IOS
+        [IosFact]
+        public void reads_ios_decimal_numbers_from_their_exact_value()
+        {
+            // NSJSONSerialization, which parses iOS ID token claims, keeps integers outside the 64-bit range and numbers
+            // with more digits than a double holds as NSDecimalNumber; the emulator can't mint such a claim
+            var json = NSData.FromString("[-9223372036854775809, 9223372036854775806.9, -0.000000000000000000000000000001]");
+            var values = (NSArray) NSJsonSerialization.Deserialize(json, default, out var error);
+            Assert.Null(error);
+            var belowLong = values.GetItem<NSObject>(0)!;
+            var nearLongMax = values.GetItem<NSObject>(1)!;
+            var tinyNegative = values.GetItem<NSObject>(2)!;
+
+            Assert.IsType<NSDecimalNumber>(belowLong);
+            Assert.Throws<OverflowException>(() => NSObjectExtensions.ToObject(belowLong, typeof(long)));
+            Assert.Equal(9223372036854775806L, NSObjectExtensions.ToObject(nearLongMax, typeof(long)));
+            Assert.Throws<OverflowException>(() => NSObjectExtensions.ToObject(tinyNegative, typeof(uint)));
+            Assert.Equal(-1e-30, NSObjectExtensions.ToObject(tinyNegative, typeof(double)));
+        }
+#endif
 
         [Fact]
         public async Task retrieves_custom_claims()

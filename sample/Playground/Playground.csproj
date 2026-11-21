@@ -93,8 +93,8 @@
     </ItemGroup>
     <!-- nuget packages -->
     <ItemGroup>
-        <PackageReference Include="CommunityToolkit.Maui" Version="1.2.0" />
-        <PackageReference Include="CommunityToolkit.Maui.Markup" Version="1.0.1" />
+        <PackageReference Include="CommunityToolkit.Maui" Version="13.0.0" />
+        <PackageReference Include="CommunityToolkit.Maui.Markup" Version="7.0.0" />
         <PackageReference Include="Genesis.Observables" Version="3.0.0" />
         <PackageReference Include="Genesis.Logging" Version="3.0.0" />
         <PackageReference Include="ReactiveUI" Version="18.3.1" />
@@ -133,4 +133,37 @@
             >android-x64</RuntimeIdentifier
         >
     </PropertyGroup>
+    <!--
+        Xcode 26 / macOS 26 rejects the Microsoft-signed simulator runtime
+        dylibs with "Code Signature Invalid" before managed startup. Re-sign
+        every root runtime dylib ad hoc, then refresh and verify the app seal.
+    -->
+    <Target
+        Name="ResignSimulatorRuntimeLibraries"
+        AfterTargets="Build"
+        Condition="
+            $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'
+            and !$([System.String]::IsNullOrEmpty('$(RuntimeIdentifier)'))
+            and $([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('iossimulator'))
+        "
+    >
+        <PropertyGroup>
+            <_SimulatorAppBundlePath>$(OutputPath)$(AssemblyName).app</_SimulatorAppBundlePath>
+        </PropertyGroup>
+        <ItemGroup>
+            <_SimulatorRuntimeLibrary Include="$(_SimulatorAppBundlePath)/*.dylib" />
+        </ItemGroup>
+        <Exec
+            Condition="'@(_SimulatorRuntimeLibrary)' != ''"
+            Command="codesign --force --sign - &quot;%(_SimulatorRuntimeLibrary.Identity)&quot;"
+        />
+        <Exec
+            Condition="Exists('$(_SimulatorAppBundlePath)')"
+            Command="codesign --force --sign - --deep &quot;$(_SimulatorAppBundlePath)&quot;"
+        />
+        <Exec
+            Condition="Exists('$(_SimulatorAppBundlePath)')"
+            Command="codesign --verify --deep --strict &quot;$(_SimulatorAppBundlePath)&quot;"
+        />
+    </Target>
 </Project>

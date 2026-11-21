@@ -13,8 +13,20 @@ public class MyFirebaseMessagingService : FirebaseMessagingService
         CrossFirebaseCloudMessaging.Current.OnNotificationReceived(message.ToFCMNotification());
     }
 
+#pragma warning disable CS0672 // Keep the callback available for apps using token mode.
     public override async void OnNewToken(string token)
+#pragma warning restore CS0672
     {
         await CrossFirebaseCloudMessaging.Current.OnTokenRefreshAsync();
+    }
+
+    public override void OnRegistered(string installationId)
+    {
+        ((FirebaseCloudMessagingImplementation) CrossFirebaseCloudMessaging.Current).OnRegistered(installationId);
+    }
+
+    public override void OnUnregistered(string installationId)
+    {
+        ((FirebaseCloudMessagingImplementation) CrossFirebaseCloudMessaging.Current).OnUnregistered(installationId);
     }
 }

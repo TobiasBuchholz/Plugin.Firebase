@@ -181,15 +181,19 @@ In v5:
 `SignInWithEmailAndPasswordAsync(email, password)` no longer has a `createsUserAutomatically` parameter, and it no longer creates an account when sign-in fails. It only signs in, like the native call, and throws the native sign-in error (#764).
 
 - Calls that pass `createsUserAutomatically` no longer compile. Remove the argument.
-- Calls that relied on the default (`true`) to create accounts now get the sign-in error instead. Call `CreateUserAsync` yourself where your app should create an account:
+- If your app relied on automatic creation, add an explicit sign-up action and call `CreateUserAsync` from that action.
+  Handle sign-in failures in the sign-in flow so the user sees the original error.
+
+In the sign-in action:
 
 ```csharp
-try {
-    await CrossFirebaseAuth.Current.SignInWithEmailAndPasswordAsync(email, password);
-} catch(CrossPlatformFirebaseAuthException) {
-    // Your app decides which sign-in failures should lead to creating an account.
-    await CrossFirebaseAuth.Current.CreateUserAsync(email, password);
-}
+await CrossFirebaseAuth.Current.SignInWithEmailAndPasswordAsync(email, password);
+```
+
+In the sign-up action, after the user chooses to create an account:
+
+```csharp
+await CrossFirebaseAuth.Current.CreateUserAsync(email, password);
 ```
 
 ### Android phone verification

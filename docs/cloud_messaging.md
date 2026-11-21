@@ -146,6 +146,45 @@ You can find more specific instructions for android at the official [Firebase do
 
 ## Usage
 
+### Registration tokens (default)
+
+With the default app configuration, use `GetTokenAsync()` to read the FCM registration token and `TokenChanged` to track updates. Store the current token on your app server and use the token target when sending messages to that app instance.
+
+### Firebase Installation ID registration (opt-in)
+
+To switch to FID-based registration, add the following to the `<application>` element in the app's Android manifest.
+
+```xml
+<meta-data android:name="firebase_messaging_installation_id_enabled" android:value="true" />
+```
+
+On iOS, add this to the app's `Info.plist` and keep the existing APNs setup and plugin initialization.
+
+```xml
+<key>FirebaseMessagingInstallationIdEnabled</key>
+<true/>
+```
+
+Subscribe after Firebase Core setup and before calling `RegisterAsync()`. Subscribe before Cloud Messaging initialization where possible to receive callbacks from auto-initialization. The plugin forwards callbacks on the native callback thread.
+
+```csharp
+var messaging = CrossFirebaseCloudMessaging.Current;
+messaging.RegistrationReceived += (_, args) => SaveInstallationId(args.InstallationId);
+
+// After platform messaging setup, including APNs registration on iOS.
+await messaging.RegisterAsync();
+```
+
+`RegisterAsync()` reports completion or failure of the native operation. `RegistrationReceived` supplies the FID that Firebase registered for FCM. Firebase can report the same ID again after an explicit registration or report a new ID after rotation. Update your backend when the event fires and use `Message.Fid` in Firebase Admin .NET 3.6.0 or later for direct sends. If you disable Firebase Messaging auto-initialization, call `RegisterAsync()` explicitly at the appropriate point in your app startup. See [Firebase registration management](https://firebase.google.com/docs/cloud-messaging/manage-tokens) and [Firebase Admin .NET release notes](https://firebase.google.com/support/release-notes/admin/dotnet).
+
+In FID mode, use `RegistrationReceived` in place of `TokenChanged` and `RegisterAsync()` in place of fetching an FCM token. The plugin doesn't raise `TokenChanged` in FID mode, including from `CheckIfValidAsync()` and `OnTokenRefreshAsync()`. `CrossFirebaseInstallations.Current.GetIdAsync()` only retrieves the installation ID.
+
+Call `UnregisterAsync()` to remove the installation ID's FCM registration, for example on sign-out. `UnregistrationReceived` supplies the FID when Firebase reports an unregistration.
+
+For a custom Android messaging service, derive from `MyFirebaseMessagingService` and call its base `OnRegistered` and `OnUnregistered` implementations to forward the events. On iOS the plugin's Messaging delegate forwards the events.
+
+### Receiving notifications
+
 Take a look at the [documentation](https://github.com/AdamEssenmacher/GoogleApisForiOSComponents/blob/master/docs/Firebase/CloudMessaging/GettingStarted.md) for the AdamE.Firebase.iOS.CloudMessaging packages, because Plugin.Firebase's code is abstracted but still very similar.
 
 Since code should be documenting itself you can also take a look at the following classes:
@@ -156,26 +195,27 @@ On iOS only, `NotificationTapped` puts the native `UNNotificationResponse.Action
 
 ## Test with curl
 
+Use the [FCM HTTP v1 API](https://firebase.google.com/docs/reference/fcm/rest/v1/projects.messages) with an OAuth 2.0 access token authorized for your Firebase project.
+
+```sh
+curl "https://fcm.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/messages:send" \
+  --header "Authorization: Bearer ${FCM_ACCESS_TOKEN}" \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "message": {
+      "fid": "<registered-installation-id>",
+      "notification": {
+        "title": "Knock knock",
+        "body": "Test notification"
+      },
+      "data": {
+        "is_silent_in_foreground": "false"
+      }
+    }
+  }'
 ```
-curl --location 'https://fcm.googleapis.com/fcm/send' \
---header 'Authorization: key=<your-api-token-from-firebase-console-cloud-messaging-project-settings>' \
---header 'Content-Type: application/json' \
---data '{
- "to" : "<your-device-fcm-token>",
- "collapse_key" : "type_a",
- "mutable_content": true,
- "notification" : {
-     "title": "Knock knock",
-     "body" : "Who's there?",
-     "badge": 1
- },
- "data" : {
-     "body" : "body of your notification in data",
-     "title": "title of your notification in data",
-     "is_silent_in_foreground": "false"
- }
-}'
-```
+
+For a token-mode app, replace the `fid` field with `"token": "<fcm-registration-token>"`.
 
 #### Extra flags
 ##### is_silent_in_foreground
@@ -192,6 +232,10 @@ If you are having trouble receiving push notifications on your device, take a lo
 If you publish for iOS with Native AOT (`PublishAot`), see [iOS NativeAOT (`PublishAot`)](https://github.com/TobiasBuchholz/Plugin.Firebase/blob/development/README.md#ios-nativeaot-publishaot) in the README.
 
 ## Next-release migration notes
+
+Apps can opt into Firebase Installation ID registration using the [FID setup](#firebase-installation-id-registration-opt-in). Projects implementing or mocking `IFirebaseCloudMessaging` need to add `RegisterAsync()`, `UnregisterAsync()`, `RegistrationReceived` and `UnregistrationReceived`.
+
+On Android, Cloud Messaging now references `Xamarin.Firebase.Messaging` 125.1.0, and Core references `Xamarin.Firebase.Common` 122.1.0. These raise the transitive AndroidX and Kotlin versions for every package that depends on Core, not only Cloud Messaging. Apps that reference AndroidX packages such as Activity, Fragment, Collection or Lifecycle directly may get NU1605 package downgrade errors until they raise those versions to at least the ones NuGet resolves transitively.
 
 On iOS, the `willPresentNotification` and `didReceiveNotificationResponse` delegates now call their completion handler exactly once on every path, as Apple requires:
 

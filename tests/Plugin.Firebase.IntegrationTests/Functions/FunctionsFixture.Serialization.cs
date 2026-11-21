@@ -142,6 +142,16 @@ public sealed partial class FunctionsFixture
     }
 
 
+    [EmulatorBackendFact]
+    public async Task decodes_a_callable_response_containing_a_json_string_literal()
+    {
+        var sut = CrossFirebaseFunctions.Current;
+        var response = await sut.GetHttpsCallable("returnJsonStringLiteralPayload").CallAsync<string>();
+
+        Assert.Equal("escaped \"quote\" and backslash \\ path", response);
+    }
+
+
     [Fact]
     public async Task deserializes_callable_function_with_native_number_response()
     {

@@ -29,6 +29,8 @@ internal sealed class EventProbe<TEventArgs> : IDisposable
     private readonly EventHandler<TEventArgs> _handler;
     private readonly Action<EventHandler<TEventArgs>> _unsubscribe;
 
+    public bool IsCompleted => _probe.IsCompleted;
+
     public EventProbe(
         Action<EventHandler<TEventArgs>> subscribe,
         Action<EventHandler<TEventArgs>> unsubscribe)

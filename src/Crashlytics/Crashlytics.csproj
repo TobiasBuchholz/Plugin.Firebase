@@ -42,7 +42,7 @@
         <!--Version of C# to use -->
         <LangVersion>default</LangVersion>
         <XamarinFirebaseCrashlyticsVersion Condition="'$(XamarinFirebaseCrashlyticsVersion)' == ''">119.0.0</XamarinFirebaseCrashlyticsVersion>
-        <XamarinAndroidXDataStoreVersion Condition="'$(XamarinAndroidXDataStoreVersion)' == ''">1.1.1.8</XamarinAndroidXDataStoreVersion>
+        <XamarinAndroidXDataStoreVersion Condition="'$(XamarinAndroidXDataStoreVersion)' == ''">1.2.1</XamarinAndroidXDataStoreVersion>
     </PropertyGroup>
     
     <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">

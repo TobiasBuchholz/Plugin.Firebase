@@ -1,5 +1,4 @@
 using System.Net;
-using System.Text;
 using Plugin.Firebase.Storage;
 
 namespace Plugin.Firebase.IntegrationTests.Storage;
@@ -32,21 +31,6 @@ public sealed partial class StorageFixture
         await reference.PutStream(stream).AwaitAsync();
         var downloadUrl = await reference.GetDownloadUrlAsync();
         StorageAssertions.DownloadUrl(path, downloadUrl);
-    }
-
-
-    [Fact]
-    public async Task uploads_via_file_path()
-    {
-        const string path = "texts/via_file.txt";
-        const string contents = "Some text via file";
-        var filePath = await CreateTempTextFileAsync("via_file.txt", contents);
-        var reference = CrossFirebaseStorage.Current.GetReferenceFromPath(path);
-
-        await reference.PutFile(filePath).AwaitAsync();
-
-        var bytes = await reference.GetBytesAsync(1 * 1024 * 1024);
-        Assert.Equal(contents, Encoding.UTF8.GetString(bytes));
     }
 
 

@@ -7,6 +7,7 @@ internal static class IntegrationTestOptions
 
     public const string RunAppCheckTokenTestsEnvironmentVariableName = "PLUGIN_FIREBASE_RUN_APPCHECK_TOKEN_TESTS";
     public const string RunFcmTokenTestsEnvironmentVariableName = "PLUGIN_FIREBASE_RUN_FCM_TOKEN_TESTS";
+    public const string RunFcmRegistrationTestsEnvironmentVariableName = "PLUGIN_FIREBASE_RUN_FCM_REGISTRATION_TESTS";
     public const string RunFcmDeliveryTestsEnvironmentVariableName = "PLUGIN_FIREBASE_RUN_FCM_DELIVERY_TESTS";
     public const string ForceCrashlyticsCrashEnvironmentVariableName = "PLUGIN_FIREBASE_FORCE_CRASHLYTICS_CRASH";
     public const string ExpectPreviousCrashEnvironmentVariableName = "PLUGIN_FIREBASE_EXPECT_PREVIOUS_CRASH";

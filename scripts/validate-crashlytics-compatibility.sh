@@ -10,35 +10,15 @@ versions=(
   "120.0.0"
   "120.0.5"
 )
-# PerformanceMonitoring pins the AndroidX Lifecycle.Process version that has to co-resolve with the Crashlytics
-# binding. The probe references both projects, so each Crashlytics version is restored in one graph with that pin,
-# as it is in an app that uses both packages.
+# The probe restores Crashlytics and Performance Monitoring together with the AndroidX versions
+# declared by the package projects, as a consumer app would.
 project="$repo_root/scripts/crashlytics-compatibility/CrashlyticsCompatibility.csproj"
 
 for version in "${versions[@]}"; do
-  datastore_version="1.1.1.8"
-  lifecycle_process_version="2.8.7.4"
-  case "$version" in
-    119.4.4|120.0.0)
-      datastore_version="1.1.7"
-      ;;
-    120.0.5)
-      datastore_version="1.2.1"
-      ;;
-  esac
-  case "$version" in
-    120.0.0)
-      lifecycle_process_version="2.9.1"
-      ;;
-    120.0.5)
-      lifecycle_process_version="2.10.0.2"
-      ;;
-  esac
-
   if [[ "${GITHUB_ACTIONS:-}" == "true" ]]; then
-    echo "::group::Validate Xamarin.Firebase.Crashlytics $version with Xamarin.AndroidX.DataStore $datastore_version and Xamarin.AndroidX.Lifecycle.Process $lifecycle_process_version"
+    echo "::group::Validate Xamarin.Firebase.Crashlytics $version"
   else
-    echo "Validating Xamarin.Firebase.Crashlytics $version with Xamarin.AndroidX.DataStore $datastore_version and Xamarin.AndroidX.Lifecycle.Process $lifecycle_process_version"
+    echo "Validating Xamarin.Firebase.Crashlytics $version"
   fi
 
   dotnet build "$project" \
@@ -49,9 +29,7 @@ for version in "${versions[@]}"; do
     --disable-build-servers \
     -p:UseSharedCompilation=false \
     -p:TreatWarningsAsErrors=false \
-    -p:XamarinFirebaseCrashlyticsVersion="$version" \
-    -p:XamarinAndroidXDataStoreVersion="$datastore_version" \
-    -p:XamarinAndroidXLifecycleProcessVersion="$lifecycle_process_version"
+    -p:XamarinFirebaseCrashlyticsVersion="$version"
 
   dotnet build-server shutdown >/dev/null 2>&1 || true
 
